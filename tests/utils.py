@@ -25,15 +25,3 @@ class FlaskTestCase(unittest.TestCase):
           "Content-Type": "application/json"
         }
 
-    def _make_person(self, source_name="TEST-0001"):
-        """
-        Make a person with a given source name
-        """
-        body = {
-            'source_name': source_name
-        }
-        response = self.client.put(url_for('person_person', person_id='1'),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-
-        return response
