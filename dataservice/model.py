@@ -51,9 +51,9 @@ class Person(Base):
 
     :param _id: Unique id assigned by RDBMS
     :param kf_id: Unique id given by the Kid's First DCC
-    :param source_name: Name given to person by contributor
+    :param external_id: Name given to person by contributor
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     """
     __tablename__ = "person"
-    source_name = db.Column(db.String(32))
+    external_id = db.Column(db.String(32))

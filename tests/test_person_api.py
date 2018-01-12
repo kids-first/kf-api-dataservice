@@ -21,7 +21,7 @@ class PersonTest(FlaskTestCase):
         """
         Test creating a new person
         """
-        response = self._make_person(source_name="TEST")
+        response = self._make_person(external_id="TEST")
         self.assertEqual(response.status_code, 201)
 
         resp = json.loads(response.data.decode("utf-8"))
@@ -32,7 +32,7 @@ class PersonTest(FlaskTestCase):
         p = Person.query.first()
         person = resp['content']['persons'][0]
         self.assertEqual(p.kf_id, person['kf_id'])
-        self.assertEqual(p.source_name, person['source_name'])
+        self.assertEqual(p.external_id, person['external_id'])
 
     def test_get_person(self):
         """
@@ -57,7 +57,7 @@ class PersonTest(FlaskTestCase):
         """
         Test retrieving all persons
         """
-        self._make_person(source_name="MyTestPerson1")
+        self._make_person(external_id="MyTestPerson1")
 
         response = self.client.get(url_for(PERSONS_URL),
                                    headers=self._api_headers())
@@ -73,14 +73,14 @@ class PersonTest(FlaskTestCase):
         """
         Test updating an existing person
         """
-        response = self._make_person(source_name="TEST")
+        response = self._make_person(external_id="TEST")
         resp = json.loads(response.data.decode("utf-8"))
         person = resp['content']['persons'][0]
         kf_id = person.get('kf_id')
-        source_name = person.get('source_name')
+        external_id = person.get('external_id')
 
         body = {
-            'source_name': 'Updated-{}'.format(source_name)
+            'external_id': 'Updated-{}'.format(external_id)
         }
         response = self.client.put(url_for(EXISTING_PERSON_URL,
                                            person_id=kf_id),
@@ -95,7 +95,7 @@ class PersonTest(FlaskTestCase):
         p = Person.query.first()
         person = resp['content']['persons'][0]
         self.assertEqual(p.kf_id, person['kf_id'])
-        self.assertEqual(p.source_name, person['source_name'])
+        self.assertEqual(p.external_id, person['external_id'])
 
     def test_delete_person(self):
         """
@@ -119,12 +119,12 @@ class PersonTest(FlaskTestCase):
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 404)
 
-    def _make_person(self, source_name="TEST-0001"):
+    def _make_person(self, external_id="TEST-0001"):
         """
         Convenience method to create a person with a given source name
         """
         body = {
-            'source_name': source_name
+            'external_id': external_id
         }
         response = self.client.post(url_for(NEW_PERSON_URL),
                                     headers=self._api_headers(),

@@ -12,8 +12,8 @@ class ModelTest(FlaskTestCase):
     """
     Test database model
     """
-    def _create_person(self, source_name="Test_Person_0"):
-        p = Person(source_name=source_name)
+    def _create_person(self, external_id="Test_Person_0"):
+        p = Person(external_id=external_id)
         db.session.add(p)
         db.session.commit()
 
@@ -33,7 +33,7 @@ class ModelTest(FlaskTestCase):
         self.assertGreater(dt, new_person.modified_at)
         self.assertEqual(len(new_person.kf_id), 36)
         self.assertIs(type(uuid.UUID(new_person.kf_id)), uuid.UUID)
-        self.assertEqual(new_person.source_name, "Test_Person_0")
+        self.assertEqual(new_person.external_id, "Test_Person_0")
 
     def test_get_person(self):
         """
@@ -44,7 +44,7 @@ class ModelTest(FlaskTestCase):
 
         person = Person.query.filter_by(kf_id=kf_id).first()
         self.assertEqual(Person.query.count(), 1)
-        self.assertEqual(person.source_name, "Test_Person_0")
+        self.assertEqual(person.external_id, "Test_Person_0")
         self.assertEqual(person.kf_id, kf_id)
 
     def test_update_person(self):
@@ -55,12 +55,12 @@ class ModelTest(FlaskTestCase):
         kf_id = person.kf_id
 
         person = Person.query.filter_by(kf_id=kf_id).first()
-        new_name = "Updated-{}".format(person.source_name)
-        person.source_name = new_name
+        new_name = "Updated-{}".format(person.external_id)
+        person.external_id = new_name
         db.session.commit()
 
         person = Person.query.filter_by(kf_id=kf_id).first()
-        self.assertEqual(person.source_name, new_name)
+        self.assertEqual(person.external_id, new_name)
         self.assertEqual(person.kf_id, kf_id)
 
     def test_delete_person(self):

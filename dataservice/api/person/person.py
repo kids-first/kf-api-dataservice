@@ -21,7 +21,7 @@ person_model = person_api.model('Person', {
     'modified_at': fields.String(
         example=datetime.now().isoformat(),
         description='Date of last update to the Persons data'),
-    'source_name': fields.String(
+    'external_id': fields.String(
         example='SUBJ-3993',
         description='Identifier used in the original study data')
 })
@@ -101,7 +101,7 @@ class ExistingPerson(Resource):
         """
         body = request.json
         person = model.Person.query.filter_by(kf_id=person_id).first_or_404()
-        person.source_name = body.get('source_name')
+        person.source_name = body.get('external_id')
         db.session.commit()
 
         return {'status': 201,
