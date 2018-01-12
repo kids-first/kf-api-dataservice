@@ -1,15 +1,13 @@
 from datetime import datetime
 from flask import request
-from flask_restplus import Namespace, Resource, fields
+from flask_restplus import Namespace, Resource, fields, abort
 
 from ... import model
 from ... import db
 
-
 description = open('dataservice/api/person/README.md').read()
 
 person_api = Namespace(name='persons', description=description)
-
 
 person_model = person_api.model('Person', {
     'kf_id': fields.String(
@@ -27,7 +25,7 @@ person_model = person_api.model('Person', {
 })
 
 person_list = person_api.model("Persons", {
-        "persons": fields.List(fields.Nested(person_model))
+    "persons": fields.List(fields.Nested(person_model))
 })
 
 response_model = person_api.model('Response', {
@@ -82,7 +80,10 @@ class Person(Resource):
         Get a person by id
         Gets a person given a Kids First id
         """
-        person = model.Person.query.filter_by(kf_id=kf_id).first_or_404()
+        person = model.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        if not person:
+            self._not_found(kf_id)
+
         return {'status': 200,
                 'message': 'person found',
                 'content': {'persons': [person]}}, 200
@@ -97,7 +98,10 @@ class Person(Resource):
         Update an existing person
         """
         body = request.json
-        person = model.Person.query.filter_by(kf_id=kf_id).first_or_404()
+        person = model.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        if not person:
+            self._not_found(kf_id)
+
         person.source_name = body.get('external_id')
         db.session.commit()
 
@@ -114,9 +118,20 @@ class Person(Resource):
 
         Deletes a person given a Kids First id
         """
-        person = model.Person.query.filter_by(kf_id=kf_id).first_or_404()
+        person = model.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        if not person:
+            self._not_found(kf_id)
+
         db.session.delete(person)
         db.session.commit()
         return {'status': 200,
                 'message': 'person deleted',
                 'content': {'persons': [person]}}, 200
+
+    def _not_found(self, kf_id):
+        """
+        Temporary helper - will do error handling better later
+        """
+        status = 404
+        abort(status, "Person with kf_id '{}' not found".format(kf_id),
+              status=status, content=None)

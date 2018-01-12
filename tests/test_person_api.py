@@ -33,6 +33,19 @@ class PersonTest(FlaskTestCase):
         self.assertEqual(p.kf_id, person['kf_id'])
         self.assertEqual(p.external_id, person['external_id'])
 
+    def test_get_not_found(self):
+        """
+        Test get person that does not exist
+        """
+        kf_id = 'non_existent'
+        response = self.client.get(url_for(PERSON_URL, kf_id=kf_id),
+                                   headers=self._api_headers())
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(response.status_code, 404)
+        self._test_response_content(resp, 404)
+        message = "Person with kf_id '{}' not found".format(kf_id)
+        self.assertIn(message, resp['message'])
+
     def test_get_person(self):
         """
         Test retrieving a person by id
