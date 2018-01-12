@@ -7,9 +7,8 @@ from dataservice.model import Person
 from utils import FlaskTestCase
 
 PERSONS_PREFIX = 'persons'
-NEW_PERSON_URL = '{}_{}'.format(PERSONS_PREFIX, 'new_person')
-EXISTING_PERSON_URL = '{}_{}'.format(PERSONS_PREFIX, 'existing_person')
-PERSONS_URL = '{}_{}'.format(PERSONS_PREFIX, 'persons')
+PERSON_URL = '{}_{}'.format(PERSONS_PREFIX, 'person')
+PERSON_LIST_URL = '{}_{}'.format(PERSONS_PREFIX, 'person_list')
 
 
 class PersonTest(FlaskTestCase):
@@ -42,7 +41,7 @@ class PersonTest(FlaskTestCase):
         resp = json.loads(resp.data.decode("utf-8"))
         kf_id = resp['content']['persons'][0]['kf_id']
 
-        response = self.client.get(url_for(EXISTING_PERSON_URL,
+        response = self.client.get(url_for(PERSON_URL,
                                            person_id=kf_id),
                                    headers=self._api_headers())
         resp = json.loads(response.data.decode("utf-8"))
@@ -59,7 +58,7 @@ class PersonTest(FlaskTestCase):
         """
         self._make_person(external_id="MyTestPerson1")
 
-        response = self.client.get(url_for(PERSONS_URL),
+        response = self.client.get(url_for(PERSON_LIST_URL),
                                    headers=self._api_headers())
         status_code = response.status_code
         response = json.loads(response.data.decode("utf-8"))
@@ -82,7 +81,7 @@ class PersonTest(FlaskTestCase):
         body = {
             'external_id': 'Updated-{}'.format(external_id)
         }
-        response = self.client.put(url_for(EXISTING_PERSON_URL,
+        response = self.client.put(url_for(PERSON_URL,
                                            person_id=kf_id),
                                    headers=self._api_headers(),
                                    data=json.dumps(body))
@@ -105,14 +104,14 @@ class PersonTest(FlaskTestCase):
         resp = json.loads(resp.data.decode("utf-8"))
         kf_id = resp['content']['persons'][0]['kf_id']
 
-        response = self.client.delete(url_for(EXISTING_PERSON_URL,
-                                           person_id=kf_id),
+        response = self.client.delete(url_for(PERSON_URL,
+                                              person_id=kf_id),
                                    headers=self._api_headers())
 
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(url_for(EXISTING_PERSON_URL,
+        response = self.client.get(url_for(PERSON_URL,
                                            person_id=kf_id),
                                    headers=self._api_headers())
 
@@ -126,7 +125,7 @@ class PersonTest(FlaskTestCase):
         body = {
             'external_id': external_id
         }
-        response = self.client.post(url_for(NEW_PERSON_URL),
+        response = self.client.post(url_for(PERSON_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
 

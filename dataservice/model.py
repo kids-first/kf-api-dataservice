@@ -13,7 +13,8 @@ class IDMixin:
     _id = db.Column(db.Integer(), primary_key=True)
     kf_id = db.Column(db.String(32), unique=True, default=assign_id())
     uuid = db.Column(db.String(32), unique=True, default=assign_id())
-    
+
+
 class TimestampMixin:
     """
     Defines the common timestammp columns on all Kids First tables
@@ -33,7 +34,11 @@ class HasFileMixin:
 
 
 class Base(db.Model, IDMixin, TimestampMixin):
+    """
+    Defines base SQlAlchemy model class
+    """
     pass
+
 
 class File(Base):
     """
@@ -43,7 +48,7 @@ class File(Base):
     name = db.Column(db.String(32))
     data_type = db.Column(db.String(32))
     size = db.Column(db.Integer(), default=0)
-    
+
 
 class Person(Base):
     """

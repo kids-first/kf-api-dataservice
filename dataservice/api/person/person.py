@@ -42,7 +42,7 @@ response_model = person_api.model('Response', {
 
 
 @person_api.route('/')
-class Persons(Resource):
+class PersonList(Resource):
     @person_api.marshal_with(response_model)
     def get(self):
         """
@@ -53,9 +53,6 @@ class Persons(Resource):
                 'message': '{} persons'.format(len(persons)),
                 'content': {'persons': persons}}, 200
 
-
-@person_api.route('/')
-class NewPerson(Resource):
     @person_api.marshal_with(response_model)
     @person_api.doc(responses={201: 'person created',
                                400: 'invalid data'})
@@ -72,11 +69,11 @@ class NewPerson(Resource):
         db.session.commit()
         return {'status': 201,
                 'message': 'person created',
-                'content': {'persons':[person]}}, 201
+                'content': {'persons': [person]}}, 201
 
 
 @person_api.route('/<string:person_id>')
-class ExistingPerson(Resource):
+class Person(Resource):
     @person_api.marshal_with(response_model)
     @person_api.doc(responses={200: 'person found',
                                404: 'person not found'})
@@ -88,7 +85,7 @@ class ExistingPerson(Resource):
         person = model.Person.query.filter_by(kf_id=person_id).first_or_404()
         return {'status': 200,
                 'message': 'person found',
-                'content': {'persons':[person]}}, 200
+                'content': {'persons': [person]}}, 200
 
     @person_api.marshal_with(response_model)
     @person_api.doc(responses={201: 'person updated',
@@ -106,7 +103,7 @@ class ExistingPerson(Resource):
 
         return {'status': 201,
                 'message': 'person updated',
-                'content': {'persons':[person]}}, 201
+                'content': {'persons': [person]}}, 201
 
     @person_api.marshal_with(response_model)
     @person_api.doc(responses={204: 'person deleted',
@@ -122,4 +119,4 @@ class ExistingPerson(Resource):
         db.session.commit()
         return {'status': 200,
                 'message': 'person deleted',
-                'content': {'persons':[person]}}, 200
+                'content': {'persons': [person]}}, 200
