@@ -42,7 +42,7 @@ class PersonTest(FlaskTestCase):
         kf_id = resp['content']['persons'][0]['kf_id']
 
         response = self.client.get(url_for(PERSON_URL,
-                                           person_id=kf_id),
+                                           kf_id=kf_id),
                                    headers=self._api_headers())
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 200)
@@ -82,7 +82,7 @@ class PersonTest(FlaskTestCase):
             'external_id': 'Updated-{}'.format(external_id)
         }
         response = self.client.put(url_for(PERSON_URL,
-                                           person_id=kf_id),
+                                           kf_id=kf_id),
                                    headers=self._api_headers(),
                                    data=json.dumps(body))
         self.assertEqual(response.status_code, 201)
@@ -105,14 +105,14 @@ class PersonTest(FlaskTestCase):
         kf_id = resp['content']['persons'][0]['kf_id']
 
         response = self.client.delete(url_for(PERSON_URL,
-                                              person_id=kf_id),
+                                              kf_id=kf_id),
                                    headers=self._api_headers())
 
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(url_for(PERSON_URL,
-                                           person_id=kf_id),
+                                           kf_id=kf_id),
                                    headers=self._api_headers())
 
         resp = json.loads(response.data.decode("utf-8"))
