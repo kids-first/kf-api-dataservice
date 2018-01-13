@@ -102,7 +102,7 @@ class Person(Resource):
         if not person:
             self._not_found(kf_id)
 
-        person.source_name = body.get('external_id')
+        person.external_id = body.get('external_id')
         db.session.commit()
 
         return {'status': 201,

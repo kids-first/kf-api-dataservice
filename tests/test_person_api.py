@@ -1,8 +1,6 @@
 import json
-import unittest
-from flask import current_app, url_for
+from flask import url_for
 
-from dataservice import db
 from dataservice.model import Person
 from utils import FlaskTestCase
 
