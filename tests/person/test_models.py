@@ -2,9 +2,8 @@ from datetime import datetime
 import uuid
 
 from dataservice import db
-from dataservice.model import Person
-
-from utils import FlaskTestCase
+from dataservice.api.person.models import Person
+from tests.utils import FlaskTestCase
 
 
 class ModelTest(FlaskTestCase):

@@ -1,8 +1,8 @@
 import json
 from flask import url_for
 
-from dataservice.model import Person
-from utils import FlaskTestCase
+from dataservice.api.person.models import Person
+from tests.utils import FlaskTestCase
 
 PERSONS_PREFIX = 'persons'
 PERSON_URL = '{}_{}'.format(PERSONS_PREFIX, 'person')

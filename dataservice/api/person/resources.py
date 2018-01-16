@@ -2,41 +2,15 @@ from datetime import datetime
 from flask import request
 from flask_restplus import Namespace, Resource, fields, abort
 
-from ... import model
-from ... import db
+from dataservice import db
+from . import models
 
 description = open('dataservice/api/person/README.md').read()
 
 person_api = Namespace(name='persons', description=description)
 
-person_model = person_api.model('Person', {
-    'kf_id': fields.String(
-        example='KF00001',
-        description='ID assigned by Kids First'),
-    'created_at': fields.String(
-        example=datetime.now().isoformat(),
-        description='Date Person was registered in with the DCC'),
-    'modified_at': fields.String(
-        example=datetime.now().isoformat(),
-        description='Date of last update to the Persons data'),
-    'external_id': fields.String(
-        example='SUBJ-3993',
-        description='Identifier used in the original study data')
-})
-
-person_list = person_api.model("Persons", {
-    "persons": fields.List(fields.Nested(person_model))
-})
-
-response_model = person_api.model('Response', {
-    'content': fields.Nested(person_list),
-    'status': fields.Integer(
-        description='HTTP response status code',
-        example=200),
-    'message': fields.String(
-        description='Additional information about the response',
-        example='Success')
-})
+from .serializers import (person_model,
+                          response_model)
 
 
 @person_api.route('/')
@@ -46,7 +20,7 @@ class PersonList(Resource):
         """
         Get all persons
         """
-        persons = model.Person.query.all()
+        persons = models.Person.query.all()
         return {'status': 200,
                 'message': '{} persons'.format(len(persons)),
                 'content': {'persons': persons}}, 200
@@ -62,7 +36,7 @@ class PersonList(Resource):
         Creates a new person and assigns a Kids First id
         """
         body = request.json
-        person = model.Person(**body)
+        person = models.Person(**body)
         db.session.add(person)
         db.session.commit()
         return {'status': 201,
@@ -80,7 +54,7 @@ class Person(Resource):
         Get a person by id
         Gets a person given a Kids First id
         """
-        person = model.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        person = models.Person.query.filter_by(kf_id=kf_id).one_or_none()
         if not person:
             self._not_found(kf_id)
 
@@ -98,7 +72,7 @@ class Person(Resource):
         Update an existing person
         """
         body = request.json
-        person = model.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        person = models.Person.query.filter_by(kf_id=kf_id).one_or_none()
         if not person:
             self._not_found(kf_id)
 
@@ -118,7 +92,7 @@ class Person(Resource):
 
         Deletes a person given a Kids First id
         """
-        person = model.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        person = models.Person.query.filter_by(kf_id=kf_id).one_or_none()
         if not person:
             self._not_found(kf_id)
 
