@@ -4,6 +4,7 @@ from flask import Flask
 
 from dataservice import commands
 from dataservice.extensions import db, migrate
+from dataservice.api.person.models import Person
 from config import config
 
 
@@ -31,7 +32,8 @@ def register_shellcontext(app):
 
     def shell_context():
         """Shell context objects."""
-        return {'db': db}
+        return {'db': db,
+                'Person': Person}
 
     app.shell_context_processor(shell_context)
 
@@ -41,7 +43,6 @@ def register_commands(app):
     Register Click commands
     """
     app.cli.add_command(commands.test)
-    app.cli.add_command(commands.deploy)
 
 
 def register_extensions(app):
