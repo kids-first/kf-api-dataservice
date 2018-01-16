@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask_restplus import Api
 from .person import person_api
 
-api_v1 = Blueprint('api', __name__, url_prefix='/api/v1')
+api_v1 = Blueprint('api', __name__, url_prefix='/v1')
 
 api = Api(api_v1,
           title='Kids First Data Service',
