@@ -1,8 +1,7 @@
+from datetime import datetime
 from sqlalchemy.ext.declarative import declared_attr
 
-from datetime import datetime
-from dataservice import db
-
+from dataservice.extensions import db
 from dataservice.api.common.id_service import assign_id
 
 

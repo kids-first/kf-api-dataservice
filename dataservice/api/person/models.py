@@ -1,4 +1,4 @@
-from dataservice import db
+from dataservice.extensions import db
 from dataservice.api.common.model import Base
 
 

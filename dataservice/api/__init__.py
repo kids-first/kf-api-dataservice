@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restplus import Api
-from .person import person_api
+from dataservice.api.person import person_api
 
 api_v1 = Blueprint('api', __name__, url_prefix='/v1')
 

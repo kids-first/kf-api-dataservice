@@ -1,16 +1,15 @@
-from datetime import datetime
 from flask import request
 from flask_restplus import Namespace, Resource, fields, abort
 
-from dataservice import db
-from . import models
+from dataservice.extensions import db
+from dataservice.api.person import models
 
 description = open('dataservice/api/person/README.md').read()
 
 person_api = Namespace(name='persons', description=description)
 
-from .serializers import (person_model,
-                          response_model)
+from dataservice.api.person.serializers import (person_model,
+                                                response_model)
 
 
 @person_api.route('/')

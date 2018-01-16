@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask_restplus import fields
 
-from .resources import person_api
+from dataservice.api.person.resources import person_api
 
 person_model = person_api.model('Person', {
     'kf_id': fields.String(

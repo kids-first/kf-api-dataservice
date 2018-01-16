@@ -1,7 +1,7 @@
 from datetime import datetime
 import uuid
 
-from dataservice import db
+from dataservice.extensions import db
 from dataservice.api.person.models import Person
 from tests.utils import FlaskTestCase
 
