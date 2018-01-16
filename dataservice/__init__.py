@@ -19,9 +19,7 @@ def create_app(config_name):
     register_extensions(app)
     register_shellcontext(app)
     register_commands(app)
-
-    from dataservice.api import api
-    api.init_app(app)
+    register_blueprints(app)
 
     return app
 
@@ -63,3 +61,8 @@ def register_error_handlers(app):
     Register error handlers
     """
     pass
+
+
+def register_blueprints(app):
+    from dataservice.api import api_v1
+    app.register_blueprint(api_v1)

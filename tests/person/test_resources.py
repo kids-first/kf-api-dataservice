@@ -4,7 +4,7 @@ from flask import url_for
 from dataservice.api.person.models import Person
 from tests.utils import FlaskTestCase
 
-PERSONS_PREFIX = 'persons'
+PERSONS_PREFIX = 'api.persons'
 PERSON_URL = '{}_{}'.format(PERSONS_PREFIX, 'person')
 PERSON_LIST_URL = '{}_{}'.format(PERSONS_PREFIX, 'person_list')
 

@@ -1,7 +1,11 @@
+from flask import Blueprint
 from flask_restplus import Api
 from .person import person_api
 
-api = Api(title='Kids First Data Service',
+api_v1 = Blueprint('api', __name__, url_prefix='/api/v1')
+
+api = Api(api_v1,
+          title='Kids First Data Service',
           description=open('dataservice/api/README.md').read(),
           version='0.1',
           default='',
