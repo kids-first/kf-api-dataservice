@@ -1,1 +1,1 @@
-from .person import person_api
+from .resources import person_api

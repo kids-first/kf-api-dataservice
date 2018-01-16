@@ -1,6 +1,7 @@
 import json
 import unittest
-from dataservice import create_app, db
+from dataservice import create_app
+from dataservice.extensions import db
 from flask import url_for
 
 
