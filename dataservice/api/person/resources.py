@@ -3,31 +3,35 @@ from flask_restplus import Namespace, Resource, fields, abort
 
 from dataservice.extensions import db
 from dataservice.api.person import models
+from dataservice.api.common.formatters import kf_response
 
 description = open('dataservice/api/person/README.md').read()
 
 person_api = Namespace(name='persons', description=description)
 
-from dataservice.api.person.serializers import (person_model,
-                                                response_model)
+from dataservice.api.person.serializers import (
+    person_fields,
+    person_list,
+    person_response
+)
 
 
 @person_api.route('/')
 class PersonList(Resource):
-    @person_api.marshal_with(response_model)
+    @person_api.marshal_with(person_list)
     def get(self):
         """
         Get all persons
+
+        Returns paginated persons
         """
         persons = models.Person.query.all()
-        return {'status': 200,
-                'message': '{} persons'.format(len(persons)),
-                'content': {'persons': persons}}, 200
+        return kf_response(persons, 200, '{} persons'.format(len(persons)))
 
-    @person_api.marshal_with(response_model)
+    @person_api.marshal_with(person_response)
     @person_api.doc(responses={201: 'person created',
                                400: 'invalid data'})
-    @person_api.expect(person_model)
+    @person_api.expect(person_fields)
     def post(self):
         """
         Create a new person
@@ -38,14 +42,13 @@ class PersonList(Resource):
         person = models.Person(**body)
         db.session.add(person)
         db.session.commit()
-        return {'status': 201,
-                'message': 'person created',
-                'content': {'persons': [person]}}, 201
+
+        return kf_response(person, 201, 'person created')
 
 
 @person_api.route('/<string:kf_id>')
 class Person(Resource):
-    @person_api.marshal_with(response_model)
+    @person_api.marshal_with(person_response)
     @person_api.doc(responses={200: 'person found',
                                404: 'person not found'})
     def get(self, kf_id):
@@ -55,17 +58,15 @@ class Person(Resource):
         """
         person = models.Person.query.filter_by(kf_id=kf_id).one_or_none()
         if not person:
-            self._not_found(kf_id)
+            return self._not_found(kf_id)
 
-        return {'status': 200,
-                'message': 'person found',
-                'content': {'persons': [person]}}, 200
+        return kf_response(person, 200, 'person found')
 
-    @person_api.marshal_with(response_model)
+    @person_api.marshal_with(person_response)
     @person_api.doc(responses={201: 'person updated',
                                400: 'invalid data',
                                404: 'person not found'})
-    @person_api.expect(person_model)
+    @person_api.expect(person_fields)
     def put(self, kf_id):
         """
         Update an existing person
@@ -78,11 +79,9 @@ class Person(Resource):
         person.external_id = body.get('external_id')
         db.session.commit()
 
-        return {'status': 201,
-                'message': 'person updated',
-                'content': {'persons': [person]}}, 201
+        return kf_response(person, 201, 'person updated')
 
-    @person_api.marshal_with(response_model)
+    @person_api.marshal_with(person_response)
     @person_api.doc(responses={204: 'person deleted',
                                404: 'person not found'})
     def delete(self, kf_id):
@@ -97,14 +96,12 @@ class Person(Resource):
 
         db.session.delete(person)
         db.session.commit()
-        return {'status': 200,
-                'message': 'person deleted',
-                'content': {'persons': [person]}}, 200
+
+        return kf_response(person, 200, 'person deleted')
 
     def _not_found(self, kf_id):
         """
         Temporary helper - will do error handling better later
         """
-        status = 404
-        abort(status, "Person with kf_id '{}' not found".format(kf_id),
-              status=status, content=None)
+        return kf_response(code=404,
+                message='person with kf_id \'{}\' not found'.format(kf_id)), 404

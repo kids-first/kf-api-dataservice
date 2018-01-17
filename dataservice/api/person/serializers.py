@@ -1,33 +1,31 @@
-from datetime import datetime
 from flask_restplus import fields
 
+from dataservice.api.common.serializers import (
+    base_entity,
+    base_response,
+    base_pagination,
+    _status_fields,
+    _paginate_fields
+)
 from dataservice.api.person.resources import person_api
 
-person_model = person_api.model('Person', {
-    'kf_id': fields.String(
-        example='KF00001',
-        description='ID assigned by Kids First'),
-    'created_at': fields.String(
-        example=datetime.now().isoformat(),
-        description='Date Person was registered in with the DCC'),
-    'modified_at': fields.String(
-        example=datetime.now().isoformat(),
-        description='Date of last update to the Persons data'),
+
+person_api.models['Status'] = _status_fields
+person_api.models['PaginateFields'] = _paginate_fields
+
+# Fields unique to a Person, used as the new person request model
+person_fields = person_api.model('PersonFields', {
     'external_id': fields.String(
         example='SUBJ-3993',
         description='Identifier used in the original study data')
 })
 
-person_list = person_api.model("Persons", {
-    "persons": fields.List(fields.Nested(person_model))
+person_model = person_api.clone('Person', base_entity, person_fields)
+
+person_list = person_api.clone("PersonsList", base_pagination, {
+    "results": fields.List(fields.Nested(person_model))
 })
 
-response_model = person_api.model('Response', {
-    'content': fields.Nested(person_list),
-    'status': fields.Integer(
-        description='HTTP response status code',
-        example=200),
-    'message': fields.String(
-        description='Additional information about the response',
-        example='Success')
+person_response = person_api.clone('PersonResponse', base_response, {
+    'results': fields.Nested(person_model)
 })
