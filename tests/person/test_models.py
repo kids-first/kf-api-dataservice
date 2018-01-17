@@ -36,10 +36,9 @@ class ModelTest(FlaskTestCase):
 
         self.assertEqual(Person.query.count(), 1)
         new_person = Person.query.first()
-        self.assertGreater(dt, new_person.created_at)
-        self.assertGreater(dt, new_person.modified_at)
-        self.assertEqual(len(new_person.kf_id), 36)
-        self.assertIs(type(uuid.UUID(new_person.kf_id)), uuid.UUID)
+        self.assertGreater(new_person.created_at, dt)
+        self.assertGreater(new_person.modified_at, dt)
+        self.assertIs(type(uuid.UUID(new_person.uuid)), uuid.UUID)
         self.assertEqual(new_person.external_id, "Test_Person_0")
 
     def test_get_person(self):
