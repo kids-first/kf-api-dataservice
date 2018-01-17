@@ -19,7 +19,7 @@ class PersonList(Resource):
         """
         Get all persons
         """
-        persons = models.Person.query.all()
+        persons = models.Person.find_all()
         return {'status': 200,
                 'message': '{} persons'.format(len(persons)),
                 'content': {'persons': persons}}, 200
@@ -35,9 +35,7 @@ class PersonList(Resource):
         Creates a new person and assigns a Kids First id
         """
         body = request.json
-        person = models.Person(**body)
-        db.session.add(person)
-        db.session.commit()
+        person = models.Person.create(**body)
         return {'status': 201,
                 'message': 'person created',
                 'content': {'persons': [person]}}, 201
@@ -53,7 +51,7 @@ class Person(Resource):
         Get a person by id
         Gets a person given a Kids First id
         """
-        person = models.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        person = models.Person.find_one(kf_id=kf_id)
         if not person:
             self._not_found(kf_id)
 
@@ -71,12 +69,11 @@ class Person(Resource):
         Update an existing person
         """
         body = request.json
-        person = models.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        person = models.Person.find_one(kf_id=kf_id)
         if not person:
             self._not_found(kf_id)
 
-        person.external_id = body.get('external_id')
-        db.session.commit()
+        person.update(external_id=body.get('external_id'))
 
         return {'status': 201,
                 'message': 'person updated',
@@ -91,12 +88,12 @@ class Person(Resource):
 
         Deletes a person given a Kids First id
         """
-        person = models.Person.query.filter_by(kf_id=kf_id).one_or_none()
+        person = models.Person.find_one(kf_id=kf_id)
         if not person:
             self._not_found(kf_id)
 
-        db.session.delete(person)
-        db.session.commit()
+        person.delete()
+
         return {'status': 200,
                 'message': 'person deleted',
                 'content': {'persons': [person]}}, 200
