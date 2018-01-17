@@ -19,7 +19,7 @@ virtualenv venv &&  source venv/bin/activate
 pip install -r dev-requirements.txt
 pip install -r requirements.txt
 # Configure the flask application
-export FLASK_APP=manage
+export FLASK_APP=manage.py
 # Setup the database
 flask db init
 flask db upgrade
