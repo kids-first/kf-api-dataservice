@@ -69,8 +69,7 @@ class ModelTest(FlaskTestCase):
         kf_id = person.kf_id
 
         person = Person.find_one(kf_id=kf_id)
-        db.session.delete(person)
-        db.session.commit()
+        person.delete()
 
         person = Person.find_one(kf_id=kf_id)
         self.assertEqual(person, None)
