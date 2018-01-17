@@ -10,21 +10,6 @@ class ModelTest(FlaskTestCase):
     """
     Test database model
     """
-    def _create_person(self, external_id="Test_Person_0"):
-        """
-        Create person with external id
-        """
-        p = Person(external_id=external_id)
-        db.session.add(p)
-        db.session.commit()
-
-        return p
-
-    def _get_person(self, kf_id):
-        """
-        Get person by kids first id
-        """
-        return Person.query.filter_by(kf_id=kf_id).one_or_none()
 
     def test_create_person(self):
         """
@@ -32,7 +17,7 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
 
-        self._create_person('Test_Person_0')
+        Person.create(external_id='Test_Person_0')
 
         self.assertEqual(Person.query.count(), 1)
         new_person = Person.query.first()
@@ -45,10 +30,10 @@ class ModelTest(FlaskTestCase):
         """
         Test retrieving a person
         """
-        person = self._create_person('Test_Person_0')
+        person = Person.create(external_id='Test_Person_0')
         kf_id = person.kf_id
 
-        person = self._get_person(kf_id)
+        person = Person.find_one(kf_id=kf_id)
         self.assertEqual(Person.query.count(), 1)
         self.assertEqual(person.external_id, "Test_Person_0")
         self.assertEqual(person.kf_id, kf_id)
@@ -57,22 +42,22 @@ class ModelTest(FlaskTestCase):
         """
         Test retrieving a person that does not exist
         """
-        person = self._get_person("non_existent_id")
+        person = Person.find_one(kf_id='non-existent id')
         self.assertEqual(person, None)
 
     def test_update_person(self):
         """
         Test updating a person
         """
-        person = self._create_person('Test_Person_0')
+        person = Person.create(external_id='Test_Person_0')
         kf_id = person.kf_id
 
-        person = self._get_person(kf_id)
+        person = Person.find_one(kf_id=kf_id)
         new_name = "Updated-{}".format(person.external_id)
         person.external_id = new_name
         db.session.commit()
 
-        person = self._get_person(kf_id)
+        person = Person.find_one(kf_id=kf_id)
         self.assertEqual(person.external_id, new_name)
         self.assertEqual(person.kf_id, kf_id)
 
@@ -80,12 +65,12 @@ class ModelTest(FlaskTestCase):
         """
         Test deleting a person
         """
-        person = self._create_person('Test_Person_0')
+        person = Person.create(external_id='Test_Person_0')
         kf_id = person.kf_id
 
-        person = self._get_person(kf_id)
+        person = Person.find_one(kf_id=kf_id)
         db.session.delete(person)
         db.session.commit()
 
-        person = self._get_person(kf_id)
+        person = Person.find_one(kf_id=kf_id)
         self.assertEqual(person, None)
