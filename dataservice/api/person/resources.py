@@ -9,7 +9,7 @@ description = open('dataservice/api/person/README.md').read()
 
 person_api = Namespace(name='persons', description=description)
 
-from dataservice.api.person.serializers import (
+from dataservice.api.person.serializers import (  # noqa
     person_fields,
     person_list,
     person_response
@@ -103,5 +103,6 @@ class Person(Resource):
         """
         Temporary helper - will do error handling better later
         """
+        message = 'person with kf_id \'{}\' not found'.format(kf_id)
         return kf_response(code=404,
-                message='person with kf_id \'{}\' not found'.format(kf_id)), 404
+                           message=message)
