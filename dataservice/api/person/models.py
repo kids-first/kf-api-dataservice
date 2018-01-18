@@ -2,7 +2,7 @@ from dataservice.extensions import db
 from dataservice.api.common.model import Base
 
 
-class Person(Base):
+class Person(db.Model, Base):
     """
     Person entity.
 
