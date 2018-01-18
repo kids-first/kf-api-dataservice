@@ -24,10 +24,10 @@ class PersonTest(FlaskTestCase):
         resp = json.loads(response.data.decode("utf-8"))
         self._test_response_content(resp, 201)
 
-        self.assertEqual('person created', resp['message'])
+        self.assertEqual('person created', resp['_status']['message'])
 
         p = Person.query.first()
-        person = resp['content']['persons'][0]
+        person = resp['results'][0]
         self.assertEqual(p.kf_id, person['kf_id'])
         self.assertEqual(p.external_id, person['external_id'])
 
@@ -41,8 +41,8 @@ class PersonTest(FlaskTestCase):
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 404)
         self._test_response_content(resp, 404)
-        message = "Person with kf_id '{}' not found".format(kf_id)
-        self.assertIn(message, resp['message'])
+        message = "person with kf_id '{}' not found".format(kf_id)
+        self.assertIn(message, resp['_status']['message'])
 
     def test_get_person(self):
         """
@@ -50,7 +50,7 @@ class PersonTest(FlaskTestCase):
         """
         resp = self._make_person("TEST")
         resp = json.loads(resp.data.decode("utf-8"))
-        kf_id = resp['content']['persons'][0]['kf_id']
+        kf_id = resp['results'][0]['kf_id']
 
         response = self.client.get(url_for(PERSON_URL,
                                            kf_id=kf_id),
@@ -59,7 +59,7 @@ class PersonTest(FlaskTestCase):
         self.assertEqual(response.status_code, 200)
         self._test_response_content(resp, 200)
 
-        person = resp['content']['persons'][0]
+        person = resp['results'][0]
 
         self.assertEqual(kf_id, person['kf_id'])
 
@@ -73,11 +73,10 @@ class PersonTest(FlaskTestCase):
                                    headers=self._api_headers())
         status_code = response.status_code
         response = json.loads(response.data.decode("utf-8"))
-        content = response.get('content')
-        persons = content.get('persons')
+        content = response.get('results')
         self.assertEqual(status_code, 200)
-        self.assertIs(type(persons), list)
-        self.assertEqual(len(persons), 1)
+        self.assertIs(type(content), list)
+        self.assertEqual(len(content), 1)
 
     def test_put_person(self):
         """
@@ -85,7 +84,7 @@ class PersonTest(FlaskTestCase):
         """
         response = self._make_person(external_id="TEST")
         resp = json.loads(response.data.decode("utf-8"))
-        person = resp['content']['persons'][0]
+        person = resp['results'][0]
         kf_id = person.get('kf_id')
         external_id = person.get('external_id')
 
@@ -100,10 +99,10 @@ class PersonTest(FlaskTestCase):
 
         resp = json.loads(response.data.decode("utf-8"))
         self._test_response_content(resp, 201)
-        self.assertEqual('person updated', resp['message'])
+        self.assertEqual('person updated', resp['_status']['message'])
 
         p = Person.query.first()
-        person = resp['content']['persons'][0]
+        person = resp['results'][0]
         self.assertEqual(p.kf_id, person['kf_id'])
         self.assertEqual(p.external_id, person['external_id'])
 
@@ -113,7 +112,7 @@ class PersonTest(FlaskTestCase):
         """
         resp = self._make_person("TEST")
         resp = json.loads(resp.data.decode("utf-8"))
-        kf_id = resp['content']['persons'][0]['kf_id']
+        kf_id = resp['results'][0]['kf_id']
 
         response = self.client.delete(url_for(PERSON_URL,
                                               kf_id=kf_id),
@@ -146,7 +145,7 @@ class PersonTest(FlaskTestCase):
         """
         Test that response body has expected fields
         """
-        self.assertIn('content', resp)
-        self.assertIn('message', resp)
-        self.assertIn('status', resp)
-        self.assertEqual(resp['status'], status_code)
+        self.assertIn('results', resp)
+        self.assertIn('_status', resp)
+        self.assertIn('message', resp['_status'])
+        self.assertEqual(resp['_status']['code'], status_code)

@@ -30,20 +30,28 @@ Or all root fields, but with only some sub-fields:
 
 ### Pagination
 
+Most resource containers are paginated and return 10 entries by default.
+Links to the next and previous page are provided in the `_links`.
+
 ```
 {
-  pages: [
+  "_links": {
+    "next": "/persons?page=3",
+    "self": "/persons?page=2",
+    "prev": "/persons?page=1"
+  },
+  "_status": {
+    "code": 200,
+    "message": "OK"
+  }
+  "total": 1204,
+  "limit": 10,
+  "results": [
     { "doc_id": 30, "value": "Lorem" },
     { "doc_id": 31, "value": "ipsum" },
     { "doc_id": 32, "value": "dolor" },
     ...
     { "doc_id": 40, "value": "amet" }
   ],
-  from: 30,
-  to: 40,
-  results: 10,
-  total: 1204,
-  message: "Success",
-  status: 200
 }
 ```
