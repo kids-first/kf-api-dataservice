@@ -1,8 +1,8 @@
-import pkg_resources
-import subprocess
 from flask import Blueprint
 from flask_restplus import Api
 from dataservice.api.participant import participant_api
+from dataservice.api.status import status_api
+from dataservice.utils import _get_version
 
 api_v1 = Blueprint('api', __name__, url_prefix='')
 
@@ -13,36 +13,8 @@ api = Api(api_v1,
           default='',
           default_label='')
 
+api.add_namespace(status_api)
 api.add_namespace(participant_api)
-
-
-@api.route("/status")
-class Status(Resource):
-    """
-    Service Status
-    """
-    @api.marshal_with(version_response)
-    def get(self):
-        """
-        Get the service status
-
-        Returns information about the current API's version and status
-        """
-        commit = (subprocess.check_output(
-                  ["git", "rev-parse", "--short", "HEAD"])
-                  .decode("utf-8").strip())
-
-        tags = (subprocess.check_output(
-                ["git", "tag", "-l", "--points-at", "HEAD"])
-                .decode("utf-8").split('\n'))
-        tags = [] if tags[0] == "" else tags
-        return {"_status": {
-                    "message": "Welcome to the Kids First Dataservice API",
-                    "code": 200,
-                    "version": _get_version(),
-                    "commit": commit,
-                    "tags": tags
-                }}
 
 
 @api.documentation
