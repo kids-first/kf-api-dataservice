@@ -9,5 +9,6 @@ EXPOSE      80
 ENV         FLASK_APP "manage.py"
 ENV         FLASK_CONFIG "production"
 RUN         ["flask", "db", "init"]
+RUN         ["flask", "db", "migrate"]
 RUN         ["flask", "db", "upgrade"]
 CMD         ["gunicorn", "-b", ":80", "--access-logfile", "-",  "manage:app", "--threads", "4"]
