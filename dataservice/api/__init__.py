@@ -1,19 +1,10 @@
-import pkg_resources
-import subprocess
 from flask import Blueprint
-from flask_restplus import Api, Resource
+from flask_restplus import Api
 from dataservice.api.person import person_api
-from dataservice.api.common.serializers import (
-    version_response,
-    _version_fields
-)
+from dataservice.api.status import status_api
+from dataservice.utils import _get_version
 
 api_v1 = Blueprint('api', __name__, url_prefix='')
-
-
-def _get_version():
-    return pkg_resources.get_distribution("kf-api-dataservice").version
-
 
 api = Api(api_v1,
           title='Kids First Data Service',
@@ -22,40 +13,8 @@ api = Api(api_v1,
           default='',
           default_label='')
 
-
-api.models['VersionFields'] = _version_fields
-api.models['VersionResponse'] = version_response
-
 api.add_namespace(person_api)
-
-
-@api.route("/status")
-class Status(Resource):
-    """
-    Service Status
-    """
-    @api.marshal_with(version_response)
-    def get(self):
-        """
-        Get the service status
-
-        Returns information about the current API's version and status
-        """
-        commit = (subprocess.check_output(
-                  ["git", "rev-parse", "--short", "HEAD"])
-                  .decode("utf-8").strip())
-
-        tags = (subprocess.check_output(
-                ["git", "tag", "-l", "--points-at", "HEAD"])
-                .decode("utf-8").split('\n'))
-        tags = [] if tags[0] == "" else tags
-        return {"_status": {
-                    "message": "Welcome to the Kids First Dataservice API",
-                    "code": 200,
-                    "version": _get_version(),
-                    "commit": commit,
-                    "tags": tags
-                }}
+api.add_namespace(status_api)
 
 
 @api.documentation
