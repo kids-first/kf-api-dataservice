@@ -7,6 +7,7 @@ class Config:
     SSL_DISABLE = os.environ.get("SSL_DISABLE", False)
 
     RESTPLUS_MASK_SWAGGER = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
     def init_app(app):
