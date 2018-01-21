@@ -4,7 +4,7 @@ from flask import Flask
 
 from dataservice import commands
 from dataservice.extensions import db, migrate
-from dataservice.api.person.models import Person
+from dataservice.api.participant.models import Participant
 from config import config
 
 
@@ -33,7 +33,7 @@ def register_shellcontext(app):
     def shell_context():
         """Shell context objects."""
         return {'db': db,
-                'Person': Person}
+                'Participant': Participant}
 
     app.shell_context_processor(shell_context)
 
