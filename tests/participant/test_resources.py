@@ -116,7 +116,7 @@ class ParticipantTest(FlaskTestCase):
 
         response = self.client.delete(url_for(PARTICIPANT_URL,
                                               kf_id=kf_id),
-                                   headers=self._api_headers())
+                                      headers=self._api_headers())
 
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 200)
