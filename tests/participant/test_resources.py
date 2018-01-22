@@ -1,75 +1,75 @@
 import json
 from flask import url_for
 
-from dataservice.api.person.models import Person
+from dataservice.api.participant.models import Participant
 from tests.utils import FlaskTestCase
 
-PERSONS_PREFIX = 'api.persons'
-PERSON_URL = '{}_{}'.format(PERSONS_PREFIX, 'person')
-PERSON_LIST_URL = '{}_{}'.format(PERSONS_PREFIX, 'person_list')
+PARTICIPANTS_PREFIX = 'api.participants'
+PARTICIPANT_URL = '{}_{}'.format(PARTICIPANTS_PREFIX, 'participant')
+PARTICIPANT_LIST_URL = '{}_{}'.format(PARTICIPANTS_PREFIX, 'participant_list')
 
 
-class PersonTest(FlaskTestCase):
+class ParticipantTest(FlaskTestCase):
     """
-    Test person api
+    Test participant api
     """
 
-    def test_post_person(self):
+    def test_post_participant(self):
         """
-        Test creating a new person
+        Test creating a new participant
         """
-        response = self._make_person(external_id="TEST")
+        response = self._make_participant(external_id="TEST")
         self.assertEqual(response.status_code, 201)
 
         resp = json.loads(response.data.decode("utf-8"))
         self._test_response_content(resp, 201)
 
-        self.assertEqual('person created', resp['_status']['message'])
+        self.assertEqual('participant created', resp['_status']['message'])
 
-        p = Person.query.first()
-        person = resp['results'][0]
-        self.assertEqual(p.kf_id, person['kf_id'])
-        self.assertEqual(p.external_id, person['external_id'])
+        p = Participant.query.first()
+        participant = resp['results'][0]
+        self.assertEqual(p.kf_id, participant['kf_id'])
+        self.assertEqual(p.external_id, participant['external_id'])
 
     def test_get_not_found(self):
         """
-        Test get person that does not exist
+        Test get participant that does not exist
         """
         kf_id = 'non_existent'
-        response = self.client.get(url_for(PERSON_URL, kf_id=kf_id),
+        response = self.client.get(url_for(PARTICIPANT_URL, kf_id=kf_id),
                                    headers=self._api_headers())
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 404)
         self._test_response_content(resp, 404)
-        message = "person with kf_id '{}' not found".format(kf_id)
+        message = "participant with kf_id '{}' not found".format(kf_id)
         self.assertIn(message, resp['_status']['message'])
 
-    def test_get_person(self):
+    def test_get_participant(self):
         """
-        Test retrieving a person by id
+        Test retrieving a participant by id
         """
-        resp = self._make_person("TEST")
+        resp = self._make_participant("TEST")
         resp = json.loads(resp.data.decode("utf-8"))
         kf_id = resp['results'][0]['kf_id']
 
-        response = self.client.get(url_for(PERSON_URL,
+        response = self.client.get(url_for(PARTICIPANT_URL,
                                            kf_id=kf_id),
                                    headers=self._api_headers())
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 200)
         self._test_response_content(resp, 200)
 
-        person = resp['results'][0]
+        participant = resp['results'][0]
 
-        self.assertEqual(kf_id, person['kf_id'])
+        self.assertEqual(kf_id, participant['kf_id'])
 
-    def test_get_all_persons(self):
+    def test_get_all_participants(self):
         """
-        Test retrieving all persons
+        Test retrieving all participants
         """
-        self._make_person(external_id="MyTestPerson1")
+        self._make_participant(external_id="MyTestParticipant1")
 
-        response = self.client.get(url_for(PERSON_LIST_URL),
+        response = self.client.get(url_for(PARTICIPANT_LIST_URL),
                                    headers=self._api_headers())
         status_code = response.status_code
         response = json.loads(response.data.decode("utf-8"))
@@ -78,20 +78,20 @@ class PersonTest(FlaskTestCase):
         self.assertIs(type(content), list)
         self.assertEqual(len(content), 1)
 
-    def test_put_person(self):
+    def test_put_participant(self):
         """
-        Test updating an existing person
+        Test updating an existing participant
         """
-        response = self._make_person(external_id="TEST")
+        response = self._make_participant(external_id="TEST")
         resp = json.loads(response.data.decode("utf-8"))
-        person = resp['results'][0]
-        kf_id = person.get('kf_id')
-        external_id = person.get('external_id')
+        participant = resp['results'][0]
+        kf_id = participant.get('kf_id')
+        external_id = participant.get('external_id')
 
         body = {
             'external_id': 'Updated-{}'.format(external_id)
         }
-        response = self.client.put(url_for(PERSON_URL,
+        response = self.client.put(url_for(PARTICIPANT_URL,
                                            kf_id=kf_id),
                                    headers=self._api_headers(),
                                    data=json.dumps(body))
@@ -99,43 +99,43 @@ class PersonTest(FlaskTestCase):
 
         resp = json.loads(response.data.decode("utf-8"))
         self._test_response_content(resp, 201)
-        self.assertEqual('person updated', resp['_status']['message'])
+        self.assertEqual('participant updated', resp['_status']['message'])
 
-        p = Person.query.first()
-        person = resp['results'][0]
-        self.assertEqual(p.kf_id, person['kf_id'])
-        self.assertEqual(p.external_id, person['external_id'])
+        p = Participant.query.first()
+        participant = resp['results'][0]
+        self.assertEqual(p.kf_id, participant['kf_id'])
+        self.assertEqual(p.external_id, participant['external_id'])
 
-    def test_delete_person(self):
+    def test_delete_participant(self):
         """
-        Test deleting a person by id
+        Test deleting a participant by id
         """
-        resp = self._make_person("TEST")
+        resp = self._make_participant("TEST")
         resp = json.loads(resp.data.decode("utf-8"))
         kf_id = resp['results'][0]['kf_id']
 
-        response = self.client.delete(url_for(PERSON_URL,
+        response = self.client.delete(url_for(PARTICIPANT_URL,
                                               kf_id=kf_id),
                                    headers=self._api_headers())
 
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(url_for(PERSON_URL,
+        response = self.client.get(url_for(PARTICIPANT_URL,
                                            kf_id=kf_id),
                                    headers=self._api_headers())
 
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 404)
 
-    def _make_person(self, external_id="TEST-0001"):
+    def _make_participant(self, external_id="TEST-0001"):
         """
-        Convenience method to create a person with a given source name
+        Convenience method to create a participant with a given source name
         """
         body = {
             'external_id': external_id
         }
-        response = self.client.post(url_for(PERSON_LIST_URL),
+        response = self.client.post(url_for(PARTICIPANT_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
 

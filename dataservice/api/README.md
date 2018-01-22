@@ -36,9 +36,9 @@ Links to the next and previous page are provided in the `_links`.
 ```
 {
   "_links": {
-    "next": "/persons?page=3",
-    "self": "/persons?page=2",
-    "prev": "/persons?page=1"
+    "next": "/participants?page=3",
+    "self": "/participants?page=2",
+    "prev": "/participants?page=1"
   },
   "_status": {
     "code": 200,

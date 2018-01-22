@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restplus import Api
-from dataservice.api.person import person_api
+from dataservice.api.participant import participant_api
 
 api_v1 = Blueprint('api', __name__, url_prefix='/v1')
 
@@ -11,7 +11,7 @@ api = Api(api_v1,
           default='',
           default_label='')
 
-api.add_namespace(person_api)
+api.add_namespace(participant_api)
 
 
 @api.documentation

@@ -8,10 +8,10 @@ base_entity = Model('BaseFields', {
         description='ID assigned by Kids First'),
     'created_at': fields.String(
         example=datetime.now().isoformat(),
-        description='Date Person was registered in with the DCC'),
+        description='Date Participant was registered in with the DCC'),
     'modified_at': fields.String(
         example=datetime.now().isoformat(),
-        description='Date of last update to the Persons data')
+        description='Date of last update to the Participants data')
 })
 
 _status_fields = Model('Status', {
@@ -30,13 +30,13 @@ base_response = Model('BaseResponse', {
 
 _paginate_fields = Model('PaginateFields', {
     'next': fields.String(
-        example='/persons?page=3',
+        example='/participants?page=3',
         description='Location of the next page'),
     'self': fields.String(
-        example='/persons?page=2',
+        example='/participants?page=2',
         description='Location of the current page'),
     'prev': fields.String(
-        example='/persons?page=1',
+        example='/participants?page=1',
         description='Location of the previous page')
 })
 
