@@ -32,14 +32,14 @@ class HasFileMixin:
         return db.relationship("File")
 
 
-class Base(db.Model, IDMixin, TimestampMixin):
+class Base(IDMixin, TimestampMixin):
     """
     Defines base SQlAlchemy model class
     """
     pass
 
 
-class File(Base):
+class File(db.Model, Base):
     """
     Defines a file
     """

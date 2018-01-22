@@ -4,7 +4,7 @@ from flask import Flask
 
 from dataservice import commands
 from dataservice.extensions import db, migrate
-from dataservice.api.person.models import Person
+from dataservice.api.participant.models import Participant
 from config import config
 
 
@@ -33,7 +33,7 @@ def register_shellcontext(app):
     def shell_context():
         """Shell context objects."""
         return {'db': db,
-                'Person': Person}
+                'Participant': Participant}
 
     app.shell_context_processor(shell_context)
 
@@ -52,6 +52,17 @@ def register_extensions(app):
 
     # SQLAlchemy
     db.init_app(app)
+
+    # If using sqlite, must instruct sqlalchemy to set foreign key constraint
+    if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
+        from sqlalchemy.engine import Engine
+        from sqlalchemy import event
+
+        @event.listens_for(Engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
 
     # Migrate
     migrate.init_app(app, db)
