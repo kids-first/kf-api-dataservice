@@ -18,8 +18,9 @@ cd kf-api-dataservice
 virtualenv venv &&  source venv/bin/activate
 pip install -r dev-requirements.txt
 pip install -r requirements.txt
+pip install -e .
 # Configure the flask application
-export FLASK_APP=manage.py
+export FLASK_APP=manage
 # Setup the database
 flask db init
 flask db upgrade
