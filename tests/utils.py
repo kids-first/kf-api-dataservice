@@ -1,8 +1,6 @@
-import json
 import unittest
 from dataservice import create_app
 from dataservice.extensions import db
-from flask import url_for
 
 
 class FlaskTestCase(unittest.TestCase):
@@ -25,4 +23,3 @@ class FlaskTestCase(unittest.TestCase):
           "Accept": "application/json",
           "Content-Type": "application/json"
         }
-
