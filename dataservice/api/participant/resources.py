@@ -1,53 +1,59 @@
-from flask import abort, request, Blueprint
+from flask import abort, request, jsonify
 from flask.views import MethodView
+from sqlalchemy.orm.exc import NoResultFound
 
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
+from dataservice.api.participant.schemas import ParticipantSchema 
 
-participant_api = Blueprint('participant', __name__)
 
 class ParticipantAPI(MethodView):
     def get(self, kf_id):
         """
         Get a participant by id
+
         Gets a participant given a Kids First id
         """
         if kf_id is None:
-            return Participant.query.all()
+            return ParticipantSchema(many=True).jsonify(Participant.query.all())
         else:
-            participant = Participant.query.filter_by(kf_id=kf_id).\
-                one_or_none()
-            return participant
+            try:
+                participant = Participant.query.filter_by(kf_id=kf_id).one()
+            except NoResultFound:
+                abort(404, 'could not find {} `{}`'
+                      .format('Participant', kf_id))
+            return ParticipantSchema().jsonify(participant)
 
-    def post(self, kf_id):
+    def post(self):
         """
-        Update an existing participant
+        Create a new participant
         """
         body = request.json
-        participant = Participant.query.filter_by(kf_id=kf_id).one_or_none()
-
-        if not participant:
-            self._not_found(kf_id)
-
-        participant.external_id = body.get('external_id')
+        p = Participant(external_id=body.get('external_id'))
+        db.session.add(p)
         db.session.commit()
 
-        return participant, 201
+        return ParticipantSchema(
+                201, 'participant {} created'.format(p.kf_id)
+               ).jsonify(p), 201
 
     def put(self, kf_id):
         """
         Update an existing participant
         """
         body = request.json
-        participant = Participant.query.filter_by(kf_id=kf_id).one_or_none()
+        try:
+            p = Participant.query.filter_by(kf_id=kf_id).one()
+        except NoResultFound:
+            abort(404, 'could not find {} `{}`'
+                  .format('Participant', kf_id))
 
-        if not participant:
-            self._not_found(kf_id)
-
-        participant.external_id = body.get('external_id')
+        p.external_id = body.get('external_id')
         db.session.commit()
 
-        return participant, 201
+        return ParticipantSchema(
+                201, 'participant {} updated'.format(p.kf_id)
+               ).jsonify(p), 201
 
     def delete(self, kf_id):
         """
@@ -55,12 +61,14 @@ class ParticipantAPI(MethodView):
 
         Deletes a participant given a Kids First id
         """
-        participant = Participant.query.filter_by(kf_id=kf_id).one_or_none()
+        try:
+            p = Participant.query.filter_by(kf_id=kf_id).one()
+        except NoResultFound:
+            abort(404, 'could not find {} `{}`'.format('Participant', kf_id))
 
-        if not participant:
-            abort(404)
-
-        db.session.delete(participant)
+        db.session.delete(p)
         db.session.commit()
 
-        return participant
+        return ParticipantSchema(
+                200, 'participant {} deleted'.format(p.kf_id)
+               ).jsonify(p), 200
