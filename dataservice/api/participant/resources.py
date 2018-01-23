@@ -1,4 +1,4 @@
-from flask import abort, request, jsonify
+from flask import abort, request
 from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
 

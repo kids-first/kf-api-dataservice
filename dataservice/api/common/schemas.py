@@ -41,3 +41,13 @@ class BaseStatus(Schema):
         return { '_status': { 'message': data['description'],
                               'code': data['code']}}
 
+
+class StatusSchema(Schema):
+
+    class Meta:
+        fields = ('message', 'code', 'version', 'commit', 'tags')
+
+    @post_dump(pass_many=False)
+    def wrap_envelope(self, data):
+        return { '_status': data }
+

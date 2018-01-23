@@ -36,6 +36,7 @@ def create_app(config_name):
     register_extensions(app)
     register_shellcontext(app)
     register_commands(app)
+    register_error_handlers(app)
     register_blueprints(app)
 
     return app
@@ -89,7 +90,10 @@ def register_error_handlers(app):
     """
     Register error handlers
     """
-    pass
+    from dataservice.api import errors
+    from werkzeug.exceptions import HTTPException
+    app.register_error_handler(HTTPException, errors.http_error)
+    app.register_error_handler(404, errors.http_error)
 
 
 def register_blueprints(app):

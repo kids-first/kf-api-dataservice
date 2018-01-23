@@ -53,11 +53,7 @@ class TestAPI:
     def test_versions(self, client):
         """ Test that versions are aligned accross package, docs, and api """
         package = pkg_resources.get_distribution("kf-api-dataservice").version
-        api_restplus = dataservice.api.api.version
         api_version = json.loads(client.get('/status').data.decode('utf-8'))
         api_version = api_version['_status']['version']
-        swagger = json.loads(client.get('/swagger.json').data.decode('utf-8'))
 
         assert api_version == package
-        assert api_version == api_restplus 
-        assert api_version == swagger['info']['version']
