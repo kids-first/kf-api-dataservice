@@ -2,6 +2,7 @@ from dataservice.extensions import ma
 from marshmallow import post_dump
 from flask_marshmallow import Schema
 
+
 class BaseSchema(ma.ModelSchema):
 
     def __init__(self, code=200, message='success', *args, **kwargs):
@@ -9,9 +10,8 @@ class BaseSchema(ma.ModelSchema):
         self.status_message = message
         super(BaseSchema, self).__init__(*args, **kwargs)
 
-
     class Meta:
-        fields = ( 'kf_id', )
+        fields = ('kf_id',)
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
@@ -23,8 +23,9 @@ class BaseSchema(ma.ModelSchema):
 
         return {'results': data,
                 '_links': _links,
-                '_status': { 'message': self.status_message,
-                             'code': self.status_code}}
+                '_status': {'message': self.status_message,
+                            'code': self.status_code}}
+
 
 class BaseStatus(Schema):
 
@@ -38,8 +39,8 @@ class BaseStatus(Schema):
 
     @post_dump(pass_many=False)
     def wrap_envelope(self, data):
-        return { '_status': { 'message': data['description'],
-                              'code': data['code']}}
+        return {'_status': {'message': data['description'],
+                            'code': data['code']}}
 
 
 class StatusSchema(Schema):
@@ -49,5 +50,4 @@ class StatusSchema(Schema):
 
     @post_dump(pass_many=False)
     def wrap_envelope(self, data):
-        return { '_status': data }
-
+        return {'_status': data}

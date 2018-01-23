@@ -15,7 +15,8 @@ class ParticipantAPI(MethodView):
         Gets a participant given a Kids First id
         """
         if kf_id is None:
-            return ParticipantSchema(many=True).jsonify(Participant.query.all())
+            return (ParticipantSchema(many=True)
+                    .jsonify(Participant.query.all()))
         else:
             try:
                 participant = Participant.query.filter_by(kf_id=kf_id).one()
