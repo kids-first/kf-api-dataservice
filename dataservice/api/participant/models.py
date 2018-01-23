@@ -14,3 +14,5 @@ class Participant(db.Model, Base):
     """
     __tablename__ = "participant"
     external_id = db.Column(db.String(32))
+    sample = db.relationship('Sample', backref='participant', uselist=False,
+                             cascade="all, delete-orphan")
