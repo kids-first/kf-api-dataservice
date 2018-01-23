@@ -7,6 +7,8 @@ from tests.utils import FlaskTestCase
 PARTICIPANTS_PREFIX = 'api.participants'
 PARTICIPANT_URL = '{}_{}'.format(PARTICIPANTS_PREFIX, 'participant')
 PARTICIPANT_LIST_URL = '{}_{}'.format(PARTICIPANTS_PREFIX, 'participant_list')
+PARTICIPANT_URL = 'api.participant_api'
+PARTICIPANT_LIST_URL = 'api.participant_api'
 
 
 class ParticipantTest(FlaskTestCase):
@@ -138,7 +140,6 @@ class ParticipantTest(FlaskTestCase):
         response = self.client.post(url_for(PARTICIPANT_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
-
         return response
 
     def _test_response_content(self, resp, status_code):
