@@ -27,12 +27,8 @@ class BaseSchema(ma.ModelSchema):
                             'code': self.status_code}}
 
 
-class BaseStatus(Schema):
-
-    def __init__(self, code=200, message='success', *args, **kwargs):
-        self.status_code = code
-        self.status_message = message
-        super(BaseStatus, self).__init__(*args, **kwargs)
+class ErrorSchema(Schema):
+    """ Handles HTTPException marshalling """
 
     class Meta:
         fields = ('description', 'code')

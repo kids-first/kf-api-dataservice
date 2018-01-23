@@ -22,8 +22,28 @@ class TestAPI:
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
         call_func = getattr(client, method.lower())
-        assert call_func(endpoint).status_code == status_code
+        resp = call_func(endpoint)
+        assert resp.status_code == status_code
+        assert json.loads(resp.data)['_status']['code'] == status_code
 
+    @pytest.mark.parametrize('endpoint,method,status_message', [
+        ('/', 'GET', 'Welcome to'),
+        ('', 'GET', 'Welcome to'),
+        ('/status', 'GET', 'Welcome to'),
+        ('/persons', 'GET', 'not found'),
+        ('/participants', 'GET', 'success'),
+        ('/participants/123', 'GET', 'could not find Participant `123`'),
+        ('/participants/123', 'PUT', 'could not find Participant `123`'),
+        ('/participants/123', 'DELETE', 'could not find Participant `123`')
+    ])
+    def test_status_messages(self, client, endpoint, method, status_message):
+        """
+        Test endpoint response messages by checking if the message
+        returned from the server contains a given string
+        """
+        call_func = getattr(client, method.lower())
+        resp = call_func(endpoint)
+        assert status_message in json.loads(resp.data)['_status']['message']
 
     @pytest.mark.parametrize('endpoint,method', [
         ('/participants', 'GET')
