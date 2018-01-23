@@ -16,7 +16,7 @@ class ModelTest(FlaskTestCase):
         participant_id ="Test_Subject_0"
         sample_id ="Test_Sample_0"
         data={
-        'external_id': sample_id
+        'external_id': sample_id,
         'tissue_type': 'Normal',
         'composition': 'Test_comp_0',
         }
