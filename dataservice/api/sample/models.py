@@ -13,7 +13,7 @@ class Sample(db.Model, Base):
     """
     __tablename__ = "sample"
     external_id = db.Column(db.String(32))
-    tissue_type = db.Column(db.String(32))
-    composition = db.Column(db.String(32))
+    tissue_type = db.Column(db.Text())
+    composition = db.Column(db.Text())
     participant_id = db.Column(db.Integer, db.ForeignKey('participant.kf_id'),
                                nullable=False)
