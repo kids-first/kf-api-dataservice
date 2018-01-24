@@ -1,5 +1,5 @@
 from dataservice.extensions import ma
-from marshmallow import post_dump, post_load, validates_schema, ValidationError
+from marshmallow import post_dump, validates_schema, ValidationError
 from flask_marshmallow import Schema
 
 
@@ -16,7 +16,7 @@ class BaseSchema(ma.ModelSchema):
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
-        if type(data) is not list:
+        if not many and '_links' in data:
             _links = data['_links']
             del data['_links']
         else:
