@@ -1,114 +1,75 @@
-from flask import request
-from flask_restplus import Namespace, Resource
+from flask import abort, request
+from flask.views import MethodView
+from sqlalchemy.orm.exc import NoResultFound
 
 from dataservice.extensions import db
-from dataservice.api.participant import models
-from dataservice.api.common.formatters import kf_response
-
-description = open('dataservice/api/participant/README.md').read()
-
-participant_api = Namespace(name='participants', description=description)
-
-from dataservice.api.participant.serializers import (  # noqa
-    participant_fields,
-    participant_list,
-    participant_response
-)
+from dataservice.api.participant.models import Participant
+from dataservice.api.participant.schemas import ParticipantSchema
 
 
-@participant_api.route('/')
-class ParticipantList(Resource):
-    @participant_api.marshal_with(participant_list)
-    def get(self):
-        """
-        Get all participants
-
-        Returns paginated participants
-        """
-        participants = models.Participant.query.all()
-        return kf_response(participants, 200, '{} participants'.
-                           format(len(participants)))
-
-    @participant_api.marshal_with(participant_response)
-    @participant_api.doc(responses={201: 'participant created',
-                                    400: 'invalid data'})
-    @participant_api.expect(participant_fields)
-    def post(self):
-        """
-        Create a new participant
-
-        Creates a new participant and assigns a Kids First id
-        """
-        body = request.json
-        participant = models.Participant(**body)
-        db.session.add(participant)
-        db.session.commit()
-
-        return kf_response(participant, 201, 'participant created')
-
-
-@participant_api.route('/<string:kf_id>')
-class Participant(Resource):
-    @participant_api.marshal_with(participant_response)
-    @participant_api.doc(responses={200: 'participant found',
-                                    404: 'participant not found'})
+class ParticipantAPI(MethodView):
     def get(self, kf_id):
         """
         Get a participant by id
+
         Gets a participant given a Kids First id
         """
-        participant = models.Participant.query.filter_by(kf_id=kf_id).\
-            one_or_none()
-        if not participant:
-            return self._not_found(kf_id)
+        if kf_id is None:
+            return (ParticipantSchema(many=True)
+                    .jsonify(Participant.query.all()))
+        else:
+            try:
+                participant = Participant.query.filter_by(kf_id=kf_id).one()
+            except NoResultFound:
+                abort(404, 'could not find {} `{}`'
+                      .format('Participant', kf_id))
+            return ParticipantSchema().jsonify(participant)
 
-        return kf_response(participant, 200, 'participant found')
+    def post(self):
+        """
+        Create a new participant
+        """
+        body = request.json
+        p = Participant(external_id=body.get('external_id'))
+        db.session.add(p)
+        db.session.commit()
 
-    @participant_api.marshal_with(participant_response)
-    @participant_api.doc(responses={201: 'participant updated',
-                                    400: 'invalid data',
-                                    404: 'participant not found'})
-    @participant_api.expect(participant_fields)
+        return ParticipantSchema(
+                201, 'participant {} created'.format(p.kf_id)
+               ).jsonify(p), 201
+
     def put(self, kf_id):
         """
         Update an existing participant
         """
         body = request.json
-        participant = models.Participant.query.\
-            filter_by(kf_id=kf_id).one_or_none()
+        try:
+            p = Participant.query.filter_by(kf_id=kf_id).one()
+        except NoResultFound:
+            abort(404, 'could not find {} `{}`'
+                  .format('Participant', kf_id))
 
-        if not participant:
-            self._not_found(kf_id)
-
-        participant.external_id = body.get('external_id')
+        p.external_id = body.get('external_id')
         db.session.commit()
 
-        return kf_response(participant, 201, 'participant updated')
+        return ParticipantSchema(
+                201, 'participant {} updated'.format(p.kf_id)
+               ).jsonify(p), 201
 
-    @participant_api.marshal_with(participant_response)
-    @participant_api.doc(responses={204: 'participant deleted',
-                                    404: 'participant not found'})
     def delete(self, kf_id):
         """
         Delete participant by id
 
         Deletes a participant given a Kids First id
         """
-        participant = models.Participant.query.\
-            filter_by(kf_id=kf_id).one_or_none()
+        try:
+            p = Participant.query.filter_by(kf_id=kf_id).one()
+        except NoResultFound:
+            abort(404, 'could not find {} `{}`'.format('Participant', kf_id))
 
-        if not participant:
-            self._not_found(kf_id)
-
-        db.session.delete(participant)
+        db.session.delete(p)
         db.session.commit()
 
-        return kf_response(participant, 200, 'participant deleted')
-
-    def _not_found(self, kf_id):
-        """
-        Temporary helper - will do error handling better later
-        """
-        message = 'participant with kf_id \'{}\' not found'.format(kf_id)
-        return kf_response(code=404,
-                           message=message)
+        return ParticipantSchema(
+                200, 'participant {} deleted'.format(p.kf_id)
+               ).jsonify(p), 200
