@@ -1,1 +1,1 @@
-from .resources import participant_api
+from dataservice.api.participant.resources import ParticipantAPI

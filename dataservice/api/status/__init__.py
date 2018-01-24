@@ -1,1 +1,1 @@
-from .resources import status_api
+from dataservice.api.status.resources import StatusAPI

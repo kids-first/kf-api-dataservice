@@ -3,7 +3,7 @@
 from flask import Flask
 
 from dataservice import commands
-from dataservice.extensions import db, migrate
+from dataservice.extensions import db, ma, migrate
 from dataservice.api.participant.models import Participant
 from config import config
 
@@ -20,6 +20,7 @@ def create_app(config_name):
     register_extensions(app)
     register_shellcontext(app)
     register_commands(app)
+    register_error_handlers(app)
     register_blueprints(app)
 
     return app
@@ -52,6 +53,7 @@ def register_extensions(app):
 
     # SQLAlchemy
     db.init_app(app)
+    ma.init_app(app)
 
     # If using sqlite, must instruct sqlalchemy to set foreign key constraint
     if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
@@ -72,9 +74,12 @@ def register_error_handlers(app):
     """
     Register error handlers
     """
-    pass
+    from dataservice.api import errors
+    from werkzeug.exceptions import HTTPException
+    app.register_error_handler(HTTPException, errors.http_error)
+    app.register_error_handler(404, errors.http_error)
 
 
 def register_blueprints(app):
-    from dataservice.api import api_v1
-    app.register_blueprint(api_v1)
+    from dataservice.api import api
+    app.register_blueprint(api)

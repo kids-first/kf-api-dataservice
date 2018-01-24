@@ -1,6 +1,7 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
 from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.demographic.models import Demographic
 
 
 class Participant(db.Model, Base):
@@ -19,3 +20,6 @@ class Participant(db.Model, Base):
                                 cascade="all, delete-orphan",
                                 backref=db.backref('participants',
                                                    lazy=True))
+    demographic = db.relationship(Demographic, backref='participant',
+                                  uselist=False, cascade="all, delete-orphan",
+                                  lazy=True)
