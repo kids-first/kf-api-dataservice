@@ -12,7 +12,7 @@ class Sample(db.Model, Base):
     :param tissue_type: Either Normal or Tumor
     """
     __tablename__ = "sample"
-    external_id = db.Column(db.String(32))
+    external_id = db.Column(db.Text())
     tissue_type = db.Column(db.Text())
     composition = db.Column(db.Text())
     participant_id = db.Column(db.Integer, db.ForeignKey('participant.kf_id'),
