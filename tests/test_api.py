@@ -58,6 +58,34 @@ class TestAPI:
         assert 'code' in body['_status']
         assert type(body['_status']['code']) is int
 
+    @pytest.mark.parametrize('endpoint,field', [
+        ('/participants', 'created_at'),
+        ('/participants', 'modified_at')
+    ])
+    def test_read_only(self, client, endpoint, field):
+        """ Test that given fields can not be written or modified """
+        req = {field: 'test'}
+        resp = client.post(endpoint,
+                data=json.dumps(req),
+                headers={'Content-Type': 'application/json'})
+        body = json.loads(resp.data)
+        assert (field not in body['results']
+                or body['results'][field] != 'test')
+
+    @pytest.mark.parametrize('endpoint,field', [
+        ('/participants', 'blah')
+    ])
+    def test_unknown_field(self, client, endpoint, field):
+        """ Test that unknown fields are rejected when trying to create  """
+        req = {field: 'test'}
+        resp = client.post(endpoint,
+                data=json.dumps(req),
+                headers={'Content-Type': 'application/json'})
+        body = json.loads(resp.data)
+        assert body['_status']['code'] == 400
+        assert 'could not create ' in body['_status']['message']
+        assert 'Unknown field' in body['_status']['message']
+
     def test_version(self, client):
         """ Test response from /status returns correct fields """
         status = json.loads(client.get('/status').data.decode('utf-8'))

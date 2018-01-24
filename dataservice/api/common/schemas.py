@@ -1,5 +1,5 @@
 from dataservice.extensions import ma
-from marshmallow import post_dump
+from marshmallow import post_dump, post_load, validates_schema, ValidationError
 from flask_marshmallow import Schema
 
 
@@ -12,6 +12,7 @@ class BaseSchema(ma.ModelSchema):
 
     class Meta:
         exclude = ('_id', 'uuid')
+        dump_only = ('created_at', 'modified_at')
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
@@ -25,6 +26,12 @@ class BaseSchema(ma.ModelSchema):
                 '_links': _links,
                 '_status': {'message': self.status_message,
                             'code': self.status_code}}
+
+    @validates_schema(pass_original=True)
+    def check_unknown_fields(self, data, original_data):
+        unknown = set(original_data) - set(self.fields)
+        if unknown:
+            raise ValidationError('Unknown field', unknown)
 
 
 class ErrorSchema(Schema):
