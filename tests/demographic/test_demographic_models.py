@@ -32,7 +32,6 @@ class ModelTest(FlaskTestCase):
             'race': 'asian',
             'ethnicity': 'not hispanic',
             'gender': 'female',
-            'sex': 'F',
             'participant_id': p.kf_id
         }
         dt = datetime.now()
@@ -51,7 +50,6 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(new_demographic.race, data['race'])
         self.assertEqual(new_demographic.ethnicity, data['ethnicity'])
         self.assertEqual(new_demographic.gender, data['gender'])
-        self.assertEqual(new_demographic.sex, data['sex'])
         self.assertEqual(new_demographic.participant_id, p.kf_id)
 
     def test_create_via_participant(self):
@@ -156,8 +154,7 @@ class ModelTest(FlaskTestCase):
             'external_id': demo_id,
             'race': 'asian',
             'ethnicity': 'not hispanic',
-            'gender': 'female',
-            'sex': 'F'
+            'gender': 'female'
             # non-existent required param: participant_id
         }
         d = Demographic(**data)
@@ -177,7 +174,6 @@ class ModelTest(FlaskTestCase):
             'race': 'asian',
             'ethnicity': 'not hispanic',
             'gender': 'female',
-            'sex': 'F',
             'participant_id': ''  # empty blank foreign key
         }
         d = Demographic(**data)
@@ -239,8 +235,7 @@ class ModelTest(FlaskTestCase):
             'external_id': demo_id,
             'race': 'asian',
             'ethnicity': 'not hispanic',
-            'gender': 'female',
-            'sex': 'F'
+            'gender': 'female'
         }
         d = Demographic(**data)
 
