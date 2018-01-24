@@ -1,5 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
+from dataservice.api.sample.models import Sample
 
 
 class Participant(db.Model, Base):
@@ -13,6 +14,6 @@ class Participant(db.Model, Base):
     :param modified_at: Last time of object modification
     """
     __tablename__ = "participant"
-    external_id = db.Column(db.String(32))
-    samples = db.relationship('Sample', backref='participant',
+    external_id = db.Column(db.Text())
+    samples = db.relationship(Sample, backref='participant',
                               cascade="all, delete-orphan")
