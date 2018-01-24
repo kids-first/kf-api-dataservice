@@ -14,13 +14,12 @@ class Diagnosis(db.Model, Base):
     :param primary_diagnosis: Diagnosis of the participant
     :param progression_or_recurence: yes/no/unknown indicator to identify
      whether a patient has had a new event after initial treatment.
-    :param days_to_last_followup: Time interval from the date of last follow up
-     to the date of initial pathologic diagnosis, represented as a calculated
-     number of days.
+    :param age_at_event_days: Days since participant date of birth at the
+    time of diagnosis event.
     """
 
     __tablename__ = 'diagnosis'
-    external_id = db.Column(db.String(32))
-    primary_diagnosis = db.Column(db.Text)
-    progression_or_recurence = db.Column(db.String(32))
-    days_to_last_followup = db.Column(db.Integer())
+    external_id = db.Column(db.Text())
+    diagnosis = db.Column(db.Text())
+    progression_or_recurrence = db.Column(db.Text())
+    age_at_event_days = db.Column(db.Integer())

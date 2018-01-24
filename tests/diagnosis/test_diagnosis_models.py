@@ -21,7 +21,7 @@ class ModelTest(FlaskTestCase):
             'external_id': 'diag_1',
             'primary_diagnosis': 'cold',
             'progression_or_recurence': 'yes',
-            'days_to_last_followup': 120
+            'age_at_event_days': 120
         }
         dt = datetime.now()
         d1 = Diagnosis(**data)
