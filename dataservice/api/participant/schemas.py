@@ -4,9 +4,10 @@ from dataservice.extensions import ma
 
 
 class ParticipantSchema(BaseSchema):
-    class Meta:
+    class Meta(BaseSchema.Meta):
         model = Participant
-        fields = ('kf_id', 'external_id', '_links')
+
+    date_created = ma.DateTime()
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.participants', kf_id='<kf_id>')

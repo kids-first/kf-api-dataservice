@@ -4,7 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
-from dataservice.api.participant.schemas import ParticipantSchema 
+from dataservice.api.participant.schemas import ParticipantSchema
 
 
 class ParticipantAPI(MethodView):

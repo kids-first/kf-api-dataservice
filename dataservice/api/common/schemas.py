@@ -11,7 +11,7 @@ class BaseSchema(ma.ModelSchema):
         super(BaseSchema, self).__init__(*args, **kwargs)
 
     class Meta:
-        fields = ('kf_id',)
+        exclude = ('_id', 'uuid')
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
