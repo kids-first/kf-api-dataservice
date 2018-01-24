@@ -18,11 +18,11 @@ class Demographic(db.Model, Base):
     """
 
     __tablename__ = 'demographic'
-    external_id = db.Column(db.String(32))
-    race = db.Column(db.String(32))
-    ethnicity = db.Column(db.String(32))
-    gender = db.Column(db.String(32))
-    sex = db.Column(db.String(32))
+    external_id = db.Column(db.Text)
+    race = db.Column(db.Text)
+    ethnicity = db.Column(db.Text)
+    gender = db.Column(db.Text)
+    sex = db.Column(db.Text)
     participant_id = db.Column(db.String(8),
                                db.ForeignKey('participant.kf_id'),
                                nullable=False, unique=True)
