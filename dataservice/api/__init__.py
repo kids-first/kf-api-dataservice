@@ -1,16 +1,19 @@
 from flask import Blueprint
 from flask_restplus import Api
 from dataservice.api.participant import participant_api
+from dataservice.api.status import status_api
+from dataservice.utils import _get_version
 
-api_v1 = Blueprint('api', __name__, url_prefix='/v1')
+api_v1 = Blueprint('api', __name__, url_prefix='')
 
 api = Api(api_v1,
           title='Kids First Data Service',
           description=open('dataservice/api/README.md').read(),
-          version='0.1',
+          version=_get_version(),
           default='',
           default_label='')
 
+api.add_namespace(status_api)
 api.add_namespace(participant_api)
 
 

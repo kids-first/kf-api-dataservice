@@ -27,11 +27,11 @@ flask db upgrade
 flask run 
 ```
 
-The API should now be available at `localhost:5000/v1`.
+The API should now be available at `localhost:5000/`.
 
 ## Documentation
 
-The swagger docs are located at the `/v1` endpoint.
+The swagger docs are located at the root `localhost:5000/`.
 
 ## Testing
 
