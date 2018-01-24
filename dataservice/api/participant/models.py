@@ -1,14 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
-
-
-diagnoses_assoc_table = db.Table('diagnoses',
-                                 db.Column('diagnosis_id', db.Integer,
-                                           db.ForeignKey('diagnosis.kf_id'),
-                                           primary_key=True),
-                                 db.Column('participant_id', db.Integer,
-                                           db.ForeignKey('participant.kf_id'),
-                                           primary_key=True))
+from dataservice.api.diagnosis.models import Diagnosis
 
 
 class Participant(db.Model, Base):
@@ -22,8 +14,8 @@ class Participant(db.Model, Base):
     :param modified_at: Last time of object modification
     """
     __tablename__ = "participant"
-    external_id = db.Column(db.String(32))
-    diagnoses = db.relationship('Diagnosis', secondary=diagnoses_assoc_table,
-                                lazy='joined',
+    external_id = db.Column(db.Text())
+    diagnoses = db.relationship(Diagnosis,
+                                cascade="all, delete-orphan",
                                 backref=db.backref('participants',
                                                    lazy=True))

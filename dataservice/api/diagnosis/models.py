@@ -23,3 +23,6 @@ class Diagnosis(db.Model, Base):
     diagnosis = db.Column(db.Text())
     progression_or_recurrence = db.Column(db.Text())
     age_at_event_days = db.Column(db.Integer())
+    participant_id = db.Column(db.String(8),
+                               db.ForeignKey('participant.kf_id'),
+                               nullable=False)
