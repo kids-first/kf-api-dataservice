@@ -4,9 +4,7 @@ from flask import url_for
 from dataservice.api.participant.models import Participant
 from tests.utils import FlaskTestCase
 
-PARTICIPANTS_PREFIX = 'api.participants'
-PARTICIPANT_URL = '{}_{}'.format(PARTICIPANTS_PREFIX, 'participant')
-PARTICIPANT_LIST_URL = '{}_{}'.format(PARTICIPANTS_PREFIX, 'participant_list')
+PARTICIPANT_URL = 'api.participants'
 
 
 class ParticipantTest(FlaskTestCase):
@@ -24,10 +22,12 @@ class ParticipantTest(FlaskTestCase):
         resp = json.loads(response.data.decode("utf-8"))
         self._test_response_content(resp, 201)
 
-        self.assertEqual('participant created', resp['_status']['message'])
+        self.assertIn('participant', resp['_status']['message'])
+        self.assertIn('created', resp['_status']['message'])
+        self.assertNotIn('_id', resp['results'])
 
         p = Participant.query.first()
-        participant = resp['results'][0]
+        participant = resp['results']
         self.assertEqual(p.kf_id, participant['kf_id'])
         self.assertEqual(p.external_id, participant['external_id'])
 
@@ -40,8 +40,7 @@ class ParticipantTest(FlaskTestCase):
                                    headers=self._api_headers())
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 404)
-        self._test_response_content(resp, 404)
-        message = "participant with kf_id '{}' not found".format(kf_id)
+        message = "could not find Participant `{}`".format(kf_id)
         self.assertIn(message, resp['_status']['message'])
 
     def test_get_participant(self):
@@ -50,7 +49,7 @@ class ParticipantTest(FlaskTestCase):
         """
         resp = self._make_participant("TEST")
         resp = json.loads(resp.data.decode("utf-8"))
-        kf_id = resp['results'][0]['kf_id']
+        kf_id = resp['results']['kf_id']
 
         response = self.client.get(url_for(PARTICIPANT_URL,
                                            kf_id=kf_id),
@@ -59,7 +58,7 @@ class ParticipantTest(FlaskTestCase):
         self.assertEqual(response.status_code, 200)
         self._test_response_content(resp, 200)
 
-        participant = resp['results'][0]
+        participant = resp['results']
 
         self.assertEqual(kf_id, participant['kf_id'])
 
@@ -69,7 +68,7 @@ class ParticipantTest(FlaskTestCase):
         """
         self._make_participant(external_id="MyTestParticipant1")
 
-        response = self.client.get(url_for(PARTICIPANT_LIST_URL),
+        response = self.client.get(url_for(PARTICIPANT_URL),
                                    headers=self._api_headers())
         status_code = response.status_code
         response = json.loads(response.data.decode("utf-8"))
@@ -84,7 +83,7 @@ class ParticipantTest(FlaskTestCase):
         """
         response = self._make_participant(external_id="TEST")
         resp = json.loads(response.data.decode("utf-8"))
-        participant = resp['results'][0]
+        participant = resp['results']
         kf_id = participant.get('kf_id')
         external_id = participant.get('external_id')
 
@@ -99,10 +98,11 @@ class ParticipantTest(FlaskTestCase):
 
         resp = json.loads(response.data.decode("utf-8"))
         self._test_response_content(resp, 201)
-        self.assertEqual('participant updated', resp['_status']['message'])
+        self.assertIn('participant', resp['_status']['message'])
+        self.assertIn('updated', resp['_status']['message'])
 
         p = Participant.query.first()
-        participant = resp['results'][0]
+        participant = resp['results']
         self.assertEqual(p.kf_id, participant['kf_id'])
         self.assertEqual(p.external_id, participant['external_id'])
 
@@ -112,7 +112,7 @@ class ParticipantTest(FlaskTestCase):
         """
         resp = self._make_participant("TEST")
         resp = json.loads(resp.data.decode("utf-8"))
-        kf_id = resp['results'][0]['kf_id']
+        kf_id = resp['results']['kf_id']
 
         response = self.client.delete(url_for(PARTICIPANT_URL,
                                               kf_id=kf_id),
@@ -135,10 +135,9 @@ class ParticipantTest(FlaskTestCase):
         body = {
             'external_id': external_id
         }
-        response = self.client.post(url_for(PARTICIPANT_LIST_URL),
+        response = self.client.post(url_for(PARTICIPANT_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
-
         return response
 
     def _test_response_content(self, resp, status_code):

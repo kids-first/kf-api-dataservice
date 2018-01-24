@@ -1,37 +1,41 @@
 from flask import Blueprint
-from flask_restplus import Api
-from dataservice.api.participant import participant_api
-from dataservice.api.status import status_api
-from dataservice.utils import _get_version
-
-api_v1 = Blueprint('api', __name__, url_prefix='')
-
-api = Api(api_v1,
-          title='Kids First Data Service',
-          description=open('dataservice/api/README.md').read(),
-          version=_get_version(),
-          default='',
-          default_label='')
-
-api.add_namespace(status_api)
-api.add_namespace(participant_api)
+from dataservice.api.status import StatusAPI
+from dataservice.api.participant import ParticipantAPI
 
 
-@api.documentation
-def redoc_ui():
-    """ Uses ReDoc for swagger documentation """
-    docs_page = """<!DOCTYPE html>
-    <html>
-    <head>
-    <title>API Docs</title>
-    <!-- needed for mobile devices -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-    <body>
-    <redoc spec-url="{}"></redoc>
-    <script src="https://rebilly.github.io/ReDoc/releases/latest/redoc.min.js">
-    </script>
-    </body>
-    </html>
-    """.format(api.specs_url)
-    return docs_page
+def register_crud_resource(app, view, endpoint, url,
+                           pk='kf_id', pk_type='string'):
+    """
+    Registers a crud resource with the following endpoints:
+    GET    /<url>/
+    POST   /<url>/
+    GET    /<url>/<kf_id>
+    PUT    /<url>/<kf_id>
+    DELETE /<url>/<kf_id>
+
+
+    :param app: the flask application or blueprint
+    :param view: the View or MethodView to define rules for
+    :param endpoint: the name of the endpoint
+    :param rule: the desired url with trailing `/`
+    :param pk: the primary key used as an argument to the View's routes
+    :param pk_type: the type of the primary key
+
+    From the flask docs:
+    http://flask.pocoo.org/docs/0.12/views/#method-views-for-apis
+    """
+    view_func = view.as_view(endpoint)
+    app.add_url_rule(url, defaults={pk: None},
+                     view_func=view_func, methods=['GET'])
+    app.add_url_rule(url, view_func=view_func, methods=['POST'])
+    app.add_url_rule('{}<{}:{}>'.format(url, pk_type, pk), view_func=view_func,
+                     methods=['GET', 'PUT', 'DELETE'])
+
+api = Blueprint('api', __name__, url_prefix='')
+
+# Status resource
+status_view = StatusAPI.as_view('status')
+api.add_url_rule('/', view_func=status_view, methods=['GET'])
+api.add_url_rule('/status', view_func=status_view, methods=['GET'])
+# Participant resource
+register_crud_resource(api, ParticipantAPI, 'participants', '/participants/')
