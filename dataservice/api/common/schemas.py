@@ -1,6 +1,13 @@
 from dataservice.extensions import ma
-from marshmallow import post_dump, validates_schema, ValidationError
+from marshmallow import (
+        fields,
+        post_dump,
+        post_load,
+        validates_schema,
+        ValidationError
+)
 from flask_marshmallow import Schema
+from marshmallow_sqlalchemy import field_for
 
 
 class BaseSchema(ma.ModelSchema):
@@ -11,7 +18,7 @@ class BaseSchema(ma.ModelSchema):
         super(BaseSchema, self).__init__(*args, **kwargs)
 
     class Meta:
-        exclude = ('_id', 'uuid')
+        exclude = ('uuid',)
         dump_only = ('created_at', 'modified_at')
 
     @post_dump(pass_many=True)
@@ -46,10 +53,38 @@ class ErrorSchema(Schema):
                             'code': data['code']}}
 
 
+def response_generator(schema):
+    class RespSchema(Schema):
+        _status = fields.Dict(example={'message': 'success', 'code': 200})
+        results = fields.Nested(schema)
+
+    return RespSchema
+
+
+def paginated_generator(schema):
+    class PaginatedSchema(Schema):
+        _status = fields.Dict(example={'message': 'success', 'code': 200})
+        _links = fields.Dict(example={'next': '?page=3',
+                                      'self': '?page=2',
+                                      'prev': '?page=1'})
+        limit = fields.Integer(example=10,
+                               description='Max number of results per page')
+        total = fields.Integer(example=1342,
+                               description='Total number of results')
+        results = fields.Nested(schema)
+
+    return PaginatedSchema
+
+
 class StatusSchema(Schema):
 
-    class Meta:
-        fields = ('message', 'code', 'version', 'commit', 'tags')
+    message = fields.String(description='status message', example='success')
+    code = fields.Integer(description='HTTP response code', example=200)
+    version = fields.Str(description='API version number', example='1.2.0')
+    commit = fields.Str(description='API short commit hash', example='aef3b5a')
+    tags = fields.List(
+            fields.String(description='Any tags associated with the version',
+                          example=['rc', 'beta']))
 
     @post_dump(pass_many=False)
     def wrap_envelope(self, data):

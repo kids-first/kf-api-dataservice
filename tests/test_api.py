@@ -12,8 +12,6 @@ class TestAPI:
     """
 
     @pytest.mark.parametrize('endpoint,method,status_code', [
-        ('/', 'GET', 200),
-        ('', 'GET', 200),
         ('/status', 'GET', 200),
         ('/samples', 'GET', 200),
         ('/samples/123', 'GET', 404),
@@ -32,8 +30,6 @@ class TestAPI:
         assert json.loads(resp)['_status']['code'] == status_code
 
     @pytest.mark.parametrize('endpoint,method,status_message', [
-        ('/', 'GET', 'Welcome to'),
-        ('', 'GET', 'Welcome to'),
         ('/status', 'GET', 'Welcome to'),
         ('/persons', 'GET', 'not found'),
         ('/samples', 'GET', 'success'),
@@ -140,3 +136,11 @@ class TestAPI:
         api_version = api_version['_status']['version']
 
         assert api_version == package
+
+    def test_documentation(self, client):
+        resp = client.get('')
+        assert 'ReDoc' in resp.data.decode('utf-8')
+        resp = client.get('/')
+        assert 'ReDoc' in resp.data.decode('utf-8')
+        resp = client.get('/docs')
+        assert 'ReDoc' in resp.data.decode('utf-8')

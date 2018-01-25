@@ -18,7 +18,7 @@ class Participant(db.Model, Base):
     """
     __tablename__ = "participant"
 
-    external_id = db.Column(db.Text())
+    external_id = db.Column(db.Text(), doc='ID used by external study')
     diagnoses = db.relationship(Diagnosis,
                                 cascade="all, delete-orphan",
                                 backref=db.backref('participants',

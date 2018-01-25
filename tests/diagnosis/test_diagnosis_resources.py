@@ -9,6 +9,7 @@ from dataservice.api.participant.models import Participant
 from tests.utils import FlaskTestCase
 
 DIAGNOSES_URL = 'api.diagnoses'
+DIAGNOSES_LIST_URL = 'api.diagnoses_list'
 
 
 class DiagnosisTest(FlaskTestCase):
@@ -33,7 +34,7 @@ class DiagnosisTest(FlaskTestCase):
             'participant_id': p.kf_id
         }
         # Send get request
-        response = self.client.post(url_for(DIAGNOSES_URL),
+        response = self.client.post(url_for(DIAGNOSES_LIST_URL),
                                     data=json.dumps(kwargs),
                                     headers=self._api_headers())
 
@@ -59,7 +60,7 @@ class DiagnosisTest(FlaskTestCase):
             # missing required param participant_id
         }
         # Send post request
-        response = self.client.post(url_for(DIAGNOSES_URL),
+        response = self.client.post(url_for(DIAGNOSES_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -88,7 +89,7 @@ class DiagnosisTest(FlaskTestCase):
             'age_at_event_days': -5,
         }
         # Send post request
-        response = self.client.post(url_for(DIAGNOSES_URL),
+        response = self.client.post(url_for(DIAGNOSES_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -119,7 +120,7 @@ class DiagnosisTest(FlaskTestCase):
             'participant_id': id_service.kf_id_generator()
         }
         # Send post request
-        response = self.client.post(url_for(DIAGNOSES_URL),
+        response = self.client.post(url_for(DIAGNOSES_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -145,7 +146,7 @@ class DiagnosisTest(FlaskTestCase):
             'participant_id': d1['participant_id']
         }
         # Send post request
-        response = self.client.post(url_for(DIAGNOSES_URL),
+        response = self.client.post(url_for(DIAGNOSES_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(d2))
         # Check status code
@@ -199,7 +200,7 @@ class DiagnosisTest(FlaskTestCase):
         """
         kwargs = self._create_save_to_db()
 
-        response = self.client.get(url_for(DIAGNOSES_URL),
+        response = self.client.get(url_for(DIAGNOSES_LIST_URL),
                                    headers=self._api_headers())
         self.assertEqual(response.status_code, 200)
         response = json.loads(response.data.decode("utf-8"))

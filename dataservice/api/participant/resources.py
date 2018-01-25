@@ -8,27 +8,46 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.participant.schemas import ParticipantSchema
 
 
-class ParticipantAPI(MethodView):
-    def get(self, kf_id):
-        """
-        Get a participant by id
+class ParticipantListAPI(MethodView):
+    """
+    Participant API
+    """
 
-        Gets a participant given a Kids First id
+    def get(self):
         """
-        if kf_id is None:
-            return (ParticipantSchema(many=True)
-                    .jsonify(Participant.query.all()))
-        else:
-            try:
-                participant = Participant.query.filter_by(kf_id=kf_id).one()
-            except NoResultFound:
-                abort(404, 'could not find {} `{}`'
-                      .format('Participant', kf_id))
-            return ParticipantSchema().jsonify(participant)
+        Get a paginated participants
+        ---
+        description: Get participants
+        tags:
+        - Participant
+        responses:
+          200:
+            description: Particpants found
+            schema:
+              $ref: '#/definitions/ParticipantPaginated'
+        """
+        return (ParticipantSchema(many=True)
+                .jsonify(Participant.query.all()))
 
     def post(self):
         """
         Create a new participant
+        ---
+        description: Create a new particpant
+        tags:
+        - Participant
+        parameters:
+        - name: body
+          in: body
+          description: Content
+          required: true
+          schema:
+            $ref: "#/definitions/Participant"
+        responses:
+          200:
+            description: Participant created
+            schema:
+              $ref: '#/definitions/ParticipantResponse'
         """
         try:
             p = ParticipantSchema(strict=True).load(request.json).data
@@ -41,9 +60,62 @@ class ParticipantAPI(MethodView):
             201, 'participant {} created'.format(p.kf_id)
         ).jsonify(p), 201
 
+
+class ParticipantAPI(MethodView):
+    """
+    Participant API
+    """
+
+    def get(self, kf_id):
+        """
+        Get a participant by id
+        ---
+        description: Get participant by id
+        tags:
+        - Participant
+        parameters:
+        - name: "kf_id"
+          in: "path"
+          description: "ID of person to return"
+          required: true
+          type: "string"
+        responses:
+          200:
+            description: Particpant found
+            schema:
+              $ref: '#/definitions/ParticipantResponse'
+        """
+        try:
+            participant = Participant.query.filter_by(kf_id=kf_id).one()
+        except NoResultFound:
+            abort(404, 'could not find {} `{}`'
+                  .format('Participant', kf_id))
+        return ParticipantSchema().jsonify(participant)
+
     def put(self, kf_id):
         """
         Update an existing participant
+        ---
+        description: Update a particpant
+        tags:
+        - Participant
+        parameters:
+        - name: "kf_id"
+          in: "path"
+          description: "ID of person to return"
+          required: true
+          type: "string"
+        - name: "body"
+          in: "body"
+          description: "Person source identifier"
+          required: true
+          schema:
+            $ref: "#/definitions/Participant"
+        responses:
+          200:
+            description: Participant updated 
+            schema:
+              $ref: '#/definitions/ParticipantResponse'
         """
         body = request.json
         try:
@@ -62,8 +134,21 @@ class ParticipantAPI(MethodView):
     def delete(self, kf_id):
         """
         Delete participant by id
-
-        Deletes a participant given a Kids First id
+        ---
+        description: Delete a participant
+        tags:
+        - Participant
+        parameters:
+        - name: "kf_id"
+          in: "path"
+          description: "ID of person to return"
+          required: true
+          type: "string"
+        responses:
+          200:
+            description: Participant deleted
+            schema:
+              $ref: '#/definitions/ParticipantResponse'
         """
         try:
             p = Participant.query.filter_by(kf_id=kf_id).one()
