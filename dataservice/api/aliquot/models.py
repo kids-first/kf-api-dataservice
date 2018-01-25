@@ -20,14 +20,12 @@ class Aliquot(db.Model, Base):
     """
     __tablename__ = "aliquot"
     external_id = db.Column(db.Text())
-    # 'CORIELL'
     shipment_origin = db.Column(db.Text())
-    # 'Broad Institute'
     shipment_destination = db.Column(db.Text())
     analyte_type = db.Column(db.Text(), nullable=False)
     concentration = db.Column(db.Integer())
     volume = db.Column(db.Float())
     # '2017-06-01'
-    shipment_date = db.Column(db.Date())
+    shipment_date = db.Column(db.DateTime())
     sample_id = db.Column(db.Integer, db.ForeignKey('sample.kf_id'),
                           nullable=False)
