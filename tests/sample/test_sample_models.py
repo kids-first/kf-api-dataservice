@@ -23,6 +23,9 @@ class ModelTest(FlaskTestCase):
         'external_id':sample_id,
         'tissue_type':'Normal',
         'composition':'Test_comp_0',
+        'anatomical_site':'Brain',
+        'age_at_event_days':456,
+        'tumor_descriptor':'Metastatic'
         }
         sample_0 = Sample(**data)
         participant_0 = Participant(external_id = participant_id, samples =[sample_0])
@@ -42,7 +45,8 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         #Creating Sample
-        s = Sample(external_id='Test_Sample_0', tissue_type='Normal', composition='Test_comp_0', participant_id =p.kf_id)
+        s = Sample(external_id='Test_Sample_0', tissue_type='Normal', composition='Test_comp_0',
+                   anatomical_site='Brain', age_at_event_days=456, tumor_descriptor='Metastatic', participant_id=p.kf_id)
         db.session.add(s)
         db.session.commit()
 
@@ -137,7 +141,8 @@ class ModelTest(FlaskTestCase):
         sample_id = "Test_Sample_0"
     
         # With Missing Kf_id
-        s = Sample(external_id='Test_Sample_0', tissue_type='Normal', composition='Test_comp_0')
+        s = Sample(external_id='Test_Sample_0', tissue_type='Normal', composition='Test_comp_0',
+                   anatomical_site='Brain', tumor_descriptor='Metastatic', age_at_event_days=456)
 
         #Add Sample to db
         self.assertRaises(IntegrityError, db.session.add(s))
@@ -152,7 +157,8 @@ class ModelTest(FlaskTestCase):
         sample_id = "Test_Sample_0"
     
         # With Empty Kf_id
-        s = Sample(external_id='Test_Sample_0', tissue_type='Normal', composition='Test_comp_0', participant_id ='')
+        s = Sample(external_id='Test_Sample_0', tissue_type='Normal', composition='Test_comp_0',
+                   anatomical_site='Brain', age_at_event_days=456, tumor_descriptor='Metastatic', participant_id ='')
 
         #Add Sample to db
         self.assertRaises(IntegrityError, db.session.add(s))
@@ -166,8 +172,8 @@ class ModelTest(FlaskTestCase):
         p = Participant.query.filter_by(external_id=participant_id).one_or_none()
         
         #adding another sample to participant
-        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', 
-                    composition='Test_comp_1',participant_id =p.kf_id)
+        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', composition='Test_comp_1', 
+                   anatomical_site='Brain', age_at_event_days=456, tumor_descriptor='Metastatic', participant_id =p.kf_id)
         
         db.session.add(s)
         db.session.commit()
@@ -188,8 +194,8 @@ class ModelTest(FlaskTestCase):
         p = Participant.query.filter_by(external_id=participant_id).one_or_none()
         
         #adding another sample to participant
-        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', 
-                    composition='Test_comp_1',participant_id =p.kf_id)
+        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', composition='Test_comp_1', 
+                   anatomical_site='Brain', age_at_event_days=456, tumor_descriptor='Metastatic', participant_id =p.kf_id)
         
         db.session.add(s)
         db.session.commit()
@@ -216,8 +222,8 @@ class ModelTest(FlaskTestCase):
         p = Participant.query.filter_by(external_id=participant_id).one_or_none()
         
         #adding another sample to participant
-        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', 
-                    composition='Test_comp_1',participant_id =p.kf_id)
+        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', composition='Test_comp_1', 
+                   anatomical_site='Brain', age_at_event_days=456, tumor_descriptor='Metastatic', participant_id =p.kf_id)
         
         db.session.add(s)
         db.session.commit()

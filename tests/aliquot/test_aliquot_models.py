@@ -27,7 +27,8 @@ class ModelTest(FlaskTestCase):
         'tissue_type':'Normal',
         'composition':'Test_comp_0',
         'anatomical_site':'Brain',
-        'age_at_event_days':456
+        'age_at_event_days':456,
+        'tumor_descriptor':'Metastatic'
         }
         aliquot_data={
         'external_id':aliquot_id,

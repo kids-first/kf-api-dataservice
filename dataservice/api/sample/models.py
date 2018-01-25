@@ -15,6 +15,8 @@ class Sample(db.Model, Base):
     :param anatomical_site : The name of the primary disease site of the
            submitted tumor sample
     :param age_at_event_days: age of participant when sample was collected
+    :param tumor_descriptor: The kind of disease present in the tumor 
+           specimen as related to a specific timepoint
     """
     __tablename__ = "sample"
     external_id = db.Column(db.Text())
@@ -22,6 +24,7 @@ class Sample(db.Model, Base):
     composition = db.Column(db.Text())
     anatomical_site = db.Column(db.Text())
     age_at_event_days = db.Column(db.Integer())
+    tumor_descriptor = db.Column(db.Text())
     aliquots = db.relationship(Aliquot, backref='samples',
                                cascade="all, delete-orphan")
     participant_id = db.Column(db.Integer, db.ForeignKey('participant.kf_id'),
