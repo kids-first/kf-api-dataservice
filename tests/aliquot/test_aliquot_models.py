@@ -156,7 +156,7 @@ class ModelTest(FlaskTestCase):
         Test deleting aliquot via sample and participant
         """
 
-        participant_id, sample_id= self.create_participant_sample()
+        participant_id, sample_id, aliquot_id= self.create_participant_sample_aliquot()
 
         #Delete Participant
         p = Participant.query.first()
