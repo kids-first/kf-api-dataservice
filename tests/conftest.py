@@ -10,4 +10,5 @@ def client():
     app_context = app.app_context()
     app_context.push()
     db.create_all()
-    return app.test_client()
+    yield app.test_client()
+    db.drop_all()
