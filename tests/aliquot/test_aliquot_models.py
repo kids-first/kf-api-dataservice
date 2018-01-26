@@ -381,13 +381,3 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(Sample.query.count(), 1)
         self.assertEqual(Aliquot.query.count(), 1)
-
-        
-        
-
-        
-
-
-
-
-
