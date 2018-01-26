@@ -25,7 +25,8 @@ class Aliquot(db.Model, Base):
     analyte_type = db.Column(db.Text(), nullable=False)
     concentration = db.Column(db.Integer())
     volume = db.Column(db.Float())
-    # '2017-06-01'
     shipment_date = db.Column(db.DateTime())
+    samples = db.relationship('Sample', back_populates='aliquots',
+                              cascade="all, delete-orphan", single_parent=True)
     sample_id = db.Column(db.Integer, db.ForeignKey('sample.kf_id'),
                           nullable=False)

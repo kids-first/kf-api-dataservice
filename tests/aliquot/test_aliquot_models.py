@@ -40,11 +40,8 @@ class ModelTest(FlaskTestCase):
         'shipment_date':dt
         }
         aliquot_0 = Aliquot(**aliquot_data)
-        print(aliquot_0)
         sample_0 = Sample(**sample_data, aliquots=[aliquot_0])
-        print(sample_0.aliquots)
         participant_0 = Participant(external_id = participant_id, samples =[sample_0])
-        print(participant_0)
         db.session.add(participant_0)
         db.session.commit()
         return participant_id,sample_id,aliquot_id
@@ -149,7 +146,9 @@ class ModelTest(FlaskTestCase):
         a= Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
         self.assertIs(a,None)
         self.assertIsNone(Sample.query.filter_by(external_id=aliquot_id).one_or_none())
+        self.assertEqual(Sample.query.count(),0)
         self.assertEqual(Participant.query.count(),1)
+
 
     def test_delete_aliquot_sample_participant(self):
         """
@@ -158,14 +157,237 @@ class ModelTest(FlaskTestCase):
 
         participant_id, sample_id, aliquot_id= self.create_participant_sample_aliquot()
 
-        #Delete Participant
+        # Delete Participant
         p = Participant.query.first()
         db.session.delete(p)
         db.session.commit()
 
         s= Sample.query.filter_by(external_id=sample_id).one_or_none()
         self.assertIs(s,None)
-        #Check no sample exists in participant
+        # Check no sample exists in participant
         self.assertIsNone(Participant.query.filter_by(external_id=sample_id).one_or_none())
+
+        a= Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
+        self.assertIs(a,None)
+
+        #Check No aliquot exists in sample
+        self.assertIsNone(Sample.query.filter_by(external_id=aliquot_id).one_or_none())
+
+    def test_not_null_constraint(self):
+        """
+        Test aliquot cannot be created with out sample or participant
+        """    
+        dt = datetime.now()
+        # Create aliquot without sample kf_id
+        aliquot_id = "Test_Aliquot_0"
+        aliquot_data={
+        'external_id':'Test_Aliquot_0',
+        'shipment_origin':'CORIELL',
+        'shipment_destination':'Broad Institute',
+        'analyte_type':'DNA',
+        'concentration':100,
+        'volume':12.67,
+        'shipment_date':dt
+        }
+        a = Aliquot(**aliquot_data)
+        
+        #Add Aliquot to db
+        self.assertRaises(IntegrityError, db.session.add(a))
+
+    def test_foreign_key_constraint(self):
+
+        """
+        Test aliquot cannot be created with empty sample_id
+    
+        """  
+        dt = datetime.now()  
+        # Create aliquot
+        aliquot_id = "Test_Aliquot_0"
+        aliquot_data={
+        'external_id':'Test_Aliquot_0',
+        'shipment_origin':'CORIELL',
+        'shipment_destination':'Broad Institute',
+        'analyte_type':'DNA',
+        'concentration':100,
+        'volume':12.67,
+        'shipment_date':dt
+        }
+        a = Aliquot(**aliquot_data,sample_id = '')
+
+        #Add aliquot to db
+        self.assertRaises(IntegrityError, db.session.add(a))
+
+    def test_one_to_many_relationship_create(self):
+        """
+        Test creating multiple aliquots to the the Sample 
+        """
+        dt = datetime.now()
+        #create a participant with a sample and a aliquot
+        participant_id, sample_id, aliquot_id= self.create_participant_sample_aliquot()
+        p = Participant.query.filter_by(external_id=participant_id).one_or_none()
+        
+        #adding another sample to participant
+        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', composition='Test_comp_1', 
+                   anatomical_site='Brain', age_at_event_days=456, tumor_descriptor='Metastatic', participant_id =p.kf_id)
+        
+        db.session.add(s)
+        db.session.commit()
+
+        #adding another aliquot to sample
+        aliquot_data={
+        'external_id':'Test_Aliquot_1',
+        'shipment_origin':'CORIELL',
+        'shipment_destination':'Broad Institute',
+        'analyte_type':'DNA',
+        'concentration':100,
+        'volume':12.67,
+        'shipment_date':dt
+        }
+        a = Aliquot(**aliquot_data, sample_id=s.kf_id)
+        db.session.add(a)
+        db.session.commit()
+
+        #p-s1-a1
+        #p-s2-a2
+
+        p = Participant.query.filter_by(external_id=participant_id).all()
+        self.assertEqual(Participant.query.count(), 1)
+        self.assertEqual(p[0].samples[0].external_id,'Test_Sample_0')
+        self.assertEqual(p[0].samples[1].external_id,'Test_Sample_1')
+        
+        s1 = Sample.query.filter_by(external_id=sample_id).all()
+        s2 = Sample.query.filter_by(external_id=s.external_id).all()
+        
+        self.assertEqual(Sample.query.count(), 2)
+        self.assertEqual(s1[0].aliquots[0].external_id,'Test_Aliquot_0')
+        self.assertEqual(s2[0].aliquots[0].external_id,'Test_Aliquot_1')
+
+        a1 = Aliquot.query.filter_by(external_id=aliquot_id).all()
+        a2 = Aliquot.query.filter_by(external_id=a.external_id).all()
+        
+        self.assertEqual(Aliquot.query.count(), 2)
+        self.assertEqual(p[0].kf_id,s.participant_id)
+        
+        self.assertEqual(s1[0].kf_id,a1[0].sample_id)
+        self.assertEqual(s2[0].kf_id,a2[0].sample_id)
+
+    def test_one_to_many_relationship_update(self):
+        """
+        Test updating one of the aliquot in samples
+        """
+        dt = datetime.now()
+        #create a participant with a sample and a aliquot
+        participant_id, sample_id, aliquot_id= self.create_participant_sample_aliquot()
+        p = Participant.query.filter_by(external_id=participant_id).one_or_none()
+        
+        #adding another sample to participant
+        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', composition='Test_comp_1', 
+                   anatomical_site='Brain', age_at_event_days=456, tumor_descriptor='Metastatic', participant_id =p.kf_id)
+        
+        db.session.add(s)
+        db.session.commit()
+
+        #adding another aliquot to sample
+        aliquot_data={
+        'external_id':'Test_Aliquot_1',
+        'shipment_origin':'CORIELL',
+        'shipment_destination':'Broad Institute',
+        'analyte_type':'DNA',
+        'concentration':100,
+        'volume':12.67,
+        'shipment_date':dt
+        }
+        a = Aliquot(**aliquot_data, sample_id=s.kf_id)
+        db.session.add(a)
+        db.session.commit()
+
+        #p-s1-a1
+        #p-s2-a2
+        # Get participant, samples and aliquots
+
+        p = Participant.query.filter_by(external_id=participant_id).all()
+        
+        s1 = Sample.query.filter_by(external_id=sample_id).all()
+        s2 = Sample.query.filter_by(external_id=s.external_id).all()
+        
+        a1 = Aliquot.query.filter_by(external_id=aliquot_id).all()
+        a2 = Aliquot.query.filter_by(external_id=a.external_id).all()
+        
+        #update a1 and a2
+        a1[0].analyte_type = 'RNA'
+        a2[0].volume = 13.89
+        
+        #get updated aliquots
+        a1 = Aliquot.query.filter_by(external_id=aliquot_id).all()
+        a2 = Aliquot.query.filter_by(external_id=a.external_id).all()
+        self.assertEqual(Participant.query.count(), 1)
+        self.assertEqual(p[0].samples[0].external_id,'Test_Sample_0')
+        self.assertEqual(p[0].samples[1].external_id,'Test_Sample_1')
+
+        self.assertEqual(Sample.query.count(), 2)
+        self.assertEqual(s1[0].aliquots[0].external_id,'Test_Aliquot_0')
+        self.assertEqual(s2[0].aliquots[0].external_id,'Test_Aliquot_1')
+
+        self.assertEqual(Aliquot.query.count(), 2)
+        self.assertEqual(a1[0].analyte_type,'RNA')
+        self.assertEqual(a2[0].volume,13.89)
+
+    def test_one_to_many_relationship_delete(self):
+        """
+        Test deleting one of the aliquot in samples
+        """
+        dt = datetime.now()
+        #create a participant with a sample and a aliquot
+        participant_id, sample_id, aliquot_id= self.create_participant_sample_aliquot()
+        p = Participant.query.filter_by(external_id=participant_id).one_or_none()
+        
+        #adding another sample to participant
+        s = Sample(external_id='Test_Sample_1', tissue_type='Normal', composition='Test_comp_1', 
+                   anatomical_site='Brain', age_at_event_days=456, tumor_descriptor='Metastatic', participant_id =p.kf_id)
+        
+        db.session.add(s)
+        db.session.commit()
+
+        #adding another aliquot to sample
+        aliquot_data={
+        'external_id':'Test_Aliquot_1',
+        'shipment_origin':'CORIELL',
+        'shipment_destination':'Broad Institute',
+        'analyte_type':'DNA',
+        'concentration':100,
+        'volume':12.67,
+        'shipment_date':dt
+        }
+        a = Aliquot(**aliquot_data, sample_id=s.kf_id)
+        db.session.add(a)
+        db.session.commit()
+
+        #p-s1-a1
+        #p-s2-a2
+        # Get participant, samples and aliquots
+
+        p = Participant.query.filter_by(external_id=participant_id).all()
+        
+        s1 = Sample.query.filter_by(external_id=sample_id).one_or_none()
+        s2 = Sample.query.filter_by(external_id=s.external_id).one_or_none()
+        
+        a1 = Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
+        a2 = Aliquot.query.filter_by(external_id=a.external_id).one_or_none()
+        
+        #delete a1
+        db.session.delete(a1)
+        db.session.commit()
+        
+        self.assertEqual(Participant.query.count(), 1)
+        self.assertEqual(Sample.query.count(), 1)
+        self.assertEqual(Aliquot.query.count(), 1)
+
+        
+        
+
+        
+
+
+
 
 

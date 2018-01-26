@@ -178,7 +178,6 @@ class ModelTest(FlaskTestCase):
         db.session.add(s)
         db.session.commit()
         p = Participant.query.filter_by(external_id=participant_id).all()
-        print(p[0].samples)
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(p[0].samples[0].external_id,'Test_Sample_0')
         self.assertEqual(p[0].samples[1].external_id,'Test_Sample_1')
@@ -203,7 +202,7 @@ class ModelTest(FlaskTestCase):
         #Get Sample and Person with multiple Entries
         p = Participant.query.filter_by(external_id=participant_id).all()
         s= Sample.query.filter_by(external_id='Test_Sample_1').one_or_none()
-        print(s.tissue_type)
+    
         #update one of the sample attribute
         s.tissue_type='Tumor'
 
