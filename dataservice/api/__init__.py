@@ -2,6 +2,7 @@ from flask import Blueprint
 from dataservice.api.status import StatusAPI
 from dataservice.api.participant import ParticipantAPI
 from dataservice.api.demographic import DemographicAPI
+from dataservice.api.diagnosis import DiagnosisAPI
 
 
 def register_crud_resource(app, view, endpoint, url,
@@ -45,3 +46,6 @@ register_crud_resource(api, ParticipantAPI, 'participants', '/participants/')
 
 # Demographic resource
 register_crud_resource(api, DemographicAPI, 'demographics', '/demographics/')
+
+# Diagnosis resource
+register_crud_resource(api, DiagnosisAPI, 'diagnoses', '/diagnoses/')
