@@ -33,6 +33,24 @@ The API should now be available at `localhost:5000/`.
 
 The swagger docs are located at the root `localhost:5000/`.
 
+### Generate a Data Model Diagram
+
+An ERD (entity relation diagram) may be found in the `docs/` directory, or may
+be produced for changes to the data schema. To do so requires that 
+[GraphViz](https://www.graphviz.org/) be installed as well as
+[PyGraphViz](https://pygraphviz.github.io/). PyGraphViz may have trouble finding
+GraphViz, in which case, see
+[this article](http://www.alexandrejoseph.com/blog/2016-02-10-install-pygraphviz-mac-osx.html).
+
+Once dependencies are installed, run:
+
+```
+flask erd
+```
+
+A new diagram will be created at `docs/erd.png`.
+
+
 ## Testing
 
 Unit tests and pep8 linting is run via `flask test`
