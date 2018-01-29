@@ -1,11 +1,10 @@
-from dataservice.api.diagnosis.models import Diagnosis
-from dataservice.api.common.schemas import BaseSchema
 from marshmallow_sqlalchemy import field_for
 from marshmallow import validates, ValidationError
-from dataservice.extensions import ma
 
-MIN_AGE_DAYS = 0
-MAX_AGE_DAYS = 32872
+from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.validation import validate_age
+from dataservice.extensions import ma
 
 
 class DiagnosisSchema(BaseSchema):
@@ -16,18 +15,11 @@ class DiagnosisSchema(BaseSchema):
     # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/20
     participant_id = field_for(Diagnosis, 'participant_id', required=True,
                                load_only=True)
+    age_at_event_days = field_for(Diagnosis, 'age_at_event_days',
+                                  validate=validate_age)
 
     class Meta(BaseSchema.Meta):
         model = Diagnosis
-
-    @validates('age_at_event_days')
-    def validate_age(self, value):
-        if value < MIN_AGE_DAYS:
-            raise ValidationError('Age must be an integer greater than {}.'
-                                  .format(MIN_AGE_DAYS))
-        if value > MAX_AGE_DAYS:
-            raise ValidationError('Age must be an integer less than {}.'
-                                  .format(MAX_AGE_DAYS))
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.diagnoses', kf_id='<kf_id>'),
