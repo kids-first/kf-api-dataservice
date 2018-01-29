@@ -2,13 +2,18 @@ from dataservice.extensions import ma
 from marshmallow import (
         fields,
         post_dump,
+        pre_dump,
         validates_schema,
         ValidationError
 )
+from flask import url_for
+from flask_sqlalchemy import Pagination
 from flask_marshmallow import Schema
 
 
 class BaseSchema(ma.ModelSchema):
+
+    __pagination__ = None
 
     def __init__(self, code=200, message='success', *args, **kwargs):
         self.status_code = code
@@ -19,18 +24,55 @@ class BaseSchema(ma.ModelSchema):
         exclude = ('uuid',)
         dump_only = ('created_at', 'modified_at')
 
+    @pre_dump(pass_many=True)
+    def wrap_pre(self, data, many):
+        if isinstance(data, Pagination):
+            self.__pagination__ = data
+            if self.Meta.resource_url:
+                self._links = ma.Hyperlinks({
+                    'next': ma.URLFor(self.Meta.resource_url, kf_id='<kf_id>')
+                })
+            return data.items
+        return data
+
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
+        """
+        Wraps ORM objects in a standard response format
+
+        If `many=False`, only one object is being returned and any `_links`
+        that are in the data are moved out to the response's `_links`.
+
+        If `many=True`, many objects are being returned and the top `_links`
+        in the response will be populated with pagination details.
+        """
+        resp = {'_status': {'message': self.status_message,
+                            'code': self.status_code}}
+        # Move links to the envelope links if just a single object
         if not many and '_links' in data:
             _links = data['_links']
             del data['_links']
+        # Insert pagination object, if there is one
+        elif many and self.__pagination__ is not None:
+            p = self.__pagination__
+            _links = {}
+            _links['self'] = url_for(self.Meta.resource_url,
+                                     page=p.page)
+            if p.has_next:
+                _links['next'] = url_for(self.Meta.resource_url,
+                                         page=p.next_num)
+            if p.has_prev:
+                _links['prev'] = url_for(self.Meta.resource_url,
+                                         page=p.prev_num)
+            resp['total'] = int(p.total)
+            resp['limit'] = int(p.per_page)
+            resp['page'] = int(p.page)
         else:
             _links = {}
 
-        return {'results': data,
-                '_links': _links,
-                '_status': {'message': self.status_message,
-                            'code': self.status_code}}
+        resp.update({'results': data,
+                     '_links': _links})
+        return resp
 
     @validates_schema(pass_original=True)
     def check_unknown_fields(self, data, original_data):

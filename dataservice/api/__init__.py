@@ -12,6 +12,8 @@ from dataservice.api.sample import SampleListAPI
 from dataservice.api.demographic import DemographicAPI
 from dataservice.api.demographic import DemographicListAPI
 
+from dataservice.api.study.models import Study
+
 
 api = Blueprint('api', __name__, url_prefix='', template_folder='templates')
 

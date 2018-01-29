@@ -1,4 +1,5 @@
-from flask import abort, request
+from flask import abort, request, current_app
+from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
@@ -16,7 +17,7 @@ class ParticipantListAPI(CRUDView):
     rule = '/participants'
     schemas = {'Participant': ParticipantSchema}
 
-    def get(self):
+    def get(self, limit, page):
         """
         Get a paginated participants
         ---
@@ -27,8 +28,10 @@ class ParticipantListAPI(CRUDView):
             resource:
               Participant
         """
+        q = Participant.query.order_by(Participant.created_at.desc())
+
         return (ParticipantSchema(many=True)
-                .jsonify(Participant.query.all()))
+                .jsonify(q.paginate(page, limit)))
 
     def post(self):
         """

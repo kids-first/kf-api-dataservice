@@ -17,6 +17,11 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'postgres://{}:{}@{}:{}/{}'.format(
                         PG_USER, PG_PASS, PG_HOST, PG_PORT, PG_NAME)
 
+    # Default number of results per request
+    DEFAULT_PAGE_SIZE = 10
+    # Determines the maximum number of results per request
+    MAX_PAGE_SIZE = 100
+
     @staticmethod
     def init_app(app):
         pass
