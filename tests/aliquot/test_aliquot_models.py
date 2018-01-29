@@ -22,23 +22,23 @@ class ModelTest(FlaskTestCase):
         participant_id ="Test_Subject_0"
         sample_id ="Test_Sample_0"
         aliquot_id ="Test_Aliquot_0"
-        sample_data={
-        'external_id':sample_id,
-        'tissue_type':'Normal',
-        'composition':'Test_comp_0',
-        'anatomical_site':'Brain',
-        'age_at_event_days':456,
-        'tumor_descriptor':'Metastatic'
-        }
-        aliquot_data={
-        'external_id':aliquot_id,
-        'shipment_origin':'CORIELL',
-        'shipment_destination':'Broad Institute',
-        'analyte_type':'DNA',
-        'concentration':100,
-        'volume':12.67,
-        'shipment_date':dt
-        }
+        sample_data = {
+                    'external_id':sample_id,
+                    'tissue_type':'Normal',
+                    'composition':'Test_comp_0',
+                    'anatomical_site':'Brain',
+                    'age_at_event_days':456,
+                    'tumor_descriptor':'Metastatic'
+                    }
+        aliquot_data = {
+                'external_id':aliquot_id,
+                'shipment_origin':'CORIELL',
+                'shipment_destination':'Broad Institute',
+                'analyte_type':'DNA',
+                'concentration':100,
+                'volume':12.67,
+                'shipment_date':dt
+                }
         aliquot_0 = Aliquot(**aliquot_data)
         sample_0 = Sample(**sample_data, aliquots=[aliquot_0])
         participant_0 = Participant(external_id = participant_id, samples =[sample_0])
@@ -76,15 +76,15 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         #creating aliquot
-        aliquot_data={
-        'external_id':'Test_Aliquot_0',
-        'shipment_origin':'CORIELL',
-        'shipment_destination':'Broad Institute',
-        'analyte_type':'DNA',
-        'concentration':100,
-        'volume':12.67,
-        'shipment_date':dt
-        }
+        aliquot_data = {
+                    'external_id':'Test_Aliquot_0',
+                    'shipment_origin':'CORIELL',
+                    'shipment_destination':'Broad Institute',
+                    'analyte_type':'DNA',
+                    'concentration':100,
+                    'volume':12.67,
+                    'shipment_date':dt
+                    }
         a = Aliquot(**aliquot_data, sample_id = s.kf_id)
         db.session.add(a)
         db.session.commit()
@@ -146,7 +146,7 @@ class ModelTest(FlaskTestCase):
         a= Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
         self.assertIs(a,None)
         self.assertIsNone(Sample.query.filter_by(external_id=aliquot_id).one_or_none())
-        self.assertEqual(Sample.query.count(),0)
+        self.assertEqual(Sample.query.count(),1)
         self.assertEqual(Participant.query.count(),1)
 
 
@@ -180,15 +180,15 @@ class ModelTest(FlaskTestCase):
         dt = datetime.now()
         # Create aliquot without sample kf_id
         aliquot_id = "Test_Aliquot_0"
-        aliquot_data={
-        'external_id':'Test_Aliquot_0',
-        'shipment_origin':'CORIELL',
-        'shipment_destination':'Broad Institute',
-        'analyte_type':'DNA',
-        'concentration':100,
-        'volume':12.67,
-        'shipment_date':dt
-        }
+        aliquot_data = {
+                    'external_id':'Test_Aliquot_0',
+                    'shipment_origin':'CORIELL',
+                    'shipment_destination':'Broad Institute',
+                    'analyte_type':'DNA',
+                    'concentration':100,
+                    'volume':12.67,
+                    'shipment_date':dt
+                    }
         a = Aliquot(**aliquot_data)
         
         #Add Aliquot to db
@@ -203,15 +203,15 @@ class ModelTest(FlaskTestCase):
         dt = datetime.now()  
         # Create aliquot
         aliquot_id = "Test_Aliquot_0"
-        aliquot_data={
-        'external_id':'Test_Aliquot_0',
-        'shipment_origin':'CORIELL',
-        'shipment_destination':'Broad Institute',
-        'analyte_type':'DNA',
-        'concentration':100,
-        'volume':12.67,
-        'shipment_date':dt
-        }
+        aliquot_data = {
+                    'external_id':'Test_Aliquot_0',
+                    'shipment_origin':'CORIELL',
+                    'shipment_destination':'Broad Institute',
+                    'analyte_type':'DNA',
+                    'concentration':100,
+                    'volume':12.67,
+                    'shipment_date':dt
+                    }
         a = Aliquot(**aliquot_data,sample_id = '')
 
         #Add aliquot to db
@@ -234,15 +234,15 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         #adding another aliquot to sample
-        aliquot_data={
-        'external_id':'Test_Aliquot_1',
-        'shipment_origin':'CORIELL',
-        'shipment_destination':'Broad Institute',
-        'analyte_type':'DNA',
-        'concentration':100,
-        'volume':12.67,
-        'shipment_date':dt
-        }
+        aliquot_data = {
+                    'external_id':'Test_Aliquot_1',
+                    'shipment_origin':'CORIELL',
+                    'shipment_destination':'Broad Institute',
+                    'analyte_type':'DNA',
+                    'concentration':100,
+                    'volume':12.67,
+                    'shipment_date':dt
+                    }
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
@@ -288,15 +288,15 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         #adding another aliquot to sample
-        aliquot_data={
-        'external_id':'Test_Aliquot_1',
-        'shipment_origin':'CORIELL',
-        'shipment_destination':'Broad Institute',
-        'analyte_type':'DNA',
-        'concentration':100,
-        'volume':12.67,
-        'shipment_date':dt
-        }
+        aliquot_data = {
+                    'external_id':'Test_Aliquot_1',
+                    'shipment_origin':'CORIELL',
+                    'shipment_destination':'Broad Institute',
+                    'analyte_type':'DNA',
+                    'concentration':100,
+                    'volume':12.67,
+                    'shipment_date':dt
+                    }
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
@@ -316,6 +316,7 @@ class ModelTest(FlaskTestCase):
         #update a1 and a2
         a1[0].analyte_type = 'RNA'
         a2[0].volume = 13.89
+        db.session.commit()
         
         #get updated aliquots
         a1 = Aliquot.query.filter_by(external_id=aliquot_id).all()
@@ -349,15 +350,15 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         #adding another aliquot to sample
-        aliquot_data={
-        'external_id':'Test_Aliquot_1',
-        'shipment_origin':'CORIELL',
-        'shipment_destination':'Broad Institute',
-        'analyte_type':'DNA',
-        'concentration':100,
-        'volume':12.67,
-        'shipment_date':dt
-        }
+        aliquot_data = {
+                    'external_id':'Test_Aliquot_1',
+                    'shipment_origin':'CORIELL',
+                    'shipment_destination':'Broad Institute',
+                    'analyte_type':'DNA',
+                    'concentration':100,
+                    'volume':12.67,
+                    'shipment_date':dt
+                    }
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
@@ -379,5 +380,5 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
         
         self.assertEqual(Participant.query.count(), 1)
-        self.assertEqual(Sample.query.count(), 1)
+        self.assertEqual(Sample.query.count(), 2)
         self.assertEqual(Aliquot.query.count(), 1)

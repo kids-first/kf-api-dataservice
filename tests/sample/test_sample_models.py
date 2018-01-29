@@ -19,14 +19,14 @@ class ModelTest(FlaskTestCase):
         """
         participant_id ="Test_Subject_0"
         sample_id ="Test_Sample_0"
-        data={
-        'external_id':sample_id,
-        'tissue_type':'Normal',
-        'composition':'Test_comp_0',
-        'anatomical_site':'Brain',
-        'age_at_event_days':456,
-        'tumor_descriptor':'Metastatic'
-        }
+        data = {
+             'external_id':sample_id,
+             'tissue_type':'Normal',
+             'composition':'Test_comp_0',
+             'anatomical_site':'Brain',
+             'age_at_event_days':456,
+             'tumor_descriptor':'Metastatic'
+             }
         sample_0 = Sample(**data)
         participant_0 = Participant(external_id = participant_id, samples =[sample_0])
         db.session.add(participant_0)

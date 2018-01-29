@@ -25,7 +25,8 @@ class Sample(db.Model, Base):
     anatomical_site = db.Column(db.Text())
     age_at_event_days = db.Column(db.Integer())
     tumor_descriptor = db.Column(db.Text())
-    aliquots = db.relationship(Aliquot, back_populates='samples',
+    aliquots = db.relationship(Aliquot, backref='samples',
                                cascade="all, delete-orphan")
-    participant_id = db.Column(db.Integer, db.ForeignKey('participant.kf_id'),
+    participant_id = db.Column(db.String(8),
+                               db.ForeignKey('participant.kf_id'),
                                nullable=False)
