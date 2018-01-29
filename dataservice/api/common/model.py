@@ -22,28 +22,8 @@ class TimestampMixin:
     modified_at = db.Column(db.DateTime(), default=datetime.now)
 
 
-class HasFileMixin:
-    @declared_attr
-    def file_id(cls):
-        return db.Column('file_id', db.ForeignKey('file._id'))
-
-    @declared_attr
-    def files(cls):
-        return db.relationship("File")
-
-
 class Base(IDMixin, TimestampMixin):
     """
     Defines base SQlAlchemy model class
     """
     pass
-
-
-class File(db.Model, Base):
-    """
-    Defines a file
-    """
-    __tablename__ = "file"
-    name = db.Column(db.String(32))
-    data_type = db.Column(db.String(32))
-    size = db.Column(db.Integer(), default=0)
