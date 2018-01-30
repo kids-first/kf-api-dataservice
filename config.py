@@ -17,8 +17,6 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SSL_DISABLE = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URL") or \
-            "sqlite:///" + os.path.join(basedir, "data-dev.sqlite")
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
@@ -26,25 +24,36 @@ class TestingConfig(Config):
     SERVER_NAME = "localhost"
     TESTING = True
     WTF_CSRF_ENABLED = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get("TEST_DATABASE_URL") or \
-            "sqlite:///" + os.path.join(basedir, "data-test.sqlite")
+    SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/test'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
 class ProductionConfig(Config):
-    # Should use postgres
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or \
-            "sqlite:///" + os.path.join(basedir, "data.sqlite")
+    @staticmethod
+    def init_app(app):
+        import hvac
 
-    @classmethod
-    def init_app(cls, app):
-        Config.init_app(app)
+        vault_url = os.environ.get('VAULT_URL', 'https://vault:8200/')
+        # Role to authenticate with
+        iam_role = os.environ.get('IAM_ROLE', 'PostgresRole')
+        # Path for the postgres secret in vault
+        pg_secret = os.environ.get('DB_SECRET', 'secret/postgres')
 
-        # email errors to the administrators
-        import logging
-        from logging.handlers import SMTPHandler
-        credentials = None
-        secure = None
+        # Retrieve postgres secrets
+        client = hvac.Client(url=vault_url)
+        client.auth_iam(iam_role)
+        secrets = client.read(pg_secret)
+        client.logout()
+
+        pg_host = os.environ.get('PG_HOST', 'localhost')
+        pg_name = os.environ.get('PG_NAME', 'prod')
+        pg_user = secrets['data']['username']
+        pg_pass = secrets['data']['password']
+
+        connection_str = 'postgres://{}:{}@{}:{}/{}'.format(
+                            pg_user, pg_pass, pg_host, pg_port, pg_name)
+
+        app.config['SQLALCHEMY_DATABASE_URI'] = connection_str
 
 
 class UnixConfig(ProductionConfig):
