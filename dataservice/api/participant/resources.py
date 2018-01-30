@@ -1,6 +1,7 @@
 from flask import abort, request
 from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
+from marshmallow import ValidationError
 
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
@@ -29,11 +30,13 @@ class ParticipantAPI(MethodView):
         """
         Create a new participant
         """
-        body = request.json
-        p = Participant(external_id=body.get('external_id'))
+        try:
+            p = ParticipantSchema(strict=True).load(request.json).data
+        except ValidationError as err:
+            abort(400, 'could not create participant: {}'.format(err.messages))
+
         db.session.add(p)
         db.session.commit()
-
         return ParticipantSchema(
                 201, 'participant {} created'.format(p.kf_id)
                ).jsonify(p), 201

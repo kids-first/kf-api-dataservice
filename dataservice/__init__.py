@@ -44,6 +44,7 @@ def register_commands(app):
     Register Click commands
     """
     app.cli.add_command(commands.test)
+    app.cli.add_command(commands.erd)
 
 
 def register_extensions(app):
@@ -78,6 +79,7 @@ def register_error_handlers(app):
     from werkzeug.exceptions import HTTPException
     app.register_error_handler(HTTPException, errors.http_error)
     app.register_error_handler(404, errors.http_error)
+    app.register_error_handler(400, errors.http_error)
 
 
 def register_blueprints(app):
