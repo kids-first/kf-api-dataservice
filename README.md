@@ -42,7 +42,15 @@ The swagger docs are located at the root `localhost:5000/`.
 ### Generate a Data Model Diagram
 
 An ERD (entity relation diagram) may be found in the `docs/` directory, or may
-be produced for changes to the data schema. To do so requires that 
+be produced for changes to the data schema. To do so requires that the latest
+development version of
+[eralchemy](github.com/Alexis-benoist/eralchemy) be installed:
+
+```
+pip install -e git+git@github.com:Alexis-benoist/eralchemy.git#egg=eralchemy
+```
+
+This also requires
 [GraphViz](https://www.graphviz.org/) be installed as well as
 [PyGraphViz](https://pygraphviz.github.io/). PyGraphViz may have trouble finding
 GraphViz, in which case, see
