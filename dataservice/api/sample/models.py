@@ -14,7 +14,8 @@ class Sample(db.Model, Base):
            with respect to disease status or proximity to tumor tissue
     :param anatomical_site : The name of the primary disease site of the
            submitted tumor sample
-    :param age_at_event_days: age of participant when sample was collected
+    :param age_at_event_days: Age at the time sample was
+            acquired, expressed in number of days since birth
     :param tumor_descriptor: The kind of disease present in the tumor
            specimen as related to a specific timepoint
     """
