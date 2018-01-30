@@ -1,5 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 
 class Aliquot(db.Model, Base):
@@ -26,5 +27,8 @@ class Aliquot(db.Model, Base):
     concentration = db.Column(db.Integer())
     volume = db.Column(db.Float())
     shipment_date = db.Column(db.DateTime())
+    sequencing_experiments = db.relationship(SequencingExperiment,
+                                             backref='sequencing_experiments',
+                                             cascade="all, delete-orphan")
     sample_id = db.Column(db.String(8),
                           db.ForeignKey('sample.kf_id'), nullable=False)
