@@ -21,7 +21,6 @@ class GenomicFile(db.Model, Base):
     """
 
     __tablename__ = 'genomic_file'
-    uuid = db.Column(db.String(36), unique=True)
     file_name = db.Column(db.Text())
     file_type = db.Column(db.Text())
     file_format = db.Column(db.Text())

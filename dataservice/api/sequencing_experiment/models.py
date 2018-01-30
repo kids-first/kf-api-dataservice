@@ -1,5 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
+from dataservice.api.genomic_file.models import GenomicFile
 
 
 class SequencingExperiment(db.Model, Base):
@@ -43,3 +44,8 @@ class SequencingExperiment(db.Model, Base):
     mean_read_length = db.Column(db.Float())
     aliquot_id = db.Column(db.String(8),
                            db.ForeignKey('aliquot.kf_id'), nullable=False)
+    genomic_files = db.relationship(GenomicFile,
+                                    cascade="all, delete-orphan",
+                                    backref=db.backref(
+                                        'sequencing_experiments',
+                                        lazy=True))
