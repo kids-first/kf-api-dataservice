@@ -17,6 +17,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SSL_DISABLE = True
+    SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/dev'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
@@ -35,21 +36,20 @@ class ProductionConfig(Config):
 
         vault_url = os.environ.get('VAULT_URL', 'https://vault:8200/')
         # Role to authenticate with
-        iam_role = os.environ.get('IAM_ROLE', 'PostgresRole')
+        vault_role = os.environ.get('VAULT_ROLE', 'PostgresRole')
         # Path for the postgres secret in vault
         pg_secret = os.environ.get('DB_SECRET', 'secret/postgres')
-
         # Retrieve postgres secrets
         client = hvac.Client(url=vault_url)
-        client.auth_iam(iam_role)
+        client.auth_iam(vault_role)
         secrets = client.read(pg_secret)
         client.logout()
 
         pg_host = os.environ.get('PG_HOST', 'localhost')
+        pg_port = os.environ.get('PG_PORT', 5432)
         pg_name = os.environ.get('PG_NAME', 'prod')
-        pg_user = secrets['data']['username']
+        pg_user = secrets['data']['user']
         pg_pass = secrets['data']['password']
-
         connection_str = 'postgres://{}:{}@{}:{}/{}'.format(
                             pg_user, pg_pass, pg_host, pg_port, pg_name)
 
