@@ -21,11 +21,17 @@ pip install -r requirements.txt
 # Configure the flask application
 export FLASK_APP=manage
 # Setup the database
-flask db init
+docker run --name dataservice-pg -p 5432:5432 -d postgres:9.5
+docker exec dataservice-pg psql -U postgres -c "CREATE DATABASE dev;"
 flask db upgrade
 # Run the flask web application
 flask run 
 ```
+
+### Database
+
+The example environment above uses docker to run a Postgres instance,
+however, a local install of Postgres may be used just as easily.
 
 The API should now be available at `localhost:5000/`.
 
@@ -58,6 +64,9 @@ Unit tests and pep8 linting is run via `flask test`
 ```
 # Install test dependencies
 pip install -r dev-requirements.txt
+# Setup test database
+docker run --name dataservice-pg -p 5432:5432 -d postgres
+docker exec dataservice-pg psql -U postgres -c "CREATE DATABASE test;"
 # Run tests
 flask test
 ```
