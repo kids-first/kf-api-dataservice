@@ -3,6 +3,7 @@ from dataservice.api.status import StatusAPI
 from dataservice.api.participant import ParticipantAPI
 from dataservice.api.demographic import DemographicAPI
 from dataservice.api.diagnosis import DiagnosisAPI
+from dataservice.api.sample import SampleAPI
 
 
 def register_crud_resource(app, view, endpoint, url,
@@ -49,3 +50,6 @@ register_crud_resource(api, DemographicAPI, 'demographics', '/demographics/')
 
 # Diagnosis resource
 register_crud_resource(api, DiagnosisAPI, 'diagnoses', '/diagnoses/')
+
+# Sample resource
+register_crud_resource(api, SampleAPI, 'samples', '/samples/')
