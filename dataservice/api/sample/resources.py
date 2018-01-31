@@ -25,6 +25,7 @@ class SampleAPI(MethodView):
         Get a sample by Kids First id or get all samples if
         Kids First id is None
         """
+
         # Get all
         if kf_id is None:
             s = Sample.query.all()
@@ -43,16 +44,20 @@ class SampleAPI(MethodView):
         """
         Create a new sample
         """
+
         body = request.json
+
+        # Deserialize
         try:
-            # Deserialize
             s = SampleSchema(strict=True).load(body).data
-            # Add to and save in database
-            db.session.add(s)
-            db.session.commit()
         # Request body not valid
         except ValidationError as e:
             abort(400, 'could not create sample: {}'.format(e.messages))
+
+        # Add to and save in database
+        try:
+            db.session.add(s)
+            db.session.commit()
         # Database error
         except IntegrityError as e:
             db.session.rollback()
@@ -69,28 +74,36 @@ class SampleAPI(MethodView):
 
         Update an existing sample given a Kids First id
         """
+
         body = request.json
+
+        # Check if sample exists
         try:
-            # Check if sample exists
             s1 = Sample.query.filter_by(kf_id=kf_id).one()
-            # For validation only
-            s = SampleSchema(strict=True).load(body).data
-            # Deserialize
-            s1.external_id = body.get('external_id')
-            s1.tissue_type = body.get('tissue_type')
-            s1.composition = body.get('composition')
-            s1.anatomical_site = body.get('anatomical_site')
-            s1.tumor_descriptor = body.get('tumor_descriptor')
-            s1.aliquots = body.get('aliquots', [])
-            s1.age_at_event_days = body.get('age_at_event_days')
-            s1.participant_id = body.get('participant_id')
-            db.session.commit()
         # Not found in database
         except NoResultFound:
             abort(404, 'could not find {} `{}`'.format('sample', kf_id))
+
+        # Validation only
+        try:
+            s = SampleSchema(strict=True).load(body).data
         # Request body not valid
         except ValidationError as e:
             abort(400, 'could not update sample: {}'.format(e.messages))
+
+        # Deserialize
+        s1.external_id = body.get('external_id')
+        s1.tissue_type = body.get('tissue_type')
+        s1.composition = body.get('composition')
+        s1.anatomical_site = body.get('anatomical_site')
+        s1.tumor_descriptor = body.get('tumor_descriptor')
+        s1.aliquots = body.get('aliquots', [])
+        s1.age_at_event_days = body.get('age_at_event_days')
+        s1.participant_id = body.get('participant_id')
+
+        # Save to database
+        try:
+            db.session.commit()
         # Database error
         except IntegrityError as e:
             db.session.rollback()
@@ -107,12 +120,15 @@ class SampleAPI(MethodView):
 
         Deletes a sample given a Kids First id
         """
+
+        # Check if sample exists
         try:
             s = Sample.query.filter_by(kf_id=kf_id).one()
         # Not found in database
         except NoResultFound:
             abort(404, 'could not find {} `{}`'.format('sample', kf_id))
 
+        # Save in database
         db.session.delete(s)
         db.session.commit()
 

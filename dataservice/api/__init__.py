@@ -4,6 +4,8 @@ from dataservice.api.participant import ParticipantAPI
 from dataservice.api.demographic import DemographicAPI
 from dataservice.api.diagnosis import DiagnosisAPI
 from dataservice.api.sample import SampleAPI
+from dataservice.api.demographic import DemographicAPI
+from dataservice.api.diagnosis import DiagnosisAPI
 
 
 def register_crud_resource(app, view, endpoint, url,

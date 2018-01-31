@@ -15,6 +15,8 @@ class TestAPI:
         ('/', 'GET', 200),
         ('', 'GET', 200),
         ('/status', 'GET', 200),
+        ('/samples', 'GET', 200),
+        ('/samples/123', 'GET', 404),
         ('/diagnoses', 'GET', 200),
         ('/diagnoses/123', 'GET', 404),
         ('/participants', 'GET', 200),
@@ -33,6 +35,10 @@ class TestAPI:
         ('', 'GET', 'Welcome to'),
         ('/status', 'GET', 'Welcome to'),
         ('/persons', 'GET', 'not found'),
+        ('/samples', 'GET', 'success'),
+        ('/samples/123', 'GET', 'could not find sample `123`'),
+        ('/samples/123', 'PUT', 'could not find sample `123`'),
+        ('/samples/123', 'DELETE', 'could not find sample `123`'),
         ('/diagnoses', 'GET', 'success'),
         ('/diagnoses/123', 'GET', 'could not find diagnosis `123`'),
         ('/diagnoses/123', 'PUT', 'could not find diagnosis `123`'),
@@ -53,6 +59,7 @@ class TestAPI:
 
     @pytest.mark.parametrize('endpoint,method', [
         ('/participants', 'GET'),
+        ('/samples', 'GET'),
         ('/diagnoses', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
@@ -80,7 +87,8 @@ class TestAPI:
                 or body['results'][field] != 'test')
 
     @pytest.mark.parametrize('endpoint,field', [
-        ('/participants', 'blah')
+        ('/participants', 'blah'),
+        ('/samples', 'blah')
     ])
     def test_unknown_field(self, client, endpoint, field):
         """ Test that unknown fields are rejected when trying to create  """
