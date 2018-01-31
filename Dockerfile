@@ -9,9 +9,4 @@ RUN         pip install -e /app/
 EXPOSE      80
 ENV         FLASK_APP "manage.py"
 ENV         FLASK_CONFIG "production"
-ENV         PG_HOST
-ENV         PG_NAME
-#RUN         ["flask", "db", "init"]
-RUN         ["flask", "db", "upgrade"]
-RUN         ["flask", "db", "migrate"]
-CMD         ["gunicorn", "-b", ":80", "--access-logfile", "-",  "manage:app", "--threads", "4"]
+CMD         ["./run.sh"]
