@@ -38,8 +38,8 @@ class ParticipantAPI(MethodView):
         db.session.add(p)
         db.session.commit()
         return ParticipantSchema(
-                201, 'participant {} created'.format(p.kf_id)
-               ).jsonify(p), 201
+            201, 'participant {} created'.format(p.kf_id)
+        ).jsonify(p), 201
 
     def put(self, kf_id):
         """
@@ -56,8 +56,8 @@ class ParticipantAPI(MethodView):
         db.session.commit()
 
         return ParticipantSchema(
-                201, 'participant {} updated'.format(p.kf_id)
-               ).jsonify(p), 201
+            201, 'participant {} updated'.format(p.kf_id)
+        ).jsonify(p), 201
 
     def delete(self, kf_id):
         """
@@ -74,5 +74,5 @@ class ParticipantAPI(MethodView):
         db.session.commit()
 
         return ParticipantSchema(
-                200, 'participant {} deleted'.format(p.kf_id)
-               ).jsonify(p), 200
+            200, 'participant {} deleted'.format(p.kf_id)
+        ).jsonify(p), 200

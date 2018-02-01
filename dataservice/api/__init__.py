@@ -1,6 +1,7 @@
 from flask import Blueprint
 from dataservice.api.status import StatusAPI
 from dataservice.api.participant import ParticipantAPI
+from dataservice.api.demographic import DemographicAPI
 
 
 def register_crud_resource(app, view, endpoint, url,
@@ -31,11 +32,16 @@ def register_crud_resource(app, view, endpoint, url,
     app.add_url_rule('{}<{}:{}>'.format(url, pk_type, pk), view_func=view_func,
                      methods=['GET', 'PUT', 'DELETE'])
 
+
 api = Blueprint('api', __name__, url_prefix='')
 
 # Status resource
 status_view = StatusAPI.as_view('status')
 api.add_url_rule('/', view_func=status_view, methods=['GET'])
 api.add_url_rule('/status', view_func=status_view, methods=['GET'])
+
 # Participant resource
 register_crud_resource(api, ParticipantAPI, 'participants', '/participants/')
+
+# Demographic resource
+register_crud_resource(api, DemographicAPI, 'demographics', '/demographics/')
