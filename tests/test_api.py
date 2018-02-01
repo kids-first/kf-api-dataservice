@@ -15,6 +15,8 @@ class TestAPI:
         ('/', 'GET', 200),
         ('', 'GET', 200),
         ('/status', 'GET', 200),
+        ('/diagnoses', 'GET', 200),
+        ('/diagnoses/123', 'GET', 404),
         ('/participants', 'GET', 200),
         ('/persons', 'GET', 404),
         ('/participants/123', 'GET', 404)
@@ -31,6 +33,10 @@ class TestAPI:
         ('', 'GET', 'Welcome to'),
         ('/status', 'GET', 'Welcome to'),
         ('/persons', 'GET', 'not found'),
+        ('/diagnoses', 'GET', 'success'),
+        ('/diagnoses/123', 'GET', 'could not find diagnosis `123`'),
+        ('/diagnoses/123', 'PUT', 'could not find diagnosis `123`'),
+        ('/diagnoses/123', 'DELETE', 'could not find diagnosis `123`'),
         ('/participants', 'GET', 'success'),
         ('/participants/123', 'GET', 'could not find Participant `123`'),
         ('/participants/123', 'PUT', 'could not find Participant `123`'),
@@ -46,7 +52,8 @@ class TestAPI:
         assert status_message in json.loads(resp.data)['_status']['message']
 
     @pytest.mark.parametrize('endpoint,method', [
-        ('/participants', 'GET')
+        ('/participants', 'GET'),
+        ('/diagnoses', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -66,8 +73,8 @@ class TestAPI:
         """ Test that given fields can not be written or modified """
         req = {field: 'test'}
         resp = client.post(endpoint,
-                data=json.dumps(req),
-                headers={'Content-Type': 'application/json'})
+                           data=json.dumps(req),
+                           headers={'Content-Type': 'application/json'})
         body = json.loads(resp.data)
         assert (field not in body['results']
                 or body['results'][field] != 'test')
@@ -79,8 +86,8 @@ class TestAPI:
         """ Test that unknown fields are rejected when trying to create  """
         req = {field: 'test'}
         resp = client.post(endpoint,
-                data=json.dumps(req),
-                headers={'Content-Type': 'application/json'})
+                           data=json.dumps(req),
+                           headers={'Content-Type': 'application/json'})
         body = json.loads(resp.data)
         assert body['_status']['code'] == 400
         assert 'could not create ' in body['_status']['message']

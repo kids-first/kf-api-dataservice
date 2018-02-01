@@ -28,7 +28,6 @@ class ModelTest(FlaskTestCase):
         data = {
             'external_id': 'diag_1',
             'diagnosis': 'cold',
-            'progression_or_recurrence': 'yes',
             'age_at_event_days': 120,
             'participant_id': p.kf_id
         }
@@ -50,8 +49,6 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(new_diagnosis.external_id, data['external_id'])
         self.assertEqual(new_diagnosis.diagnosis,
                          data['diagnosis'])
-        self.assertEqual(new_diagnosis.progression_or_recurrence,
-                         data['progression_or_recurrence'])
 
     def test_create_via_participant(self):
         """
@@ -117,13 +114,13 @@ class ModelTest(FlaskTestCase):
 
         # Update and save
         d = Diagnosis.query.filter_by(diagnosis=pd[0]).one_or_none()
-        pr = 'yes'
-        d.progression_or_recurrence = pr
+        diag = 'west nile'
+        d.diagnosis = diag
         db.session.commit()
 
         # Check updated values
-        d = Diagnosis.query.filter_by(diagnosis=pd[0]).one_or_none()
-        self.assertEqual(d.progression_or_recurrence, pr)
+        d = Diagnosis.query.filter_by(diagnosis=diag).one_or_none()
+        self.assertIsNot(d, None)
 
     def test_delete_diagnosis(self):
         """
