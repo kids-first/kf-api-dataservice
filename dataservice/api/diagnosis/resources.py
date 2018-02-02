@@ -3,12 +3,10 @@ from flask import (
     request
 )
 from flask.views import MethodView
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
-from dataservice.api.errors import handle_integrity_error
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.diagnosis.schemas import DiagnosisSchema
 
@@ -54,15 +52,8 @@ class DiagnosisAPI(MethodView):
             abort(400, 'could not create diagnosis: {}'.format(e.messages))
 
         # Add to and save in database
-        try:
-            db.session.add(d)
-            db.session.commit()
-        # Database error
-        except IntegrityError as e:
-            db.session.rollback()
-            context = {'method': 'create', 'entity': 'diagnosis',
-                       'ref_entity': 'participant', 'exception': e}
-            abort(400, handle_integrity_error(**context))
+        db.session.add(d)
+        db.session.commit()
 
         return DiagnosisSchema(201, 'diagnosis {} created'
                                .format(d.kf_id)).jsonify(d), 201
@@ -95,14 +86,7 @@ class DiagnosisAPI(MethodView):
         d1.participant_id = body.get('participant_id')
 
         # Save to database
-        try:
-            db.session.commit()
-        # Database error
-        except IntegrityError as e:
-            db.session.rollback()
-            context = {'method': 'update', 'entity': 'diagnosis',
-                       'ref_entity': 'participant', 'exception': e}
-            abort(400, handle_integrity_error(**context))
+        db.session.commit()
 
         return DiagnosisSchema(200, 'diagnosis {} updated'
                                .format(d1.kf_id)).jsonify(d1), 200

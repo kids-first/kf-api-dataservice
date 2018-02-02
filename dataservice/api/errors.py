@@ -1,14 +1,14 @@
+import re
 from dataservice.api.common.schemas import ErrorSchema
+from dataservice.extensions import db
 
-FOREIGN_KEY_ERROR_PREFIX = 'foreign key constraint failed'
-FOREIGN_KEY_ERROR_MSG_TEMPLATE = \
-    'Cannot {} {} without an existing {} entity'
 
-UNIQUE_CONSTRAINT_ERROR_PREFIX = 'unique constraint failed'
-UNIQUE_CONSTRAINT_ERROR_MSG_TEMPLATE = \
-    'Cannot {0} {1}, {2} already has a {1}'
+FOREIGN_KEY_RE = re.compile('.*\nDETAIL:.*\((?P<kf_id>.*)\)' +
+                            ' is not present in table "(?P<table>\w+)"\.')
 
-DEFAULT_INVALID_INPUT_TEMPLATE = 'Client error: invalid {} provided'
+UNIQUE_RE = re.compile('^.*"(?P<key>.*)_key"\n' +
+                       'DETAIL:.*\((?P<entity>\w+)_id\)=' +
+                       '\((?P<kf_id>.*)\) already exists\.')
 
 
 def http_error(e):
@@ -16,30 +16,34 @@ def http_error(e):
     return ErrorSchema().jsonify(e), e.code
 
 
-def handle_integrity_error(**kwargs):
+def integrity_error(e):
     """
-    Handle invalid client input error
-
-    Determine error type based on error kwargs
-    Return message based on kwargs
+    Handles IntegrityError exceptions raised by SQLAlchemy.
+    String parsing assumes errors are reported from PostgreSQL and won't
+    work if using a different backend.
     """
-    # Default error message
-    message = DEFAULT_INVALID_INPUT_TEMPLATE.format(kwargs.get('entity'))
+    db.session.rollback()
+    error = e.orig.pgerror
 
-    # Extract type of error from exception message
-    error_type = str(kwargs.get('exception').orig).strip().lower()
-    method = kwargs.get('method')
-    entity = kwargs.get('entity')
-    ref_entity = kwargs.get('ref_entity')
+    message = 'error saving changes'
 
-    # Foreign key constraint failed
-    if FOREIGN_KEY_ERROR_PREFIX in error_type:
-        message = FOREIGN_KEY_ERROR_MSG_TEMPLATE.\
-            format(method, entity, ref_entity)
+    m = FOREIGN_KEY_RE.match(error)
+    # Tried to create entity, but another entity must be created first
+    if m and 'kf_id' in m.groups():
+        message = 'A {} must be created first'.format(m.group('table'))
+    # Tried to create an entity dependent on an entity that doesn't exist
+    elif m:
+        message = '{} "{}" does not exist'.format(m.group('table'),
+                                                  m.group('kf_id'))
 
-    # Unique constraint failed
-    elif UNIQUE_CONSTRAINT_ERROR_PREFIX in error_type:
-        message = UNIQUE_CONSTRAINT_ERROR_MSG_TEMPLATE.\
-            format(method, entity, ref_entity)
+    m = UNIQUE_RE.match(error)
+    # Entity is related to other entity already
+    if m:
+        key = m.group('key')
+        key = key.replace('_' + m.group('entity')+'_id', '')
+        message = '{} "{}" may only have one {}'.format(m.group('entity'),
+                                                        m.group('kf_id'),
+                                                        key)
 
-    return message
+    resp = {'code': 400, 'description': message}
+    return ErrorSchema().jsonify(resp), 400
