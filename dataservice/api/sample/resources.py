@@ -3,12 +3,10 @@ from flask import (
     request
 )
 from flask.views import MethodView
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
-from dataservice.api.errors import handle_integrity_error
 from dataservice.api.sample.models import Sample
 from dataservice.api.sample.schemas import SampleSchema
 
@@ -55,15 +53,8 @@ class SampleAPI(MethodView):
             abort(400, 'could not create sample: {}'.format(e.messages))
 
         # Add to and save in database
-        try:
-            db.session.add(s)
-            db.session.commit()
-        # Database error
-        except IntegrityError as e:
-            db.session.rollback()
-            context = {'method': 'create', 'entity': 'sample',
-                       'ref_entity': 'participant', 'exception': e}
-            abort(400, handle_integrity_error(**context))
+        db.session.add(s)
+        db.session.commit()
 
         return SampleSchema(201, 'sample {} created'
                             .format(s.kf_id)).jsonify(s), 201
@@ -102,14 +93,7 @@ class SampleAPI(MethodView):
         s1.participant_id = body.get('participant_id')
 
         # Save to database
-        try:
-            db.session.commit()
-        # Database error
-        except IntegrityError as e:
-            db.session.rollback()
-            context = {'method': 'update', 'entity': 'sample',
-                       'ref_entity': 'participant', 'exception': e}
-            abort(400, handle_integrity_error(**context))
+        db.session.commit()
 
         return SampleSchema(200, 'sample {} updated'
                             .format(s1.kf_id)).jsonify(s1), 200

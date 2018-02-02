@@ -129,7 +129,7 @@ class DiagnosisTest(FlaskTestCase):
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        message = 'Cannot create diagnosis without an existing'
+        message = '"{}" does not exist'.format(kwargs['participant_id'])
         self.assertIn(message, response['_status']['message'])
         # Check field values
         d = Diagnosis.query.first()
@@ -266,7 +266,7 @@ class DiagnosisTest(FlaskTestCase):
 
         # Send put request
         body = {
-            'participant_id': '--------'
+            'participant_id': 'AAAA1111'
         }
         response = self.client.put(url_for(DIAGNOSES_URL,
                                            kf_id=kwargs['kf_id']),
@@ -277,7 +277,7 @@ class DiagnosisTest(FlaskTestCase):
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        message = 'Cannot update diagnosis without an existing'
+        message = 'participant "AAAA1111" does not exist'
         self.assertIn(message, response['_status']['message'])
         # Check field values
         d = Diagnosis.query.first()

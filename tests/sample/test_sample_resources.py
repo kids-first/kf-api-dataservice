@@ -132,7 +132,7 @@ class SampleTest(FlaskTestCase):
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        message = 'Cannot create sample without an existing'
+        message = '"{}" does not exist'.format(kwargs['participant_id'])
         self.assertIn(message, response['_status']['message'])
         # Check field values
         d = Sample.query.first()
@@ -269,7 +269,7 @@ class SampleTest(FlaskTestCase):
 
         # Send put request
         body = {
-            'participant_id': '--------'
+            'participant_id': 'AAAA1111'
         }
         response = self.client.put(url_for(SAMPLES_URL,
                                            kf_id=kwargs['kf_id']),
@@ -281,6 +281,7 @@ class SampleTest(FlaskTestCase):
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
         message = 'Cannot update sample without an existing'
+        message = 'participant "AAAA1111" does not exist'
         self.assertIn(message, response['_status']['message'])
         # Check field values
         d = Sample.query.first()
