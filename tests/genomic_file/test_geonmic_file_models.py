@@ -22,6 +22,7 @@ class ModelTest(FlaskTestCase):
         """
         # Create genomic file dependent entities
         self._create_save_dependents()
+
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(Sample.query.count(), 2)
         self.assertEqual(Aliquot.query.count(), 4)
