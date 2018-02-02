@@ -45,6 +45,8 @@ def register_commands(app):
     """
     app.cli.add_command(commands.test)
     app.cli.add_command(commands.erd)
+    app.cli.add_command(commands.populate_db)
+    app.cli.add_command(commands.drop_db)
 
 
 def register_extensions(app):
