@@ -24,3 +24,8 @@ def erd():
         os.mkdir('docs')
 
     render_er(Participant, os.path.join('docs', 'erd.png'))
+
+
+@click.command()
+def generate():
+    pass
