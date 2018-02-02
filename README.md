@@ -98,6 +98,18 @@ flask erd
 
 A new diagram will be created at `docs/erd.png`.
 
+### Populating Development Database with mock data
+
+to populate database run:
+
+```
+flask db_populate
+```
+
+to clear the database run:
+```
+flask clear_db
+```
 
 ## Testing
 
