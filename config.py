@@ -9,6 +9,14 @@ class Config:
     RESTPLUS_MASK_SWAGGER = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    PG_HOST = os.environ.get('PG_HOST', 'localhost')
+    PG_PORT = os.environ.get('PG_PORT', 5432)
+    PG_NAME = os.environ.get('PG_NAME', 'dev')
+    PG_USER = os.environ.get('PG_USER', 'postgres')
+    PG_PASS = os.environ.get('PG_PASS', '')
+    SQLALCHEMY_DATABASE_URI = 'postgres://{}:{}@{}:{}/{}'.format(
+                        PG_USER, PG_PASS, PG_HOST, PG_PORT, PG_NAME)
+
     @staticmethod
     def init_app(app):
         pass
@@ -17,7 +25,6 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SSL_DISABLE = True
-    SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/dev'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
@@ -45,9 +52,6 @@ class ProductionConfig(Config):
         secrets = client.read(pg_secret)
         client.logout()
 
-        pg_host = os.environ.get('PG_HOST', 'localhost')
-        pg_port = os.environ.get('PG_PORT', 5432)
-        pg_name = os.environ.get('PG_NAME', 'prod')
         pg_user = secrets['data']['user']
         pg_pass = secrets['data']['password']
         connection_str = 'postgres://{}:{}@{}:{}/{}'.format(
