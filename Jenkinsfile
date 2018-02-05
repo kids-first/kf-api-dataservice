@@ -93,7 +93,7 @@ pipeline {
        echo "Setting up backend"
        echo 'key        = "dev/kf-dev-api-dataservice-us-east-1-RSF"' >> dev.conf
        terraform init -backend=true -backend-config=dev.conf
-       terraform validate-var 'image=538745987955.dkr.ecr.us-east-1.amazonaws.com/kf-api-dataservice:latest' \
+       terraform validate -var 'image=538745987955.dkr.ecr.us-east-1.amazonaws.com/kf-api-dataservice:latest' \
         -var 'pg_host="kf-dataservice-api-dev.c3siovbugjym.us-east-1.rds.amazonaws.com"' \
         -var 'db_secret_path="secret/aws/dataservice-api-postgres"' -var 'pg_db_name="kfpostgresdev"' \
         -var 'task_role_arn="arn:aws:iam::538745987955:role/kfDataserviceApiRole"' -var 'application=dataservice-api' \
