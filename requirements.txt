@@ -19,4 +19,4 @@ flask-marshmallow==0.8.0
 marshmallow==2.15.0
 marshmallow-sqlalchemy==0.13.2
 psycopg2==2.7.3.2
--e git+https://github.com/dankolbman/hvac#egg=hvac
+-e git+git@github.com:dankolbman/hvac.git#egg=hvac
