@@ -3,6 +3,7 @@ from dateutil import relativedelta
 import uuid
 import random
 import csv
+import os
 
 from dataservice import create_app
 from dataservice.extensions import db
@@ -16,8 +17,9 @@ from dataservice.api.genomic_file.models import GenomicFile
 
 
 class DataGenerator(object):
-
-    def __init__(self, config_name='testing'):
+    def __init__(self, config_name=None):
+        if not config_name:
+            config_name = os.environ.get('FLASK_CONFIG', 'default')
         self.setup(config_name)
         self.max_participants = 10
         self._sample_choices()
@@ -132,7 +134,6 @@ class DataGenerator(object):
         self.diagnosis_list = []
         for line in reader:
             self.diagnosis_list.append(line[0])
-        self.progression_or_recurrence_list = ['yes', 'no', 'unknown']
 
     def _genomic_files_choices(self):
         """
@@ -171,18 +172,17 @@ class DataGenerator(object):
         creates participants with samples, demographics, and diagnoses
         """
         for i in range(total):
-            self.p = Participant(
+            samples = self._create_samples(random.randint(self.min_samples,
+                                                          self.max_samples))
+            demographic = self._create_demographics(i)
+            diagnoses = self._create_diagnoses(
+                random.randint(self.min_samples, self.max_diagnoses))
+            p = Participant(
                 external_id='participant_{}'.format(i),
-                samples=self._create_samples(
-                    random.randint(
-                        self.min_samples,
-                        self.max_samples)),
-                demographic=self._create_demographics(i),
-                diagnoses=self._create_diagnoses(
-                    random.randint(
-                        self.min_samples,
-                        self.max_diagnoses)))
-            db.session.add(self.p)
+                samples=samples,
+                demographic=demographic,
+                diagnoses=diagnoses)
+            db.session.add(p)
         db.session.commit()
 
     def _create_samples(self, total):
@@ -190,9 +190,9 @@ class DataGenerator(object):
         Create samples with aliquots
         """
 
-        self.s_list = []
+        s_list = []
         for i in range(total):
-            self.sample_data = {
+            sample_data = {
                 'external_id': 'sample_{}'.format(i),
                 'tissue_type': random.choice(self.tissue_type_list),
                 'composition': random.choice(self.composition_list),
@@ -200,23 +200,19 @@ class DataGenerator(object):
                 'age_at_event_days': random.randint(0, 32872),
                 'tumor_descriptor': random.choice(self.tumor_descriptor_list)
             }
-            self.s_list.append(
-                Sample(
-                    **self.sample_data,
-                    aliquots=self._create_aliquots(
-                        random.randint(
-                            self.min_aliquots,
-                            self.max_aliquots))))
-        return self.s_list
+            aliquots = self._create_aliquots(random.randint(self.min_aliquots,
+                                                            self.max_aliquots))
+            s_list.append(Sample(**sample_data, aliquots=aliquots))
+        return s_list
 
     def _create_aliquots(self, total):
         """
         Creates aliquots with sequencing experiments
         """
-        self.dt = datetime.now()
-        self.a_list = []
+        dt = datetime.now()
+        a_list = []
         for i in range(total):
-            self.aliquot_data = {
+            aliquot_data = {
                 'external_id': 'aliquot_{}'.format(i),
                 'shipment_origin': random.choice(self.shipment_origin_list),
                 'shipment_destination':
@@ -224,36 +220,35 @@ class DataGenerator(object):
                 'analyte_type': random.choice(self.analyte_type_list),
                 'concentration': random.randint(70, 400),
                 'volume': (random.randint(200, 400)) / 10,
-                'shipment_date': self.dt - relativedelta.relativedelta(
+                'shipment_date': dt - relativedelta.relativedelta(
                     years=random.randint(1, 2)) - relativedelta.relativedelta(
                     months=random.randint(1, 12)) +
                 relativedelta.relativedelta(days=random.randint(1, 30))
             }
-            self.a_list.append(
-                Aliquot(
-                    **self.aliquot_data,
-                    sequencing_experiments=self._create_experiments(
-                        random.randint(self.min_seq_exps, self.max_seq_exps))))
-        return self.a_list
+            sequencing_experiments = self._create_experiments(
+                random.randint(self.min_seq_exps, self.max_seq_exps))
+            a_list.append(Aliquot(
+                **aliquot_data,
+                sequencing_experiments=sequencing_experiments))
+        return a_list
 
     def _create_experiments(self, total):
         """
         Creates sequencing experiments
         """
 
-        self.e_list = []
+        e_list = []
         dt = datetime.now()
         for i in range(total):
 
-            self.e_data = {
+            e_data = {
                 'external_id': 'sequencing_experiment_{}'.format(i),
                 'experiment_date': dt - relativedelta.relativedelta(
                     years=random.randint(1, 3)) + relativedelta.relativedelta(
                     months=random.randint(1, 6)) +
                 relativedelta.relativedelta(days=random.randint(1, 30)),
                 'experiment_strategy':
-                random.choice
-                (self.experiment_strategy_list),
+                random.choice(self.experiment_strategy_list),
                 'center': 'Broad Institute',
                 'library_name': 'Test_library_name_{}'.format(i),
                 'library_strand': random.choice(self.library_strand_list),
@@ -266,54 +261,52 @@ class DataGenerator(object):
                 'total_reads': random.randint(400, 1000),
                 'mean_read_length': random.randint(400, 1000)
             }
-            self.e_list.append(
-                SequencingExperiment(
-                    **self.e_data,
-                    genomic_files=self._create_genomic_files
-                    (random.randint(self.min_gen_files, self.max_gen_files))))
-        return self.e_list
+            genomic_files = self._create_genomic_files(
+                random.randint(self.min_gen_files,
+                               self.max_gen_files))
+            e_list.append(SequencingExperiment(**e_data,
+                                               genomic_files=genomic_files))
+        return e_list
 
     def _create_genomic_files(self, total):
         """
         creates genomic files
         """
-        self.gf_list = []
+        gf_list = []
         for i in range(total):
-            self.kwargs = {
+            kwargs = {
                 'file_name': 'file_{}'.format(i),
                 'file_type': 'submitted aligned read',
                 'file_format': random.choice(self.file_format_list),
                 'file_url': 's3://file_{}'.format(i),
                 'md5sum': str(uuid.uuid4()),
             }
-            self.gf_list.append(GenomicFile(**self.kwargs))
-        return self.gf_list
+            gf_list.append(GenomicFile(**kwargs))
+        return gf_list
 
     def _create_demographics(self, i):
         """
         creates demographics
         """
-        self.data = {
+        data = {
             'external_id': 'demo_id_{}'.format(i),
             'race': random.choice(self.race_list),
             'ethnicity': random.choice(self.ethnicity_list),
             'gender': random.choice(self.gender_list)
         }
-        return Demographic(**self.data)
+        return Demographic(**data)
 
     def _create_diagnoses(self, total):
         """
         creates diagnoses
         """
-        self.diag_list = []
+        diag_list = []
         for i in range(total):
 
-            self.data = {
+            data = {
                 'external_id': 'diagnosis_{}'.format(i),
                 'diagnosis': random.choice(self.diagnosis_list),
-                'progression_or_recurrence':
-                    random.choice(self.progression_or_recurrence_list),
                 'age_at_event_days': random.randint(0, 32872)
             }
-            self.diag_list.append(Diagnosis(**self.data))
-        return self.diag_list
+            diag_list.append(Diagnosis(**data))
+        return diag_list
