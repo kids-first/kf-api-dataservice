@@ -28,7 +28,8 @@ class TestAPI:
         call_func = getattr(client, method.lower())
         resp = call_func(endpoint)
         assert resp.status_code == status_code
-        assert json.loads(resp.data)['_status']['code'] == status_code
+        resp = resp.data.decode('utf-8')
+        assert json.loads(resp)['_status']['code'] == status_code
 
     @pytest.mark.parametrize('endpoint,method,status_message', [
         ('/', 'GET', 'Welcome to'),
@@ -55,7 +56,8 @@ class TestAPI:
         """
         call_func = getattr(client, method.lower())
         resp = call_func(endpoint)
-        assert status_message in json.loads(resp.data)['_status']['message']
+        resp = json.loads(resp.data.decode('utf-8'))
+        assert status_message in resp['_status']['message']
 
     @pytest.mark.parametrize('endpoint,method', [
         ('/participants', 'GET'),
@@ -80,9 +82,9 @@ class TestAPI:
         """ Test that given fields can not be written or modified """
         req = {field: 'test'}
         resp = client.post(endpoint,
-                           data=json.dumps(req),
-                           headers={'Content-Type': 'application/json'})
-        body = json.loads(resp.data)
+                data=json.dumps(req),
+                headers={'Content-Type': 'application/json'})
+        body = json.loads(resp.data.decode('utf-8'))
         assert (field not in body['results']
                 or body['results'][field] != 'test')
 
@@ -94,9 +96,9 @@ class TestAPI:
         """ Test that unknown fields are rejected when trying to create  """
         req = {field: 'test'}
         resp = client.post(endpoint,
-                           data=json.dumps(req),
-                           headers={'Content-Type': 'application/json'})
-        body = json.loads(resp.data)
+                data=json.dumps(req),
+                headers={'Content-Type': 'application/json'})
+        body = json.loads(resp.data.decode('utf-8'))
         assert body['_status']['code'] == 400
         assert 'could not create ' in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']

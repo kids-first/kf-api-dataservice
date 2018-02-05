@@ -101,7 +101,7 @@ class DemographicTest(FlaskTestCase):
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        message = 'Cannot create demographic without an existing'
+        message = '"{}" does not exist'.format(kwargs['participant_id'])
         self.assertIn(message, response['_status']['message'])
         # Check field values
         d = Demographic.query.first()
@@ -127,7 +127,8 @@ class DemographicTest(FlaskTestCase):
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        message = 'Cannot create demographic, participant already'
+        message = 'participant "{}" may only have one demographic'
+        message = message.format(d1['participant_id'])
         self.assertIn(message, response['_status']['message'])
 
         # Check database
@@ -251,7 +252,7 @@ class DemographicTest(FlaskTestCase):
         body = {
             'race': 'black or african',
             'gender': 'male',
-            'participant_id': '--------'
+            'participant_id': 'AAAA1111'
         }
         response = self.client.put(url_for(DEMOGRAPHICS_URL,
                                            kf_id=kwargs['kf_id']),
@@ -262,7 +263,7 @@ class DemographicTest(FlaskTestCase):
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        message = 'Cannot update demographic without an existing'
+        message = '"AAAA1111" does not exist'
         self.assertIn(message, response['_status']['message'])
         # Check field values
         d = Demographic.query.first()

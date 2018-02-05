@@ -28,7 +28,7 @@ class GenomicFile(db.Model, Base):
     # TODO Change to use UUID for md5sum later on
     # See link for why md5sum should use uuid type
     # https://dba.stackexchange.com/questions/115271/what-is-the-optimal-data-type-for-an-md5-field
-    md5sum = db.Column(db.String(32), unique=True)
+    md5sum = db.Column(db.String(36), unique=True)
     sequencing_experiment_id = db.Column(db.String(8),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'),

@@ -7,6 +7,9 @@ from dataservice.extensions import db, ma, migrate
 from dataservice.api.participant.models import Participant
 from config import config
 
+from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import HTTPException
+
 
 def create_app(config_name):
     """
@@ -15,6 +18,7 @@ def create_app(config_name):
     app = Flask(__name__)
     app.url_map.strict_slashes = False
     app.config.from_object(config[config_name])
+    config[config_name].init_app(app)
 
     # Register Flask extensions
     register_extensions(app)
@@ -74,10 +78,12 @@ def register_extensions(app):
 def register_error_handlers(app):
     """
     Register error handlers
+
+    NB: Exceptions to be handled must be imported in the head of this module
     """
     from dataservice.api import errors
-    from werkzeug.exceptions import HTTPException
     app.register_error_handler(HTTPException, errors.http_error)
+    app.register_error_handler(IntegrityError, errors.integrity_error)
     app.register_error_handler(404, errors.http_error)
     app.register_error_handler(400, errors.http_error)
 
