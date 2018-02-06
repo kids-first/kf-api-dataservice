@@ -67,7 +67,7 @@ pipeline {
      steps {
        slackSend (color: '#005e99', message: ":deploying_qa: DEPLOYING TO QA: (${env.BUILD_URL})")
        sh '''
-       dataservice-api/publish_stage/deploy.sh dev
+       dataservice-api/publish_stage/deploy.sh qa
        '''
        slackSend (color: '#41aa58', message: ":white_check_mark: DEPLOYED TO QA: (${env.BUILD_URL})")
      }
