@@ -91,7 +91,7 @@ pipeline {
        git clone git@github.com:kids-first/aws-ecs-service-type-1.git
        cd aws-ecs-service-type-1/
        echo "Setting up backend"
-       echo 'key        = "qa/kf-qa-api-dataservice-us-east-1-RSF"' >> qa.conf:
+       echo 'key        = "qa/kf-qa-api-dataservice-us-east-1-RSF"' >> qa.conf
        terraform init -backend=true -backend-config=qa.conf
        terraform validate -var 'image=538745987955.dkr.ecr.us-east-1.amazonaws.com/kf-api-dataservice:latest' \
         -var 'pg_host="kf-dataservice-api-qa.c3siovbugjym.us-east-1.rds.amazonaws.com"' \
