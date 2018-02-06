@@ -103,7 +103,7 @@ pipeline {
         -var 'pg_host="kf-dataservice-api-qa.c3siovbugjym.us-east-1.rds.amazonaws.com"' \
         -var 'db_secret_path="secret/aws/dataservice-api-postgres"' -var 'pg_db_name="kfpostgresqa"' \
         -var 'task_role_arn="arn:aws:iam::538745987955:role/kfDataserviceApiRole"' -var 'application=dataservice-api' \
-        -var 'service_name="kf-api-dataservice"' -var 'owner="jenkins"' -var-file=qa.tfvar
+        -var 'service_name="kf-api-dataservice"' -var 'owner="jenkins"' -var-file=qa.tfvar \
         -var 'vault_role="kf_dataservice_api_role"'
        '''
        slackSend (color: '#41aa58', message: ":white_check_mark: DEPLOYED TO QA: (${env.BUILD_URL})")
