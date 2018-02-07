@@ -9,9 +9,9 @@ class IDMixin:
     """
     Defines base ID columns common on all Kids First tables
     """
-    _id = db.Column(db.Integer(), primary_key=True)
     uuid = db.Column(db.String(36), unique=True, default=uuid_generator)
-    kf_id = db.Column(db.String(8), unique=True, default=kf_id_generator)
+    kf_id = db.Column(db.String(8), unique=True,
+                      primary_key=True, default=kf_id_generator)
 
 
 class TimestampMixin:
