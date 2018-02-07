@@ -142,6 +142,7 @@ class DataGenerator(object):
         self.min_gen_files = 0
         self.max_gen_files = 5
         self.file_format_list = ['.cram', '.bam', '.vcf']
+        self.controlled_access_list = [True, False]
 
     def setup(self, config_name):
         """
@@ -277,9 +278,13 @@ class DataGenerator(object):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
                 'file_type': 'submitted aligned read',
-                'file_format': random.choice(self.file_format_list),
+                'file_format': random.choice(
+                    self.file_format_list),
                 'file_url': 's3://file_{}'.format(i),
-                'md5sum': str(uuid.uuid4()),
+                'controlled_access': random.choice(
+                    self.controlled_access_list),
+                'md5sum': str(
+                    uuid.uuid4()),
             }
             gf_list.append(GenomicFile(**kwargs))
         return gf_list

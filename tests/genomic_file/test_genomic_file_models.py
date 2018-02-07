@@ -39,6 +39,7 @@ class ModelTest(FlaskTestCase):
                 'file_format': '.cram',
                 'file_url': 's3://file_{}'.format(i),
                 'md5sum': str(uuid.uuid4()),
+                'controlled_access': True,
                 'sequencing_experiment_id': experiment.kf_id
             }
             kwargs_dict[kwargs['md5sum']] = kwargs
@@ -177,6 +178,7 @@ class ModelTest(FlaskTestCase):
                 'file_type': 'submitted aligned read',
                 'file_format': '.cram',
                 'file_url': 's3://file_{}'.format(i),
+                'controlled_access': True,
                 'md5sum': str(uuid.uuid4())
             }
             kwargs_dict[kwargs['md5sum']] = kwargs

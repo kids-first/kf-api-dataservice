@@ -18,6 +18,7 @@ class GenomicFile(db.Model, Base):
     :param file_format: Format of file
     :param file_url: Location of file
     :param md5sum: 128 bit md5 hash of file
+    :param controlled_access: whether or not the file is controlled access
     """
 
     __tablename__ = 'genomic_file'
@@ -29,6 +30,7 @@ class GenomicFile(db.Model, Base):
     # See link for why md5sum should use uuid type
     # https://dba.stackexchange.com/questions/115271/what-is-the-optimal-data-type-for-an-md5-field
     md5sum = db.Column(db.String(36), unique=True)
+    controlled_access = db.Column(db.Boolean())
     sequencing_experiment_id = db.Column(db.String(8),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'),
