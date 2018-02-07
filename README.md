@@ -17,11 +17,18 @@ is with docker compose:
 ```
 git clone git@github.com:kids-first/kf-api-dataservice.git
 cd kf-api-dataservice
-docker-compose up
+docker-compose up -d
 ```
+
 
 This will start the dataservice api on port `5000` with a backing postgres
 database initialized with the current datamodel.
+
+To add mock data to the dataservice:
+```
+docker-compose exec dataservice flask populate_db
+```
+
 
 ### Developing the dataservice api and model
 
