@@ -33,18 +33,18 @@ class TestPagination:
         assert response['limit'] == 10
         assert response['total'] == 102
 
-        # Check that size param operates correctly
-        response = client.get(endpoint+'?size=5')
+        # Check that limit param operates correctly
+        response = client.get(endpoint+'?limit=5')
         response =  json.loads(response.data)
         assert len(response['results']) == 5
         assert response['limit'] == 5
 
-        response = client.get(endpoint+'?size=200')
+        response = client.get(endpoint+'?limit=200')
         response =  json.loads(response.data)
         assert len(response['results']) == 100
 
-        # Check unexpected size param uses default
-        response = client.get(endpoint+'?size=dog')
+        # Check unexpected limit param uses default
+        response = client.get(endpoint+'?limit=dog')
         response =  json.loads(response.data)
         assert len(response['results']) == 10
         assert response['limit'] == 10
@@ -66,7 +66,7 @@ class TestPagination:
         response =  json.loads(response.data)
         assert response['_links']['self'].endswith('?page=1')
 
-        response = client.get(endpoint+'?size=2')
+        response = client.get(endpoint+'?limit=2')
         response =  json.loads(response.data)
 
         # Check unexpected page param returns page 1 

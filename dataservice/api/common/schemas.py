@@ -28,10 +28,6 @@ class BaseSchema(ma.ModelSchema):
     def wrap_pre(self, data, many):
         if isinstance(data, Pagination):
             self.__pagination__ = data
-            if self.Meta.resource_url:
-                self._links = ma.Hyperlinks({
-                    'next': ma.URLFor(self.Meta.resource_url, kf_id='<kf_id>')
-                })
             return data.items
         return data
 

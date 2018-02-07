@@ -4,6 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
+from dataservice.api.common.pagination import paginated
 from dataservice.api.participant.models import Participant
 from dataservice.api.participant.schemas import ParticipantSchema
 from dataservice.api.common.views import CRUDView
@@ -17,6 +18,7 @@ class ParticipantListAPI(CRUDView):
     rule = '/participants'
     schemas = {'Participant': ParticipantSchema}
 
+    @paginated
     def get(self, limit, page):
         """
         Get a paginated participants
