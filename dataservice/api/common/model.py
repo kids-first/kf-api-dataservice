@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.dialects.postgresql import UUID
 
 from dataservice.extensions import db
 from dataservice.api.common.id_service import uuid_generator, kf_id_generator
@@ -9,7 +10,7 @@ class IDMixin:
     """
     Defines base ID columns common on all Kids First tables
     """
-    uuid = db.Column(db.String(36), unique=True, default=uuid_generator)
+    uuid = db.Column(UUID(), unique=True, default=uuid_generator)
     kf_id = db.Column(db.String(8), unique=True, primary_key=True,
                       doc="ID assigned by Kids First", default=kf_id_generator)
 
