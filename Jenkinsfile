@@ -30,7 +30,7 @@ pipeline {
      }
      post {
        failure {
-         slackSend (color: '#ff0000', message: ":frowning: Test Failed: Branch '${env.BRANCH} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+         slackSend (color: '#ff0000', message: ":frowning: Test Failed: Branch '${env.BRANCH_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
        }
      }
     }
@@ -50,7 +50,7 @@ pipeline {
       }
       post {
         failure {
-          slackSend (color: '#ff0000', message: ":frowning: Publish Failed: Branch '${env.BRANCH} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+          slackSend (color: '#ff0000', message: ":frowning: Publish Failed: Branch '${env.BRANCH_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
       }
     }
@@ -69,7 +69,7 @@ pipeline {
       }
       post {
         failure {
-          slackSend (color: '#ff0000', message: ":frowning: Test Failed: Branch '${env.BRANCH} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+          slackSend (color: '#ff0000', message: ":frowning: Test Failed: Branch '${env.BRANCH_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
       }
     }
