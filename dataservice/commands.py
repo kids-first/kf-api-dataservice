@@ -24,3 +24,27 @@ def erd():
         os.mkdir('docs')
 
     render_er(Participant, os.path.join('docs', 'erd.png'))
+
+
+@click.command()
+def populate_db():
+    """
+    Run the dummy data generator
+
+    Populate the database
+    """
+    from dataservice.util.data_gen.data_generator import DataGenerator
+    dg = DataGenerator()
+    dg.create_and_publish_all()
+
+
+@click.command()
+def clear_db():
+    """
+    Run the dummy data generator
+
+    Clear the database
+    """
+    from dataservice.util.data_gen.data_generator import DataGenerator
+    dg = DataGenerator()
+    dg.drop_all()
