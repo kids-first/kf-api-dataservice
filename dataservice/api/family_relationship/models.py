@@ -7,12 +7,11 @@ class FamilyRelationship(db.Model, Base):
     """
     Represents a relationship between two family members.
 
-    The relationship table represents an undirected graph. Only one
-    relationship will exist between any two participants.
-    (P1 -> P2 is equal to P2 -> P1 and only one of these will be stored)
+    The relationship table represents a directed graph. One or more
+    relationships may exist between any two participants.
+    (P1 -> P2 is different than P2 -> P1)
 
-    :param _id: Unique id assigned by RDBMS
-    :param kf_id: Unique id given by the Kid's First DCC
+    :param kf_id: Primary key given by the Kid's First DCC
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     :param participant_id: Kids first id of the first Participant in the
@@ -26,8 +25,6 @@ class FamilyRelationship(db.Model, Base):
     """
     __tablename__ = 'family_relationship'
 
-    _rel_name = db.Column(db.Text, unique=True)
-
     participant_id = db.Column(
         db.String(8),
         db.ForeignKey('participant.kf_id'), nullable=False)
@@ -36,7 +33,7 @@ class FamilyRelationship(db.Model, Base):
         db.String(8),
         db.ForeignKey('participant.kf_id'), nullable=False)
 
-    relationship_type = db.Column(db.Text, nullable=False)
+    participant_to_relative_relation = db.Column(db.Text, nullable=False)
 
     participant = db.relationship(
         Participant,
@@ -50,34 +47,7 @@ class FamilyRelationship(db.Model, Base):
         backref=db.backref('incoming_family_relationships',
                            cascade='all, delete-orphan'))
 
-    def _create_relationship_name(self, **kwargs):
-        """
-        Populates the _rel_name column using participant_id and relative_id
-
-        Get participant_id and relative_id directly from kwargs or from the
-        kf_id's of participant and relative objects passed in via kwargs
-
-        Sort the ids and concatenate with a space to delimit
-        """
-        # Build from foreign keys in kwargs
-        participant_id = kwargs.get('participant_id')
-        relative_id = kwargs.get('relative_id')
-        if (participant_id is None) or (relative_id is None):
-            participant = kwargs.get('participant')
-            relative = kwargs.get('relative')
-            # Build from relationship objects in kwargs
-            if participant and relative:
-                participant_id = participant.kf_id
-                relative_id = relative.kf_id
-        # Create sorted list and concatenate using space
-        if participant_id and relative_id:
-            self._rel_name = ' '.join(sorted([participant_id, relative_id]))
-
-    def __init__(self, **kwargs):
-        self._create_relationship_name(**kwargs)
-        super(FamilyRelationship, self).__init__(**kwargs)
-
     def __repr__(self):
-        return '{} is {} of {}'.format(self.participant,
-                                       self.relationship_type,
-                                       self.relative)
+        return '<{} is {} of {}>'.format(self.participant,
+                                         self.relationship_type,
+                                         self.relative)
