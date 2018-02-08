@@ -50,7 +50,11 @@ class DataGenerator(object):
             'NOS',
             'Unknown',
             'Not Reported']
-        self.anatomical_site = ['Brain']
+        asref_file = open('dataservice/util/data_gen/anatomical_site.txt', 'r')
+        reader = csv.reader(asref_file)
+        self.anatomical_site_list = []
+        for line in reader:
+            self.anatomical_site_list.append(line[0])
 
     def _aliquot_choices(self):
         """
@@ -197,7 +201,7 @@ class DataGenerator(object):
                 'external_id': 'sample_{}'.format(i),
                 'tissue_type': random.choice(self.tissue_type_list),
                 'composition': random.choice(self.composition_list),
-                'anatomical_site': random.choice(self.anatomical_site),
+                'anatomical_site': random.choice(self.anatomical_site_list),
                 'age_at_event_days': random.randint(0, 32872),
                 'tumor_descriptor': random.choice(self.tumor_descriptor_list)
             }
