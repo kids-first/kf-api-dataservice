@@ -51,5 +51,35 @@ class Participant(db.Model, Base):
                          db.ForeignKey('study.kf_id'),
                          nullable=False)
 
+    def upstream_relatives(self):
+        """
+        Convenience method to get related participants upstream of self
+
+        An upstream relative is the participant pointing to self in the family
+        relationship.
+        For example for the family relationship: P1 --> P2,
+        P1 is the upstream relative of P2.
+        """
+        return [r.participant
+                for r in self.incoming_family_relationships]
+
+    def downstream_relatives(self):
+        """
+        Convenience method to get related participants downstream from self
+
+        A downstream relative is the participant that self points to in the
+        family relationship.
+        For example for the family relationship: P1 --> P2,
+        P2 is the downstream relative of P1.
+        """
+        return [r.relative
+                for r in self.outgoing_family_relationships]
+
+    def relatives(self):
+        """
+        Convenience method to get all relatives of this participant
+        """
+        return self.upstream_relatives() + self.downstream_relatives()
+
     def __repr__(self):
         return '<Participant {}>'.format(self.kf_id)
