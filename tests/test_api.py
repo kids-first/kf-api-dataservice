@@ -103,6 +103,24 @@ class TestAPI:
         assert 'could not create ' in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']
 
+    
+    @pytest.mark.parametrize('resource,field', [
+        ('/participants', 'demographic'),
+        ('/participants', 'diagnoses')
+    ])
+    def test_relations(self, client, entities, resource, field):
+        """ Checks that references to other resources have correct ID """
+        resp = client.get(resource)
+        body = json.loads(resp.data.decode('utf-8'))['results'][0]
+
+        assert field in body
+        if type(body[field]) is list:
+            assert all([type(f) is str for f in body[field]])
+            assert all([len(f) == 8 for f in body[field]])
+        else:
+            assert type(body[field]) is str
+            assert len(body[field]) == 8
+
     def test_version(self, client):
         """ Test response from /status returns correct fields """
         status = json.loads(client.get('/status').data.decode('utf-8'))
