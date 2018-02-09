@@ -1,4 +1,4 @@
-"""empty message
+"""Initial migration
 
 Revision ID: 0cc35a21afc2
 Revises: 
@@ -134,7 +134,7 @@ def upgrade():
     sa.Column('file_type', sa.Text(), nullable=True),
     sa.Column('file_format', sa.Text(), nullable=True),
     sa.Column('file_url', sa.Text(), nullable=True),
-    sa.Column('md5sum', sa.String(length=32), nullable=True),
+    sa.Column('md5sum', sa.String(length=36), nullable=True),
     sa.Column('sequencing_experiment_id', sa.String(length=8), nullable=False),
     sa.ForeignKeyConstraint(['sequencing_experiment_id'], ['sequencing_experiment.kf_id'], ),
     sa.PrimaryKeyConstraint('_id'),
