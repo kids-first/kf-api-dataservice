@@ -1,4 +1,4 @@
-"""empty message
+"""Creating Phenotype table
 
 Revision ID: 3e79f35badf2
 Revises: b7852f8aab0a
@@ -23,7 +23,6 @@ def upgrade():
     sa.Column('kf_id', sa.String(length=8), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('modified_at', sa.DateTime(), nullable=True),
-    sa.Column('external_id', sa.Text(), nullable=True),
     sa.Column('phenotype', sa.Text(), nullable=True),
     sa.Column('hpo_id', sa.Text(), nullable=True),
     sa.Column('observed', sa.Text(), nullable=True),
