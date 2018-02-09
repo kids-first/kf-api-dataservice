@@ -3,6 +3,7 @@ from dataservice.api.common.model import Base
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.demographic.models import Demographic
+from dataservice.api.phenotype.models import Phenotype
 
 
 class Participant(db.Model, Base):
@@ -27,3 +28,7 @@ class Participant(db.Model, Base):
     demographic = db.relationship(Demographic, backref='participant',
                                   uselist=False, cascade="all, delete-orphan",
                                   lazy=True)
+    phenotypes = db.relationship(Phenotype,
+                                 cascade="all, delete-orphan",
+                                 backref=db.backref('participants',
+                                                    lazy=True))
