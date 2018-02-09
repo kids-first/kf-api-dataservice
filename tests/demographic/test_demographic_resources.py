@@ -10,6 +10,7 @@ from dataservice.api.participant.models import Participant
 from tests.utils import FlaskTestCase
 
 DEMOGRAPHICS_URL = 'api.demographics'
+DEMOGRAPHICS_LIST_URL = 'api.demographics_list'
 
 
 class DemographicTest(FlaskTestCase):
@@ -35,7 +36,7 @@ class DemographicTest(FlaskTestCase):
             'participant_id': p.kf_id
         }
         # Send get request
-        response = self.client.post(url_for(DEMOGRAPHICS_URL),
+        response = self.client.post(url_for(DEMOGRAPHICS_LIST_URL),
                                     data=json.dumps(kwargs),
                                     headers=self._api_headers())
 
@@ -61,7 +62,7 @@ class DemographicTest(FlaskTestCase):
             'gender': 'female'
         }
         # Send post request
-        response = self.client.post(url_for(DEMOGRAPHICS_URL),
+        response = self.client.post(url_for(DEMOGRAPHICS_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -91,7 +92,7 @@ class DemographicTest(FlaskTestCase):
             'participant_id': id_service.kf_id_generator()
         }
         # Send post request
-        response = self.client.post(url_for(DEMOGRAPHICS_URL),
+        response = self.client.post(url_for(DEMOGRAPHICS_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -119,7 +120,7 @@ class DemographicTest(FlaskTestCase):
             'participant_id': d1['participant_id']
         }
         # Send post request
-        response = self.client.post(url_for(DEMOGRAPHICS_URL),
+        response = self.client.post(url_for(DEMOGRAPHICS_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(d2))
         # Check status code
@@ -177,7 +178,7 @@ class DemographicTest(FlaskTestCase):
         """
         kwargs = self._create_save_to_db()
 
-        response = self.client.get(url_for(DEMOGRAPHICS_URL),
+        response = self.client.get(url_for(DEMOGRAPHICS_LIST_URL),
                                    headers=self._api_headers())
         self.assertEqual(response.status_code, 200)
         response = json.loads(response.data.decode("utf-8"))

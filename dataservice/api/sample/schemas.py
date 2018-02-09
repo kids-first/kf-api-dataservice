@@ -22,6 +22,6 @@ class SampleSchema(BaseSchema):
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.samples', kf_id='<kf_id>'),
-        'collection': ma.URLFor('api.samples'),
+        'collection': ma.URLFor('api.samples_list'),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
     })

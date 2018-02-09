@@ -18,5 +18,6 @@ class DemographicSchema(BaseSchema):
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.demographics', kf_id='<kf_id>'),
+        'collection': ma.URLFor('api.demographics_list'),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
     })

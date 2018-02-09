@@ -5,6 +5,12 @@ from dataservice.api.status import StatusAPI
 from dataservice.api.common.views import CRUDView
 from dataservice.api.participant import ParticipantAPI
 from dataservice.api.participant import ParticipantListAPI
+from dataservice.api.diagnosis import DiagnosisAPI
+from dataservice.api.diagnosis import DiagnosisListAPI
+from dataservice.api.sample import SampleAPI
+from dataservice.api.sample import SampleListAPI
+from dataservice.api.demographic import DemographicAPI
+from dataservice.api.demographic import DemographicListAPI
 
 
 api = Blueprint('api', __name__, url_prefix='', template_folder='templates')
@@ -20,7 +26,5 @@ api.add_url_rule('/swagger', view_func=swagger_view, methods=['GET'])
 status_view = StatusAPI.as_view('status')
 api.add_url_rule('/status', view_func=status_view, methods=['GET'])
 
+# All CRUD resources
 views = CRUDView.register_views(api)
-
-# Sample resource
-#register_crud_resource(api, SampleAPI, 'samples', '/samples/')

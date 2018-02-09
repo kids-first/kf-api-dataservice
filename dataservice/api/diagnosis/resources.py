@@ -1,27 +1,24 @@
-from flask import (
-    abort,
-    request
-)
-from flask.views import MethodView
+from flask import abort, request
 from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.diagnosis.schemas import DiagnosisSchema
+from dataservice.api.common.views import CRUDView
 
 
-class DiagnosisListAPI(MethodView):
+class DiagnosisListAPI(CRUDView):
     """
     Diagnosis REST API
     """
+    endpoint = 'diagnoses_list'
+    rule = '/diagnoses'
+    schemas = {'Diagnosis': DiagnosisSchema}
 
     def get(self):
         """
-        Get a diagnosis by id or get all diagnoses
-
-        Get a diagnosis by Kids First id or get all diagnoses if
-        Kids First id is None
+        Get all diagnoses
         ---
         description: Get diagnoses
         tags:
@@ -87,17 +84,17 @@ class DiagnosisListAPI(MethodView):
                                .format(d.kf_id)).jsonify(d), 201
 
 
-class DiagnosisAPI(MethodView):
+class DiagnosisAPI(CRUDView):
     """
     Diagnosis REST API
     """
+    endpoint = 'diagnoses'
+    rule = '/diagnoses/<string:kf_id>'
+    schemas = {'Diagnosis': DiagnosisSchema}
 
     def get(self, kf_id):
         """
-        Get a diagnosis by id or get all diagnoses
-
-        Get a diagnosis by Kids First id or get all diagnoses if
-        Kids First id is None
+        Get a diagnosis by id
         ---
         description: Get diagnosis by id
         tags:
@@ -136,7 +133,6 @@ class DiagnosisAPI(MethodView):
             abort(404, 'could not find {} `{}`'
                   .format('diagnosis', kf_id))
         return DiagnosisSchema().jsonify(d)
-
 
     def put(self, kf_id):
         """
