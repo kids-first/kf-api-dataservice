@@ -1,17 +1,20 @@
 from flask import abort, request
-from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
 from dataservice.api.participant.schemas import ParticipantSchema
+from dataservice.api.common.views import CRUDView
 
 
-class ParticipantListAPI(MethodView):
+class ParticipantListAPI(CRUDView):
     """
     Participant API
     """
+    endpoint = 'participants_list'
+    rule = '/participants'
+    schemas = {'Participant': ParticipantSchema}
 
     def get(self):
         """
@@ -61,10 +64,13 @@ class ParticipantListAPI(MethodView):
         ).jsonify(p), 201
 
 
-class ParticipantAPI(MethodView):
+class ParticipantAPI(CRUDView):
     """
     Participant API
     """
+    endpoint = 'participants'
+    rule = '/participants/<string:kf_id>'
+    schemas = {'Participant': ParticipantSchema}
 
     def get(self, kf_id):
         """
@@ -113,7 +119,7 @@ class ParticipantAPI(MethodView):
             $ref: "#/definitions/Participant"
         responses:
           200:
-            description: Participant updated 
+            description: Participant updated
             schema:
               $ref: '#/definitions/ParticipantResponse'
         """

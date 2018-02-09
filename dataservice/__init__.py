@@ -46,41 +46,17 @@ def register_spec(app):
         ],
     )
 
-    from dataservice.api.common.schemas import StatusSchema, response_generator, paginated_generator
-    from dataservice.api.participant.schemas import ParticipantSchema
-    from dataservice.api.diagnosis.schemas import DiagnosisSchema
-    from dataservice.api.demographic.schemas import DemographicSchema
-
-    from dataservice.api import (
-        status_view,
-        participant_view,
-        participant_list_view,
-        diagnosis_view,
-        diagnosis_list_view
-    )
+    from dataservice.api import status_view, views
+    from dataservice.api.common.schemas import StatusSchema
 
     spec.definition('Status', schema=StatusSchema)
-    spec.definition('Participant', schema=ParticipantSchema)
-    ParticipantResponseSchema = response_generator(ParticipantSchema)
-    spec.definition('ParticipantResponse', schema=ParticipantResponseSchema)
-    ParticipantPaginatedSchema = paginated_generator(ParticipantSchema)
-    spec.definition('ParticipantPaginated', schema=ParticipantPaginatedSchema)
 
-    spec.definition('Diagnosis', schema=DiagnosisSchema)
-    DiagnosisResponseSchema = response_generator(DiagnosisSchema)
-    spec.definition('DiagnosisResponse', schema=DiagnosisResponseSchema)
-    DiagnosisPaginatedSchema = paginated_generator(DiagnosisSchema)
-    spec.definition('DiagnosisPaginated', schema=DiagnosisPaginatedSchema)
-
-    from flask import current_app
-
+    from dataservice.api.common.views import CRUDView
+    CRUDView.register_spec(spec)
     with app.test_request_context():
         spec.add_path(view=status_view)
-        spec.add_path(view=participant_view)
-        spec.add_path(view=participant_list_view)
-
-        spec.add_path(view=diagnosis_view)
-        spec.add_path(view=diagnosis_list_view)
+        for view in views:
+            spec.add_path(view=view)
 
     app.spec = spec
 
