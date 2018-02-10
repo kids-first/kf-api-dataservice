@@ -7,11 +7,6 @@ from dataservice.api.common.schemas import (
     paginated_generator
 )
 
-http_method_funcs = frozenset(['get', 'post', 'head', 'options',
-                               'delete', 'put', 'trace', 'patch'])
-
-
-
 
 class CRUDView(MethodView):
     """

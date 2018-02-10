@@ -2,12 +2,10 @@ from dataservice.extensions import ma
 from marshmallow import (
         fields,
         post_dump,
-        post_load,
         validates_schema,
         ValidationError
 )
 from flask_marshmallow import Schema
-from marshmallow_sqlalchemy import field_for
 
 
 class BaseSchema(ma.ModelSchema):
@@ -71,7 +69,7 @@ def paginated_generator(schema):
                                description='Max number of results per page')
         total = fields.Integer(example=1342,
                                description='Total number of results')
-        results = fields.Nested(schema)
+        results = fields.List(fields.Nested(schema))
 
     return PaginatedSchema
 

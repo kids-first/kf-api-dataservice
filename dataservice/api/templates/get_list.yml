@@ -1,4 +1,4 @@
-description: Get {{ resource.lower() }}
+description: Get {{ resource.lower() }}s
 tags:
 - {{ resource }}
 responses:

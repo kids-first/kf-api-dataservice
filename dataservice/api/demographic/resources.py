@@ -18,7 +18,7 @@ class DemographicListAPI(CRUDView):
 
     def get(self):
         """
-        Get a demographic by id or get all demographics
+        Get all demographics
         ---
         template:
           path:
@@ -68,7 +68,7 @@ class DemographicAPI(CRUDView):
 
     def get(self, kf_id):
         """
-        Get a demographic by id or get all demographics
+        Get a demographic by id
 
         Get a demographic by Kids First id or get all demographics if
         Kids First id is None

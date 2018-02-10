@@ -45,10 +45,10 @@ class TestSwagger:
 
     @pytest.mark.parametrize('path,value', [
         ('info.title', 'Kids First Data Service'),
-        ('paths./participants/{kf_id}.get.description', 'Get Participants by id'),
+        ('paths./participants/{kf_id}.get.description', 'Get Participant by id'),
         ('paths./diagnoses/{kf_id}.get.description', 'Get Diagnosis by id'),
         ('paths./samples/{kf_id}.get.description', 'Get Sample by id'),
-        ('paths./demographics/{kf_id}.get.description', 'Get Demographics by id'),
+        ('paths./demographics/{kf_id}.get.description', 'Get Demographic by id'),
     ])
     def test_field_equals(self, swagger, path, value):
         """ Test swagger spec field values """

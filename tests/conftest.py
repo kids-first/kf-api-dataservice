@@ -41,6 +41,8 @@ def entities(client):
                            data=json.dumps(d),
                            headers={'Content-Type': 'application/json'})
 
+    return p_id
+
 @pytest.yield_fixture(scope='session')
 def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))

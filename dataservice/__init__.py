@@ -3,6 +3,7 @@
 from flask import Flask
 
 from dataservice import commands
+from dataservice.utils import _get_version
 from dataservice.extensions import db, ma, migrate
 from dataservice.api.participant.models import Participant
 from config import config
@@ -39,7 +40,7 @@ def register_spec(app):
 
     spec = APISpec(
         title='Kids First Data Service',
-        version='1.0.0',
+        version=_get_version(),
         plugins=[
             'apispec.ext.flask',
             'apispec.ext.marshmallow',

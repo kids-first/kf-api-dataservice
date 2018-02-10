@@ -99,15 +99,14 @@ class TestAPI:
         assert 'could not create ' in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']
 
-    
     @pytest.mark.parametrize('resource,field', [
         ('/participants', 'demographic'),
         ('/participants', 'diagnoses')
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
-        resp = client.get(resource)
-        body = json.loads(resp.data.decode('utf-8'))['results'][0]
+        resp = client.get(resource+'/'+entities)
+        body = json.loads(resp.data.decode('utf-8'))['results']
 
         assert field in body
         if type(body[field]) is list:
@@ -136,6 +135,12 @@ class TestAPI:
         api_version = api_version['_status']['version']
 
         assert api_version == package
+
+        docs = json.loads(client.get('/swagger').data.decode('utf-8'))
+        docs_version = docs['info']['version']
+
+        assert docs_version == api_version
+        assert docs_version == package
 
     def test_documentation(self, client):
         resp = client.get('')
