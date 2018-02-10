@@ -1,0 +1,14 @@
+description: Get {{ resource }} by id
+tags:
+- {{ resource }}
+parameters:
+- name: "kf_id"
+  in: "path"
+  description: "ID of {{ resource.lower() }} to return"
+  required: true
+  type: "string"
+responses:
+  200:
+    description: {{ resource }} found
+    schema:
+      $ref: '#/definitions/{{ resource }}Response'

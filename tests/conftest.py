@@ -4,11 +4,11 @@ import pytest
 from dataservice import create_app
 from dataservice.extensions import db
 
-@pytest.yield_fixture
+@pytest.yield_fixture(scope='session')
 def app():
     return create_app('testing')
 
-@pytest.yield_fixture
+@pytest.yield_fixture(scope='session')
 def client(app):
     app_context = app.app_context()
     app_context.push()
@@ -40,3 +40,7 @@ def entities(client):
         resp = client.post('/diagnoses',
                            data=json.dumps(d),
                            headers={'Content-Type': 'application/json'})
+
+@pytest.yield_fixture(scope='session')
+def swagger(client):
+    yield json.loads(client.get('/swagger').data.decode('utf-8'))

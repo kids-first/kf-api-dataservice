@@ -23,6 +23,7 @@ class Diagnosis(db.Model, Base):
                           doc='the pathological diagnosis')
     age_at_event_days = db.Column(db.Integer(),
                                   doc='age when diagnosis was made')
-    participant_id = db.Column(db.String(8), db.ForeignKey('participant.kf_id'),
+    participant_id = db.Column(db.String(8),
+                               db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
                                nullable=False)

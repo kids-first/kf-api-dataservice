@@ -20,14 +20,12 @@ class DemographicListAPI(CRUDView):
         """
         Get a demographic by id or get all demographics
         ---
-        description: Get demographics
-        tags:
-        - Demographic
-        responses:
-          200:
-            description: Demographics found
-            schema:
-              $ref: '#/definitions/DemographicPaginated'
+        template:
+          path:
+            get_list.yml
+          properties:
+            resource:
+              Demographic
         """
         d = Demographic.query.all()
         return DemographicSchema(many=True).jsonify(d)
@@ -36,35 +34,12 @@ class DemographicListAPI(CRUDView):
         """
         Create a new demographic
         ---
-        description: Create a new demographic
-        tags:
-        - Demographic
-        parameters:
-        - name: body
-          in: body
-          description: Content
-          required: true
-          schema:
-            $ref: "#/definitions/Demographic"
-        responses:
-          201:
-            description: Demographic created
-            schema:
-              $ref: '#/definitions/DemographicResponse'
-          400:
-            description: Could not create demographic
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 400
-                      type: integer
-                    message:
-                      example: could not create demographic
-                      type: string
+        template:
+          path:
+            new_resource.yml
+          properties:
+            resource:
+              Demographic
         """
 
         body = request.json
@@ -98,34 +73,12 @@ class DemographicAPI(CRUDView):
         Get a demographic by Kids First id or get all demographics if
         Kids First id is None
         ---
-        description: Get demographic by id
-        tags:
-        - Demographic
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of demographic to return"
-          required: true
-          type: "string"
-        responses:
-          200:
-            description: Demographic found
-            schema:
-              $ref: '#/definitions/DemographicResponse'
-          404:
-            description: Could not find demographic
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 404
-                      type: integer
-                    message:
-                      example: could not find demographic `DZB048J5`
-                      type: string
+        template:
+          path:
+            get_by_id.yml
+          properties:
+            resource:
+              Demographic
         """
 
         # Get all
@@ -142,110 +95,18 @@ class DemographicAPI(CRUDView):
                       .format('demographic', kf_id))
             return DemographicSchema().jsonify(d)
 
-    def post(self):
-        """
-        Create a new demographic
-        ---
-        description: Create a new demographic
-        tags:
-        - Demographic
-        parameters:
-        - name: body
-          in: body
-          description: Content
-          required: true
-          schema:
-            $ref: "#/definitions/Demographic"
-        responses:
-          201:
-            description: Demographic created
-            schema:
-              $ref: '#/definitions/DemographicResponse'
-          400:
-            description: Could not create demographic
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 400
-                      type: integer
-                    message:
-                      example: could not create demographic
-                      type: string
-        """
-
-        body = request.json
-
-        # Deserialize
-        try:
-            d = DemographicSchema(strict=True).load(body).data
-        # Request body not valid
-        except ValidationError as e:
-            abort(400, 'could not create demographic: {}'.format(e.messages))
-
-        db.session.add(d)
-        db.session.commit()
-
-        return DemographicSchema(201, 'demographic {} created'
-                                 .format(d.kf_id)).jsonify(d), 201
-
     def put(self, kf_id):
         """
         Update existing demographic
 
         Update an existing demographic given a Kids First id
         ---
-        description: Update a demographic
-        tags:
-        - Demographic
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of demographic to return"
-          required: true
-          type: "string"
-        - name: "body"
-          in: "body"
-          description: "Demographic identifier"
-          required: true
-          schema:
-            $ref: "#/definitions/Demographic"
-        responses:
-          200:
-            description: Demographic updated
-            schema:
-              $ref: '#/definitions/DemographicResponse'
-          400:
-            description: Could not update demographic
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 400
-                      type: integer
-                    message:
-                      example: could not update demographic
-                      type: string
-          404:
-            description: Could not find demographic
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 404
-                      type: integer
-                    message:
-                      example: could not find demographic `DZB048J5`
-                      type: string
+        template:
+          path:
+            update_by_id.yml
+          properties:
+            resource:
+              Demographic
         """
         body = request.json
 
@@ -282,34 +143,12 @@ class DemographicAPI(CRUDView):
 
         Deletes a demographic given a Kids First id
         ---
-        description: Delete a demographic by id
-        tags:
-        - Demographic
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of demographic to delete"
-          required: true
-          type: "string"
-        responses:
-          200:
-            description: Demographic deleted
-            schema:
-              $ref: '#/definitions/DemographicResponse'
-          404:
-            description: Could not find demographic
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 404
-                      type: integer
-                    message:
-                      example: could not find demographic `DZB048J5`
-                      type: string
+        template:
+          path:
+            delete_by_id.yml
+          properties:
+            resource:
+              Demographic
         """
         # Check if demographic exists
         try:

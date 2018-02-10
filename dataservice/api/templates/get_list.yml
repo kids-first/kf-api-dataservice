@@ -1,0 +1,8 @@
+description: Get {{ resource.lower() }}
+tags:
+- {{ resource }}
+responses:
+  200:
+    description: {{ resource }} found
+    schema:
+      $ref: '#/definitions/{{ resource }}Paginated'

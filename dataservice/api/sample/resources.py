@@ -20,14 +20,13 @@ class SampleListAPI(CRUDView):
         """
         Get all samples
         ---
-        description: Get samples
-        tags:
-        - Sample
-        responses:
-          200:
-            description: Samples found
-            schema:
-              $ref: '#/definitions/SamplePaginated'
+        description: Get all samples
+        template:
+          path:
+            get_list.yml
+          properties:
+            resource:
+              Sample
         """
         s = Sample.query.all()
         return SampleSchema(many=True).jsonify(s)
@@ -36,35 +35,12 @@ class SampleListAPI(CRUDView):
         """
         Create a new sample
         ---
-        description: Create a new sample
-        tags:
-        - Sample
-        parameters:
-        - name: body
-          in: body
-          description: Content
-          required: true
-          schema:
-            $ref: "#/definitions/Sample"
-        responses:
-          201:
-            description: Sample created
-            schema:
-              $ref: '#/definitions/SampleResponse'
-          400:
-            description: Could not create sample
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 400
-                      type: integer
-                    message:
-                      example: could not create sample
-                      type: string
+        template:
+          path:
+            new_resource.yml
+          properties:
+            resource:
+              Sample
         """
 
         body = request.json
@@ -96,34 +72,12 @@ class SampleAPI(CRUDView):
         """
         Get samples by id
         ---
-        description: Get sample by id
-        tags:
-        - Sample
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of sample to return"
-          required: true
-          type: "string"
-        responses:
-          200:
-            description: Sample found
-            schema:
-              $ref: '#/definitions/SampleResponse'
-          404:
-            description: Could not find sample
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 404
-                      type: integer
-                    message:
-                      example: could not find sample `DZB048J5`
-                      type: string
+        template:
+          path:
+            get_by_id.yml
+          properties:
+            resource:
+              Sample
         """
         try:
             s = Sample.query.filter_by(kf_id=kf_id).one()
@@ -139,54 +93,12 @@ class SampleAPI(CRUDView):
 
         Update an existing sample given a Kids First id
         ---
-        description: Update a sample
-        tags:
-        - Sample
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of sample to return"
-          required: true
-          type: "string"
-        - name: "body"
-          in: "body"
-          description: "Sample identifier"
-          required: true
-          schema:
-            $ref: "#/definitions/Sample"
-        responses:
-          200:
-            description: Sample updated
-            schema:
-              $ref: '#/definitions/SampleResponse'
-          400:
-            description: Could not update sample
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 400
-                      type: integer
-                    message:
-                      example: could not update sample
-                      type: string
-          404:
-            description: Could not find sample
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 404
-                      type: integer
-                    message:
-                      example: could not find sample `DZB048J5`
-                      type: string
+        template:
+          path:
+            update_by_id.yml
+          properties:
+            resource:
+              Sample
         """
         body = request.json
 
@@ -226,34 +138,12 @@ class SampleAPI(CRUDView):
 
         Deletes a sample given a Kids First id
         ---
-        description: Delete a sample by id
-        tags:
-        - Sample
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of sample to delete"
-          required: true
-          type: "string"
-        responses:
-          200:
-            description: Sample deleted
-            schema:
-              $ref: '#/definitions/SampleResponse'
-          404:
-            description: Could not find sample
-            schema:
-              type: object
-              properties:
-                _status:
-                  type: object
-                  properties:
-                    code:
-                      example: 404
-                      type: integer
-                    message:
-                      example: could not find sample `DZB048J5`
-                      type: string
+        template:
+          path:
+            delete_by_id.yml
+          properties:
+            resource:
+              Sample
         """
 
         # Check if sample exists

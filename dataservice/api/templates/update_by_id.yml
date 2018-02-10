@@ -1,0 +1,20 @@
+description: Update a {{ resource.lower() }}
+tags:
+- {{ resource }}
+parameters:
+- name: kf_id
+  in: path
+  description: ID of the {{ resource.lower() }}to return
+  required: true
+  type: string
+- name: body
+  in: body
+  description: Content
+  required: true
+  schema:
+    $ref: "#/definitions/Participant"
+responses:
+  200:
+    description: {{ resource }} updated
+    schema:
+      $ref: '#/definitions/{{ resource }}Response'

@@ -20,14 +20,12 @@ class ParticipantListAPI(CRUDView):
         """
         Get a paginated participants
         ---
-        description: Get participants
-        tags:
-        - Participant
-        responses:
-          200:
-            description: Particpants found
-            schema:
-              $ref: '#/definitions/ParticipantPaginated'
+        template:
+          path:
+            get_list.yml
+          properties:
+            resource:
+              Participant
         """
         return (ParticipantSchema(many=True)
                 .jsonify(Participant.query.all()))
@@ -36,21 +34,12 @@ class ParticipantListAPI(CRUDView):
         """
         Create a new participant
         ---
-        description: Create a new particpant
-        tags:
-        - Participant
-        parameters:
-        - name: body
-          in: body
-          description: Content
-          required: true
-          schema:
-            $ref: "#/definitions/Participant"
-        responses:
-          200:
-            description: Participant created
-            schema:
-              $ref: '#/definitions/ParticipantResponse'
+        template:
+          path:
+            new_resource.yml
+          properties:
+            resource:
+              Participant
         """
         try:
             p = ParticipantSchema(strict=True).load(request.json).data
@@ -76,20 +65,12 @@ class ParticipantAPI(CRUDView):
         """
         Get a participant by id
         ---
-        description: Get participant by id
-        tags:
-        - Participant
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of person to return"
-          required: true
-          type: "string"
-        responses:
-          200:
-            description: Particpant found
-            schema:
-              $ref: '#/definitions/ParticipantResponse'
+        template:
+          path:
+            get_by_id.yml
+          properties:
+            resource:
+              Participant
         """
         try:
             participant = Participant.query.filter_by(kf_id=kf_id).one()
@@ -102,26 +83,12 @@ class ParticipantAPI(CRUDView):
         """
         Update an existing participant
         ---
-        description: Update a particpant
-        tags:
-        - Participant
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of person to return"
-          required: true
-          type: "string"
-        - name: "body"
-          in: "body"
-          description: "Person source identifier"
-          required: true
-          schema:
-            $ref: "#/definitions/Participant"
-        responses:
-          200:
-            description: Participant updated
-            schema:
-              $ref: '#/definitions/ParticipantResponse'
+        template:
+          path:
+            update_by_id.yml
+          properties:
+            resource:
+              Participant
         """
         body = request.json
         try:
@@ -141,20 +108,12 @@ class ParticipantAPI(CRUDView):
         """
         Delete participant by id
         ---
-        description: Delete a participant
-        tags:
-        - Participant
-        parameters:
-        - name: "kf_id"
-          in: "path"
-          description: "ID of person to return"
-          required: true
-          type: "string"
-        responses:
-          200:
-            description: Participant deleted
-            schema:
-              $ref: '#/definitions/ParticipantResponse'
+        template:
+          path:
+            delete_by_id.yml
+          properties:
+            resource:
+              Participant
         """
         try:
             p = Participant.query.filter_by(kf_id=kf_id).one()
