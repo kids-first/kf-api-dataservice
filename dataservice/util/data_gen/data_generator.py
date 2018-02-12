@@ -14,6 +14,7 @@ from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.outcome.models import Outcome
 
 
 class DataGenerator(object):
@@ -28,6 +29,7 @@ class DataGenerator(object):
         self._demographics_choices()
         self._diagnoses_choices()
         self._genomic_files_choices()
+        self._outcomes_choices()
 
     def _sample_choices(self):
         """
@@ -143,6 +145,15 @@ class DataGenerator(object):
         self.max_gen_files = 5
         self.file_format_list = ['.cram', '.bam', '.vcf']
 
+    def _outcomes_choices(self):
+        """
+        Provides the Choices for filling Outcome Entity
+        """
+        self.min_outcomes = 0
+        self.max_outcomes = 5
+        self.vital_status_list = ['Alive', 'Dead', 'Not Reported']
+        self.disease_related_list = [True, False, 'Not Reported']
+
     def setup(self, config_name):
         """
         creates tables in database
@@ -177,11 +188,14 @@ class DataGenerator(object):
             demographic = self._create_demographics(i)
             diagnoses = self._create_diagnoses(
                 random.randint(self.min_samples, self.max_diagnoses))
+            outcomes = self._create_outcomes(random.randint(self.min_outcomes,
+                                                            self.max_outcomes))
             p = Participant(
                 external_id='participant_{}'.format(i),
                 samples=samples,
                 demographic=demographic,
-                diagnoses=diagnoses)
+                diagnoses=diagnoses,
+                outcomes=outcomes)
             db.session.add(p)
         db.session.commit()
 
@@ -310,3 +324,28 @@ class DataGenerator(object):
             }
             diag_list.append(Diagnosis(**data))
         return diag_list
+
+    def _create_outcomes(self, total):
+        """
+        creates outcomes
+        """
+        outcomes_list = []
+        for i in range(total):
+            # Fill disaese_related only if person is dead
+            vs = random.choice(self.vital_status_list)
+            if vs == 'Dead':
+                dr = random.choice(self.disease_related_list)
+                data = {
+                    'vital_status': vs,
+                    'disease_related': dr,
+                    'age_at_event_days': random.randint(0, 32872)
+                }
+                outcomes_list.append(Outcome(**data))
+                break
+            else:
+                data = {
+                    'vital_status': vs,
+                    'age_at_event_days': random.randint(0, 32872)
+                }
+                outcomes_list.append(Outcome(**data))
+        return outcomes_list
