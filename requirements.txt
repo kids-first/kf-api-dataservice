@@ -20,3 +20,4 @@ marshmallow==2.15.0
 marshmallow-sqlalchemy==0.13.2
 psycopg2==2.7.3.2
 -e git+https://github.com/dankolbman/hvac#egg=hvac
+Flask-Admin==1.5.0
