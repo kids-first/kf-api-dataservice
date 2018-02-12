@@ -1,0 +1,63 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+{{ super() }}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+        <div class="alert alert-danger">
+            <b>Warning:</b> This is a temporary solution to managing the Data Service data that completely bypasses the api until we can implement an independent submission application.
+        </div>
+      <div class="jumbotron">
+        <div class="container">
+          <h1>Data Dashboard</h1>
+          <p class="lead">
+            Administrative data functions and quality monitoring for the Kids First Dataservice
+          </p>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">Number of Entities</div>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Number of</th>
+                </tr>
+              </thead>
+              {% for k,v in counts.items() %}
+              <tr>
+                <td>{{ k }}</td>
+                <td>{{ v }}</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">Quality Metrics</div>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              {% for k,v in quality.items() %}
+              <tr>
+                <td>{{ k.replace('_', ' ') }}</td>
+                <td>{{ v }}</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock body %}

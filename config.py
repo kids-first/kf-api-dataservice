@@ -4,6 +4,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     HOST = "0.0.0.0"
+    SECRET_KEY = 'G00DB33F'
     SSL_DISABLE = os.environ.get("SSL_DISABLE", False)
 
     RESTPLUS_MASK_SWAGGER = False
