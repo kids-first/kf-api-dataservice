@@ -14,7 +14,7 @@ class GenomicFile(db.Model, Base):
     :param modified_at: Last time of object modification
     :param uuid: UUID assigned to file from Gen3
     :param file_name: Name of file
-    :param file_type: Type of genomic file (i.e. aligned reads)
+    :param data_type: Type of genomic file (i.e. aligned reads)
     :param file_format: Format of file
     :param file_url: Location of file
     :param md5sum: 128 bit md5 hash of file
@@ -23,7 +23,7 @@ class GenomicFile(db.Model, Base):
 
     __tablename__ = 'genomic_file'
     file_name = db.Column(db.Text())
-    file_type = db.Column(db.Text())
+    data_type = db.Column(db.Text())
     file_format = db.Column(db.Text())
     file_url = db.Column(db.Text())
     # TODO Change to use UUID for md5sum later on

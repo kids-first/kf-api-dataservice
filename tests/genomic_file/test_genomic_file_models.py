@@ -35,7 +35,7 @@ class ModelTest(FlaskTestCase):
         for i in range(2):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
-                'file_type': 'submitted aligned read',
+                'data_type': 'submitted aligned read',
                 'file_format': '.cram',
                 'file_url': 's3://file_{}'.format(i),
                 'md5sum': str(uuid.uuid4()),
@@ -90,7 +90,7 @@ class ModelTest(FlaskTestCase):
         # Update fields
         kwargs = kwargs_dict[list(kwargs_dict.keys())[0]]
         kwargs['file_name'] = 'updated file name'
-        kwargs['file_type'] = 'updated file type'
+        kwargs['data_type'] = 'updated data type'
         gf = GenomicFile.query.filter_by(md5sum=kwargs['md5sum']).one()
         [setattr(gf, k, v)
          for k, v in kwargs.items()]
@@ -175,7 +175,7 @@ class ModelTest(FlaskTestCase):
         for i in range(2):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
-                'file_type': 'submitted aligned read',
+                'data_type': 'submitted aligned read',
                 'file_format': '.cram',
                 'file_url': 's3://file_{}'.format(i),
                 'controlled_access': True,

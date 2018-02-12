@@ -147,6 +147,11 @@ class DataGenerator(object):
         self.max_gen_files = 5
         self.file_format_list = ['.cram', '.bam', '.vcf']
         self.controlled_access_list = [True, False]
+        self.data_type_list = []
+        fref_file = open('dataservice/util/data_gen/data_type.txt', 'r')
+        reader = csv.reader(fref_file)
+        for line in reader:
+            self.data_type_list.append(line[0])
 
     def setup(self, config_name):
         """
@@ -281,7 +286,7 @@ class DataGenerator(object):
         for i in range(total):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
-                'file_type': 'submitted aligned read',
+                'data_type': random.choice(self.data_type_list),
                 'file_format': random.choice(
                     self.file_format_list),
                 'file_url': 's3://file_{}'.format(i),
