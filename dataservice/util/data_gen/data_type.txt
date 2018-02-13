@@ -1,0 +1,14 @@
+aligned_reads
+aligned_reads_metric
+annotated_somatic_mutation
+biospecimen_supplement
+clinical_supplement
+germline_variation_catalog
+pathology_report
+simple_germline_variation
+simple_somatic_mutation
+slide_image
+submitted_aligned_reads
+submitted_unaligned_reads
+aligned_reads_index
+somatic_mutation_index
