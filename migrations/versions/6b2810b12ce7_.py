@@ -1,8 +1,9 @@
-"""Creating Phenotype table
+"""
+Create Phenotype table
 
-Revision ID: 3e79f35badf2
-Revises: b7852f8aab0a
-Create Date: 2018-02-09 11:51:18.230439
+Revision ID: 6b2810b12ce7
+Revises: ed76240485bc
+Create Date: 2018-02-13 15:17:09.918264
 
 """
 from alembic import op
@@ -10,8 +11,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3e79f35badf2'
-down_revision = 'b7852f8aab0a'
+revision = '6b2810b12ce7'
+down_revision = 'ed76240485bc'
 branch_labels = None
 depends_on = None
 

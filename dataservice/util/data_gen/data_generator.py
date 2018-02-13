@@ -52,7 +52,11 @@ class DataGenerator(object):
             'NOS',
             'Unknown',
             'Not Reported']
-        self.anatomical_site = ['Brain']
+        asref_file = open('dataservice/util/data_gen/anatomical_site.txt', 'r')
+        reader = csv.reader(asref_file)
+        self.anatomical_site_list = []
+        for line in reader:
+            self.anatomical_site_list.append(line[0])
 
     def _aliquot_choices(self):
         """
@@ -144,6 +148,12 @@ class DataGenerator(object):
         self.min_gen_files = 0
         self.max_gen_files = 5
         self.file_format_list = ['.cram', '.bam', '.vcf']
+        self.controlled_access_list = [True, False]
+        self.data_type_list = []
+        fref_file = open('dataservice/util/data_gen/data_type.txt', 'r')
+        reader = csv.reader(fref_file)
+        for line in reader:
+            self.data_type_list.append(line[0])
 
     def _phenotype_choices(self):
         """
@@ -214,7 +224,7 @@ class DataGenerator(object):
                 'external_id': 'sample_{}'.format(i),
                 'tissue_type': random.choice(self.tissue_type_list),
                 'composition': random.choice(self.composition_list),
-                'anatomical_site': random.choice(self.anatomical_site),
+                'anatomical_site': random.choice(self.anatomical_site_list),
                 'age_at_event_days': random.randint(0, 32872),
                 'tumor_descriptor': random.choice(self.tumor_descriptor_list)
             }
@@ -294,10 +304,14 @@ class DataGenerator(object):
         for i in range(total):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
-                'file_type': 'submitted aligned read',
-                'file_format': random.choice(self.file_format_list),
+                'data_type': random.choice(self.data_type_list),
+                'file_format': random.choice(
+                    self.file_format_list),
                 'file_url': 's3://file_{}'.format(i),
-                'md5sum': str(uuid.uuid4()),
+                'controlled_access': random.choice(
+                    self.controlled_access_list),
+                'md5sum': str(
+                    uuid.uuid4()),
             }
             gf_list.append(GenomicFile(**kwargs))
         return gf_list

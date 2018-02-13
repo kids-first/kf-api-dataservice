@@ -1,4 +1,5 @@
-"""Drop autoincrement _id column and use kf_id the primary key
+"""
+Drop autoincrement _id column and use kf_id the primary key
 
 Revision ID: b7852f8aab0a
 Revises: 0cc35a21afc2
