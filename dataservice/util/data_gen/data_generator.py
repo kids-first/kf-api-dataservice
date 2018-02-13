@@ -14,6 +14,7 @@ from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.phenotype.models import Phenotype
 
 
 class DataGenerator(object):
@@ -28,6 +29,7 @@ class DataGenerator(object):
         self._demographics_choices()
         self._diagnoses_choices()
         self._genomic_files_choices()
+        self._phenotype_choices()
 
     def _sample_choices(self):
         """
@@ -153,6 +155,19 @@ class DataGenerator(object):
         for line in reader:
             self.data_type_list.append(line[0])
 
+    def _phenotype_choices(self):
+        """
+        Provides Choices for filling Phenotypes
+        """
+        self.min_phenotypes = 0
+        self.max_phenotypes = 8
+        pref_file = open('dataservice/util/data_gen/phenotype_hpo.csv', 'r')
+        reader = csv.reader(pref_file)
+        self.phenotype_chosen_list = []
+        for row in reader:
+            self.phenotype_chosen_list.append(row)
+        self.observed_list = ['negative', 'positive']
+
     def setup(self, config_name):
         """
         creates tables in database
@@ -187,11 +202,14 @@ class DataGenerator(object):
             demographic = self._create_demographics(i)
             diagnoses = self._create_diagnoses(
                 random.randint(self.min_samples, self.max_diagnoses))
+            phenotypes = self._create_phenotypes(
+                random.randint(self.min_phenotypes, self.max_phenotypes))
             p = Participant(
                 external_id='participant_{}'.format(i),
                 samples=samples,
                 demographic=demographic,
-                diagnoses=diagnoses)
+                diagnoses=diagnoses,
+                phenotypes=phenotypes)
             db.session.add(p)
         db.session.commit()
 
@@ -324,3 +342,19 @@ class DataGenerator(object):
             }
             diag_list.append(Diagnosis(**data))
         return diag_list
+
+    def _create_phenotypes(self, total):
+        """
+        creates phenotypes
+        """
+        phen_list = []
+        for i in range(total):
+            ph = random.choice(self.phenotype_chosen_list)
+            phen = {
+                'phenotype': ph[0],
+                'hpo_id': ph[1],
+                'observed': random.choice(self.observed_list),
+                'age_at_event_days': random.randint(0, 32872)
+            }
+            phen_list.append(Phenotype(**phen))
+        return phen_list
