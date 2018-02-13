@@ -15,6 +15,7 @@ from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.outcome.models import Outcome
+from dataservice.api.phenotype.models import Phenotype
 
 
 class DataGenerator(object):
@@ -30,6 +31,7 @@ class DataGenerator(object):
         self._diagnoses_choices()
         self._genomic_files_choices()
         self._outcomes_choices()
+        self._phenotype_choices()
 
     def _sample_choices(self):
         """
@@ -52,7 +54,11 @@ class DataGenerator(object):
             'NOS',
             'Unknown',
             'Not Reported']
-        self.anatomical_site = ['Brain']
+        asref_file = open('dataservice/util/data_gen/anatomical_site.txt', 'r')
+        reader = csv.reader(asref_file)
+        self.anatomical_site_list = []
+        for line in reader:
+            self.anatomical_site_list.append(line[0])
 
     def _aliquot_choices(self):
         """
@@ -144,6 +150,25 @@ class DataGenerator(object):
         self.min_gen_files = 0
         self.max_gen_files = 5
         self.file_format_list = ['.cram', '.bam', '.vcf']
+        self.controlled_access_list = [True, False]
+        self.data_type_list = []
+        fref_file = open('dataservice/util/data_gen/data_type.txt', 'r')
+        reader = csv.reader(fref_file)
+        for line in reader:
+            self.data_type_list.append(line[0])
+
+    def _phenotype_choices(self):
+        """
+        Provides Choices for filling Phenotypes
+        """
+        self.min_phenotypes = 0
+        self.max_phenotypes = 8
+        pref_file = open('dataservice/util/data_gen/phenotype_hpo.csv', 'r')
+        reader = csv.reader(pref_file)
+        self.phenotype_chosen_list = []
+        for row in reader:
+            self.phenotype_chosen_list.append(row)
+        self.observed_list = ['negative', 'positive']
 
     def _outcomes_choices(self):
         """
@@ -190,12 +215,15 @@ class DataGenerator(object):
                 random.randint(self.min_samples, self.max_diagnoses))
             outcomes = self._create_outcomes(random.randint(self.min_outcomes,
                                                             self.max_outcomes))
+            phenotypes = self._create_phenotypes(
+                random.randint(self.min_phenotypes, self.max_phenotypes))
             p = Participant(
                 external_id='participant_{}'.format(i),
                 samples=samples,
                 demographic=demographic,
                 diagnoses=diagnoses,
-                outcomes=outcomes)
+                outcomes=outcomes,
+                phenotypes=phenotypes)
             db.session.add(p)
         db.session.commit()
 
@@ -210,7 +238,7 @@ class DataGenerator(object):
                 'external_id': 'sample_{}'.format(i),
                 'tissue_type': random.choice(self.tissue_type_list),
                 'composition': random.choice(self.composition_list),
-                'anatomical_site': random.choice(self.anatomical_site),
+                'anatomical_site': random.choice(self.anatomical_site_list),
                 'age_at_event_days': random.randint(0, 32872),
                 'tumor_descriptor': random.choice(self.tumor_descriptor_list)
             }
@@ -290,10 +318,14 @@ class DataGenerator(object):
         for i in range(total):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
-                'file_type': 'submitted aligned read',
-                'file_format': random.choice(self.file_format_list),
+                'data_type': random.choice(self.data_type_list),
+                'file_format': random.choice(
+                    self.file_format_list),
                 'file_url': 's3://file_{}'.format(i),
-                'md5sum': str(uuid.uuid4()),
+                'controlled_access': random.choice(
+                    self.controlled_access_list),
+                'md5sum': str(
+                    uuid.uuid4()),
             }
             gf_list.append(GenomicFile(**kwargs))
         return gf_list
@@ -349,3 +381,19 @@ class DataGenerator(object):
                 }
                 outcomes_list.append(Outcome(**data))
         return outcomes_list
+
+    def _create_phenotypes(self, total):
+        """
+        creates phenotypes
+        """
+        phen_list = []
+        for i in range(total):
+            ph = random.choice(self.phenotype_chosen_list)
+            phen = {
+                'phenotype': ph[0],
+                'hpo_id': ph[1],
+                'observed': random.choice(self.observed_list),
+                'age_at_event_days': random.randint(0, 32872)
+            }
+            phen_list.append(Phenotype(**phen))
+        return phen_list

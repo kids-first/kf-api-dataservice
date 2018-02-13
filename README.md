@@ -110,7 +110,7 @@ A new diagram will be created at `docs/erd.png`.
 to populate database run:
 
 ```
-flask db_populate
+flask populate_db
 ```
 
 to clear the database run:
