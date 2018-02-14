@@ -3,6 +3,7 @@ from dataservice.api.common.model import Base
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.demographic.models import Demographic
+from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 
 
@@ -10,7 +11,6 @@ class Participant(db.Model, Base):
     """
     Participant entity.
 
-    :param _id: Unique id assigned by RDBMS
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_id: Name given to participant by contributor
     :param created_at: Time of object creation
@@ -28,6 +28,10 @@ class Participant(db.Model, Base):
     demographic = db.relationship(Demographic, backref='participant',
                                   uselist=False, cascade="all, delete-orphan",
                                   lazy=True)
+    outcomes = db.relationship(Outcome,
+                               cascade="all, delete-orphan",
+                               backref=db.backref('participants',
+                                                  lazy=True))
     phenotypes = db.relationship(Phenotype,
                                  cascade="all, delete-orphan",
                                  backref=db.backref('participants',

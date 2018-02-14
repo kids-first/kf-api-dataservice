@@ -1,5 +1,5 @@
 """
-Rename file_type to data_tpe & Add controlled_access
+Rename file_type to data_type & Add controlled_access
 field to genomic_file
 
 Revision ID: ed76240485bc
