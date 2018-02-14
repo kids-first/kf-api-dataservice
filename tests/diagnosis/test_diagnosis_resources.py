@@ -36,6 +36,8 @@ class DiagnosisTest(FlaskTestCase):
             'external_id': 'd1',
             'diagnosis': 'flu',
             'age_at_event_days': 365,
+            'diagnosis_category': 'cancer',
+            'tumor_location': 'Brain',
             'participant_id': p.kf_id
         }
         # Send get request
@@ -52,6 +54,9 @@ class DiagnosisTest(FlaskTestCase):
         self.assertEqual(kwargs['diagnosis'], diagnosis['diagnosis'])
         self.assertEqual(kwargs['age_at_event_days'],
                          diagnosis['age_at_event_days'])
+        self.assertEqual(kwargs['diagnosis_category'],
+                         diagnosis['diagnosis_category'])
+        self.assertEqual(kwargs['tumor_location'], diagnosis['tumor_location'])
 
     def test_post_missing_req_params(self):
         """
@@ -61,7 +66,9 @@ class DiagnosisTest(FlaskTestCase):
         kwargs = {
             'external_id': 'd1',
             'diagnosis': 'flu',
-            'age_at_event_days': 365
+            'age_at_event_days': 365,
+            'diagnosis_category': 'cancer',
+            'tumor_location': 'Brain'
             # missing required param participant_id
         }
         # Send post request
@@ -90,6 +97,8 @@ class DiagnosisTest(FlaskTestCase):
         kwargs = {
             'external_id': 'd1',
             'diagnosis': 'flu',
+            'diagnosis_category': 'cancer',
+            'tumor_location': 'Brain',
             # should be a positive integer
             'age_at_event_days': -5,
         }
@@ -121,6 +130,8 @@ class DiagnosisTest(FlaskTestCase):
             'external_id': 'd1',
             'diagnosis': 'flu',
             'age_at_event_days': 365,
+            'diagnosis_category': 'cancer',
+            'tumor_location': 'Brain',
             # kf_id does not exist
             'participant_id': id_service.kf_id_generator()
         }
@@ -148,6 +159,8 @@ class DiagnosisTest(FlaskTestCase):
         d2 = {
             'external_id': 'd2',
             'diagnosis': 'cold',
+            'diagnosis_category': 'cancer',
+            'tumor_location': 'Brain',
             'participant_id': d1['participant_id']
         }
         # Send post request
@@ -182,6 +195,9 @@ class DiagnosisTest(FlaskTestCase):
                          kwargs['participant_id'])
         self.assertEqual(diagnosis['external_id'], kwargs['external_id'])
         self.assertEqual(diagnosis['diagnosis'], kwargs['diagnosis'])
+        self.assertEqual(kwargs['diagnosis_category'],
+                         diagnosis['diagnosis_category'])
+        self.assertEqual(kwargs['tumor_location'], diagnosis['tumor_location'])
         self.assertEqual(diagnosis['age_at_event_days'],
                          kwargs['age_at_event_days'])
         self.assertEqual(participant_id, kwargs['participant_id'])
@@ -221,6 +237,7 @@ class DiagnosisTest(FlaskTestCase):
         # Send put request
         body = {
             'diagnosis': 'hangry',
+            'diagnosis_category': 'birth defect',
             'participant_id': kwargs['participant_id']
         }
         response = self.client.put(url_for(DIAGNOSES_URL,
@@ -236,8 +253,11 @@ class DiagnosisTest(FlaskTestCase):
         # Fields that should be None since they were not in put request body
         self.assertIs(None, diagnosis['external_id'])
         self.assertIs(None, diagnosis['age_at_event_days'])
+        self.assertIs(None, diagnosis['tumor_location'])
         # Fields that should be updated w values
         self.assertEqual(body['diagnosis'], diagnosis['diagnosis'])
+        self.assertEqual(body['diagnosis_category'],
+                         diagnosis['diagnosis_category'])
 
     def test_put_not_found(self):
         """
@@ -365,6 +385,8 @@ class DiagnosisTest(FlaskTestCase):
         kwargs = {
             'external_id': 'd1',
             'diagnosis': 'flu',
+            'diagnosis_category': 'cancer',
+            'tumor_location': 'Brain',
             'age_at_event_days': 365
         }
         d = Diagnosis(**kwargs)
