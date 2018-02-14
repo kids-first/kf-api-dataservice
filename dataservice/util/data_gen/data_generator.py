@@ -16,6 +16,9 @@ from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.outcome.models import Outcome
+from dataservice.api.workflow.models import (
+    Workflow,
+    WorkflowGenomicFile
 from dataservice.api.phenotype.models import Phenotype
 
 
@@ -24,7 +27,7 @@ class DataGenerator(object):
         if not config_name:
             config_name = os.environ.get('FLASK_CONFIG', 'default')
         self.setup(config_name)
-        self.max_participants = 10
+        self.max_participants = 50
         self._sample_choices()
         self._aliquot_choices()
         self._experiment_choices()
@@ -39,7 +42,7 @@ class DataGenerator(object):
         Provides the choices for filling sample entity
         """
         self.min_samples = 0
-        self.max_samples = 65
+        self.max_samples = 5
         self.tissue_type_list = ['Tumor', 'Normal', 'Abnormal', 'Peritumoral',
                                  'Unknown', 'Not Reported']
         sref_file = open('dataservice/util/data_gen/composition.txt', 'r')
@@ -66,7 +69,7 @@ class DataGenerator(object):
         Provides the choices for filling aliquot entity
         """
         self.min_aliquots = 0
-        self.max_aliquots = 65
+        self.max_aliquots = 5
         at_file = open('dataservice/util/data_gen/analyte_type.txt', 'r')
         reader = csv.reader(at_file)
         self.analyte_type_list = []
@@ -136,7 +139,7 @@ class DataGenerator(object):
         """
         Provides the choices for filling Diagnosis entity
         """
-        self.max_diagnoses = 35
+        self.max_diagnoses = 10
         self.min_diagnoses = 0
         dref_file = open('dataservice/util/data_gen/diagnoses.txt', 'r')
         reader = csv.reader(dref_file)
@@ -199,9 +202,16 @@ class DataGenerator(object):
         self.app_context.pop()
 
     def create_and_publish_all(self):
-
+        """
+        Create and save all objects to db
+        """
         # Create participants
         self._create_participants_and_studies(self.max_participants)
+        # Create workflows
+        workflows = self._create_workflows()
+        # Link workflows and genomic files
+        self._link_genomic_files_to_workflows(workflows)
+        # Tear down
         self.teardown()
 
     def _create_studies(self, total=None):
@@ -365,9 +375,42 @@ class DataGenerator(object):
             gf_list.append(GenomicFile(**kwargs))
         return gf_list
 
+    def _create_workflows(self, total=2):
+        """
+        Create workflows
+        """
+        wf_list = []
+        for i in range(total):
+            data = {
+                'task_id': 'task_{}'.format(i),
+                'name': 'kf_alignment_{}'.format(i),
+                'version': 'v1',
+                'github_url': 'https://github.com/kids-first/kf-alignment-workflow/blob/master/workflows/kfdrc_alignment_pipeline.cwl'
+            }
+            wf = Workflow(**data)
+            db.session.add(wf)
+            wf_list.append(wf)
+        db.session.commit()
+
+        return wf_list
+
+    def _link_genomic_files_to_workflows(self, workflows):
+        """
+        Link all genomic files to at least 1 workflow
+        """
+        for gf in GenomicFile.query.all():
+            is_input = not (gf.data_type.startswith('aligned'))
+            n_workflows = random.randint(1, len(workflows))
+            for i in range(n_workflows):
+                wgf = WorkflowGenomicFile(workflow_id=workflows[i].kf_id,
+                                          genomic_file_id=gf.kf_id,
+                                          is_input=is_input)
+                db.session.add(wgf)
+        db.session.commit()
+
     def _create_demographics(self, i):
         """
-        Creates demographics
+        Create demographics
         """
         data = {
             'external_id': 'demo_id_{}'.format(i),
@@ -419,7 +462,7 @@ class DataGenerator(object):
 
     def _create_phenotypes(self, total):
         """
-        creates phenotypes
+        Create phenotypes
         """
         phen_list = []
         for i in range(total):
