@@ -13,12 +13,18 @@ class Participant(db.Model, Base):
 
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_id: Name given to participant by contributor
+    :param family_id: Id for the participants grouped by family
+    :param is_proband: Is participant is proband of study
+    :param consent_type: Type of the consent 
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     """
     __tablename__ = "participant"
 
-    external_id = db.Column(db.Text())
+    external_id = db.Column(db.Text(), doc='ID used by external study')
+    family_id = db.Column(db.Text())
+    is_proband = db.Column(db.Boolean())
+    consent_type = db.Column(db.Text())
     diagnoses = db.relationship(Diagnosis,
                                 cascade="all, delete-orphan",
                                 backref=db.backref('participants',

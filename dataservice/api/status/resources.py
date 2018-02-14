@@ -16,6 +16,15 @@ class StatusAPI(MethodView):
         Get the service status
 
         Returns information about the current API's version and status
+        ---
+        description: Get the service status
+        tags:
+        - "Status"
+        responses:
+            200:
+                description: Success
+                schema:
+                    $ref: '#/definitions/Status'
         """
         commit = (subprocess.check_output(
                   ['git', 'rev-parse', '--short', 'HEAD'])

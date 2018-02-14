@@ -3,6 +3,7 @@
 from flask import Flask
 
 from dataservice import commands
+from dataservice.utils import _get_version
 from dataservice.extensions import db, ma, migrate
 from dataservice.api.participant.models import Participant
 from config import config
@@ -26,15 +27,45 @@ def create_app(config_name):
     register_commands(app)
     register_error_handlers(app)
     register_blueprints(app)
+    register_spec(app)
 
     return app
+
+
+def register_spec(app):
+    """
+    Creates an API spec and puts it on the app
+    """
+    from apispec import APISpec
+
+    spec = APISpec(
+        title='Kids First Data Service',
+        version=_get_version(),
+        plugins=[
+            'apispec.ext.flask',
+            'apispec.ext.marshmallow',
+        ],
+    )
+
+    from dataservice.api import status_view, views
+    from dataservice.api.common.schemas import StatusSchema
+
+    spec.definition('Status', schema=StatusSchema)
+
+    from dataservice.api.common.views import CRUDView
+    CRUDView.register_spec(spec)
+    with app.test_request_context():
+        spec.add_path(view=status_view)
+        for view in views:
+            spec.add_path(view=view)
+
+    app.spec = spec
 
 
 def register_shellcontext(app):
     """
     Register shell context objects
     """
-
     def shell_context():
         """Shell context objects."""
         return {'db': db,

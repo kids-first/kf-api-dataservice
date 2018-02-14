@@ -1,0 +1,14 @@
+description: Create a new {{ resource }}
+tags:
+- {{ resource }}
+parameters:
+- name: body
+  in: body
+  description: Content
+  schema:
+    $ref: "#/definitions/{{ resource }}"
+responses:
+  200:
+    description: {{ resource }} created
+    schema:
+      $ref: '#/definitions/{{ resource }}Response'
