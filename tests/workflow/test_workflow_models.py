@@ -1,0 +1,345 @@
+import uuid
+
+from sqlalchemy.exc import IntegrityError
+
+from dataservice.extensions import db
+from dataservice.api.participant.models import Participant
+from dataservice.api.sample.models import Sample
+from dataservice.api.aliquot.models import Aliquot
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.workflow.models import (
+    Workflow,
+    WorkflowGenomicFile
+)
+from tests.utils import FlaskTestCase
+
+SAMPLE_URL = 'https://github.com/kids-first/kf-alignment-workflow/blob/master/workflows/kfdrc_alignment_pipeline.cwl'
+
+
+class ModelTest(FlaskTestCase):
+    """
+    Test Workflow database model
+    """
+
+    def test_create_and_find(self):
+        """
+        Test create workflow
+        """
+        # Create and save workflows and dependents
+        participants, workflows = self._create_and_save_workflows()
+
+        GenomicFile.query.limit(5).all()
+
+        # Check database
+        # Count checks
+        # 4 participants, 2 genomic files per participant
+        # 2 workflows, all genomic files are in both workflows
+        self.assertEqual(8, GenomicFile.query.count())
+        self.assertEqual(2, Workflow.query.count())
+        self.assertEqual(16, WorkflowGenomicFile.query.count())
+        self.assertEqual(8, WorkflowGenomicFile.query.filter_by(
+            is_input=False).count())
+        self.assertEqual(8, WorkflowGenomicFile.query.filter_by(
+            is_input=True).count())
+        # Workflow content checks
+        for p in participants:
+            gfs = (p.samples[0].aliquots[0].sequencing_experiments[0].
+                   genomic_files)
+            for gf in gfs:
+                gf_workflows = [wgf.workflow
+                                for wgf in gf.workflow_genomic_files]
+                for gf_workflow in gf_workflows:
+                    self.assertIn(gf_workflow, workflows)
+                    self.assertEqual(True,
+                                     (gf_workflow.name == 'kf-alignment1'
+                                      or gf_workflow.name == 'kf-alignment2'))
+                    self.assertEqual('v1', gf_workflow.version)
+                    self.assertEqual(SAMPLE_URL, gf_workflow.github_url)
+
+    def test_update(self):
+        """
+        Test update workflow
+        """
+        # Create and save workflows and dependents
+        participants, workflows = self._create_and_save_workflows()
+
+        # Create new genomic_file
+        p0 = Participant.query.filter_by(external_id='Fred').one()
+        gf_new = GenomicFile(data_type='slide_image',
+                             file_name='slide_image1')
+        (p0.samples[0].aliquots[0].
+         sequencing_experiments[0].genomic_files.append(gf_new))
+        db.session.commit()
+
+        # Unlink workflow from a genomic file and link to a new one
+        wgf = WorkflowGenomicFile.query.first()
+        w_id = wgf.workflow_id
+        gf_id = wgf.genomic_file_id
+
+        wgf.genomic_file_id = gf_new.kf_id
+        db.session.commit()
+
+        # Check database
+        w = Workflow.query.get(w_id)
+        gf = GenomicFile.query.get(gf_id)
+        self.assertNotIn(gf, w.genomic_files)
+        self.assertIn(gf_new, w.genomic_files)
+        self.assertEqual(9, GenomicFile.query.count())
+        self.assertEqual(16, WorkflowGenomicFile.query.count())
+
+    def test_delete(self):
+        """
+        Test delete workflow
+        """
+        # Create and save workflows and dependents
+        participants, workflows = self._create_and_save_workflows()
+        kf_id = workflows[0].kf_id
+
+        # Delete workflow
+        w = Workflow.query.get(kf_id)
+        db.session.delete(w)
+        db.session.commit()
+
+        # Check database
+        self.assertEqual(0, WorkflowGenomicFile.query.
+                         filter_by(workflow_id=kf_id).count())
+        self.assertEqual(1, Workflow.query.count())
+        self.assertNotIn(workflows[0], Workflow.query.all())
+        self.assertEqual(8, GenomicFile.query.count())
+
+    def test_delete_relations(self):
+        """
+        Test delete GenomicFile and WorkflowGenomicFile
+        """
+        # Create and save workflows and dependents
+        participants, workflows = self._create_and_save_workflows()
+
+        # Delete genomic file
+        p0 = Participant.query.filter_by(external_id='Fred').one()
+        gf = (p0.samples[0].aliquots[0].sequencing_experiments[0].
+              genomic_files[0])
+        # Save id and related workflows
+        kf_id = gf.kf_id
+        gf_workflows = [wgf.workflow
+                        for wgf in WorkflowGenomicFile.query.filter_by(
+                            genomic_file_id=kf_id)]
+        db.session.delete(gf)
+        db.session.commit()
+
+        # Check database
+        # Genomic file deleted
+        self.assertEqual(7, GenomicFile.query.count())
+        self.assertEqual(14, WorkflowGenomicFile.query.count())
+        self.assertNotIn(gf, (p0.samples[0].aliquots[0].
+                              sequencing_experiments[0].
+                              genomic_files))
+        for w in gf_workflows:
+            self.assertNotIn(gf, w.genomic_files)
+
+        # Delete WorkflowGenomicFile
+        wgf = WorkflowGenomicFile.query.first()
+        kf_id = wgf.kf_id
+        w_id = wgf.workflow_id
+        gf_id = wgf.genomic_file_id
+        db.session.delete(wgf)
+        db.session.commit()
+
+        # Check database
+        # No genomic files or workflows were deleted
+        self.assertEqual(7, GenomicFile.query.count())
+        self.assertEqual(2, Workflow.query.count())
+        # Association deleted
+        self.assertEqual(None, WorkflowGenomicFile.query.get(kf_id))
+        # Workflow unlinked from genomic_file
+        w = Workflow.query.get(w_id)
+        gf = GenomicFile.query.get(gf_id)
+        self.assertNotIn(gf, w.genomic_files)
+
+    def test_foreign_key_constraint(self):
+        """
+        Test that a workflow_genomic_file cannot be created without existing
+        reference Workflow and GenomicFile. This checks foreign key constraint
+        """
+        # Create study_participant
+        data = {
+            'is_input': True,
+            'workflow_id': 'none',
+            'genomic_file_id': 'none'
+        }
+        wgf = WorkflowGenomicFile(**data)
+        db.session.add(wgf)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+
+    def test_not_null_constraint(self):
+        """
+        Test that a workflow and workflow genomic file cannot be created
+        without required parameters
+
+        workflow genomic file requires workflow_id, genomic_file_id, is_input
+        """
+        # Create and save workflows and dependents
+        participants, workflows = self._create_and_save_workflows()
+
+        # Missing all required parameters
+        data = {}
+        wgf = WorkflowGenomicFile(**data)
+        db.session.add(wgf)
+
+        # Check database
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+        db.session.rollback()
+
+        # Missing 1 required param
+        data = {
+            'workflow_id': workflows[0].kf_id
+        }
+        wgf = WorkflowGenomicFile(**data)
+        db.session.add(wgf)
+
+        # Check database
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+
+    def test_unique_constraint(self):
+        """
+        Test that duplicate tuples (workflow_id, genomic_file_id, is_input)
+        cannot be created
+        """
+        # Create and save workflows and dependents
+        participants, workflows = self._create_and_save_workflows()
+
+        # Get existing WorkflowGenomicFile
+        wgf = WorkflowGenomicFile.query.first()
+        w_id = wgf.workflow_id
+        gf_id = wgf.genomic_file_id
+        is_input = wgf.is_input
+
+        new_wgf = WorkflowGenomicFile(workflow_id=w_id, genomic_file_id=gf_id,
+                                      is_input=is_input)
+        db.session.add(new_wgf)
+
+        # Check database
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+
+    def _create_sample(self, _id, aliquots=None):
+        """
+        Create sample with aliquots
+        """
+        return Sample(external_id=_id, aliquots=aliquots or [])
+
+    def _create_aliquot(self, _id, experiments=None):
+        """
+        Create aliquot with sequencing experiments
+        """
+        return Aliquot(external_id=_id,
+                       analyte_type='dna',
+                       sequencing_experiments=experiments or [])
+
+    def _create_experiment(self, _id, genomic_files=None):
+        """
+        Create sequencing experiment
+        """
+        data = {
+            'external_id': _id,
+            'experiment_strategy': 'wgs',
+            'center': 'broad',
+            'is_paired_end': True,
+            'platform': 'platform',
+            'genomic_files': genomic_files or []
+        }
+        return SequencingExperiment(**data)
+
+    def _create_genomic_file(self, _id, data_type='submitted aligned read'):
+        """
+        Create genomic file
+        """
+        data = {
+            'file_name': 'file_{}'.format(_id),
+            'data_type': data_type,
+            'file_format': '.cram',
+            'file_url': 's3://file_{}'.format(_id),
+            'md5sum': str(uuid.uuid4())
+        }
+        return GenomicFile(**data)
+
+    def _create_workflow(self, _name, genomic_files=None):
+        """
+        Create workflow
+        """
+        data = {
+            'task_id': 'task_{}'.format(_name),
+            'name': _name,
+            'version': 'v1',
+            'github_url': SAMPLE_URL
+        }
+        if genomic_files:
+            data['genomic_files'] = genomic_files
+        return Workflow(**data)
+
+    def _create_participants_and_dependents(self):
+        """
+        Create participant with dependent entities
+        """
+
+        names = ['Fred', 'Wilma', 'Pebbles', 'Dino']
+        participants = []
+        for i, _name in enumerate(names):
+            # Input GF
+            gf_in = self._create_genomic_file('gf_{}_in'.format(i))
+            # Output GF
+            gf_out = self._create_genomic_file('gf_{}_out'.format(i),
+                                               data_type='aligned read')
+            # SequencingExperiment
+            se = self._create_experiment('se_{}'.format(i), [gf_in, gf_out])
+            # Aliquot
+            a = self._create_aliquot('al_{}'.format(i), [se])
+            # Sample
+            s = self._create_sample('s_{}'.format(i), [a])
+            # Participants
+            p = Participant(external_id=_name, samples=[s])
+            participants.append(p)
+
+        return participants
+
+    def _create_and_save_workflows(self):
+        """
+        Create and save workflows + dependent entities
+        """
+        # Create participants and dependent entities
+        participants = self._create_participants_and_dependents()
+        db.session.add_all(participants)
+        db.session.commit()
+
+        # Create workflow
+        w1 = self._create_workflow('kf-alignment1')
+        w2 = self._create_workflow('kf-alignment2')
+        workflows = [w1, w2]
+
+        # Add genomic files to workflows
+        # Each participant has an input GF and output GF
+        for p in participants:
+            gfs = (p.samples[0].aliquots[0].sequencing_experiments[0].
+                   genomic_files)
+            # Add input and output genomic files to both workflows
+            for w in workflows:
+                for gf in gfs:
+                    # Input gf
+                    if gf.data_type == 'submitted aligned read':
+                        # Must use assoc obj to add
+                        wgf = WorkflowGenomicFile(workflow=w,
+                                                  genomic_file=gf,
+                                                  is_input=True)
+                        db.session.add(wgf)
+                    # Output gf
+                    else:
+                        # Use assoc proxy to add, is_input=False by default
+                        w.genomic_files.append(gf)
+
+                db.session.add(w)
+        db.session.commit()
+
+        return participants, workflows
