@@ -9,6 +9,7 @@ from dataservice.api.participant.models import Participant
 from tests.utils import FlaskTestCase
 
 SAMPLES_URL = 'api.samples'
+SAMPLES_LIST_URL = 'api.samples_list'
 
 
 class SampleTest(FlaskTestCase):
@@ -36,7 +37,7 @@ class SampleTest(FlaskTestCase):
             'participant_id': p.kf_id
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_URL),
+        response = self.client.post(url_for(SAMPLES_LIST_URL),
                                     data=json.dumps(kwargs),
                                     headers=self._api_headers())
 
@@ -60,7 +61,7 @@ class SampleTest(FlaskTestCase):
             # missing required param participant_id
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_URL),
+        response = self.client.post(url_for(SAMPLES_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -88,7 +89,7 @@ class SampleTest(FlaskTestCase):
             'age_at_event_days': -5,
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_URL),
+        response = self.client.post(url_for(SAMPLES_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -122,7 +123,7 @@ class SampleTest(FlaskTestCase):
             'participant_id': id_service.kf_id_generator()
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_URL),
+        response = self.client.post(url_for(SAMPLES_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -148,7 +149,7 @@ class SampleTest(FlaskTestCase):
             'participant_id': s1['participant_id']
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_URL),
+        response = self.client.post(url_for(SAMPLES_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(s2))
         # Check status code
@@ -199,7 +200,7 @@ class SampleTest(FlaskTestCase):
         """
         kwargs = self._create_save_to_db()
 
-        response = self.client.get(url_for(SAMPLES_URL),
+        response = self.client.get(url_for(SAMPLES_LIST_URL),
                                    headers=self._api_headers())
         self.assertEqual(response.status_code, 200)
         response = json.loads(response.data.decode("utf-8"))

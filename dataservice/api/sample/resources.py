@@ -1,46 +1,46 @@
-from flask import (
-    abort,
-    request
-)
-from flask.views import MethodView
+from flask import abort, request
 from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
 from dataservice.api.sample.models import Sample
 from dataservice.api.sample.schemas import SampleSchema
+from dataservice.api.common.views import CRUDView
 
 
-class SampleAPI(MethodView):
+class SampleListAPI(CRUDView):
     """
     Sample REST API
     """
+    endpoint = 'samples_list'
+    rule = '/samples'
+    schemas = {'Sample': SampleSchema}
 
-    def get(self, kf_id):
+    def get(self):
         """
-        Get a sample by id or get all samples
-
-        Get a sample by Kids First id or get all samples if
-        Kids First id is None
+        Get all samples
+        ---
+        description: Get all samples
+        template:
+          path:
+            get_list.yml
+          properties:
+            resource:
+              Sample
         """
-
-        # Get all
-        if kf_id is None:
-            s = Sample.query.all()
-            return SampleSchema(many=True).jsonify(s)
-        # Get one
-        else:
-            try:
-                s = Sample.query.filter_by(kf_id=kf_id).one()
-            # Not found in database
-            except NoResultFound:
-                abort(404, 'could not find {} `{}`'
-                      .format('sample', kf_id))
-            return SampleSchema().jsonify(s)
+        s = Sample.query.all()
+        return SampleSchema(many=True).jsonify(s)
 
     def post(self):
         """
         Create a new sample
+        ---
+        template:
+          path:
+            new_resource.yml
+          properties:
+            resource:
+              Sample
         """
 
         body = request.json
@@ -59,13 +59,47 @@ class SampleAPI(MethodView):
         return SampleSchema(201, 'sample {} created'
                             .format(s.kf_id)).jsonify(s), 201
 
+
+class SampleAPI(CRUDView):
+    """
+    Sample REST API
+    """
+    endpoint = 'samples'
+    rule = '/samples/<string:kf_id>'
+    schemas = {'Sample': SampleSchema}
+
+    def get(self, kf_id):
+        """
+        Get samples by id
+        ---
+        template:
+          path:
+            get_by_id.yml
+          properties:
+            resource:
+              Sample
+        """
+        try:
+            s = Sample.query.filter_by(kf_id=kf_id).one()
+        # Not found in database
+        except NoResultFound:
+            abort(404, 'could not find {} `{}`'
+                  .format('sample', kf_id))
+        return SampleSchema().jsonify(s)
+
     def put(self, kf_id):
         """
         Update existing sample
 
         Update an existing sample given a Kids First id
+        ---
+        template:
+          path:
+            update_by_id.yml
+          properties:
+            resource:
+              Sample
         """
-
         body = request.json
 
         # Check if sample exists
@@ -103,6 +137,13 @@ class SampleAPI(MethodView):
         Delete sample by id
 
         Deletes a sample given a Kids First id
+        ---
+        template:
+          path:
+            delete_by_id.yml
+          properties:
+            resource:
+              Sample
         """
 
         # Check if sample exists

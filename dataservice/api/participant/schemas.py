@@ -10,4 +10,4 @@ class ParticipantSchema(BaseSchema):
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.participants', kf_id='<kf_id>')
-    })
+    }, description='Resource links and pagination')

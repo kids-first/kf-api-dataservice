@@ -5,6 +5,7 @@ from dataservice.api.participant.models import Participant
 from tests.utils import FlaskTestCase
 
 PARTICIPANT_URL = 'api.participants'
+PARTICIPANT_LIST_URL = 'api.participants_list'
 
 
 class ParticipantTest(FlaskTestCase):
@@ -68,7 +69,7 @@ class ParticipantTest(FlaskTestCase):
         """
         self._make_participant(external_id="MyTestParticipant1")
 
-        response = self.client.get(url_for(PARTICIPANT_URL),
+        response = self.client.get(url_for(PARTICIPANT_LIST_URL),
                                    headers=self._api_headers())
         status_code = response.status_code
         response = json.loads(response.data.decode("utf-8"))
@@ -135,7 +136,7 @@ class ParticipantTest(FlaskTestCase):
         body = {
             'external_id': external_id
         }
-        response = self.client.post(url_for(PARTICIPANT_URL),
+        response = self.client.post(url_for(PARTICIPANT_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
         return response

@@ -17,9 +17,13 @@ class Diagnosis(db.Model, Base):
     """
 
     __tablename__ = 'diagnosis'
-    external_id = db.Column(db.Text())
-    diagnosis = db.Column(db.Text())
-    age_at_event_days = db.Column(db.Integer())
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
+    diagnosis = db.Column(db.Text(),
+                          doc='the pathological diagnosis')
+    age_at_event_days = db.Column(db.Integer(),
+                                  doc='age when diagnosis was made')
     participant_id = db.Column(db.String(8),
                                db.ForeignKey('participant.kf_id'),
+                               doc='the participant who was diagnosed',
                                nullable=False)

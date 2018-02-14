@@ -14,15 +14,15 @@ class DiagnosisSchema(BaseSchema):
     # dump_only=True for foreign keys by default. See link below
     # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/20
     participant_id = field_for(Diagnosis, 'participant_id', required=True,
-                               load_only=True)
+                               load_only=True, example='DZB048J5')
     age_at_event_days = field_for(Diagnosis, 'age_at_event_days',
-                                  validate=validate_age)
+                                  validate=validate_age, example=232)
 
     class Meta(BaseSchema.Meta):
         model = Diagnosis
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.diagnoses', kf_id='<kf_id>'),
-        'collection': ma.URLFor('api.diagnoses'),
+        'collection': ma.URLFor('api.diagnoses_list'),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
     })
