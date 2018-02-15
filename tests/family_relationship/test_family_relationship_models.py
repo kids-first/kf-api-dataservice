@@ -2,7 +2,10 @@ from sqlalchemy.exc import IntegrityError
 
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
-from dataservice.api.family_relationship.models import FamilyRelationship
+from dataservice.api.family_relationship.models import (
+    FamilyRelationship,
+    REVERSE_RELS
+)
 from tests.utils import FlaskTestCase
 
 
@@ -49,6 +52,10 @@ class ModelTest(FlaskTestCase):
                 self.assertIn(p3, self._immediate_relatives(p))
             if p.external_id == 'Bart':
                 self.assertIn(p3, self._immediate_relatives(p))
+        for r in FamilyRelationship.query.all():
+            self.assertEqual(r.relative_to_participant_relation,
+                             REVERSE_RELS.get(
+                                 r.participant_to_relative_relation))
 
     def test_directed_graph_and_multiple_edges(self):
         """
