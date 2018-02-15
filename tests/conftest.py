@@ -1,8 +1,13 @@
-import json
 import pytest
 
 from dataservice import create_app
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
+from dataservice.api.participant.models import Participant
+from dataservice.api.demographic.models import Demographic
+from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.sample.models import Sample
+
 
 @pytest.yield_fixture(scope='session')
 def app():
@@ -18,31 +23,57 @@ def client(app):
     db.session.close()
     db.drop_all()
 
-@pytest.fixture
-def entities(client):
-    """ Creates some mock entities """
-    p = {'external_id': 'test_1'}
-    resp = client.post('/participants',
-                       data=json.dumps(p),
-                       headers={'Content-Type': 'application/json'})
-
-    p_id = json.loads(resp.data.decode('utf-8'))['results']['kf_id']
-
-    d = {'race': 'white',
-         'participant_id': p_id}
-    resp = client.post('/demographics',
-                       data=json.dumps(d),
-                       headers={'Content-Type': 'application/json'})
-
-    for i in range(3):
-        d = {'diagnosis': 'diagnosis_',
-             'participant_id': p_id}
-        resp = client.post('/diagnoses',
-                           data=json.dumps(d),
-                           headers={'Content-Type': 'application/json'})
-
-    return p_id
-
 @pytest.yield_fixture(scope='session')
 def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
+
+@pytest.fixture
+def entities(client):
+    """
+    Create mock entities
+    """
+    inputs = {
+        '/studies': {
+            'external_id': 'phs001'
+        },
+        '/participants': {
+            'external_id': 'p0'
+        },
+        '/demographics': {
+            'race': 'black',
+            'gender': 'male',
+            'ethnicity': 'hispanic or latino'
+        },
+        '/samples': {
+            'external_id': 's0',
+            'tissue_type': 'tissue',
+            'composition': 'comp',
+            'anatomical_site': 'site',
+            'age_at_event_days': 365,
+            'tumor_descriptor': 'tumor'
+        },
+        '/diagnoses': {
+            'external_id': 'd0',
+            'diagnosis': 'diag',
+            'age_at_event_days': 365
+        }
+    }
+
+    study = Study(**inputs['/studies'])
+    p = Participant(**inputs['/participants'], study=study)
+    demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
+    sample = Sample(**inputs['/samples'], participant_id=p.kf_id)
+    diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
+    p.demographic = demo
+    p.samples = [sample]
+    p.diagnoses = [diagnosis]
+
+    db.session.add(p)
+    db.session.commit()
+
+    inputs['/participants']['study_id'] = study.kf_id
+    endpoints = ['/demographics', '/diagnoses', '/samples']
+    for e in endpoints:
+        inputs[e]['participant_id'] = p.kf_id
+
+    return inputs
