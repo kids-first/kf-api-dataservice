@@ -98,6 +98,9 @@ class ParticipantAPI(CRUDView):
                   .format('Participant', kf_id))
 
         p.external_id = body.get('external_id')
+        p.family_id = body.get('family_id')
+        p.is_proband = body.get('is_proband')
+        p.consent_type = body.get('consent_type')
         db.session.commit()
 
         return ParticipantSchema(
