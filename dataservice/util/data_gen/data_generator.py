@@ -24,7 +24,7 @@ class DataGenerator(object):
         if not config_name:
             config_name = os.environ.get('FLASK_CONFIG', 'default')
         self.setup(config_name)
-        self.max_participants = 1
+        self.max_participants = 10
         self._sample_choices()
         self._aliquot_choices()
         self._experiment_choices()

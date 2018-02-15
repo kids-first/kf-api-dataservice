@@ -41,4 +41,4 @@ class Participant(db.Model, Base):
                          nullable=False)
 
     def __repr__(self):
-        return '<Participant {}>'.format(self.external_id)
+        return '<Participant {}>'.format(self.kf_id)
