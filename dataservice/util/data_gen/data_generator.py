@@ -7,6 +7,7 @@ import os
 
 from dataservice import create_app
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
@@ -23,7 +24,7 @@ class DataGenerator(object):
         if not config_name:
             config_name = os.environ.get('FLASK_CONFIG', 'default')
         self.setup(config_name)
-        self.max_participants = 10
+        self.max_participants = 1
         self._sample_choices()
         self._aliquot_choices()
         self._experiment_choices()
@@ -181,7 +182,7 @@ class DataGenerator(object):
 
     def setup(self, config_name):
         """
-        creates tables in database
+        Creates tables in database
         """
         self.app = create_app(config_name)
         self.app_context = self.app.app_context()
@@ -200,13 +201,46 @@ class DataGenerator(object):
     def create_and_publish_all(self):
 
         # Create participants
-        self._create_participants(self.max_participants)
+        self._create_participants_and_studies(self.max_participants)
         self.teardown()
 
-    def _create_participants(self, total):
+    def _create_studies(self, total=None):
         """
-        creates participants with samples, demographics, and diagnoses
+        Create study
         """
+        # Create studies
+        study_names = ['Structural Birth Defect Study', 'Brain Cancer Study',
+                       'Breast Cancer Study']
+        min_studies = 1
+        max_studies = len(study_names)
+        if not total:
+            total = random.randint(min_studies, max_studies)
+
+        studies = []
+        for i in range(total):
+            kwargs = {
+                'attribution': ('https://dbgap.ncbi.nlm.nih.gov/'
+                                'aa/wga.cgi?view_pdf&stacc=phs000178.v9.p8'),
+                'external_id': 'phs00{}'.format(i),
+                'name': random.choice(study_names),
+                'version': 'v1'
+            }
+            s = Study(**kwargs)
+            studies.append(s)
+            db.session.add(s)
+        db.session.commit()
+
+        return studies
+
+    def _create_participants_and_studies(self, total):
+        """
+        Creates studies and participants with samples, demographics,
+        and diagnoses
+        """
+        # Studies
+        studies = self._create_studies()
+
+        # Participants
         for i in range(total):
             samples = self._create_samples(random.randint(self.min_samples,
                                                           self.max_samples))
@@ -223,7 +257,8 @@ class DataGenerator(object):
                 demographic=demographic,
                 diagnoses=diagnoses,
                 outcomes=outcomes,
-                phenotypes=phenotypes)
+                phenotypes=phenotypes,
+                study_id=random.choice(studies).kf_id)
             db.session.add(p)
         db.session.commit()
 
@@ -312,7 +347,7 @@ class DataGenerator(object):
 
     def _create_genomic_files(self, total):
         """
-        creates genomic files
+        Creates genomic files
         """
         gf_list = []
         for i in range(total):
@@ -332,7 +367,7 @@ class DataGenerator(object):
 
     def _create_demographics(self, i):
         """
-        creates demographics
+        Creates demographics
         """
         data = {
             'external_id': 'demo_id_{}'.format(i),
@@ -344,7 +379,7 @@ class DataGenerator(object):
 
     def _create_diagnoses(self, total):
         """
-        creates diagnoses
+        Creates diagnoses
         """
         diag_list = []
         for i in range(total):
