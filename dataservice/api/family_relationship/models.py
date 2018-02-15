@@ -1,6 +1,15 @@
+from sqlalchemy import event
+
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
 from dataservice.api.participant.models import Participant
+
+REVERSE_RELS = {
+    'mother': 'child',
+    'father': 'child',
+    'sister': 'sister',
+    'brother': 'brother'
+}
 
 
 class FamilyRelationship(db.Model, Base):
@@ -24,6 +33,9 @@ class FamilyRelationship(db.Model, Base):
     relationships are not duplicated and the graph is undirected
     """
     __tablename__ = 'family_relationship'
+    __table_args__ = (db.UniqueConstraint('participant_id', 'relative_id',
+                                          'participant_to_relative_relation',
+                                          'relative_to_participant_relation'),)
 
     participant_id = db.Column(
         db.String(8),
@@ -33,7 +45,9 @@ class FamilyRelationship(db.Model, Base):
         db.String(8),
         db.ForeignKey('participant.kf_id'), nullable=False)
 
-    participant_to_relative_relation = db.Column(db.Text, nullable=False)
+    participant_to_relative_relation = db.Column(db.Text(), nullable=False)
+
+    relative_to_participant_relation = db.Column(db.Text())
 
     participant = db.relationship(
         Participant,
@@ -49,5 +63,14 @@ class FamilyRelationship(db.Model, Base):
 
     def __repr__(self):
         return '<{} is {} of {}>'.format(self.participant,
-                                         self.relationship_type,
+                                         self.participant_to_relative_relation,
                                          self.relative)
+
+
+@event.listens_for(FamilyRelationship.participant_to_relative_relation, 'set')
+def set_reverse_relation(target, value, oldvalue, initiator):
+    """
+    Listen for set 'participant_to_relative_relation' events and
+    set the reverse relationship, 'relative_to_participant_relation' attribute
+    """
+    target.relative_to_participant_relation = REVERSE_RELS.get(value, None)
