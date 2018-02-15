@@ -2,8 +2,6 @@ import json
 import pkg_resources
 import pytest
 
-import dataservice
-
 
 class TestAPI:
     """
@@ -74,12 +72,13 @@ class TestAPI:
         ('/participants', 'created_at'),
         ('/participants', 'modified_at')
     ])
-    def test_read_only(self, client, endpoint, field):
+    def test_read_only(self, client, entities, endpoint, field):
         """ Test that given fields can not be written or modified """
-        req = {field: 'test'}
+        inputs = entities[endpoint]
+        inputs.update({field: 'test'})
         resp = client.post(endpoint,
-                data=json.dumps(req),
-                headers={'Content-Type': 'application/json'})
+                           data=json.dumps(inputs),
+                           headers={'Content-Type': 'application/json'})
         body = json.loads(resp.data.decode('utf-8'))
         assert (field not in body['results']
                 or body['results'][field] != 'test')
@@ -88,12 +87,13 @@ class TestAPI:
         ('/participants', 'blah'),
         ('/samples', 'blah')
     ])
-    def test_unknown_field(self, client, endpoint, field):
+    def test_unknown_field(self, client, entities, endpoint, field):
         """ Test that unknown fields are rejected when trying to create  """
-        req = {field: 'test'}
+        inputs = entities[endpoint]
+        inputs.update({field: 'test'})
         resp = client.post(endpoint,
-                data=json.dumps(req),
-                headers={'Content-Type': 'application/json'})
+                           data=json.dumps(inputs),
+                           headers={'Content-Type': 'application/json'})
         body = json.loads(resp.data.decode('utf-8'))
         assert body['_status']['code'] == 400
         assert 'could not create ' in body['_status']['message']
@@ -105,7 +105,8 @@ class TestAPI:
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
-        resp = client.get(resource+'/'+entities)
+        kf_id = entities.get('kf_ids').get(resource)
+        resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
 
         assert field in body

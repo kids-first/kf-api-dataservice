@@ -6,6 +6,7 @@ from dataservice.extensions import db
 from dataservice.api.common import id_service
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.participant.models import Participant
+from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
 DIAGNOSES_URL = 'api.diagnoses'
@@ -21,8 +22,11 @@ class DiagnosisTest(FlaskTestCase):
         """
         Test create a new diagnosis
         """
+        # Create study
+        study = Study(external_id='phs001')
+
         # Create a participant
-        p = Participant(external_id='Test subject 0')
+        p = Participant(external_id='Test subject 0', study=study)
         db.session.add(p)
         db.session.commit()
 
@@ -353,6 +357,9 @@ class DiagnosisTest(FlaskTestCase):
         Create a diagnosis and add it to participant as kwarg
         Save participant
         """
+        # Create study
+        study = Study(external_id='phs001')
+
         # Create diagnosis
         kwargs = {
             'external_id': 'd1',
@@ -363,7 +370,8 @@ class DiagnosisTest(FlaskTestCase):
 
         # Create and save participant with diagnosis
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id, diagnoses=[d])
+        p = Participant(external_id=participant_id, diagnoses=[d],
+                        study=study)
         db.session.add(p)
         db.session.commit()
 

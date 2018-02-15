@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from dataservice import create_app
@@ -13,6 +14,7 @@ from dataservice.api.sample.models import Sample
 def app():
     return create_app('testing')
 
+
 @pytest.yield_fixture(scope='session')
 def client(app):
     app_context = app.app_context()
@@ -23,9 +25,11 @@ def client(app):
     db.session.close()
     db.drop_all()
 
+
 @pytest.yield_fixture(scope='session')
 def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
+
 
 @pytest.fixture
 def entities(client):
@@ -56,9 +60,20 @@ def entities(client):
             'external_id': 'd0',
             'diagnosis': 'diag',
             'age_at_event_days': 365
+        },
+        '/outcomes': {
+            'vital_status': 'Alive',
+            'disease_related': False,
+            'age_at_event_days': 120,
+        },
+        '/phenotypes': {
+            'phenotype': 'test phenotype 1',
+            'hpo_id': 'HP:0000118',
+            'age_at_event_days': 120
         }
     }
 
+    # Create and save entities to db
     study = Study(**inputs['/studies'])
     p = Participant(**inputs['/participants'], study=study)
     demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
@@ -67,13 +82,17 @@ def entities(client):
     p.demographic = demo
     p.samples = [sample]
     p.diagnoses = [diagnosis]
-
     db.session.add(p)
     db.session.commit()
 
+    # Add foreign keys
     inputs['/participants']['study_id'] = study.kf_id
-    endpoints = ['/demographics', '/diagnoses', '/samples']
+    endpoints = ['/demographics', '/diagnoses', '/samples', '/outcomes',
+                 '/phenotypes']
     for e in endpoints:
         inputs[e]['participant_id'] = p.kf_id
+
+    # Add kf_ids
+    inputs['kf_ids'] = {'/participants': p.kf_id}
 
     return inputs

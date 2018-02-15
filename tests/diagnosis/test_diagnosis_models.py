@@ -3,6 +3,7 @@ import uuid
 
 from sqlalchemy.exc import IntegrityError
 
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.extensions import db
@@ -14,135 +15,48 @@ class ModelTest(FlaskTestCase):
     Test Diagnosis database model
     """
 
-    def test_create(self):
+    def test_create_and_find(self):
         """
         Test create diagnosis
         """
-        # Create and save participant
-        participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id)
-        db.session.add(p)
-        db.session.commit()
-
-        # Create diagnoses
-        data = {
-            'external_id': 'diag_1',
-            'diagnosis': 'cold',
-            'age_at_event_days': 120,
-            'participant_id': p.kf_id
-        }
+        diagnoses, kwarg_dict = self._create_diagnoses()
         dt = datetime.now()
-        d1 = Diagnosis(**data)
-        db.session.add(d1)
-        data['external_id'] = 'diag_2'
-        data['diagnosis'] = 'flu'
-        d2 = Diagnosis(**data)
-        db.session.add(d2)
-        db.session.commit()
 
-        self.assertEqual(Diagnosis.query.count(), 2)
-        new_diagnosis = Diagnosis.query.all()[1]
-        self.assertGreater(new_diagnosis.created_at, dt)
-        self.assertGreater(new_diagnosis.modified_at, dt)
-        self.assertIs(type(uuid.UUID(new_diagnosis.uuid)), uuid.UUID)
+        self.assertEqual(Diagnosis.query.count(), len(diagnoses))
 
-        self.assertEqual(new_diagnosis.external_id, data['external_id'])
-        self.assertEqual(new_diagnosis.diagnosis,
-                         data['diagnosis'])
-
-    def test_create_via_participant(self):
-        """
-        Test create diagnoses via creation of participant
-        """
-        # Create two diagnoses
-        pd = ['cold', 'flu']
-        d1 = Diagnosis(diagnosis=pd[0])
-        d2 = Diagnosis(diagnosis=pd[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.diagnoses.extend([d1, d2])
-        db.session.add(p)
-        db.session.commit()
-
-        # Check diagnoses were created
-        self.assertEqual(Diagnosis.query.count(), 2)
-
-        # Check Particpant has the diagnoses
-        for d in Participant.query.first().diagnoses:
-            self.assertIn(d.diagnosis, pd)
-
-        # Diagnoses have the participant
-        p = Participant.query.first()
-        for d in Diagnosis.query.all():
-            self.assertEqual(d.participant_id, p.kf_id)
-
-    def test_find_diagnosis(self):
-        """
-        Test find one diagnosis
-        """
-        # Create two diagnoses
-        pd = ['cold', 'flu']
-        d1 = Diagnosis(diagnosis=pd[0])
-        d2 = Diagnosis(diagnosis=pd[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.diagnoses.extend([d1, d2])
-        db.session.add(p)
-        db.session.commit()
-
-        # Find diagnosis
-        d = Diagnosis.query.\
-            filter_by(diagnosis=pd[0]).one_or_none()
-        self.assertEqual(d.diagnosis, pd[0])
+        for k, kwargs in kwarg_dict.items():
+            d = Diagnosis.query.filter_by(external_id=k).one()
+            for key, value in kwargs.items():
+                self.assertEqual(value, getattr(d, key))
+            self.assertGreater(dt, d.created_at)
+            self.assertGreater(dt, d.modified_at)
+            self.assertIs(type(uuid.UUID(d.uuid)), uuid.UUID)
 
     def test_update_diagnosis(self):
         """
         Test update diagnosis
         """
-        # Create two diagnoses
-        pd = ['cold', 'flu']
-        d1 = Diagnosis(diagnosis=pd[0])
-        d2 = Diagnosis(diagnosis=pd[1])
-        p = Participant(external_id='p1')
+        diagnoses, kwarg_dict = self._create_diagnoses()
 
-        # Add to participant and save
-        p.diagnoses.extend([d1, d2])
-        db.session.add(p)
+        d = diagnoses[0]
+        d.diagnosis = 'flu'
         db.session.commit()
-
-        # Update and save
-        d = Diagnosis.query.filter_by(diagnosis=pd[0]).one_or_none()
-        diag = 'west nile'
-        d.diagnosis = diag
-        db.session.commit()
-
         # Check updated values
-        d = Diagnosis.query.filter_by(diagnosis=diag).one_or_none()
-        self.assertIsNot(d, None)
+        d = Diagnosis.query.get(d.kf_id)
+        self.assertIsNot(d.diagnosis, 'flu')
 
     def test_delete_diagnosis(self):
         """
         Test delete diagnosis
         """
-        # Create two diagnoses
-        pd = ['cold', 'flu']
-        d1 = Diagnosis(diagnosis=pd[0])
-        d2 = Diagnosis(diagnosis=pd[1])
-        p = Participant(external_id='p1')
+        diagnoses, kwarg_dict = self._create_diagnoses()
 
-        # Add to participant and save
-        p.diagnoses.extend([d1, d2])
-        db.session.add(p)
+        p = Participant.query.first()
+        kf_id = diagnoses[0].kf_id
+        del p.diagnoses[0]
         db.session.commit()
 
-        # Choose one and delete it
-        d = Diagnosis.query.filter_by(diagnosis=pd[0]).one_or_none()
-        db.session.delete(d)
-        db.session.commit()
-
-        d = Diagnosis.query.filter_by(diagnosis=pd[0]).one_or_none()
+        d = Diagnosis.query.get(kf_id)
         self.assertIs(d, None)
         diagnoses = [_d for _d in p.diagnoses]
         self.assertNotIn(d, diagnoses)
@@ -151,26 +65,14 @@ class ModelTest(FlaskTestCase):
         """
         Test delete related diagnoses via deletion of participant
         """
-        # Create two diagnoses
-        pd = ['cold', 'flu']
-        d1 = Diagnosis(diagnosis=pd[0])
-        d2 = Diagnosis(diagnosis=pd[1])
-        p = Participant(external_id='p1')
+        diagnoses, kwarg_dict = self._create_diagnoses()
 
-        # Add to participant and save
-        p.diagnoses.extend([d1, d2])
-        db.session.add(p)
-        db.session.commit()
-
-        # Delete participant
+        p = Participant.query.first()
         db.session.delete(p)
         db.session.commit()
 
         # Check that diagnoses have been deleted
-        d1 = Diagnosis.query.filter_by(diagnosis=pd[0]).one_or_none()
-        d2 = Diagnosis.query.filter_by(diagnosis=pd[1]).one_or_none()
-        self.assertIs(d1, None)
-        self.assertIs(d2, None)
+        self.assertEqual(0, Diagnosis.query.count())
 
     def test_not_null_constraint(self):
         """
@@ -185,7 +87,9 @@ class ModelTest(FlaskTestCase):
         d = Diagnosis(**data)
 
         # Add to db
-        self.assertRaises(IntegrityError, db.session.add(d))
+        db.session.add(d)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_foreign_key_constraint(self):
         """
@@ -200,4 +104,46 @@ class ModelTest(FlaskTestCase):
         d = Diagnosis(**data)
 
         # Add to db
-        self.assertRaises(IntegrityError, db.session.add(d))
+        db.session.add(d)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+
+    def _create_diagnosis(self, _id, participant_id=None):
+        """
+        Create diagnosis
+        """
+        kwargs = {
+            'external_id': 'id_{}'.format(_id),
+            'diagnosis': 'diagnosis {}'.format(_id),
+            'age_at_event_days': 365
+        }
+        if participant_id:
+            kwargs['participant_id'] = participant_id
+        return Diagnosis(**kwargs), kwargs
+
+    def _create_diagnoses(self, total=2):
+        """
+        Create diagnoses and other requred entities
+        """
+        # Create study
+        study = Study(external_id='phs001')
+
+        # Create participant
+        participant_id = 'Test subject 0'
+        p = Participant(external_id=participant_id, study=study)
+        db.session.add(p)
+        db.session.commit()
+
+        # Create diagnoses
+        diagnoses = []
+        kwarg_dict = {}
+        for i in range(total):
+            d, kwargs = self._create_diagnosis(i)
+            kwarg_dict[d.external_id] = kwargs
+            diagnoses.append(d)
+
+        p.diagnoses.extend(diagnoses)
+
+        db.session.commit()
+
+        return diagnoses, kwarg_dict
