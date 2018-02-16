@@ -33,19 +33,20 @@ class TestErrors:
             message = 'Longer than maximum length 8'
             assert message in response['_status']['message']
 
-
-    def test_unique_demographic(self, client):
+    def test_unique_demographic(self, client, entities):
         """ Test integrity errors trying to break one-one with many-many """
-        kwargs = { 'external_id': 'test' }
+        inputs = entities['/participants']
+        inputs.update({'external_id': 'test'})
+
         # Create participant
         response = client.post('/participants',
-                               data=json.dumps(kwargs),
+                               data=json.dumps(inputs),
                                headers={'Content-Type': 'application/json'})
 
         response = json.loads(response.data.decode("utf-8"))
         kf_id = response['results']['kf_id']
 
-        kwargs = { 'participant_id': kf_id }
+        kwargs = {'participant_id': kf_id}
         # Send post request
         response = client.post('/demographics',
                                data=json.dumps(kwargs),

@@ -3,6 +3,7 @@ import uuid
 
 from sqlalchemy.exc import IntegrityError
 
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.demographic.models import Demographic
 from dataservice.extensions import db
@@ -18,10 +19,13 @@ class ModelTest(FlaskTestCase):
         """
         Test create demographic
         """
+        study = Study(external_id='phs001')
+        db.session.add(study)
+        db.session.commit()
 
         # Create and save participant
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id)
+        p = Participant(external_id=participant_id, study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 
@@ -200,26 +204,13 @@ class ModelTest(FlaskTestCase):
         """
         Test get demographic via the participant
         """
-        # Create demographic
-        data = {
-            'external_id': 'demo_1',
-            'race': 'asian'
-        }
-        d = Demographic(**data)
-
-        # Create and save participant
-        participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id, demographic=d)
-        db.session.add(p)
-        db.session.commit()
+        # Create and save demographic
+        participant_id, demo_id = self._create_save_demographic()
 
         p = Participant.query.filter_by(external_id=participant_id).\
             one_or_none()
 
-        p_demo = p.demographic
-
-        self.assertEqual(p_demo.external_id, d.external_id)
-        self.assertEqual(p_demo.race, d.race)
+        self.assertEqual(p.demographic.external_id, demo_id)
 
     def _create_save_demographic(self):
         """
@@ -229,6 +220,11 @@ class ModelTest(FlaskTestCase):
         Create a demographic and add it to participant as kwarg
         Save participant
         """
+        # Create study
+        study = Study(external_id='phs001')
+        db.session.add(study)
+        db.session.commit()
+
         # Create demographic
         demo_id = 'demo_1'
         data = {
@@ -241,7 +237,8 @@ class ModelTest(FlaskTestCase):
 
         # Create and save participant
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id, demographic=d)
+        p = Participant(external_id=participant_id, demographic=d,
+                        study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 

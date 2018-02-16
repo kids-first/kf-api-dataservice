@@ -98,6 +98,7 @@ class ParticipantAPI(CRUDView):
                   .format('Participant', kf_id))
 
         p.external_id = body.get('external_id')
+        p.study_id = body.get('study_id')
         db.session.commit()
 
         return ParticipantSchema(

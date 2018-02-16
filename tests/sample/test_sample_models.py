@@ -2,6 +2,7 @@ from datetime import datetime
 import uuid
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.sample.models import Sample
 from tests.utils import FlaskTestCase
@@ -33,7 +34,11 @@ class ModelTest(FlaskTestCase):
         participant_0 = Participant(
             external_id=participant_id,
             samples=[sample_0])
-        db.session.add(participant_0)
+
+        study = Study(external_id='phs001')
+        study.participants.append(participant_0)
+
+        db.session.add(study)
         db.session.commit()
         return participant_id, sample_id
 
@@ -41,10 +46,14 @@ class ModelTest(FlaskTestCase):
         """
         Test creation of sample
         """
+        study = Study(external_id='phs001')
+        db.session.add(study)
+        db.session.commit()
+
         dt = datetime.now()
         participant_id = "Test_Subject_0"
         # creating participant
-        p = Participant(external_id=participant_id)
+        p = Participant(external_id=participant_id, study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 

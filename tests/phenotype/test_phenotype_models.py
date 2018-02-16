@@ -2,6 +2,7 @@ from datetime import datetime
 import uuid
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.phenotype.models import Phenotype
 from tests.utils import FlaskTestCase
@@ -18,9 +19,12 @@ class ModelTest(FlaskTestCase):
         """
         Test create phenotype
         """
+        # Create Study
+        study = Study(external_id='phs001')
+
         # Create and save participant
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id)
+        p = Participant(external_id=participant_id, study=study)
         db.session.add(p)
         db.session.commit()
 
@@ -53,16 +57,7 @@ class ModelTest(FlaskTestCase):
         """
         create phenotypes via creation of participant
         """
-        # Create two phenotypes
-        pheno = ['test phenotype 1', 'test phenotype 2']
-        ph1 = Phenotype(phenotype=pheno[0])
-        ph2 = Phenotype(phenotype=pheno[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.phenotypes.extend([ph1, ph2])
-        db.session.add(p)
-        db.session.commit()
+        phenotypes, p, pheno = self._create_phenotypes()
 
         # Check phenotypes were created
         self.assertEqual(Phenotype.query.count(), 2)
@@ -75,21 +70,12 @@ class ModelTest(FlaskTestCase):
         p = Participant.query.first()
         for ph in Phenotype.query.all():
             self.assertEqual(ph.participant_id, p.kf_id)
-    
+
     def test_find_phenotype(self):
         """
         Test find one phenotype
         """
-        # Create two phenotypes
-        pheno = ['test phenotype 1', 'test phenotype 2']
-        ph1 = Phenotype(phenotype=pheno[0])
-        ph2 = Phenotype(phenotype=pheno[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.phenotypes.extend([ph1, ph2])
-        db.session.add(p)
-        db.session.commit()
+        phenotypes, p, pheno = self._create_phenotypes()
 
         # Find phenotype
         ph = Phenotype.query.\
@@ -100,16 +86,7 @@ class ModelTest(FlaskTestCase):
         """
         Test update phenotype
         """
-        # Create two phenotypes
-        pheno = ['test phenotype 1', 'test phenotype 2']
-        ph1 = Phenotype(phenotype=pheno[0])
-        ph2 = Phenotype(phenotype=pheno[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.phenotypes.extend([ph1, ph2])
-        db.session.add(p)
-        db.session.commit()
+        phenotypes, p, pheno = self._create_phenotypes()
 
         # Update and save
         phe = Phenotype.query.filter_by(phenotype=pheno[0]).one_or_none()
@@ -125,16 +102,7 @@ class ModelTest(FlaskTestCase):
         """
         Test delete phenotype
         """
-        # Create two phenotypes
-        pheno = ['test phenotype 1', 'test phenotype 2']
-        ph1 = Phenotype(phenotype=pheno[0])
-        ph2 = Phenotype(phenotype=pheno[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.phenotypes.extend([ph1, ph2])
-        db.session.add(p)
-        db.session.commit()
+        phenotypes, p, pheno = self._create_phenotypes()
 
         # Choose one and delete it
         ph = Phenotype.query.filter_by(phenotype=pheno[0]).one_or_none()
@@ -150,16 +118,7 @@ class ModelTest(FlaskTestCase):
         """
         Test delete related phenotypes via deletion of participant
         """
-        # Create two phenotypes
-        pheno = ['test phenotype 1', 'test phenotype 2']
-        ph1 = Phenotype(phenotype=pheno[0])
-        ph2 = Phenotype(phenotype=pheno[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.phenotypes.extend([ph1, ph2])
-        db.session.add(p)
-        db.session.commit()
+        phenotypes, p, pheno = self._create_phenotypes()
 
         # Delete participant
         db.session.delete(p)
@@ -201,3 +160,22 @@ class ModelTest(FlaskTestCase):
         # Add to db
         self.assertRaises(IntegrityError, db.session.add(d))
 
+    def _create_phenotypes(self):
+        """
+        Create phenotypes and required entities
+        """
+        # Create Study
+        study = Study(external_id='phs001')
+
+        # Create two phenotypes
+        pheno = ['test phenotype 1', 'test phenotype 2']
+        ph1 = Phenotype(phenotype=pheno[0])
+        ph2 = Phenotype(phenotype=pheno[1])
+        p = Participant(external_id='p1', study=study)
+
+        # Add to participant and save
+        p.phenotypes.extend([ph1, ph2])
+        db.session.add(p)
+        db.session.commit()
+
+        return [ph1, ph2], p, pheno

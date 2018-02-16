@@ -3,6 +3,7 @@ import uuid
 
 from sqlalchemy.exc import IntegrityError
 
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.outcome.models import Outcome
 from dataservice.extensions import db
@@ -18,9 +19,11 @@ class ModelTest(FlaskTestCase):
         """
         Test create outcome
         """
+        # Create study
+        study = Study(external_id='phs001')
         # Create and save participant
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id)
+        p = Participant(external_id=participant_id, study=study)
         db.session.add(p)
         db.session.commit()
 
@@ -54,16 +57,8 @@ class ModelTest(FlaskTestCase):
         """
         Test create outcomes via creation of participant
         """
-        # Create two outcomes
+        outcomes, p = self._create_outcomes()
         oc = ['Dead', 'Alive']
-        o1 = Outcome(vital_status=oc[0])
-        o2 = Outcome(vital_status=oc[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.outcomes.extend([o1, o2])
-        db.session.add(p)
-        db.session.commit()
 
         # Check outcomes were created
         self.assertEqual(Outcome.query.count(), 2)
@@ -81,18 +76,10 @@ class ModelTest(FlaskTestCase):
         """
         Test find one outcome
         """
-        # Create two outcomes
-        oc = ['Dead', 'Alive']
-        o1 = Outcome(vital_status=oc[0])
-        o2 = Outcome(vital_status=oc[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.outcomes.extend([o1, o2])
-        db.session.add(p)
-        db.session.commit()
+        outcomes, p = self._create_outcomes()
 
         # Find outcome
+        oc = ['Dead', 'Alive']
         o = Outcome.query.filter_by(vital_status=oc[0]).one_or_none()
         self.assertEqual(o.vital_status, oc[0])
 
@@ -100,43 +87,26 @@ class ModelTest(FlaskTestCase):
         """
         Test update outcome
         """
-        # Create two outcomes
-        oc = ['Dead', 'Alive']
-        o1 = Outcome(vital_status=oc[0])
-        o2 = Outcome(vital_status=oc[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.outcomes.extend([o1, o2])
-        db.session.add(p)
-        db.session.commit()
+        outcomes, p = self._create_outcomes()
 
         # Update and save
+        oc = ['Dead', 'Alive']
         o = Outcome.query.filter_by(vital_status=oc[0]).one_or_none()
-        vital = 'Alive'
-        o.outcome = vital
+        o.outcome = oc[1]
         db.session.commit()
 
         # Check updated values
-        o = Outcome.query.filter_by(vital_status=vital).one_or_none()
+        o = Outcome.query.filter_by(vital_status=oc[1]).one_or_none()
         self.assertIsNot(o, None)
 
     def test_delete_outcome(self):
         """
         Test delete outcome
         """
-        # Create two outcomes
-        oc = ['Dead', 'Alive']
-        o1 = Outcome(vital_status=oc[0])
-        o2 = Outcome(vital_status=oc[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.outcomes.extend([o1, o2])
-        db.session.add(p)
-        db.session.commit()
+        outcomes, p = self._create_outcomes()
 
         # Choose one and delete it
+        oc = ['Dead', 'Alive']
         o = Outcome.query.filter_by(vital_status=oc[0]).one_or_none()
         db.session.delete(o)
         db.session.commit()
@@ -150,22 +120,14 @@ class ModelTest(FlaskTestCase):
         """
         Test delete related outcomes via deletion of participant
         """
-        # Create two outcomes
-        oc = ['Dead', 'Alive']
-        o1 = Outcome(vital_status=oc[0])
-        o2 = Outcome(vital_status=oc[1])
-        p = Participant(external_id='p1')
-
-        # Add to participant and save
-        p.outcomes.extend([o1, o2])
-        db.session.add(p)
-        db.session.commit()
+        outcomes, p = self._create_outcomes()
 
         # Delete participant
         db.session.delete(p)
         db.session.commit()
 
         # Check that outcomes have been deleted
+        oc = ['Dead', 'Alive']
         o1 = Outcome.query.filter_by(vital_status=oc[0]).one_or_none()
         o2 = Outcome.query.filter_by(vital_status=oc[1]).one_or_none()
         self.assertIs(o1, None)
@@ -200,3 +162,22 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         self.assertRaises(IntegrityError, db.session.add(o))
+
+    def _create_outcomes(self):
+        """
+        Create outcome and required entities
+        """
+        # Create study
+        study = Study(external_id='phs001')
+        # Create two outcomes
+        oc = ['Dead', 'Alive']
+        o1 = Outcome(vital_status=oc[0])
+        o2 = Outcome(vital_status=oc[1])
+        p = Participant(external_id='p1', study=study)
+
+        # Add to participant and save
+        p.outcomes.extend([o1, o2])
+        db.session.add(p)
+        db.session.commit()
+
+        return [o1, o2], p

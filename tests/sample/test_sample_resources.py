@@ -1,11 +1,13 @@
 import json
-from flask import url_for
 from urllib.parse import urlparse
+
+from flask import url_for
 
 from dataservice.extensions import db
 from dataservice.api.common import id_service
 from dataservice.api.sample.models import Sample
 from dataservice.api.participant.models import Participant
+from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
 SAMPLES_URL = 'api.samples'
@@ -21,8 +23,13 @@ class SampleTest(FlaskTestCase):
         """
         Test create a new sample
         """
+        study = Study(external_id='phs001')
+        db.session.add(study)
+        db.session.commit()
+
         # Create a participant
-        p = Participant(external_id='Test subject 0')
+        p = Participant(external_id='Test subject 0',
+                        study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 
@@ -357,6 +364,10 @@ class SampleTest(FlaskTestCase):
         Create a sample and add it to participant as kwarg
         Save participant
         """
+        study = Study(external_id='phs001')
+        db.session.add(study)
+        db.session.commit()
+
         # Create sample
         kwargs = {
             'external_id': 's1',
@@ -369,8 +380,8 @@ class SampleTest(FlaskTestCase):
         d = Sample(**kwargs)
 
         # Create and save participant with sample
-        participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id, samples=[d])
+        p = Participant(external_id='Test subject 0', samples=[d],
+                        study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 
