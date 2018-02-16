@@ -5,7 +5,18 @@ from flask import Flask
 from dataservice import commands
 from dataservice.utils import _get_version
 from dataservice.extensions import db, ma, migrate
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
+from dataservice.api.outcome.models import Outcome
+from dataservice.api.phenotype.models import Phenotype
+from dataservice.api.participant.models import Demographic
+from dataservice.api.participant.models import Diagnosis
+from dataservice.api.sample.models import Sample
+from dataservice.api.aliquot.models import Aliquot
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.workflow.models import Workflow
+
 from config import config
 
 from sqlalchemy.exc import IntegrityError
