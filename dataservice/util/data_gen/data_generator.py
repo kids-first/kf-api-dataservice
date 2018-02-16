@@ -216,9 +216,6 @@ class DataGenerator(object):
         self.app_context.pop()
 
     def create_and_publish_all(self):
-
-
-<< << << < HEAD
         """
         Create and save all objects to db
         """
@@ -228,13 +225,9 @@ class DataGenerator(object):
         workflows = self._create_workflows(2)
         # Link workflows and genomic files
         self._link_genomic_files_to_workflows(workflows)
-        # Tear down
-== == == =
-        # Create participants
-        self._create_participants_and_studies(self.max_participants)
         # Create family relationships
         self._create_family_relationships()
->>>>>> >: sparkles: Add family relationship to mock data generator
+        # Tear down
         self.teardown()
 
     def _create_studies(self, total=None):

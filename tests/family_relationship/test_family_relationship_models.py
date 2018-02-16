@@ -1,6 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family_relationship.models import (
     FamilyRelationship,
@@ -18,28 +19,8 @@ class ModelTest(FlaskTestCase):
         """
         Test create family relationships
         """
-        # Create participants
-        p1 = Participant(external_id='Fred')  # Father of p3
-        p2 = Participant(external_id='Wilma')  # Mother of p3
-        p3 = Participant(external_id='Pebbles')  # Son of p1
-        p4 = Participant(external_id='Dino')  # Son of p3
-        p5 = Participant(external_id='Bart')  # Cousin of p3
-        db.session.add_all([p1, p2, p3, p4, p5])
-        db.session.commit()
-
         # Create relationships
-        r1 = FamilyRelationship(participant=p1, relative=p3,
-                                participant_to_relative_relation='father')
-        r2 = FamilyRelationship(participant=p2, relative=p3,
-                                participant_to_relative_relation='mother')
-        r3 = FamilyRelationship(participant=p3, relative=p4,
-                                participant_to_relative_relation='father')
-
-        r4 = FamilyRelationship(participant=p3, relative=p5,
-                                participant_to_relative_relation='cousin')
-
-        db.session.add_all([r1, r2, r3, r4])
-        db.session.commit()
+        p1, p2, p3, p4, p5, study = self._create_relationships()
 
         # Check database
         for p in Participant.query.all():
@@ -62,6 +43,7 @@ class ModelTest(FlaskTestCase):
         Test that multiple relationships can exist between a
         pair of participants, including reverse relationships
         """
+        # Create relationships
         self._create_relationships()
         r = FamilyRelationship.query.first()
         rev_rel_str = 'reversed {}'.format(r.participant_to_relative_relation)
@@ -104,10 +86,11 @@ class ModelTest(FlaskTestCase):
         """
         Test update relationship
         """
-        self._create_relationships()
+        p1, p2, p3, p4, p5, study = self._create_relationships()
 
         # Create new participant
-        susy = Participant(external_id='Susy')
+        susy = Participant(external_id='Susy', is_proband=True,
+                           study_id=study.kf_id)
         db.session.add(susy)
         db.session.commit()
 
@@ -199,10 +182,14 @@ class ModelTest(FlaskTestCase):
         parameters such as participant_id, relative_id,
         participant_to_relative_relation
         """
+        # Create study
+        study = Study(external_id='phs001')
+
         # Create participants
-        p1 = Participant(external_id='BobbyBooBoo')
-        p2 = Participant(external_id='SallyMally')
-        db.session.add_all([p1, p2])
+        p1 = Participant(external_id='BobbyBooBoo', is_proband=False)
+        p2 = Participant(external_id='SallyMally', is_proband=False)
+        study.participants.extend([p1, p2])
+        db.session.add(study)
         db.session.commit()
 
         # Missing all required parameters
@@ -231,13 +218,25 @@ class ModelTest(FlaskTestCase):
         self.assertRaises(IntegrityError, db.session.add(r))
 
     def _create_relationships(self):
+        """
+        Create family relationships and required entities
+        """
+        # Create study
+        study = Study(external_id='phs001')
+
         # Create participants
-        p1 = Participant(external_id='Fred')  # Father of p3, p5
-        p2 = Participant(external_id='Wilma')  # Mother of p3, p5
-        p3 = Participant(external_id='Pebbles')  # Son of p1
-        p4 = Participant(external_id='Dino')  # Son of p3
-        p5 = Participant(external_id='Bart')  # Cousin of p3
-        db.session.add_all([p1, p2, p3, p4, p5])
+        # Father of p3, p5
+        p1 = Participant(external_id='Fred', is_proband=False)
+        # Mother of p3, p5
+        p2 = Participant(external_id='Wilma',  is_proband=False)
+        # Son of p1
+        p3 = Participant(external_id='Pebbles', is_proband=True)
+        # Son of p3
+        p4 = Participant(external_id='Dino', is_proband=True)
+        # Cousin of p3
+        p5 = Participant(external_id='Bart', is_proband=True)
+        study.participants.extend([p1, p2, p3, p4, p5])
+        db.session.add(study)
         db.session.commit()
 
         # Create relationships
@@ -254,7 +253,7 @@ class ModelTest(FlaskTestCase):
         db.session.add_all([r1, r2, r3, r4])
         db.session.commit()
 
-        return [p1, p2, p3, p4, p5]
+        return p1, p2, p3, p4, p5, study
 
     def _immediate_relatives(self, p):
         return [r for r in p.immediate_relatives()]
