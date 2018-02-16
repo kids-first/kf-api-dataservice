@@ -37,7 +37,8 @@ class ModelTest(FlaskTestCase):
         participants, study, kwargs = self.create_study()
 
         # Add new participant to study
-        p_new = Participant(external_id='Bart', study_id=study.kf_id)
+        p_new = Participant(external_id='Bart', is_proband=True,
+                            study_id=study.kf_id)
         db.session.add(p_new)
         db.session.commit()
 
@@ -94,7 +95,7 @@ class ModelTest(FlaskTestCase):
         reference Study. This checks foreign key constraint
         """
         # Create participant
-        p = Participant(external_id='Fred')
+        p = Participant(external_id='Fred', is_proband=True)
         db.session.add(p)
 
         # Check for exception
@@ -122,7 +123,8 @@ class ModelTest(FlaskTestCase):
     def create_study(self):
         # Create participants
         names = ['Fred', 'Wilma', 'Pebbles', 'Dino']
-        participants = [Participant(external_id=n) for n in names]
+        participants = [Participant(external_id=n, is_proband=True,)
+                        for n in names]
 
         # Create study
         kwargs = {

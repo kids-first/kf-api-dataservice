@@ -24,7 +24,8 @@ class ModelTest(FlaskTestCase):
 
         # Create and save participant
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id, study=study)
+        p = Participant(external_id=participant_id, is_proband=True,
+                        study=study)
         db.session.add(p)
         db.session.commit()
 
@@ -171,7 +172,8 @@ class ModelTest(FlaskTestCase):
         pheno = ['test phenotype 1', 'test phenotype 2']
         ph1 = Phenotype(phenotype=pheno[0])
         ph2 = Phenotype(phenotype=pheno[1])
-        p = Participant(external_id='p1', study=study)
+        p = Participant(external_id='p1', is_proband=True,
+                        study=study)
 
         # Add to participant and save
         p.phenotypes.extend([ph1, ph2])

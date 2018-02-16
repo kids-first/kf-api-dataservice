@@ -73,6 +73,7 @@ class ModelTest(FlaskTestCase):
         sample_0 = Sample(**sample_data, aliquots=[aliquot_0])
         participant_0 = Participant(
             external_id=participant_id,
+            is_proband=True,
             samples=[sample_0],
             study=study)
         db.session.add(participant_0)
@@ -111,7 +112,8 @@ class ModelTest(FlaskTestCase):
         dt = datetime.now()
         participant_id = "Test_Subject_0"
         # creating participant
-        p = Participant(external_id=participant_id, study=study)
+        p = Participant(external_id=participant_id, is_proband=True,
+                        study=study)
         db.session.add(p)
         db.session.commit()
 

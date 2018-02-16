@@ -27,7 +27,8 @@ class DemographicTest(FlaskTestCase):
         db.session.commit()
 
         # Create a participant
-        p = Participant(external_id='Test subject 0', study_id=study.kf_id)
+        p = Participant(external_id='Test subject 0', is_proband=True,
+                        study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 
@@ -360,7 +361,7 @@ class DemographicTest(FlaskTestCase):
         # Create and save participant with demographic
         participant_id = 'Test subject 0'
         p = Participant(external_id=participant_id, demographic=d,
-                        study_id=study.kf_id)
+                        is_proband=True, study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 

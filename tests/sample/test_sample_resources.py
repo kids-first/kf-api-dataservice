@@ -29,7 +29,7 @@ class SampleTest(FlaskTestCase):
 
         # Create a participant
         p = Participant(external_id='Test subject 0',
-                        study_id=study.kf_id)
+                        is_proband=True, study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 
@@ -381,7 +381,7 @@ class SampleTest(FlaskTestCase):
 
         # Create and save participant with sample
         p = Participant(external_id='Test subject 0', samples=[d],
-                        study_id=study.kf_id)
+                        is_proband=True, study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 

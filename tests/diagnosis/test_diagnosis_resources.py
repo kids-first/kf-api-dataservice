@@ -26,7 +26,8 @@ class DiagnosisTest(FlaskTestCase):
         study = Study(external_id='phs001')
 
         # Create a participant
-        p = Participant(external_id='Test subject 0', study=study)
+        p = Participant(external_id='Test subject 0', is_proband=True,
+                        study=study)
         db.session.add(p)
         db.session.commit()
 
@@ -371,7 +372,7 @@ class DiagnosisTest(FlaskTestCase):
         # Create and save participant with diagnosis
         participant_id = 'Test subject 0'
         p = Participant(external_id=participant_id, diagnoses=[d],
-                        study=study)
+                        is_proband=True, study=study)
         db.session.add(p)
         db.session.commit()
 

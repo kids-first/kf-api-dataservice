@@ -104,6 +104,7 @@ class ParticipantTest(FlaskTestCase):
         body = {
             'external_id': 'Updated-{}'.format(external_id),
             'consent_type': 'GRU-PUB',
+            'is_proband': True,
             'study_id': s.kf_id
         }
         response = self.client.put(url_for(PARTICIPANT_URL,
@@ -118,10 +119,10 @@ class ParticipantTest(FlaskTestCase):
         self.assertIn('updated', resp['_status']['message'])
 
         participant = resp['results']
-        self.assertEqual(participant.kf_id, participant['kf_id'])
-        self.assertEqual(participant.external_id, body['external_id'])
-        self.assertEqual(participant.consent_type, body['consent_type'])
-        self.assertEqual(None,participant['is_proband'])
+        self.assertEqual(participant['kf_id'], kf_id)
+        self.assertEqual(participant['external_id'], body['external_id'])
+        self.assertEqual(participant['consent_type'], body['consent_type'])
+        self.assertEqual(None,participant['family_id'])
 
     def test_delete_participant(self):
         """

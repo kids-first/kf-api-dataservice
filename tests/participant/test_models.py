@@ -16,11 +16,9 @@ class ModelTest(FlaskTestCase):
         """
         Create participant with external id
         """
+        s = Study(external_id='phs001')
         p = Participant(external_id=external_id, family_id="Test_family_id_0",
                         is_proband=False, consent_type="GRU-IRB")
-        db.session.add(p)
-        s = Study(external_id='phs001')
-        p = Participant(external_id=external_id)
         s.participants.append(p)
         db.session.add(s)
         db.session.commit()

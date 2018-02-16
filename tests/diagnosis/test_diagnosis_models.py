@@ -130,7 +130,8 @@ class ModelTest(FlaskTestCase):
 
         # Create participant
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id, study=study)
+        p = Participant(external_id=participant_id, is_proband=True,
+                        study=study)
         db.session.add(p)
         db.session.commit()
 
