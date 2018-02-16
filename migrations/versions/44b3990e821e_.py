@@ -1,18 +1,18 @@
 """
-Add consent_type, family_id, is_proband fields to Participant
+Add consent_type, family_id, is_proband fields to participant
 
-Revision ID: f91046108b04
-Revises: c23f9043d57b
-Create Date: 2018-02-16 13:59:54.578969
+Revision ID: 44b3990e821e
+Revises: 7ef81ce1ca05
+Create Date: 2018-02-16 14:51:04.407767
 
 """
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'f91046108b04'
-down_revision = 'c23f9043d57b'
+revision = '44b3990e821e'
+down_revision = '7ef81ce1ca05'
 branch_labels = None
 depends_on = None
 
