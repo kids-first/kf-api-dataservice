@@ -127,7 +127,7 @@ class SampleTest(FlaskTestCase):
             'age_at_event_days': 365,
             'tumor_descriptor': 'Metastatic',
             # kf_id does not exist
-            'participant_id': id_service.kf_id_generator()
+            'participant_id': id_service.kf_id_generator('PT')()
         }
         # Send post request
         response = self.client.post(url_for(SAMPLES_LIST_URL),

@@ -10,12 +10,12 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.yield_fixture(scope='module')
 def app():
     return create_app('testing')
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.yield_fixture(scope='module')
 def client(app):
     app_context = app.app_context()
     app_context.push()
@@ -26,7 +26,7 @@ def client(app):
     db.drop_all()
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.yield_fixture(scope='module')
 def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
 

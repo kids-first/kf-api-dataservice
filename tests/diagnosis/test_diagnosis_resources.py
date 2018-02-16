@@ -133,7 +133,7 @@ class DiagnosisTest(FlaskTestCase):
             'diagnosis_category': 'cancer',
             'tumor_location': 'Brain',
             # kf_id does not exist
-            'participant_id': id_service.kf_id_generator()
+            'participant_id': id_service.kf_id_generator('PT')()
         }
         # Send post request
         response = self.client.post(url_for(DIAGNOSES_LIST_URL),

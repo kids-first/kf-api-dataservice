@@ -26,11 +26,11 @@ class TestErrors:
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        if len(kf_id) <= 8:
+        if len(kf_id) <= 11:
             message = '"{}" does not exist'.format(kwargs['participant_id'])
             assert message in response['_status']['message']
         else:
-            message = 'Longer than maximum length 8'
+            message = 'Longer than maximum length 11'
             assert message in response['_status']['message']
 
     def test_unique_demographic(self, client, entities):

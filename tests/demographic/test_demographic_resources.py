@@ -94,7 +94,7 @@ class DemographicTest(FlaskTestCase):
             'race': 'asian',
             'ethnicity': 'not hispanic or latino',
             'gender': 'female',
-            'participant_id': id_service.kf_id_generator()
+            'participant_id': id_service.kf_id_generator('PT')()
         }
         # Send post request
         response = self.client.post(url_for(DEMOGRAPHICS_LIST_URL),
@@ -228,7 +228,7 @@ class DemographicTest(FlaskTestCase):
         body = {
             'race': 'black or african',
             'gender': 'male',
-            'participant_id': id_service.kf_id_generator()
+            'participant_id': id_service.kf_id_generator('PT')()
         }
         response = self.client.put(url_for(DEMOGRAPHICS_URL,
                                            kf_id=kf_id),
