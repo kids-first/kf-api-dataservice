@@ -19,6 +19,7 @@ from dataservice.api.outcome.models import Outcome
 from dataservice.api.workflow.models import (
     Workflow,
     WorkflowGenomicFile
+)
 from dataservice.api.phenotype.models import Phenotype
 
 

@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy.exc import IntegrityError
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
@@ -283,8 +284,10 @@ class ModelTest(FlaskTestCase):
 
     def _create_participants_and_dependents(self):
         """
-        Create participant with dependent entities
+        Create participant with required entities
         """
+        # Create study
+        study = Study(external_id='phs001')
 
         names = ['Fred', 'Wilma', 'Pebbles', 'Dino']
         participants = []
@@ -301,7 +304,7 @@ class ModelTest(FlaskTestCase):
             # Sample
             s = self._create_sample('s_{}'.format(i), [a])
             # Participants
-            p = Participant(external_id=_name, samples=[s])
+            p = Participant(external_id=_name, samples=[s], study=study)
             participants.append(p)
 
         return participants
