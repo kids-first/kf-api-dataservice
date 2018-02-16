@@ -56,8 +56,8 @@ class ModelTest(FlaskTestCase):
                     self.assertEqual(True,
                                      (gf_workflow.name == 'kf-alignment1'
                                       or gf_workflow.name == 'kf-alignment2'))
-                    self.assertEqual('v1', gf_workflow.version)
-                    self.assertEqual(WORKFLOW_COMMIT_URL, gf_workflow.github_commit_url)
+                    self.assertEqual(WORKFLOW_COMMIT_URL,
+                                     gf_workflow.github_commit_url)
 
     def test_update(self):
         """
@@ -275,7 +275,6 @@ class ModelTest(FlaskTestCase):
         data = {
             'task_id': 'task_{}'.format(_name),
             'name': _name,
-            'version': 'v1',
             'github_commit_url': WORKFLOW_COMMIT_URL
         }
         if genomic_files:

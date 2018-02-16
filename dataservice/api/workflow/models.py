@@ -21,7 +21,6 @@ class Workflow(db.Model, Base):
 
     task_id = db.Column(db.Text())
     name = db.Column(db.Text())
-    version = db.Column(db.Text())
     github_commit_url = db.Column(db.Text())
 
     genomic_files = association_proxy(

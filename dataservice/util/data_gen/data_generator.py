@@ -389,7 +389,6 @@ class DataGenerator(object):
             data = {
                 'task_id': 'task_{}'.format(i),
                 'name': 'kf_alignment_{}'.format(i),
-                'version': 'v1',
                 'github_commit_url': (
                     'https://github.com/kids-first/'
                     'kf-alignment-workflow/commit/'
