@@ -14,7 +14,8 @@ from dataservice.api.workflow.models import (
 )
 from tests.utils import FlaskTestCase
 
-SAMPLE_URL = 'https://github.com/kids-first/kf-alignment-workflow/blob/master/workflows/kfdrc_alignment_pipeline.cwl'
+WORKFLOW_COMMIT_URL = ('https://github.com/kids-first/kf-alignment-workflow/'
+                       'commit/0d7f93dff6463446b0ed43dc2883f60c28e6f1f4')
 
 
 class ModelTest(FlaskTestCase):
@@ -55,7 +56,7 @@ class ModelTest(FlaskTestCase):
                                      (gf_workflow.name == 'kf-alignment1'
                                       or gf_workflow.name == 'kf-alignment2'))
                     self.assertEqual('v1', gf_workflow.version)
-                    self.assertEqual(SAMPLE_URL, gf_workflow.github_url)
+                    self.assertEqual(WORKFLOW_COMMIT_URL, gf_workflow.github_commit_url)
 
     def test_update(self):
         """
@@ -274,7 +275,7 @@ class ModelTest(FlaskTestCase):
             'task_id': 'task_{}'.format(_name),
             'name': _name,
             'version': 'v1',
-            'github_url': SAMPLE_URL
+            'github_commit_url': WORKFLOW_COMMIT_URL
         }
         if genomic_files:
             data['genomic_files'] = genomic_files

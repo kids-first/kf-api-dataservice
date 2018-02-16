@@ -22,7 +22,7 @@ class Workflow(db.Model, Base):
     task_id = db.Column(db.Text())
     name = db.Column(db.Text())
     version = db.Column(db.Text())
-    github_url = db.Column(db.Text())
+    github_commit_url = db.Column(db.Text())
 
     genomic_files = association_proxy(
         'workflow_genomic_files', 'genomic_file',
@@ -66,6 +66,6 @@ class WorkflowGenomicFile(db.Model, Base):
 
     def __repr__(self):
         return '<Workflow {} GenomicFile {}> is_input {}'.format(
-            self.workflow.name,
-            self.genomic_file.file_name,
+            self.workflow.kf_id,
+            self.genomic_file.kf_id,
             self.is_input)

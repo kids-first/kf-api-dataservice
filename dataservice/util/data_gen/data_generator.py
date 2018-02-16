@@ -208,7 +208,7 @@ class DataGenerator(object):
         # Create participants
         self._create_participants_and_studies(self.max_participants)
         # Create workflows
-        workflows = self._create_workflows()
+        workflows = self._create_workflows(2)
         # Link workflows and genomic files
         self._link_genomic_files_to_workflows(workflows)
         # Tear down
@@ -375,17 +375,24 @@ class DataGenerator(object):
             gf_list.append(GenomicFile(**kwargs))
         return gf_list
 
-    def _create_workflows(self, total=2):
+    def _create_workflows(self, total=None):
         """
         Create workflows
         """
+        min_workflows = 1
+        max_workflows = 5
+        if not total:
+            total = random.randint(min_workflows, max_workflows)
         wf_list = []
         for i in range(total):
             data = {
                 'task_id': 'task_{}'.format(i),
                 'name': 'kf_alignment_{}'.format(i),
                 'version': 'v1',
-                'github_url': 'https://github.com/kids-first/kf-alignment-workflow/blob/master/workflows/kfdrc_alignment_pipeline.cwl'
+                'github_commit_url': (
+                    'https://github.com/kids-first/'
+                    'kf-alignment-workflow/commit/'
+                    '0d7f93dff6463446b0ed43dc2883f60c28e6f1f4')
             }
             wf = Workflow(**data)
             db.session.add(wf)
