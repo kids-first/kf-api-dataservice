@@ -1,8 +1,6 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 from sqlalchemy.dialects.postgresql import UUID
-
-# TODO May want to change all uuid strings postgres UUID later on
 
 
 class GenomicFile(db.Model, Base):
@@ -21,18 +19,18 @@ class GenomicFile(db.Model, Base):
     :param md5sum: 128 bit md5 hash of file
     :param controlled_access: whether or not the file is controlled access
     """
-
     __tablename__ = 'genomic_file'
+    __prefix__ = 'GF'
+
     file_name = db.Column(db.Text())
     data_type = db.Column(db.Text())
     file_format = db.Column(db.Text())
     file_url = db.Column(db.Text())
-    # TODO Change to use UUID for md5sum later on
     # See link for why md5sum should use uuid type
     # https://dba.stackexchange.com/questions/115271/what-is-the-optimal-data-type-for-an-md5-field
     md5sum = db.Column(UUID(), unique=True)
     controlled_access = db.Column(db.Boolean())
-    sequencing_experiment_id = db.Column(db.String(8),
+    sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'),
                                          nullable=False)

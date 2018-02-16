@@ -1,7 +1,7 @@
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
 
 
@@ -18,6 +18,7 @@ class Workflow(db.Model, Base):
     :param github_url: URL to repository hosted on GitHub
     """
     __tablename__ = 'workflow'
+    __prefix__ = 'WF'
 
     task_id = db.Column(db.Text())
     name = db.Column(db.Text())
@@ -42,13 +43,14 @@ class WorkflowGenomicFile(db.Model, Base):
     """
 
     __tablename__ = 'workflow_genomic_file'
+    __prefix__ = 'WG'
     __table_args__ = (db.UniqueConstraint('genomic_file_id', 'workflow_id',
                                           'is_input'),)
-    genomic_file_id = db.Column(db.String(8),
+    genomic_file_id = db.Column(KfId(),
                                 db.ForeignKey('genomic_file.kf_id'),
                                 nullable=False)
 
-    workflow_id = db.Column(db.String(8),
+    workflow_id = db.Column(KfId(),
                             db.ForeignKey('workflow.kf_id'),
                             nullable=False)
     is_input = db.Column(db.Boolean(), nullable=False, default=False)

@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 
 
 class Outcome(db.Model, Base):
@@ -15,11 +15,12 @@ class Outcome(db.Model, Base):
     :param age_at_event_days: Age at the time of outcome occured
     in number of days since birth.
     """
-
     __tablename__ = 'outcome'
+    __prefix__ = 'OC'
+
     vital_status = db.Column(db.Text())
     disease_related = db.Column(db.Text())
     age_at_event_days = db.Column(db.Integer())
-    participant_id = db.Column(db.String(8),
+    participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                nullable=False)

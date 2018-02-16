@@ -13,7 +13,9 @@ class Investigator(db.Model, Base):
     :param name: Name of the investigator
     :param institution: institution of the investigator
     """
-    __tablename__ = "investigator"
+    __tablename__ = 'investigator'
+    __prefix__ = 'IG'
+
     name = db.Column(db.Text())
     institution = db.Column(db.Text())
     studies = db.relationship(Study,

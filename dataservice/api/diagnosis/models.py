@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 
 
 class Diagnosis(db.Model, Base):
@@ -17,8 +17,9 @@ class Diagnosis(db.Model, Base):
     :param age_at_event_days: Age at the time of diagnosis expressed
     in number of days since birth.
     """
-
     __tablename__ = 'diagnosis'
+    __prefix__ = 'DG'
+
     external_id = db.Column(db.Text(),
                             doc='external id used by contributor')
     diagnosis = db.Column(db.Text(),
@@ -30,7 +31,7 @@ class Diagnosis(db.Model, Base):
                                doc='location of the tumor')
     age_at_event_days = db.Column(db.Integer(),
                                   doc='age when diagnosis was made')
-    participant_id = db.Column(db.String(8),
+    participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
                                nullable=False)
