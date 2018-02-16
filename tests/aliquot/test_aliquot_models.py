@@ -2,6 +2,7 @@ from datetime import datetime
 import uuid
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
@@ -20,6 +21,9 @@ class ModelTest(FlaskTestCase):
         create a participant, sample, and aliquot save to db
         returns participant_id, sample_id, and aliquot_id
         """
+        # Create study
+        study = Study(external_id='phs001')
+
         dt = datetime.now()
         participant_id = "Test_Subject_0"
         sample_id = "Test_Sample_0"
@@ -45,7 +49,8 @@ class ModelTest(FlaskTestCase):
         sample_0 = Sample(**sample_data, aliquots=[aliquot_0])
         participant_0 = Participant(
             external_id=participant_id,
-            samples=[sample_0])
+            samples=[sample_0],
+            study=study)
         db.session.add(participant_0)
         db.session.commit()
         return participant_id, sample_id, aliquot_id
@@ -67,10 +72,13 @@ class ModelTest(FlaskTestCase):
         """
         Test creation of aliquot
         """
+        # Create study
+        study = Study(external_id='phs001')
+
         dt = datetime.now()
         participant_id = "Test_Subject_0"
         # creating participant
-        p = Participant(external_id=participant_id)
+        p = Participant(external_id=participant_id, study=study)
         db.session.add(p)
         db.session.commit()
 

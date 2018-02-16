@@ -1,12 +1,12 @@
 import json
 from flask import url_for
 from urllib.parse import urlparse
-from pprint import pprint
 
 from dataservice.extensions import db
 from dataservice.api.common import id_service
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.participant.models import Participant
+from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
 DEMOGRAPHICS_URL = 'api.demographics'
@@ -22,8 +22,12 @@ class DemographicTest(FlaskTestCase):
         """
         Test create a new demographic
         """
+        study = Study(external_id='phs001')
+        db.session.add(study)
+        db.session.commit()
+
         # Create a participant
-        p = Participant(external_id='Test subject 0')
+        p = Participant(external_id='Test subject 0', study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 
@@ -340,6 +344,10 @@ class DemographicTest(FlaskTestCase):
         Create a demographic and add it to participant as kwarg
         Save participant
         """
+        study = Study(external_id='phs001')
+        db.session.add(study)
+        db.session.commit()
+
         # Create demographic
         kwargs = {
             'external_id': 'd1',
@@ -351,7 +359,8 @@ class DemographicTest(FlaskTestCase):
 
         # Create and save participant with demographic
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id, demographic=d)
+        p = Participant(external_id=participant_id, demographic=d,
+                        study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 

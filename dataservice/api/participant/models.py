@@ -47,3 +47,9 @@ class Participant(db.Model, Base):
                                  cascade="all, delete-orphan",
                                  backref=db.backref('participants',
                                                     lazy=True))
+    study_id = db.Column(db.String(8),
+                         db.ForeignKey('study.kf_id'),
+                         nullable=False)
+
+    def __repr__(self):
+        return '<Participant {}>'.format(self.kf_id)

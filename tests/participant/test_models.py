@@ -3,6 +3,7 @@ import uuid
 
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
+from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
 
@@ -10,6 +11,7 @@ class ModelTest(FlaskTestCase):
     """
     Test database model
     """
+
     def _create_participant(self, external_id="Test_Participant_0"):
         """
         Create participant with external id
@@ -17,8 +19,11 @@ class ModelTest(FlaskTestCase):
         p = Participant(external_id=external_id, family_id="Test_family_id_0",
                         is_proband=False, consent_type="GRU-IRB")
         db.session.add(p)
+        s = Study(external_id='phs001')
+        p = Participant(external_id=external_id)
+        s.participants.append(p)
+        db.session.add(s)
         db.session.commit()
-
         return p
 
     def _get_participant(self, kf_id):

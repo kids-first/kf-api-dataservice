@@ -1,7 +1,10 @@
 import json
+
 from flask import url_for
 
+from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
+from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
 PARTICIPANT_URL = 'api.participants'
@@ -18,9 +21,9 @@ class ParticipantTest(FlaskTestCase):
         Test creating a new participant
         """
         response = self._make_participant(external_id="TEST")
-        self.assertEqual(response.status_code, 201)
-
         resp = json.loads(response.data.decode("utf-8"))
+
+        self.assertEqual(response.status_code, 201)
         self._test_response_content(resp, 201)
 
         self.assertIn('participant', resp['_status']['message'])
@@ -93,9 +96,15 @@ class ParticipantTest(FlaskTestCase):
         kf_id = participant.get('kf_id')
         external_id = participant.get('external_id')
 
+        # Create new study, add participant to it
+        s = Study(external_id='phs002')
+        db.session.add(s)
+        db.session.commit()
+
         body = {
             'external_id': 'Updated-{}'.format(external_id),
-            'consent_type': 'GRU-PUB'
+            'consent_type': 'GRU-PUB',
+            'study_id': s.kf_id
         }
         response = self.client.put(url_for(PARTICIPANT_URL,
                                            kf_id=kf_id),
@@ -140,11 +149,17 @@ class ParticipantTest(FlaskTestCase):
         """
         Convenience method to create a participant with a given source name
         """
+        # Make required entities first
+        s = Study(external_id='phs001')
+        db.session.add(s)
+        db.session.commit()
+
         body = {
             'external_id': external_id,
             'family_id': 'Test_Family_id_0',
             'is_proband': True,
-            'consent_type': 'GRU-IRB' 
+            'consent_type': 'GRU-IRB', 
+            'study_id': s.kf_id
         }
         response = self.client.post(url_for(PARTICIPANT_LIST_URL),
                                     headers=self._api_headers(),
