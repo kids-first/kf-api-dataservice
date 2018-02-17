@@ -49,6 +49,7 @@ class ModelTest(FlaskTestCase):
         sample_0 = Sample(**sample_data, aliquots=[aliquot_0])
         participant_0 = Participant(
             external_id=participant_id,
+            is_proband=True,
             samples=[sample_0],
             study=study)
         db.session.add(participant_0)
@@ -59,7 +60,9 @@ class ModelTest(FlaskTestCase):
         """
         Test creation of aliquot via sample and person
         """
-        participant_id, sample_id, aliquot_id = self.create_participant_sample_aliquot()
+        (participant_id, 
+         sample_id, 
+         aliquot_id) = self.create_participant_sample_aliquot()
         s = Sample.query.filter_by(external_id=sample_id).one_or_none()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
@@ -78,7 +81,8 @@ class ModelTest(FlaskTestCase):
         dt = datetime.now()
         participant_id = "Test_Subject_0"
         # creating participant
-        p = Participant(external_id=participant_id, study=study)
+        p = Participant(external_id=participant_id,
+                        is_proband=True, study=study)
         db.session.add(p)
         db.session.commit()
 
@@ -124,7 +128,9 @@ class ModelTest(FlaskTestCase):
         test finding the aliquot with aliquot_id
         """
         dt = datetime.now()
-        participant_id, sample_id, aliquot_id = self.create_participant_sample_aliquot()
+        (participant_id, 
+         sample_id, 
+         aliquot_id) = self.create_participant_sample_aliquot()
 
         # get aliquot
         a = Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
@@ -139,7 +145,9 @@ class ModelTest(FlaskTestCase):
         """
         Test Updating aliquot
         """
-        participant_id, sample_id, aliquot_id = self.create_participant_sample_aliquot()
+        (participant_id, 
+         sample_id, 
+         aliquot_id) = self.create_participant_sample_aliquot()
         # get aliquot
         a = Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
 
@@ -153,7 +161,9 @@ class ModelTest(FlaskTestCase):
         """
         Test Deleting Aliquot
         """
-        participant_id, sample_id, aliquot_id = self.create_participant_sample_aliquot()
+        (participant_id, 
+         sample_id, 
+         aliquot_id) = self.create_participant_sample_aliquot()
         # get Aliquot
         a = Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
 
@@ -173,8 +183,9 @@ class ModelTest(FlaskTestCase):
         """
         Test deleting aliquot via sample and participant
         """
-
-        participant_id, sample_id, aliquot_id = self.create_participant_sample_aliquot()
+        (participant_id, 
+         sample_id, 
+         aliquot_id) = self.create_participant_sample_aliquot()
 
         # Delete Participant
         p = Participant.query.first()
@@ -245,7 +256,9 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        participant_id, sample_id, aliquot_id = self.create_participant_sample_aliquot()
+        (participant_id, 
+         sample_id, 
+         aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
 
@@ -320,7 +333,9 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        participant_id, sample_id, aliquot_id = self.create_participant_sample_aliquot()
+        (participant_id, 
+         sample_id, 
+         aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
 
@@ -403,7 +418,9 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        participant_id, sample_id, aliquot_id = self.create_participant_sample_aliquot()
+        (participant_id, 
+         sample_id, 
+         aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
 

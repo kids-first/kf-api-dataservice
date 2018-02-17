@@ -34,6 +34,9 @@ class ParticipantTest(FlaskTestCase):
         participant = resp['results']
         self.assertEqual(p.kf_id, participant['kf_id'])
         self.assertEqual(p.external_id, participant['external_id'])
+        self.assertEqual(p.consent_type, participant['consent_type'])
+        self.assertEqual(p.family_id, participant['family_id'])
+        self.assertEqual(p.is_proband, participant['is_proband'])
 
     def test_get_not_found(self):
         """
@@ -63,8 +66,10 @@ class ParticipantTest(FlaskTestCase):
         self._test_response_content(resp, 200)
 
         participant = resp['results']
-
+        p = Participant.query.first()
         self.assertEqual(kf_id, participant['kf_id'])
+        self.assertEqual(p.consent_type, participant['consent_type'])
+        self.assertEqual(p.family_id, participant['family_id'])
 
     def test_get_all_participants(self):
         """
@@ -98,6 +103,8 @@ class ParticipantTest(FlaskTestCase):
 
         body = {
             'external_id': 'Updated-{}'.format(external_id),
+            'consent_type': 'GRU-PUB',
+            'is_proband': True,
             'study_id': s.kf_id
         }
         response = self.client.put(url_for(PARTICIPANT_URL,
@@ -111,10 +118,11 @@ class ParticipantTest(FlaskTestCase):
         self.assertIn('participant', resp['_status']['message'])
         self.assertIn('updated', resp['_status']['message'])
 
-        p = Participant.query.first()
         participant = resp['results']
-        self.assertEqual(p.kf_id, participant['kf_id'])
-        self.assertEqual(p.external_id, participant['external_id'])
+        self.assertEqual(participant['kf_id'], kf_id)
+        self.assertEqual(participant['external_id'], body['external_id'])
+        self.assertEqual(participant['consent_type'], body['consent_type'])
+        self.assertEqual(None,participant['family_id'])
 
     def test_delete_participant(self):
         """
@@ -149,6 +157,9 @@ class ParticipantTest(FlaskTestCase):
 
         body = {
             'external_id': external_id,
+            'family_id': 'Test_Family_id_0',
+            'is_proband': True,
+            'consent_type': 'GRU-IRB', 
             'study_id': s.kf_id
         }
         response = self.client.post(url_for(PARTICIPANT_LIST_URL),

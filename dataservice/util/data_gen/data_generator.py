@@ -28,7 +28,7 @@ class DataGenerator(object):
         if not config_name:
             config_name = os.environ.get('FLASK_CONFIG', 'default')
         self.setup(config_name)
-        self.max_participants = 50
+        self._participant_choices()
         self._sample_choices()
         self._aliquot_choices()
         self._experiment_choices()
@@ -37,6 +37,17 @@ class DataGenerator(object):
         self._genomic_files_choices()
         self._outcomes_choices()
         self._phenotype_choices()
+
+    def _participant_choices(self):
+        """
+        Provides the choices for filling participant entity
+        """
+        self.max_participants = 50
+        self.is_proband_list = [True, False]
+        data_lim = ['GRU', 'HMB', 'DS', 'Other']
+        data_lim_mod = ['IRB', 'PUB', 'COL', 'NPU', 'MDS', 'GSO']
+        self.consent_type_list = [(x + '-' + y)
+                                  for x in data_lim for y in data_lim_mod]
 
     def _sample_choices(self):
         """
@@ -264,6 +275,9 @@ class DataGenerator(object):
                 random.randint(self.min_phenotypes, self.max_phenotypes))
             p = Participant(
                 external_id='participant_{}'.format(i),
+                family_id='family_{}'.format(total % (i + 1)),
+                is_proband=random.choice(self.is_proband_list),
+                consent_type=random.choice(self.consent_type_list),
                 samples=samples,
                 demographic=demographic,
                 diagnoses=diagnoses,

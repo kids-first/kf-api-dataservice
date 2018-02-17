@@ -5,6 +5,7 @@ from flask import Flask
 from dataservice import commands
 from dataservice.utils import _get_version
 from dataservice.extensions import db, ma, migrate
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from config import config
 

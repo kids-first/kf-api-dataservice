@@ -41,7 +41,10 @@ def entities(client):
             'external_id': 'phs001'
         },
         '/participants': {
-            'external_id': 'p0'
+            'external_id': 'p0',
+            'is_proband': True,
+            'family_id': 'family0',
+            'consent_type': 'GRU-IRB'
         },
         '/demographics': {
             'race': 'black',

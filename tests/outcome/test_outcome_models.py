@@ -23,7 +23,8 @@ class ModelTest(FlaskTestCase):
         study = Study(external_id='phs001')
         # Create and save participant
         participant_id = 'Test subject 0'
-        p = Participant(external_id=participant_id, study=study)
+        p = Participant(external_id=participant_id, is_proband=True,
+                        study=study)
         db.session.add(p)
         db.session.commit()
 
@@ -173,7 +174,7 @@ class ModelTest(FlaskTestCase):
         oc = ['Dead', 'Alive']
         o1 = Outcome(vital_status=oc[0])
         o2 = Outcome(vital_status=oc[1])
-        p = Participant(external_id='p1', study=study)
+        p = Participant(external_id='p1', is_proband=True, study=study)
 
         # Add to participant and save
         p.outcomes.extend([o1, o2])

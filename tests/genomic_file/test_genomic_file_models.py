@@ -201,7 +201,7 @@ class ModelTest(FlaskTestCase):
 
         # Create participant
         p = Participant(external_id='p1', samples=self._create_samples(),
-                        study=study)
+                        is_proband=True, study=study)
         db.session.add(p)
         db.session.commit()
 

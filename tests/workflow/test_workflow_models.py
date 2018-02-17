@@ -1,5 +1,5 @@
 import uuid
-
+import random
 from sqlalchemy.exc import IntegrityError
 
 from dataservice.extensions import db
@@ -289,6 +289,7 @@ class ModelTest(FlaskTestCase):
         study = Study(external_id='phs001')
 
         names = ['Fred', 'Wilma', 'Pebbles', 'Dino']
+        proband = [True, False]
         participants = []
         for i, _name in enumerate(names):
             # Input GF
@@ -303,7 +304,9 @@ class ModelTest(FlaskTestCase):
             # Sample
             s = self._create_sample('s_{}'.format(i), [a])
             # Participants
-            p = Participant(external_id=_name, samples=[s], study=study)
+            p = Participant(external_id=_name,
+                            is_proband=random.choice(proband),
+                            samples=[s], study=study)
             participants.append(p)
 
         return participants

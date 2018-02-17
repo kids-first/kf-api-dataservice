@@ -17,11 +17,11 @@ class ModelTest(FlaskTestCase):
         Create participant with external id
         """
         s = Study(external_id='phs001')
-        p = Participant(external_id=external_id)
+        p = Participant(external_id=external_id, family_id="Test_family_id_0",
+                        is_proband=False, consent_type="GRU-IRB")
         s.participants.append(p)
         db.session.add(s)
         db.session.commit()
-
         return p
 
     def _get_participant(self, kf_id):
@@ -44,6 +44,8 @@ class ModelTest(FlaskTestCase):
         self.assertGreater(new_participant.modified_at, dt)
         self.assertIs(type(uuid.UUID(new_participant.uuid)), uuid.UUID)
         self.assertEqual(new_participant.external_id, "Test_Participant_0")
+        self.assertEqual(new_participant.family_id, "Test_family_id_0")
+        self.assertEqual(new_participant.is_proband,False)
 
     def test_get_participant(self):
         """
@@ -55,6 +57,7 @@ class ModelTest(FlaskTestCase):
         participant = self._get_participant(kf_id)
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(participant.external_id, "Test_Participant_0")
+        self.assertEqual(participant.is_proband,False)
         self.assertEqual(participant.kf_id, kf_id)
 
     def test_participant_not_found(self):
@@ -74,10 +77,12 @@ class ModelTest(FlaskTestCase):
         participant = self._get_participant(kf_id)
         new_name = "Updated-{}".format(participant.external_id)
         participant.external_id = new_name
+        participant.consent_type = 'GRU-COL'
         db.session.commit()
 
         participant = self._get_participant(kf_id)
         self.assertEqual(participant.external_id, new_name)
+        self.assertEqual(participant.consent_type, 'GRU-COL')
         self.assertEqual(participant.kf_id, kf_id)
 
     def test_delete_participant(self):
