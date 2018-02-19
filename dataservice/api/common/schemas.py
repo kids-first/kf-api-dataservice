@@ -6,8 +6,8 @@ from marshmallow import (
         validates_schema,
         ValidationError
 )
-from flask import url_for
-from flask_sqlalchemy import Pagination
+from flask import url_for, request
+from dataservice.api.common.pagination import Pagination
 from flask_marshmallow import Schema
 
 
@@ -51,18 +51,18 @@ class BaseSchema(ma.ModelSchema):
         # Insert pagination object, if there is one
         elif many and self.__pagination__ is not None:
             p = self.__pagination__
+
             _links = {}
+
+            # If an 'after' param could not be parsed, don't include the param
+            after = None if p.after.timestamp() == 0 else p.after
             _links['self'] = url_for(self.Meta.resource_url,
-                                     page=p.page)
+                                     after=after)
             if p.has_next:
                 _links['next'] = url_for(self.Meta.resource_url,
-                                         page=p.next_num)
-            if p.has_prev:
-                _links['prev'] = url_for(self.Meta.resource_url,
-                                         page=p.prev_num)
+                                         after=p.next_num)
             resp['total'] = int(p.total)
-            resp['limit'] = int(p.per_page)
-            resp['page'] = int(p.page)
+            resp['limit'] = int(p.limit)
         else:
             _links = {}
 
@@ -100,9 +100,9 @@ def response_generator(schema):
 def paginated_generator(schema):
     class PaginatedSchema(Schema):
         _status = fields.Dict(example={'message': 'success', 'code': 200})
-        _links = fields.Dict(example={'next': '?page=3',
-                                      'self': '?page=2',
-                                      'prev': '?page=1'})
+        _links = fields.Dict(example={'next': '/participants?after=1519402953',
+                                      'self': '/participants?after=1519402952'
+                                      })
         limit = fields.Integer(example=10,
                                description='Max number of results per page')
         total = fields.Integer(example=1342,
