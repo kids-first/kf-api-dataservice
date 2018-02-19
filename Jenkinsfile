@@ -9,16 +9,7 @@ pipeline {
     stage('Get Code') {
       steps {
           deleteDir()
-          checkout([
-             $class: 'GitSCM',
-             branches: scm.branches,
-             doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-             extensions: scm.extensions,
-             userRemoteConfigs: scm.userRemoteConfigs,
-             extensions: scm.extensions + [
-                [$class: 'AuthorInChangelog'],
-                [$class: 'CleanBeforeCheckout']              ]
-          ])
+          checkout scm
       }
     }
     stage('GetOpsScripts') {
