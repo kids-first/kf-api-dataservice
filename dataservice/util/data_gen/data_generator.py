@@ -31,11 +31,11 @@ class DataGenerator(object):
             config_name = os.environ.get('FLASK_CONFIG', 'default')
         self.setup(config_name)
         self._participant_choices()
+        self._diagnoses_choices()
         self._sample_choices()
         self._aliquot_choices()
         self._experiment_choices()
         self._demographics_choices()
-        self._diagnoses_choices()
         self._genomic_files_choices()
         self._outcomes_choices()
         self._phenotype_choices()
@@ -72,11 +72,6 @@ class DataGenerator(object):
             'NOS',
             'Unknown',
             'Not Reported']
-        asref_file = open('dataservice/util/data_gen/anatomical_site.txt', 'r')
-        reader = csv.reader(asref_file)
-        self.anatomical_site_list = []
-        for line in reader:
-            self.anatomical_site_list.append(line[0])
 
     def _aliquot_choices(self):
         """
@@ -154,12 +149,18 @@ class DataGenerator(object):
         Provides the choices for filling Diagnosis entity
         """
         self.max_diagnoses = 10
-        self.min_diagnoses = 0
+        self.min_diagnoses = 1
         dref_file = open('dataservice/util/data_gen/diagnoses.txt', 'r')
         reader = csv.reader(dref_file)
         self.diagnosis_list = []
         for line in reader:
             self.diagnosis_list.append(line[0])
+        self.diagnosis_category_list = ['cancer', 'structural birth defect']
+        asref_file = open('dataservice/util/data_gen/anatomical_site.txt', 'r')
+        reader = csv.reader(asref_file)
+        self.tumor_location_list = []
+        for line in reader:
+            self.tumor_location_list.append(line[0])
 
     def _genomic_files_choices(self):
         """
@@ -196,6 +197,16 @@ class DataGenerator(object):
         self.max_outcomes = 5
         self.vital_status_list = ['Alive', 'Dead', 'Not Reported']
         self.disease_related_list = [True, False, 'Not Reported']
+
+    def _get_unique_sites(self, diagnoses):
+        """
+        Method to return set of anatomical_sites for samples from diagnoses;
+        Assuming the sample is be collected from the same place that was
+        used for the diagnosis
+        """
+        self.anatomical_site_list = []
+        for i in range(0, len(diagnoses)):
+            self.anatomical_site_list.append(diagnoses[i].tumor_location)
 
     def setup(self, config_name):
         """
@@ -291,11 +302,12 @@ class DataGenerator(object):
 
         # Participants
         for i in range(total):
+            diagnoses = self._create_diagnoses(
+                random.randint(self.min_diagnoses, self.max_diagnoses))
+            self._get_unique_sites(diagnoses)
             samples = self._create_samples(random.randint(self.min_samples,
                                                           self.max_samples))
             demographic = self._create_demographics(i)
-            diagnoses = self._create_diagnoses(
-                random.randint(self.min_samples, self.max_diagnoses))
             outcomes = self._create_outcomes(random.randint(self.min_outcomes,
                                                             self.max_outcomes))
             phenotypes = self._create_phenotypes(
@@ -478,6 +490,9 @@ class DataGenerator(object):
             data = {
                 'external_id': 'diagnosis_{}'.format(i),
                 'diagnosis': random.choice(self.diagnosis_list),
+                'diagnosis_category': random.choice(
+                    self.diagnosis_category_list),
+                'tumor_location': random.choice(self.tumor_location_list),
                 'age_at_event_days': random.randint(0, 32872)
             }
             diag_list.append(Diagnosis(**data))

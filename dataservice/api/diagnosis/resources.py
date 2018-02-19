@@ -119,6 +119,8 @@ class DiagnosisAPI(CRUDView):
         # Deserialize
         d1.external_id = body.get('external_id')
         d1.diagnosis = body.get('diagnosis')
+        d1.diagnosis_category = body.get('diagnosis_category')
+        d1.tumor_location = body.get('tumor_location')
         d1.age_at_event_days = body.get('age_at_event_days')
         d1.participant_id = body.get('participant_id')
 
