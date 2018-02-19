@@ -1,3 +1,5 @@
+from itertools import chain
+
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
 from dataservice.api.diagnosis.models import Diagnosis
@@ -50,6 +52,39 @@ class Participant(db.Model, Base):
     study_id = db.Column(db.String(8),
                          db.ForeignKey('study.kf_id'),
                          nullable=False)
+
+    def upstream_immediate_relatives(self):
+        """
+        Convenience method to get immediate related participants upstream of
+        self.
+
+        An upstream relative is the participant pointing to self in the family
+        relationship.
+        For example for the family relationship: P1 --> P2 (where P2 is self),
+        P1 is the upstream relative of P2.
+        """
+        for r in self.incoming_family_relationships:
+            yield r.participant
+
+    def downstream_immediate_relatives(self):
+        """
+        Convenience method to get related immediate relatives downstream from
+        self.
+
+        A downstream relative is the participant that self points to in the
+        family relationship.
+        For example for the family relationship: P1 --> P2 (where P1 is self),
+        P2 is the downstream relative of P1.
+        """
+        for r in self.outgoing_family_relationships:
+            yield r.relative
+
+    def immediate_relatives(self):
+        """
+        Convenience method to get all immediate relatives of this participant
+        """
+        return chain(self.upstream_immediate_relatives(),
+                     self.downstream_immediate_relatives())
 
     def __repr__(self):
         return '<Participant {}>'.format(self.kf_id)

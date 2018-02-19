@@ -1,5 +1,6 @@
 from datetime import datetime
 from dateutil import relativedelta
+from itertools import tee
 import uuid
 import random
 import csv
@@ -9,6 +10,7 @@ from dataservice import create_app
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
+from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
@@ -223,6 +225,8 @@ class DataGenerator(object):
         workflows = self._create_workflows(2)
         # Link workflows and genomic files
         self._link_genomic_files_to_workflows(workflows)
+        # Create family relationships
+        self._create_family_relationships()
         # Tear down
         self.teardown()
 
@@ -253,6 +257,29 @@ class DataGenerator(object):
         db.session.commit()
 
         return studies
+
+    def _pairwise(self, iterable):
+        """
+        Iterate over an iterable in consecutive pairs
+        """
+        a, b = tee(iterable)
+        next(b, None)
+        return zip(a, b)
+
+    def _create_family_relationships(self):
+        """
+        Create family relationships between pairs of participants
+        """
+        participants = Participant.query.all()
+        for participant, relative in self._pairwise(participants):
+            gender = participant.demographic.gender
+            rel = 'mother'
+            if gender == 'male':
+                rel = 'father'
+            r = FamilyRelationship(participant=participant, relative=relative,
+                                   participant_to_relative_relation=rel)
+            db.session.add(r)
+        db.session.commit()
 
     def _create_participants_and_studies(self, total):
         """
