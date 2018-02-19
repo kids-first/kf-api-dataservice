@@ -17,7 +17,8 @@ pipeline {
              userRemoteConfigs: scm.userRemoteConfigs,
              extensions: scm.extensions + [
                 [$class: 'AuthorInChangelog'],
-                [$class: 'CleanBeforeCheckout']
+                [$class: 'CleanBeforeCheckout'],
+                [$class: 'CleanAfterCheckout']
               ]
           ])
       }
