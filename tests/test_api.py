@@ -17,7 +17,8 @@ class TestAPI:
         ('/diagnoses/123', 'GET', 404),
         ('/participants', 'GET', 200),
         ('/persons', 'GET', 404),
-        ('/participants/123', 'GET', 404)
+        ('/participants/123', 'GET', 404),
+        ('/genomic-files', 'GET', 200)
     ])
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
@@ -41,7 +42,10 @@ class TestAPI:
         ('/participants', 'GET', 'success'),
         ('/participants/123', 'GET', 'could not find Participant `123`'),
         ('/participants/123', 'PUT', 'could not find Participant `123`'),
-        ('/participants/123', 'DELETE', 'could not find Participant `123`')
+        ('/participants/123', 'DELETE', 'could not find Participant `123`'),
+        ('/genomic-files', 'GET', 'success'),
+        ('/genomic-files/123', 'PUT', 'could not find GenomicFile `123`'),
+        ('/genomic-files/123', 'DELETE', 'could not find GenomicFile `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -56,7 +60,8 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint,method', [
         ('/participants', 'GET'),
         ('/samples', 'GET'),
-        ('/diagnoses', 'GET')
+        ('/diagnoses', 'GET'),
+        ('/genomic-files', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -70,7 +75,10 @@ class TestAPI:
 
     @pytest.mark.parametrize('endpoint,field', [
         ('/participants', 'created_at'),
-        ('/participants', 'modified_at')
+        ('/participants', 'modified_at'),
+        ('/participants', 'study_id'),
+        ('/genomic-files', 'modified_at'),
+        ('/genomic-files', 'created_at'),
     ])
     def test_read_only(self, client, entities, endpoint, field):
         """ Test that given fields can not be written or modified """
@@ -85,7 +93,8 @@ class TestAPI:
 
     @pytest.mark.parametrize('endpoint,field', [
         ('/participants', 'blah'),
-        ('/samples', 'blah')
+        ('/samples', 'blah'),
+        ('/genomic-files', 'blah')
     ])
     def test_unknown_field(self, client, entities, endpoint, field):
         """ Test that unknown fields are rejected when trying to create  """
@@ -106,6 +115,7 @@ class TestAPI:
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
         kf_id = entities.get('kf_ids').get(resource)
+        print(kf_id)
         resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
 

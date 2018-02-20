@@ -11,6 +11,8 @@ from dataservice.api.sample import SampleAPI
 from dataservice.api.sample import SampleListAPI
 from dataservice.api.demographic import DemographicAPI
 from dataservice.api.demographic import DemographicListAPI
+from dataservice.api.genomic_file import GenomicFileAPI
+from dataservice.api.genomic_file import GenomicFileListAPI
 
 from dataservice.api.study.models import Study
 

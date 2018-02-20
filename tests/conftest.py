@@ -1,13 +1,17 @@
 import json
 import pytest
+import uuid
 
 from dataservice import create_app
 from dataservice.extensions import db
+from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
+from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 
 @pytest.yield_fixture(scope='module')
@@ -41,8 +45,24 @@ def entities(client):
     Create mock entities
     """
     inputs = {
+        '/genomic-files': {
+            'file_name': 'hg38.fq',
+            'data_type': 'reads',
+            'file_format': 'fastq',
+            'file_url': 's3://bucket/key',
+            'md5sum': str(uuid.uuid4()),
+            'controlled_access': False
+        },
         '/studies': {
             'external_id': 'phs001'
+        },
+        '/sequencing-experiment': {
+            'external_id': 'WGS-01',
+            'instrument_model': 'HiSeq',
+            'experiment_strategy': 'WGS',
+            'platform': 'illumina',
+            'center': 'WashU',
+            'is_paired_end': True
         },
         '/participants': {
             'external_id': 'p0',
@@ -62,6 +82,9 @@ def entities(client):
             'anatomical_site': 'site',
             'age_at_event_days': 365,
             'tumor_descriptor': 'tumor'
+        },
+        '/aliquots': {
+            'analyte_type': 'DNA'
         },
         '/diagnoses': {
             'external_id': 'd0',
@@ -86,10 +109,16 @@ def entities(client):
     demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
     sample = Sample(**inputs['/samples'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
+    aliquot = Aliquot(**inputs['/aliquots'])
+    seq_experiment = SequencingExperiment(**inputs['/sequencing-experiment'])
+    genomic_file = GenomicFile(**inputs['/genomic-files'])
     p.demographic = demo
     p.samples = [sample]
+    sample.aliquots = [aliquot]
+    aliquot.sequencing_experiments = [seq_experiment]
     p.diagnoses = [diagnosis]
     db.session.add(p)
+    db.session.add(seq_experiment)
     db.session.commit()
 
     # Add foreign keys
@@ -101,5 +130,7 @@ def entities(client):
 
     # Add kf_ids
     inputs['kf_ids'] = {'/participants': p.kf_id}
+
+    inputs['/genomic-files']['sequencing_experiment_id']  = seq_experiment.kf_id
 
     return inputs

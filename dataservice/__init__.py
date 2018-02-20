@@ -121,6 +121,7 @@ def register_error_handlers(app):
     from dataservice.api import errors
     app.register_error_handler(HTTPException, errors.http_error)
     app.register_error_handler(IntegrityError, errors.integrity_error)
+    app.register_error_handler(500, errors.http_error)
     app.register_error_handler(404, errors.http_error)
     app.register_error_handler(400, errors.http_error)
 

@@ -13,6 +13,7 @@ UNIQUE_RE = re.compile('^.*"(?P<key>.*)_key"\n' +
 
 def http_error(e):
     """ Handles all HTTPExceptions """
+    db.session.rollback()
     return ErrorSchema().jsonify(e), e.code
 
 
