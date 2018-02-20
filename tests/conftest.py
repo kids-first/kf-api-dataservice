@@ -1,10 +1,12 @@
 import json
 from datetime import datetime
 import pytest
+import uuid
 
 from dataservice import create_app
 from dataservice.extensions import db
 from dataservice.api.investigator.models import Investigator
+from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family.models import Family
@@ -48,8 +50,24 @@ def entities(client):
         '/investigators': {
             'name': 'submitter'
         },
+        '/genomic-files': {
+            'file_name': 'hg38.fq',
+            'data_type': 'reads',
+            'file_format': 'fastq',
+            'file_url': 's3://bucket/key',
+            'md5sum': str(uuid.uuid4()),
+            'controlled_access': False
+        },
         '/studies': {
             'external_id': 'phs001'
+        },
+        '/sequencing-experiment': {
+            'external_id': 'WGS-01',
+            'instrument_model': 'HiSeq',
+            'experiment_strategy': 'WGS',
+            'platform': 'illumina',
+            'center': 'WashU',
+            'is_paired_end': True
         },
         '/participants': {
             'external_id': 'p0',
@@ -73,10 +91,16 @@ def entities(client):
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Baylor',
             'analyte_type': 'DNA',
+<<<<<<< HEAD
             'concentration_mg_per_ml': 200.0,
             'volume_ml': 13.99,
             'shipment_date': str(datetime.utcnow()),
             'uberon_id': 'test'
+=======
+            'concentration': 200,
+            'volume': 13.99,
+            'shipment_date': str(datetime.utcnow()),
+>>>>>>> :sparkles: Add genomic file resource
         },
         '/sequencing-experiments': {
             'external_id': 'se1',
@@ -154,9 +178,19 @@ def entities(client):
                            biospecimen_id=biospecimen.kf_id,
                            sequencing_experiment_id=seq_exp.kf_id)
 
+<<<<<<< HEAD
     biospecimen.genomic_files = [gen_file]
     seq_exp.genomic_files = [gen_file]
     p.biospecimens = [biospecimen]
+=======
+    aliquot.sequencing_experiments = [seq_exp]
+    sample.aliquots = [aliquot]
+    genomic_file = GenomicFile(**inputs['/genomic-files'])
+    sample.aliquots = [aliquot]
+    p.samples = [sample]
+    sample.aliquots = [aliquot]
+    aliquot.sequencing_experiments = [seq_exp]
+>>>>>>> :sparkles: Add genomic file resource
     p.diagnoses = [diagnosis]
     p.outcomes = [outcome]
     p.phenotypes = [phenotype]
@@ -174,7 +208,7 @@ def entities(client):
     study.participants.append(p)
     db.session.add(study)
     db.session.add(p)
-
+    db.session.add(seq_exp)
     db.session.commit()
 
     # Add foreign keys

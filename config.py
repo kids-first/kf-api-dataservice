@@ -22,6 +22,10 @@ class Config:
     # Determines the maximum number of results per request
     MAX_PAGE_LIMIT = 100
 
+    INDEXD_URL = 'https://gen3qa.kids-first.io/index/index/'
+    INDEXD_USER = os.environ.get('INDEXD_USER', 'test')
+    INDEXD_PASS = os.environ.get('INDEXD_PASS', 'test')
+
     @staticmethod
     def init_app(app):
         pass
