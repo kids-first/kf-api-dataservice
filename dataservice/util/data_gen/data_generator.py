@@ -24,6 +24,7 @@ from dataservice.api.workflow.models import (
 )
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.phenotype.models import Phenotype
+from dataservice.api.study_file.models import StudyFile
 
 
 class DataGenerator(object):
@@ -242,6 +243,18 @@ class DataGenerator(object):
         # Tear down
         self.teardown()
 
+    def _create_study_files(self, total=None):
+        """
+        Create Study Files
+        """
+        study_files = []
+        for i in range(total):
+            sf_data = {
+                'file_name': 'StudyFile{}'.format(i),
+            }
+            study_files.append(StudyFile(**sf_data))
+        return study_files
+
     def _create_studies_investigators(self, total=None):
         """
         Create studies and investigators
@@ -281,7 +294,8 @@ class DataGenerator(object):
                 'version': 'v1',
                 'investigator_id': investigators[i].kf_id
             }
-            s = Study(**kwargs)
+            study_files = self._create_study_files(random.randint(0, total))
+            s = Study(**kwargs, study_files=study_files)
             studies.append(s)
             db.session.add(s)
         db.session.commit()
