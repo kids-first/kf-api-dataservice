@@ -19,27 +19,30 @@ Some examples:
 # Pagination
 
 Most resource containers are paginated and return 10 entries by default.
-Links to the next and previous page are provided in the `_links`.
+The dataservice uses the timestamp of the time of the object's creation
+to paginate. Specific dates may also be used. For example:
 
+```
+"/participants?after=01-12-2017",
+```
+Will list all participants created after December 1st, 2017.
+
+
+An example of the envelope wrapping a paginated response:
 ```json
 {
-  "_links": {
-    "next": "/participants?page=3",
-    "self": "/participants?page=2",
-    "prev": "/participants?page=1"
-  },
-  "_status": {
-    "code": 200,
-    "message": "OK"
-  }
-  "total": 1204,
-  "limit": 10,
-  "results": [
-    { "doc_id": 30, "value": "Lorem" },
-    { "doc_id": 31, "value": "ipsum" },
-    { "doc_id": 32, "value": "dolor" },
-    ...
-    { "doc_id": 40, "value": "amet" }
-  ],
+    "_links": {
+        "next": "/participants?after=1519220889.046443",
+        "self": "/participants?after=1519220889.035079"
+    },
+    "_status": {
+        "code": 200,
+        "message": "success"
+    },
+    "limit": 10,
+    "results": [
+      ...
+    ],
+    "total": 50
 }
 ```

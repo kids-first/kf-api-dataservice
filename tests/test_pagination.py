@@ -74,7 +74,7 @@ class TestPagination:
         """ Test `after` offeset paramater """
         response = client.get(endpoint)
         response = json.loads(response.data.decode('utf-8'))
-        first = response['_links']['self']
+        first = response['results'][0]['created_at']
 
         # Check unexpected after param returns the earliest
         response = client.get(endpoint+'?after=dog')
