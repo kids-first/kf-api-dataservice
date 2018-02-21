@@ -1,6 +1,7 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
 from dataservice.api.participant.models import Participant
+from dataservice.api.study_file.models import StudyFile
 
 
 class Study(db.Model, Base):
@@ -33,6 +34,9 @@ class Study(db.Model, Base):
                                    backref='study')
     investigator_id = db.Column(db.String(8),
                                 db.ForeignKey('investigator.kf_id'))
+    study_files = db.relationship(StudyFile,
+                                  cascade="all, delete-orphan",
+                                  backref='study')
 
     def __repr__(self):
         return '<Study {}>'.format(self.kf_id)
