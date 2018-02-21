@@ -28,9 +28,6 @@ class ModelTest(FlaskTestCase):
             self.assertEqual(v, getattr(studies[1], k))
         # investigator studies
         for s in studies:
-            print(s.kf_id)
-            print(studies)
-            print(investigator)
             self.assertEqual(investigator.studies, studies)
 
     def test_update(self):

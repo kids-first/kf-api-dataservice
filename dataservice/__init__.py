@@ -18,6 +18,7 @@ from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.workflow.models import Workflow, WorkflowGenomicFile
+from dataservice.api.study_file.models import StudyFile
 from config import config
 
 from sqlalchemy.exc import IntegrityError
