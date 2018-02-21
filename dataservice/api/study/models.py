@@ -31,6 +31,8 @@ class Study(db.Model, Base):
     participants = db.relationship(Participant,
                                    cascade="all, delete-orphan",
                                    backref='study')
+    investigator_id = db.Column(db.String(8),
+                                db.ForeignKey('investigator.kf_id'))
 
     def __repr__(self):
         return '<Study {}>'.format(self.kf_id)

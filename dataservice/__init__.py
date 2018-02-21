@@ -5,6 +5,7 @@ from flask import Flask
 from dataservice import commands
 from dataservice.utils import _get_version
 from dataservice.extensions import db, ma, migrate
+from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family_relationship.models import FamilyRelationship
@@ -17,7 +18,6 @@ from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.workflow.models import Workflow, WorkflowGenomicFile
-
 from config import config
 
 from sqlalchemy.exc import IntegrityError

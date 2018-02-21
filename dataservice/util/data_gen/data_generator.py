@@ -22,6 +22,7 @@ from dataservice.api.workflow.models import (
     Workflow,
     WorkflowGenomicFile
 )
+from dataservice.api.investigator.models import Investigator
 from dataservice.api.phenotype.models import Phenotype
 
 
@@ -241,26 +242,44 @@ class DataGenerator(object):
         # Tear down
         self.teardown()
 
-    def _create_studies(self, total=None):
+    def _create_studies_investigators(self, total=None):
         """
-        Create study
+        Create studies and investigators
+        investigator.csv contains list of investigator name, instistuion name
+        and studies
         """
-        # Create studies
-        study_names = ['Structural Birth Defect Study', 'Brain Cancer Study',
-                       'Breast Cancer Study']
-        min_studies = 1
-        max_studies = len(study_names)
-        if not total:
-            total = random.randint(min_studies, max_studies)
+        pref_file = open('dataservice/util/data_gen/investigator.csv', 'r')
+        reader = csv.reader(pref_file)
+        investigator_chosen_list = []
+        for row in reader:
+            investigator_chosen_list.append(row)
 
+        invest_study = random.choice(investigator_chosen_list)
+        # Create Investigators
+        min_investigators = 1
+        max_investigators = len(invest_study)
+        if not total:
+            total = random.randint(min_investigators, max_investigators)
+        investigators = []
+        for i in range(total):
+            kwargs = {
+                'name': invest_study[0],
+                'institution': invest_study[1]
+            }
+            inv = Investigator(**kwargs)
+            investigators.append(inv)
+            db.session.add(inv)
+        db.session.commit()
+        # Create Studies
         studies = []
         for i in range(total):
             kwargs = {
                 'attribution': ('https://dbgap.ncbi.nlm.nih.gov/'
                                 'aa/wga.cgi?view_pdf&stacc=phs000178.v9.p8'),
                 'external_id': 'phs00{}'.format(i),
-                'name': random.choice(study_names),
-                'version': 'v1'
+                'name': invest_study[2],
+                'version': 'v1',
+                'investigator_id': investigators[i].kf_id
             }
             s = Study(**kwargs)
             studies.append(s)
@@ -298,7 +317,7 @@ class DataGenerator(object):
         and diagnoses
         """
         # Studies
-        studies = self._create_studies()
+        studies = self._create_studies_investigators()
 
         # Participants
         for i in range(total):
