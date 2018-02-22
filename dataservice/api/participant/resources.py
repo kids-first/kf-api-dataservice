@@ -1,6 +1,7 @@
 from flask import abort, request, current_app
 from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
@@ -30,7 +31,12 @@ class ParticipantListAPI(CRUDView):
             resource:
               Participant
         """
-        q = Participant.query
+        q = (Participant.query
+                        .options(joinedload(Participant.diagnoses))
+                        .options(joinedload(Participant.samples))
+                        .options(joinedload(Participant.phenotypes))
+                        .options(joinedload(Participant.demographic))
+                        .options(joinedload(Participant.outcomes)))
 
         return (ParticipantSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
