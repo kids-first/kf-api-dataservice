@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 
 
 class StudyFile(db.Model, Base):
@@ -11,9 +11,11 @@ class StudyFile(db.Model, Base):
     :param modified_at: Last time of object modification
     :param file_name: File name of study
     """
-    __tablename__ = "study_file"
+    __tablename__ = 'study_file'
+    __prefix__ = 'SF'
+
     file_name = db.Column(db.Text())
-    study_id = db.Column(db.String(8),
+    study_id = db.Column(KfId(),
                          db.ForeignKey('study.kf_id'),
                          nullable=False)
 

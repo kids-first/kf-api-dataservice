@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 
@@ -20,6 +20,8 @@ class Aliquot(db.Model, Base):
     :param shipment_date: The date item was shipped in YYYY-MM-DD format
     """
     __tablename__ = "aliquot"
+    __prefix__ = 'AL'
+
     external_id = db.Column(db.Text())
     shipment_origin = db.Column(db.Text())
     shipment_destination = db.Column(db.Text())
@@ -30,5 +32,5 @@ class Aliquot(db.Model, Base):
     sequencing_experiments = db.relationship(SequencingExperiment,
                                              backref='sequencing_experiments',
                                              cascade="all, delete-orphan")
-    sample_id = db.Column(db.String(8),
+    sample_id = db.Column(KfId(),
                           db.ForeignKey('sample.kf_id'), nullable=False)

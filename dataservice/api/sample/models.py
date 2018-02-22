@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 from dataservice.api.aliquot.models import Aliquot
 
 
@@ -19,7 +19,9 @@ class Sample(db.Model, Base):
     :param tumor_descriptor: The kind of disease present in the tumor
            specimen as related to a specific timepoint
     """
-    __tablename__ = "sample"
+    __tablename__ = 'sample'
+    __prefix__ = 'SA'
+
     external_id = db.Column(db.Text())
     tissue_type = db.Column(db.Text())
     composition = db.Column(db.Text())
@@ -28,6 +30,6 @@ class Sample(db.Model, Base):
     tumor_descriptor = db.Column(db.Text())
     aliquots = db.relationship(Aliquot, backref='samples',
                                cascade="all, delete-orphan")
-    participant_id = db.Column(db.String(8),
+    participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                nullable=False)

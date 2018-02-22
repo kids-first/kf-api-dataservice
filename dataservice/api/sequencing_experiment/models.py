@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
 
 
@@ -24,7 +24,9 @@ class SequencingExperiment(db.Model, Base):
     :param total_reads: total reads
     :param mean_read_length: mean lenth of the reads
     """
-    __tablename__ = "sequencing_experiment"
+    __tablename__ = 'sequencing_experiment'
+    __prefix__ = 'SE'
+
     external_id = db.Column(db.Text(), nullable=False)
     experiment_date = db.Column(db.DateTime())
     # WGS,WXS
@@ -42,7 +44,7 @@ class SequencingExperiment(db.Model, Base):
     mean_depth = db.Column(db.Float())
     total_reads = db.Column(db.Integer())
     mean_read_length = db.Column(db.Float())
-    aliquot_id = db.Column(db.String(8),
+    aliquot_id = db.Column(KfId(),
                            db.ForeignKey('aliquot.kf_id'), nullable=False)
     genomic_files = db.relationship(GenomicFile,
                                     cascade="all, delete-orphan",

@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 
 
 class Demographic(db.Model, Base):
@@ -15,12 +15,12 @@ class Demographic(db.Model, Base):
     :param ethnicity: Ethnicity of participant
     :param gender: Self reported gender of participant
     """
-
     __tablename__ = 'demographic'
+    __prefix__ = 'DM'
     external_id = db.Column(db.Text())
     race = db.Column(db.Text())
     ethnicity = db.Column(db.Text())
     gender = db.Column(db.Text())
-    participant_id = db.Column(db.String(8),
+    participant_id = db.Column(KfId,
                                db.ForeignKey('participant.kf_id'),
                                nullable=False, unique=True)

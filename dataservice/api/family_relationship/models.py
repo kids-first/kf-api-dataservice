@@ -1,7 +1,7 @@
 from sqlalchemy import event
 
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 from dataservice.api.participant.models import Participant
 
 REVERSE_RELS = {
@@ -33,16 +33,17 @@ class FamilyRelationship(db.Model, Base):
     relationships are not duplicated and the graph is undirected
     """
     __tablename__ = 'family_relationship'
+    __prefix__ = 'FR'
     __table_args__ = (db.UniqueConstraint('participant_id', 'relative_id',
                                           'participant_to_relative_relation',
                                           'relative_to_participant_relation'),)
 
     participant_id = db.Column(
-        db.String(8),
+        KfId(),
         db.ForeignKey('participant.kf_id'), nullable=False)
 
     relative_id = db.Column(
-        db.String(8),
+        KfId(),
         db.ForeignKey('participant.kf_id'), nullable=False)
 
     participant_to_relative_relation = db.Column(db.Text(), nullable=False)

@@ -1,7 +1,7 @@
 from itertools import chain
 
 from dataservice.extensions import db
-from dataservice.api.common.model import Base
+from dataservice.api.common.model import Base, KfId
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.demographic.models import Demographic
@@ -22,6 +22,7 @@ class Participant(db.Model, Base):
     :param modified_at: Last time of object modification
     """
     __tablename__ = "participant"
+    __prefix__ = 'PT'
 
     external_id = db.Column(db.Text(), doc='ID used by external study')
     family_id = db.Column(db.Text(),
@@ -49,7 +50,7 @@ class Participant(db.Model, Base):
                                  cascade="all, delete-orphan",
                                  backref=db.backref('participants',
                                                     lazy=True))
-    study_id = db.Column(db.String(8),
+    study_id = db.Column(KfId(),
                          db.ForeignKey('study.kf_id'),
                          nullable=False)
 

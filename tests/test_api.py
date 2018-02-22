@@ -112,10 +112,10 @@ class TestAPI:
         assert field in body
         if type(body[field]) is list:
             assert all([type(f) is str for f in body[field]])
-            assert all([len(f) == 8 for f in body[field]])
+            assert all([len(f) == 11 for f in body[field]])
         else:
             assert type(body[field]) is str
-            assert len(body[field]) == 8
+            assert len(body[field]) == 11
 
     def test_version(self, client):
         """ Test response from /status returns correct fields """
