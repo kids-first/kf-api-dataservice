@@ -26,6 +26,8 @@ from dataservice.api.investigator.models import Investigator
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.study_file.models import StudyFile
 
+MB_TO_BYTES = 1000000000
+
 
 class DataGenerator(object):
     def __init__(self, config_name=None):
@@ -446,10 +448,15 @@ class DataGenerator(object):
         """
         Creates genomic files
         """
+        max_size_mb = 5000
+        min_size_mb = 1000
+
         gf_list = []
         for i in range(total):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
+                'file_size': (random.randint(min_size_mb, max_size_mb) *
+                              MB_TO_BYTES),
                 'data_type': random.choice(self.data_type_list),
                 'file_format': random.choice(
                     self.file_format_list),
