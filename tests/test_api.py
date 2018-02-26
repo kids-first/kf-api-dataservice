@@ -138,6 +138,24 @@ class TestAPI:
         assert 'code' in body['_status']
         assert type(body['_status']['code']) is int
 
+    @pytest.mark.parametrize('endpoint', [
+        ('/participants'),
+        ('/diagnoses'),
+        ('/samples'),
+        ('/genomic-files')
+    ])
+    def test_links(self, client, entities, endpoint):
+        """ Test the existance and formatting of _links """
+        resp = client.get(endpoint,
+                          headers={'Content-Type': 'application/json'})
+        body = json.loads(resp.data.decode('utf-8'))
+
+        assert '_links' in body
+        # If paginated results
+        if isinstance(body['results'], list):
+            for res in body['results']:
+                assert '_links' in res
+
     @pytest.mark.parametrize('endpoint, method, fields', [
         ('/studies', 'POST', ['created_at', 'modified_at']),
         ('/studies', 'PATCH', ['created_at', 'modified_at']),
@@ -247,7 +265,6 @@ class TestAPI:
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
         kf_id = entities.get('kf_ids').get(resource)
-        print(kf_id)
         resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
 

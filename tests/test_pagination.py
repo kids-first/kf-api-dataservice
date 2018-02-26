@@ -21,7 +21,7 @@ class TestPagination:
     Test that entities are iterated and returned properly
     """
 
-    @pytest.fixture(scope='module')
+    @pytest.fixture(scope='function')
     def participants(client):
 
         # Add a bunch of studies for pagination

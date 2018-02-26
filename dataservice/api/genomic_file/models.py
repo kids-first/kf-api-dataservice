@@ -78,8 +78,9 @@ class GenomicFile(db.Model, Base):
         """
         Gets additional fields from indexd
         """
-        if current_app.config['DEBUG']:
+        if current_app.config['INDEXD_URL'] == None:
             return
+
         indexd_url = current_app.config['INDEXD_URL']
         resp = requests.get(indexd_url + self.uuid)
         for prop, v in resp.json().items():

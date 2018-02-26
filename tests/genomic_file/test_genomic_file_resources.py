@@ -10,7 +10,7 @@ from flask import url_for
 from dataservice.extensions import db
 from dataservice.api.genomic_file.models import GenomicFile
 
-from tests.mocks import mock_indexd_post, mock_indexd_get, mock_indexd_put
+from tests.mocks import MockIndexd
 
 
 GENOMICFILE_URL = 'api.genomic_files'
@@ -18,15 +18,20 @@ GENOMICFILE_LIST_URL = 'api.genomic_files_list'
 
 
 @pytest.fixture
-def genomic_files(client):
+def genomic_files(client, mocker):
+    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    indexd = MockIndexd()
+    mock.get = indexd.get
+    mock.post = indexd.post
+
     props = {
         'file_name': 'hg38.bam',
         'data_type': 'aligned reads',
         'file_format': 'bam'
     }
-    db.session.add(participant)
     gfs = [GenomicFile(**props) for _ in range(102)]
     db.session.add_all(gfs)
+    db.session.commit()
 
 
 def test_new(client, mocker):
@@ -35,12 +40,12 @@ def test_new(client, mocker):
     """
     # Mock data returned from gen3
     mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.post = mock_indexd_post()
+    mock.post = MockIndexd().post
 
     resp = _new_genomic_file(client)
     assert 'genomic_file' in resp['_status']['message']
     assert 'created' in resp['_status']['message']
-    assert GenomicFile.query.first().uuid == mock_indexd_post()().json()['did']
+    assert resp['results']['file_name'] == 'hg38.bam'
 
     gf = GenomicFile.query.first()
     genomic_file = resp['results']
@@ -53,7 +58,7 @@ def test_new_indexd_error(client, mocker):
     """
     # Mock data returned from gen3
     mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.post = mock_indexd_post(status_code=500)
+    mock.post = MockIndexd(status_code=500).post
 
     body = {
         'file_name': 'hg38.bam',
@@ -81,7 +86,9 @@ def test_get_list(client, genomic_files, mocker):
     """
     # Mock data returned from gen3
     mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.get = mock_indexd_get
+    indexd = MockIndexd()
+    mock.get = indexd.get
+    mock.post = indexd.post
 
     resp = client.get(url_for(GENOMICFILE_LIST_URL))
     resp = json.loads(resp.data.decode('utf-8'))
@@ -89,6 +96,7 @@ def test_get_list(client, genomic_files, mocker):
     assert resp['_status']['code'] == 200
     assert resp['total'] == 102
     assert len(resp['results']) == 10
+    # Check that each entry has both the model's and indexd's fields
     for r in resp['results']:
         assert r['hashes'] == {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'}
         assert r['metadata'] == {'acls': 'INTERNAL'}
@@ -106,7 +114,8 @@ def test_get_one(client, genomic_files, mocker):
     """
     # Mock data returned from gen3
     mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.get = mock_indexd_get
+    indexd = MockIndexd()
+    mock.get = indexd.get
     
     gf = GenomicFile.query.first()
 
@@ -125,14 +134,16 @@ def test_get_one(client, genomic_files, mocker):
     assert resp['data_type'] == 'aligned reads'
     assert resp['file_format'] == 'bam'
 
+
 def test_update(client, mocker):
     """
     Test updating an existing genomic file
     """
     mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.get = mock_indexd_get
-    mock.post = mock_indexd_post()
-    mock.put = mock_indexd_put()
+    indexd = MockIndexd()
+    mock.post = indexd.post
+    mock.get = indexd.get
+    mock.put = indexd.put
 
     resp = _new_genomic_file(client)
     participant = resp['results']
@@ -147,7 +158,7 @@ def test_update(client, mocker):
                                data=json.dumps(body),
                           headers={'Content-Type': 'application/json'})
 
-    assert response.status_code == 201
+    assert response.status_code == 200
 
     resp = json.loads(response.data.decode("utf-8"))
     assert 'genomic_file' in resp['_status']['message']
@@ -166,8 +177,9 @@ def test_delete(client, mocker):
     Test deleting a participant by id
     """
     mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.post = mock_indexd_get()
-    mock.post = mock_indexd_post()
+    indexd = MockIndexd()
+    mock.get = indexd.get
+    mock.post = indexd.post
 
     init = GenomicFile.query.count()
 
@@ -191,8 +203,9 @@ def test_delete_error(client, mocker):
     Test handling of indexd error
     """
     mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.post = mock_indexd_get()
-    mock.post = mock_indexd_post()
+    indexd = MockIndexd()
+    mock.get = indexd.get
+    mock.post = indexd.post
 
     response_mock = MagicMock()
     response_mock.status_code = 500

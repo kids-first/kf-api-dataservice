@@ -6,7 +6,6 @@ from dataservice.extensions import ma
 
 
 class GenomicFileSchema(BaseSchema):
-    __endpoint__ = 'api.genomic_files'
     class Meta(BaseSchema.Meta):
         model = GenomicFile
         resource_url = 'api.genomic_files'

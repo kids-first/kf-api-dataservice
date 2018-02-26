@@ -44,6 +44,8 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/test'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+    INDEXD_URL = os.environ.get('INDEXD_URL', '')
+
 
 class ProductionConfig(Config):
     @staticmethod

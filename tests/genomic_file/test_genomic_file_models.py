@@ -2,6 +2,7 @@ import uuid
 import random
 
 from sqlalchemy.exc import IntegrityError
+from unittest.mock import patch
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
@@ -9,7 +10,10 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
+
 from tests.utils import FlaskTestCase
+from tests.mocks import MockIndexd
+
 
 MAX_SIZE_MB = 5000
 MIN_SIZE_MB = 1000
@@ -21,10 +25,13 @@ class ModelTest(FlaskTestCase):
     Test GenomicFile database model
     """
 
-    def test_create_and_find(self):
+    @patch('dataservice.api.genomic_file.models.requests')
+    def test_create_and_find(self, mock):
         """
         Test create genomic file
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
         # Create genomic file dependent entities
         self._create_save_dependents()
 
@@ -42,7 +49,7 @@ class ModelTest(FlaskTestCase):
                 'data_type': 'submitted aligned read',
                 'file_format': '.cram',
                 'file_url': 's3://file_{}'.format(i),
-                'md5sum': str(uuid.uuid4()),
+                'md5sum': uuid.uuid4(),
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
@@ -66,10 +73,13 @@ class ModelTest(FlaskTestCase):
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
+    @patch('dataservice.api.genomic_file.models.requests')
     def test_create_via_biospecimen(self):
         """
         Test create genomic file
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -87,10 +97,13 @@ class ModelTest(FlaskTestCase):
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
-    def test_update(self):
+    @patch('dataservice.api.genomic_file.models.requests')
+    def test_update(self, mock):
         """
         Test update genomic file
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -108,10 +121,13 @@ class ModelTest(FlaskTestCase):
         [self.assertEqual(getattr(gf, k), v)
          for k, v in kwargs.items()]
 
-    def test_delete(self):
+    @patch('dataservice.api.genomic_file.models.requests')
+    def test_delete(self, mock):
         """
         Test delete existing genomic file
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -129,12 +145,15 @@ class ModelTest(FlaskTestCase):
             kf_id=biospecimen_id).one()
         self.assertEqual(len(biospecimen.genomic_files), 0)
 
+    @patch('dataservice.api.genomic_file.models.requests')
     def test_delete_via_biospecimen(self):
         """
         Test delete existing genomic file
 
         Delete biospecimen to which genomic file belongs
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 

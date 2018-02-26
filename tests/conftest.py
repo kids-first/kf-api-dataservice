@@ -19,6 +19,8 @@ from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.study_file.models import StudyFile
 
+from tests.mocks import MockIndexd
+
 
 @pytest.yield_fixture(scope='session')
 def app():
@@ -36,13 +38,17 @@ def client(app):
     db.drop_all()
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.yield_fixture(scope='function')
 def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
 
 
 @pytest.fixture
-def entities(client):
+def entities(client, mocker):
+    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    indexd = MockIndexd()
+    mock.get = indexd.get
+    mock.post = indexd.post
     """
     Create mock entities
     """
@@ -55,6 +61,7 @@ def entities(client):
             'data_type': 'reads',
             'file_format': 'fastq',
             'file_url': 's3://bucket/key',
+            'urls': ['s3://bucket/key'],
             'md5sum': str(uuid.uuid4()),
             'controlled_access': False
         },
@@ -91,16 +98,10 @@ def entities(client):
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Baylor',
             'analyte_type': 'DNA',
-<<<<<<< HEAD
             'concentration_mg_per_ml': 200.0,
             'volume_ml': 13.99,
             'shipment_date': str(datetime.utcnow()),
             'uberon_id': 'test'
-=======
-            'concentration': 200,
-            'volume': 13.99,
-            'shipment_date': str(datetime.utcnow()),
->>>>>>> :sparkles: Add genomic file resource
         },
         '/sequencing-experiments': {
             'external_id': 'se1',
@@ -178,19 +179,9 @@ def entities(client):
                            biospecimen_id=biospecimen.kf_id,
                            sequencing_experiment_id=seq_exp.kf_id)
 
-<<<<<<< HEAD
     biospecimen.genomic_files = [gen_file]
     seq_exp.genomic_files = [gen_file]
     p.biospecimens = [biospecimen]
-=======
-    aliquot.sequencing_experiments = [seq_exp]
-    sample.aliquots = [aliquot]
-    genomic_file = GenomicFile(**inputs['/genomic-files'])
-    sample.aliquots = [aliquot]
-    p.samples = [sample]
-    sample.aliquots = [aliquot]
-    aliquot.sequencing_experiments = [seq_exp]
->>>>>>> :sparkles: Add genomic file resource
     p.diagnoses = [diagnosis]
     p.outcomes = [outcome]
     p.phenotypes = [phenotype]
