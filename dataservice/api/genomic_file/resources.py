@@ -3,6 +3,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
+from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.genomic_file.schemas import GenomicFileSchema
 from dataservice.api.common.views import CRUDView
@@ -16,9 +17,13 @@ class GenomicFileListAPI(CRUDView):
     rule = '/genomic-files'
     schemas = {'GenomicFile': GenomicFileSchema}
 
-    def get(self):
+    @paginated
+    def get(self, after, limit):
         """
-        Get a paginated genomic_files
+        Get paginated genomic_files
+
+        Retrieves the genomic files stored in the datamodel, then fetch
+        additional properties that are stored in indexd under the same uuid.
         ---
         template:
           path:
@@ -103,9 +108,8 @@ class GenomicFileAPI(CRUDView):
               GenomicFile
         """
         body = request.json or {}
-        try:
-            gf = GenomicFile.query.get(kf_id)
-        except NoResultFound:
+        gf = GenomicFile.query.get(kf_id)
+        if gf is None:
             abort(404, 'could not find {} `{}`'
                   .format('GenomicFile', kf_id))
 

@@ -13,6 +13,8 @@ from dataservice.api.sample.models import Sample
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
+from tests.mocks import MockIndexd
+
 
 @pytest.yield_fixture(scope='module')
 def app():
@@ -23,7 +25,7 @@ def app():
 def app():
     yield create_app('testing')
 
-@pytest.yield_fixture(scope='module')
+@pytest.yield_fixture(scope='function')
 def client(app):
     app_context = app.app_context()
     app_context.push()
@@ -34,13 +36,17 @@ def client(app):
     db.drop_all()
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.yield_fixture(scope='function')
 def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
 
 
 @pytest.fixture
-def entities(client):
+def entities(client, mocker):
+    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    indexd = MockIndexd()
+    mock.get = indexd.get
+    mock.post = indexd.post
     """
     Create mock entities
     """
@@ -50,6 +56,7 @@ def entities(client):
             'data_type': 'reads',
             'file_format': 'fastq',
             'file_url': 's3://bucket/key',
+            'urls': ['s3://bucket/key'],
             'md5sum': str(uuid.uuid4()),
             'controlled_access': False
         },
@@ -116,6 +123,7 @@ def entities(client):
     p.samples = [sample]
     sample.aliquots = [aliquot]
     aliquot.sequencing_experiments = [seq_experiment]
+    seq_experiment.genomic_files = [genomic_file]
     p.diagnoses = [diagnosis]
     db.session.add(p)
     db.session.add(seq_experiment)

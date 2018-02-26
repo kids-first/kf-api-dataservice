@@ -15,19 +15,27 @@ from dataservice.api.workflow.models import (
 )
 from tests.utils import FlaskTestCase
 
+from unittest.mock import patch, Mock
+from tests.mocks import MockIndexd
+
 WORKFLOW_COMMIT_URL = ('https://github.com/kids-first/kf-alignment-workflow/'
                        'commit/0d7f93dff6463446b0ed43dc2883f60c28e6f1f4')
 
 
+@patch('dataservice.api.genomic_file.models.requests')
 class ModelTest(FlaskTestCase):
     """
     Test Workflow database model
     """
 
-    def test_create_and_find(self):
+    def test_create_and_find(self, mock):
         """
         Test create workflow
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
+        mock.get = indexd.get
+        mock.put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 
@@ -59,10 +67,14 @@ class ModelTest(FlaskTestCase):
                     self.assertEqual(WORKFLOW_COMMIT_URL,
                                      gf_workflow.github_commit_url)
 
-    def test_update(self):
+    def test_update(self, mock):
         """
         Test update workflow
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
+        mock.get = indexd.get
+        mock.put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 
@@ -90,10 +102,14 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(9, GenomicFile.query.count())
         self.assertEqual(16, WorkflowGenomicFile.query.count())
 
-    def test_delete(self):
+    def test_delete(self, mock):
         """
         Test delete workflow
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
+        mock.get = indexd.get
+        mock.put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
         kf_id = workflows[0].kf_id
@@ -110,10 +126,14 @@ class ModelTest(FlaskTestCase):
         self.assertNotIn(workflows[0], Workflow.query.all())
         self.assertEqual(8, GenomicFile.query.count())
 
-    def test_delete_relations(self):
+    def test_delete_relations(self, mock):
         """
         Test delete GenomicFile and WorkflowGenomicFile
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
+        mock.get = indexd.get
+        mock.put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 
@@ -158,11 +178,15 @@ class ModelTest(FlaskTestCase):
         gf = GenomicFile.query.get(gf_id)
         self.assertNotIn(gf, w.genomic_files)
 
-    def test_foreign_key_constraint(self):
+    def test_foreign_key_constraint(self, mock):
         """
         Test that a workflow_genomic_file cannot be created without existing
         reference Workflow and GenomicFile. This checks foreign key constraint
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
+        mock.get = indexd.get
+        mock.put = indexd.put
         # Create study_participant
         data = {
             'is_input': True,
@@ -174,13 +198,17 @@ class ModelTest(FlaskTestCase):
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
-    def test_not_null_constraint(self):
+    def test_not_null_constraint(self, mock):
         """
         Test that a workflow and workflow genomic file cannot be created
         without required parameters
 
         workflow genomic file requires workflow_id, genomic_file_id, is_input
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
+        mock.get = indexd.get
+        mock.put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 
@@ -205,11 +233,15 @@ class ModelTest(FlaskTestCase):
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
-    def test_unique_constraint(self):
+    def test_unique_constraint(self, mock):
         """
         Test that duplicate tuples (workflow_id, genomic_file_id, is_input)
         cannot be created
         """
+        indexd = MockIndexd()
+        mock.post = indexd.post
+        mock.get = indexd.get
+        mock.put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 

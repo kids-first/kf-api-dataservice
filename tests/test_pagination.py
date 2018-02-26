@@ -15,7 +15,7 @@ class TestPagination:
     Test that entities are iterated and returned properly
     """
 
-    @pytest.fixture(scope='module')
+    @pytest.fixture(scope='function')
     def participants(client):
         s = Study(external_id='blah', name='test')
         db.session.add(s)
