@@ -1,4 +1,5 @@
 import uuid
+import random
 
 from sqlalchemy.exc import IntegrityError
 
@@ -10,6 +11,10 @@ from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from tests.utils import FlaskTestCase
+
+MAX_SIZE_MB = 5000
+MIN_SIZE_MB = 1000
+MB_TO_BYTES = 1000000000
 
 
 class ModelTest(FlaskTestCase):
@@ -176,6 +181,8 @@ class ModelTest(FlaskTestCase):
         for i in range(2):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
+                'file_size': (random.randint(MIN_SIZE_MB, MAX_SIZE_MB) *
+                              MB_TO_BYTES),
                 'data_type': 'submitted aligned read',
                 'file_format': '.cram',
                 'file_url': 's3://file_{}'.format(i),
