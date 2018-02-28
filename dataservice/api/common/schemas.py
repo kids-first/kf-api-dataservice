@@ -2,13 +2,18 @@ from dataservice.extensions import ma
 from marshmallow import (
         fields,
         post_dump,
+        pre_dump,
         validates_schema,
         ValidationError
 )
+from flask import url_for, request
+from dataservice.api.common.pagination import Pagination
 from flask_marshmallow import Schema
 
 
 class BaseSchema(ma.ModelSchema):
+
+    __pagination__ = None
 
     def __init__(self, code=200, message='success', *args, **kwargs):
         self.status_code = code
@@ -19,18 +24,51 @@ class BaseSchema(ma.ModelSchema):
         exclude = ('uuid',)
         dump_only = ('created_at', 'modified_at')
 
+    @pre_dump(pass_many=True)
+    def wrap_pre(self, data, many):
+        if isinstance(data, Pagination):
+            self.__pagination__ = data
+            return data.items
+        return data
+
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
+        """
+        Wraps ORM objects in a standard response format
+
+        If `many=False`, only one object is being returned and any `_links`
+        that are in the data are moved out to the response's `_links`.
+
+        If `many=True`, many objects are being returned and the top `_links`
+        in the response will be populated with pagination details.
+        """
+        resp = {'_status': {'message': self.status_message,
+                            'code': self.status_code}}
+        # Move links to the envelope links if just a single object
         if not many and '_links' in data:
             _links = data['_links']
             del data['_links']
+        # Insert pagination object, if there is one
+        elif many and self.__pagination__ is not None:
+            p = self.__pagination__
+
+            _links = {}
+
+            # If an 'after' param could not be parsed, don't include the param
+            after = None if p.after.timestamp() == 0 else p.after
+            _links['self'] = url_for(self.Meta.resource_url,
+                                     after=after)
+            if p.has_next:
+                _links['next'] = url_for(self.Meta.resource_url,
+                                         after=p.next_num)
+            resp['total'] = int(p.total)
+            resp['limit'] = int(p.limit)
         else:
             _links = {}
 
-        return {'results': data,
-                '_links': _links,
-                '_status': {'message': self.status_message,
-                            'code': self.status_code}}
+        resp.update({'results': data,
+                     '_links': _links})
+        return resp
 
     @validates_schema(pass_original=True)
     def check_unknown_fields(self, data, original_data):
@@ -62,9 +100,9 @@ def response_generator(schema):
 def paginated_generator(schema):
     class PaginatedSchema(Schema):
         _status = fields.Dict(example={'message': 'success', 'code': 200})
-        _links = fields.Dict(example={'next': '?page=3',
-                                      'self': '?page=2',
-                                      'prev': '?page=1'})
+        _links = fields.Dict(example={'next': '/participants?after=1519402953',
+                                      'self': '/participants?after=1519402952'
+                                      })
         limit = fields.Integer(example=10,
                                description='Max number of results per page')
         total = fields.Integer(example=1342,

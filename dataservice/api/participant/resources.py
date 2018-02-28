@@ -1,8 +1,11 @@
-from flask import abort, request
+from flask import abort, request, current_app
+from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
+from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.participant.models import Participant
 from dataservice.api.participant.schemas import ParticipantSchema
 from dataservice.api.common.views import CRUDView
@@ -16,7 +19,8 @@ class ParticipantListAPI(CRUDView):
     rule = '/participants'
     schemas = {'Participant': ParticipantSchema}
 
-    def get(self):
+    @paginated
+    def get(self, after, limit):
         """
         Get a paginated participants
         ---
@@ -27,8 +31,15 @@ class ParticipantListAPI(CRUDView):
             resource:
               Participant
         """
+        q = (Participant.query
+                        .options(joinedload(Participant.diagnoses))
+                        .options(joinedload(Participant.samples))
+                        .options(joinedload(Participant.phenotypes))
+                        .options(joinedload(Participant.demographic))
+                        .options(joinedload(Participant.outcomes)))
+
         return (ParticipantSchema(many=True)
-                .jsonify(Participant.query.all()))
+                .jsonify(Pagination(q, after, limit)))
 
     def post(self):
         """

@@ -15,6 +15,10 @@ def app():
     return create_app('testing')
 
 
+@pytest.yield_fixture(scope='session')
+def app():
+    yield create_app('testing')
+
 @pytest.yield_fixture(scope='module')
 def client(app):
     app_context = app.app_context()

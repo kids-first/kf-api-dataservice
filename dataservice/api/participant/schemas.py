@@ -16,7 +16,8 @@ class ParticipantSchema(BaseSchema):
 
     class Meta(BaseSchema.Meta):
         model = Participant
+        resource_url = 'api.participants_list'
 
     _links = ma.Hyperlinks({
-        'self': ma.URLFor('api.participants', kf_id='<kf_id>')
-    }, description='Resource links and pagination')
+        'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>')
+    })
