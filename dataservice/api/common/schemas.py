@@ -55,7 +55,7 @@ class BaseSchema(ma.ModelSchema):
             _links = {}
 
             # If an 'after' param could not be parsed, don't include the param
-            after = None if p.after.timestamp() == 0 else p.after
+            after = None if p.after.timestamp() == 0 else p.curr_num
             _links['self'] = url_for(self.Meta.resource_url,
                                      after=after)
             if p.has_next:
