@@ -22,7 +22,7 @@ class Config:
     # Determines the maximum number of results per request
     MAX_PAGE_LIMIT = 100
 
-    INDEXD_URL = 'https://gen3qa.kids-first.io/index/index/'
+    INDEXD_URL = os.environ.get('INDEXD_URL', None)
     INDEXD_USER = os.environ.get('INDEXD_USER', 'test')
     INDEXD_PASS = os.environ.get('INDEXD_PASS', 'test')
 
@@ -54,17 +54,20 @@ class ProductionConfig(Config):
 
         vault_url = os.environ.get('VAULT_URL', 'https://vault:8200/')
         # Role to authenticate with
-        vault_role = os.environ.get('VAULT_ROLE', 'PostgresRole')
-        # Path for the postgres secret in vault
+        vault_role = os.environ.get('VAULT_ROLE', 'DataserviceRole')
+        # Path for secrets in vault
         pg_secret = os.environ.get('DB_SECRET', 'secret/postgres')
-        # Retrieve postgres secrets
+        indexd_secret = os.environ.get('INDEXD_SECRET', 'secret/indexd')
+        # Retrieve secrets
         client = hvac.Client(url=vault_url)
         client.auth_iam(vault_role)
-        secrets = client.read(pg_secret)
+        pg_secrets = client.read(pg_secret)
+        indexd_secrets = client.read(indexd_secret)
         client.logout()
 
-        pg_user = secrets['data']['user']
-        pg_pass = secrets['data']['password']
+        # Construct postgres connection string
+        pg_user = pg_secrets['data']['user']
+        pg_pass = pg_secrets['data']['password']
         connection_str = 'postgres://{}:{}@{}:{}/{}'.format(
                             pg_user,
                             pg_pass,
@@ -73,6 +76,10 @@ class ProductionConfig(Config):
                             Config.PG_NAME)
 
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_str
+
+        # Extract indexd auth
+        app.config['INDEXD_USER'] = indexd_secrets['data']['user']
+        app.config['INDEXD_PASS'] = indexd_secrets['data']['password']
 
 
 class UnixConfig(ProductionConfig):
