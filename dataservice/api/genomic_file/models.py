@@ -67,7 +67,7 @@ class GenomicFile(db.Model, Base):
         """
         Gets additional fields from indexd
         """
-        if current_app.config['INDEXD_URL'] == None:
+        if current_app.config['INDEXD_URL'] is None:
             return
 
         indexd_url = current_app.config['INDEXD_URL']
@@ -105,7 +105,7 @@ def register_indexd(mapper, connection, target):
     be used as the target's uuid so that it may be joined with the indexd
     data.
     """
-    if current_app.config['INDEXD_URL'] == None:
+    if current_app.config['INDEXD_URL'] is None:
         return
 
     req_body = {
@@ -145,7 +145,7 @@ def update_indexd(mapper, connection, target):
     """
     Updates a document in indexd
     """
-    if current_app.config['INDEXD_URL'] == None:
+    if current_app.config['INDEXD_URL'] is None:
         return
 
     # Get the current revision if not already loaded
@@ -186,7 +186,7 @@ def delete_indexd(mapper, connection, target):
     """
     Deletes a document in indexd
     """
-    if current_app.config['INDEXD_URL'] == None:
+    if current_app.config['INDEXD_URL'] is None:
         return
 
     # Get the current revision if not already loaded
