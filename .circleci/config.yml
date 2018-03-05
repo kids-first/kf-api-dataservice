@@ -44,6 +44,8 @@ jobs:
           command: |
             . venv/bin/activate
             flask test
+            coverage xml
+            python-codacy-coverage -r coverage.xml
           environment:
             - FLASK_APP: "manage"
 

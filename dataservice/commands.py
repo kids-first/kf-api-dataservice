@@ -8,7 +8,8 @@ import click
 def test():
     """ Run the unit tests and pep8 checks """
     from subprocess import call
-    unit = call(["python", "-m", "pytest", "tests"])
+    unit = call(["python", "-m", "pytest", "tests",
+                 "--cov", "dataservice.api"])
     lint = call(["python", "-m", "pytest", "--pep8", "dataservice"])
     exit(max(unit, lint))
 
