@@ -1,4 +1,4 @@
-description: Update a {{ resource.lower() }}
+description: Partial update of a {{ resource.lower() }}
 tags:
 - {{ resource }}
 parameters:

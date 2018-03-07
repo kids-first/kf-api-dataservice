@@ -40,7 +40,7 @@ class TestAPI:
         ('/diagnoses/123', 'DELETE', 'could not find diagnosis `123`'),
         ('/participants', 'GET', 'success'),
         ('/participants/123', 'GET', 'could not find Participant `123`'),
-        ('/participants/123', 'PUT', 'could not find Participant `123`'),
+        ('/participants/123', 'PATCH', 'could not find Participant `123`'),
         ('/participants/123', 'DELETE', 'could not find Participant `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
@@ -83,20 +83,27 @@ class TestAPI:
         assert (field not in body['results']
                 or body['results'][field] != 'test')
 
-    @pytest.mark.parametrize('endpoint,field', [
-        ('/participants', 'blah'),
-        ('/samples', 'blah')
+    @pytest.mark.parametrize('endpoint, method, field', [
+        ('/participants', 'POST', 'blah'),
+        ('/participants', 'PATCH', 'blah'),
+        ('/samples', 'POST', 'blah')
     ])
-    def test_unknown_field(self, client, entities, endpoint, field):
+    def test_unknown_field(self, client, entities, endpoint, method, field):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
         inputs.update({field: 'test'})
-        resp = client.post(endpoint,
-                           data=json.dumps(inputs),
-                           headers={'Content-Type': 'application/json'})
+        action = 'create'
+        if method.lower() in ['put', 'patch']:
+            action = 'update'
+            kf_id = entities.get('kf_ids').get(endpoint)
+            endpoint = '{}/{}'.format(endpoint, kf_id)
+        call_func = getattr(client, method.lower())
+        resp = call_func(endpoint, data=json.dumps(inputs),
+                         headers={'Content-Type': 'application/json'})
+
         body = json.loads(resp.data.decode('utf-8'))
         assert body['_status']['code'] == 400
-        assert 'could not create ' in body['_status']['message']
+        assert 'could not {} '.format(action) in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']
 
     @pytest.mark.parametrize('resource,field', [

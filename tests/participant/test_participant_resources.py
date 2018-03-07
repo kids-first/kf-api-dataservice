@@ -1,4 +1,7 @@
 import json
+from pprint import pprint
+from datetime import datetime
+from dateutil import parser, tz
 
 from flask import url_for
 
@@ -38,17 +41,29 @@ class ParticipantTest(FlaskTestCase):
         self.assertEqual(p.family_id, participant['family_id'])
         self.assertEqual(p.is_proband, participant['is_proband'])
 
-    def test_get_not_found(self):
+    def test_post_missing_req_params(self):
         """
-        Test get participant that does not exist
+        Test create participant that is missing required parameters in body
         """
-        kf_id = 'non_existent'
-        response = self.client.get(url_for(PARTICIPANT_URL, kf_id=kf_id),
-                                   headers=self._api_headers())
-        resp = json.loads(response.data.decode("utf-8"))
-        self.assertEqual(response.status_code, 404)
-        message = "could not find Participant `{}`".format(kf_id)
-        self.assertIn(message, resp['_status']['message'])
+        # Create participant data
+        body = {
+            'external_id': 'p1'
+        }
+        # Send post request
+        response = self.client.post(url_for(PARTICIPANT_LIST_URL),
+                                    headers=self._api_headers(),
+                                    data=json.dumps(body))
+
+        # Check status code
+        self.assertEqual(response.status_code, 400)
+        # Check response body
+        response = json.loads(response.data.decode("utf-8"))
+        # Check error message
+        message = 'could not create participant'
+        self.assertIn(message, response['_status']['message'])
+        # Check field values
+        p = Participant.query.first()
+        self.assertIs(p, None)
 
     def test_get_participant(self):
         """
@@ -86,7 +101,7 @@ class ParticipantTest(FlaskTestCase):
         self.assertIs(type(content), list)
         self.assertEqual(len(content), 1)
 
-    def test_put_participant(self):
+    def test_patch_participant(self):
         """
         Test updating an existing participant
         """
@@ -94,35 +109,76 @@ class ParticipantTest(FlaskTestCase):
         resp = json.loads(response.data.decode("utf-8"))
         participant = resp['results']
         kf_id = participant.get('kf_id')
-        external_id = participant.get('external_id')
-
-        # Create new study, add participant to it
-        s = Study(external_id='phs002')
-        db.session.add(s)
-        db.session.commit()
-
+        # Update existing participant
         body = {
-            'external_id': 'Updated-{}'.format(external_id),
-            'consent_type': 'GRU-PUB',
-            'is_proband': True,
-            'study_id': s.kf_id
+            'external_id': 'participant 0',
+            'consent_type': 'something',
+            'kf_id': kf_id
         }
-        response = self.client.put(url_for(PARTICIPANT_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        self.assertEqual(response.status_code, 201)
+        response = self.client.patch(url_for(PARTICIPANT_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 200)
 
+        # Message
         resp = json.loads(response.data.decode("utf-8"))
-        self._test_response_content(resp, 201)
+        self._test_response_content(resp, 200)
         self.assertIn('participant', resp['_status']['message'])
         self.assertIn('updated', resp['_status']['message'])
 
+        # Content - check only patched fields are updated
+        p = Participant.query.get(kf_id)
+        for k, v in body.items():
+            self.assertEqual(v, getattr(p, k))
+        # Content - Check remaining fields are unchanged
+        unchanged_keys = (set(participant.keys()) -
+                          set(body.keys()))
+        for k in unchanged_keys:
+            val = getattr(p, k)
+            if isinstance(val, datetime):
+                d = val.replace(tzinfo=tz.tzutc())
+                self.assertEqual(str(parser.parse(participant[k])), str(d))
+            else:
+                self.assertEqual(participant[k], val)
+
+        self.assertEqual(1, Participant.query.count())
+
+    def test_patch_bad_input(self):
+        """
+        Test updating an existing participant with invalid input
+        """
+        response = self._make_participant(external_id="TEST")
+        resp = json.loads(response.data.decode("utf-8"))
         participant = resp['results']
-        self.assertEqual(participant['kf_id'], kf_id)
-        self.assertEqual(participant['external_id'], body['external_id'])
-        self.assertEqual(participant['consent_type'], body['consent_type'])
-        self.assertEqual(None,participant['family_id'])
+        kf_id = participant.get('kf_id')
+        # Update existing participant
+        body = {
+            'external_id': 'participant 0',
+            'is_proband': 'should be a boolean',
+            'kf_id': kf_id
+        }
+        response = self.client.patch(url_for(PARTICIPANT_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Check status code
+        self.assertEqual(response.status_code, 400)
+        # Check response body
+        response = json.loads(response.data.decode("utf-8"))
+        # Check error message
+        message = 'could not update participant'
+        self.assertIn(message, response['_status']['message'])
+        # Check field values
+        p = Participant.query.first()
+        for k, v in participant.items():
+            val = getattr(p, k)
+            if isinstance(val, datetime):
+                d = val.replace(tzinfo=tz.tzutc())
+                self.assertEqual(str(parser.parse(v)), str(d))
+            else:
+                self.assertEqual(v, val)
 
     def test_delete_participant(self):
         """
@@ -159,7 +215,7 @@ class ParticipantTest(FlaskTestCase):
             'external_id': external_id,
             'family_id': 'Test_Family_id_0',
             'is_proband': True,
-            'consent_type': 'GRU-IRB', 
+            'consent_type': 'GRU-IRB',
             'study_id': s.kf_id
         }
         response = self.client.post(url_for(PARTICIPANT_LIST_URL),
