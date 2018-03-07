@@ -68,7 +68,7 @@ class MockIndexd(MagicMock):
 
         return MockResp(resp=resp, status_code=self.status_code)
 
-    def put(self, url, *args, **kwargs):
+    def patch(self, url, *args, **kwargs):
         """
         Mocks a response from POST /index/
         """

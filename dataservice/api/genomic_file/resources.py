@@ -95,7 +95,7 @@ class GenomicFileAPI(CRUDView):
         sch = GenomicFileSchema(many=False)
         return sch.jsonify(genomic_file)
 
-    def put(self, kf_id):
+    def patch(self, kf_id):
         """
         Update an existing genomic_file
         ---
