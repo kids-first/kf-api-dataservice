@@ -85,9 +85,8 @@ class GenomicFileAPI(CRUDView):
             resource:
               GenomicFile
         """
-        try:
-            genomic_file = GenomicFile.query.filter_by(kf_id=kf_id).one()
-        except NoResultFound:
+        genomic_file = GenomicFile.query.get(kf_id)
+        if genomic_file is None:
             abort(404, 'could not find {} `{}`'
                   .format('GenomicFile', kf_id))
 
@@ -118,14 +117,20 @@ class GenomicFileAPI(CRUDView):
         # Deserialization will require this field and won't merge automatically
         if 'sequencing_experiment_id' not in body:
             body['sequencing_experiment_id'] = gf.sequencing_experiment_id
-        gf = GenomicFileSchema(strict=True).load(body, instance=gf).data
+
+        try:
+            gf = GenomicFileSchema(strict=True).load(body, instance=gf,
+                                                     partial=True).data
+        except ValidationError as err:
+            abort(400,
+                  'could not create genomic_file: {}'.format(err.messages))
 
         db.session.add(gf)
         db.session.commit()
 
         return GenomicFileSchema(
-            201, 'genomic_file {} updated'.format(gf.kf_id)
-        ).jsonify(gf), 201
+            200, 'genomic_file {} updated'.format(gf.kf_id)
+        ).jsonify(gf), 200
 
     def delete(self, kf_id):
         """
@@ -138,9 +143,8 @@ class GenomicFileAPI(CRUDView):
             resource:
               GenomicFile
         """
-        try:
-            gf = GenomicFile.query.filter_by(kf_id=kf_id).one()
-        except NoResultFound:
+        gf = GenomicFile.query.get(kf_id)
+        if gf is None:
             abort(404, 'could not find {} `{}`'.format('GenomicFile', kf_id))
 
         db.session.delete(gf)

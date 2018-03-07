@@ -9,6 +9,7 @@ from flask import url_for
 
 from dataservice.extensions import db
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 from tests.mocks import MockIndexd
 
@@ -18,7 +19,7 @@ GENOMICFILE_LIST_URL = 'api.genomic_files_list'
 
 
 @pytest.fixture
-def genomic_files(client, mocker):
+def genomic_files(client, mocker, entities):
     mock = mocker.patch('dataservice.api.genomic_file.models.requests')
     indexd = MockIndexd()
     mock.get = indexd.get
@@ -27,6 +28,7 @@ def genomic_files(client, mocker):
     props = {
         'file_name': 'hg38.bam',
         'data_type': 'aligned reads',
+        'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'file_format': 'bam'
     }
     gfs = [GenomicFile(**props) for _ in range(102)]
@@ -34,7 +36,7 @@ def genomic_files(client, mocker):
     db.session.commit()
 
 
-def test_new(client, mocker):
+def test_new(client, mocker, entities):
     """
     Test creating a new genomic file
     """
@@ -47,12 +49,11 @@ def test_new(client, mocker):
     assert 'created' in resp['_status']['message']
     assert resp['results']['file_name'] == 'hg38.bam'
 
-    gf = GenomicFile.query.first()
     genomic_file = resp['results']
-    assert gf.kf_id == genomic_file['kf_id']
+    assert GenomicFile.query.get(genomic_file['kf_id'])
 
 
-def test_new_indexd_error(client, mocker):
+def test_new_indexd_error(client, mocker, entities):
     """
     Test case when indexd errors
     """
@@ -67,6 +68,7 @@ def test_new_indexd_error(client, mocker):
         'file_format': 'bam',
         'file_url': 's3://bucket/key',
         'md5sum': 'd418219b883fce3a085b1b7f38b01e37',
+        'sequencing_experiment_id': 'SE_AAAAAAAA',
         'controlled_access': False
     }
     init_count = GenomicFile.query.count()
@@ -94,20 +96,11 @@ def test_get_list(client, genomic_files, mocker):
     resp = json.loads(resp.data.decode('utf-8'))
 
     assert resp['_status']['code'] == 200
-    assert resp['total'] == 102
+    assert resp['total'] == GenomicFile.query.count()
     assert len(resp['results']) == 10
-    # Check that each entry has both the model's and indexd's fields
-    for r in resp['results']:
-        assert r['hashes'] == {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'}
-        assert r['metadata'] == {'acls': 'INTERNAL'}
-        assert r['rev'] == '39b19b2d'
-        assert r['size'] == 7696048
-        assert r['file_name'] == 'hg38.bam'
-        assert r['data_type'] == 'aligned reads'
-        assert r['file_format'] == 'bam'
 
 
-def test_get_one(client, genomic_files, mocker):
+def test_get_one(client, mocker, entities):
     """
     Test that genomic files are returned in a paginated list with all
     info loaded from indexd
@@ -118,6 +111,7 @@ def test_get_one(client, genomic_files, mocker):
     mock.get = indexd.get
     
     gf = GenomicFile.query.first()
+    gf.merge_indexd()
 
     resp = client.get(url_for(GENOMICFILE_URL, kf_id=gf.kf_id))
     resp = json.loads(resp.data.decode('utf-8'))
@@ -125,17 +119,17 @@ def test_get_one(client, genomic_files, mocker):
     assert resp['_status']['code'] == 200
     resp = resp['results']
     # check properties from indexd
-    assert resp['hashes'] == {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'}
-    assert resp['metadata'] == {'acls': 'INTERNAL'}
-    assert resp['rev'] == '39b19b2d'
-    assert resp['size'] == 7696048
+    assert resp['hashes'] == gf.hashes
+    assert resp['metadata'] == gf._metadata
+    assert resp['rev'] == gf.rev
+    assert resp['size'] == gf.size
     # check properties from datamodel
-    assert resp['file_name'] == 'hg38.bam'
-    assert resp['data_type'] == 'aligned reads'
-    assert resp['file_format'] == 'bam'
+    assert resp['file_name'] == gf.file_name
+    assert resp['data_type'] == gf.data_type
+    assert resp['file_format'] == gf.file_format
 
 
-def test_update(client, mocker):
+def test_update(client, mocker, entities):
     """
     Test updating an existing genomic file
     """
@@ -172,7 +166,7 @@ def test_update(client, mocker):
     assert gf.file_name, body['file_name']
 
 
-def test_delete(client, mocker):
+def test_delete(client, mocker, entities):
     """
     Test deleting a participant by id
     """
@@ -198,7 +192,7 @@ def test_delete(client, mocker):
     assert GenomicFile.query.count() == init
 
 
-def test_delete_error(client, mocker):
+def test_delete_error(client, mocker, entities):
     """
     Test handling of indexd error
     """
@@ -239,6 +233,7 @@ def _new_genomic_file(client):
         'file_format': 'bam',
         'file_url': 's3://bucket/key',
         'md5sum': 'd418219b883fce3a085b1b7f38b01e37',
+        'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'controlled_access': False
     }
     response = client.post(url_for(GENOMICFILE_LIST_URL),
