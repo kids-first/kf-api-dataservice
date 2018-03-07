@@ -39,9 +39,15 @@ class TestPagination:
         ids_seen = []
         # Iterate through via the `next` link
         while 'next' in resp['_links']:
+            # Check formatting of next link
+            assert float(resp['_links']['next'].split('=')[-1])
+            # Stash all the ids on the page
             ids_seen.extend([r['kf_id'] for r in resp['results']])
             resp = client.get(resp['_links']['next'])
             resp = json.loads(resp.data.decode('utf-8'))
+            # Check formatting of the self link
+            assert float(resp['_links']['self'].split('=')[-1])
+
         ids_seen.extend([r['kf_id'] for r in resp['results']])
 
         assert len(ids_seen) == resp['total']
@@ -91,3 +97,20 @@ class TestPagination:
         response = client.get(endpoint)
         response = json.loads(response.data.decode('utf-8'))
         ts = parser.parse(response['results'][-1]['created_at']).timestamp()
+
+    @pytest.mark.parametrize('endpoint', [
+        ('/participants'),
+    ])
+    def test_self(self, client, participants, endpoint):
+        """ Test that the self link gives the same page """
+        response = client.get(endpoint)
+        response = json.loads(response.data.decode('utf-8'))
+        next_page = response['_links']['next']
+
+        response = client.get(next_page)
+        response = json.loads(response.data.decode('utf-8'))
+        results = response['results']
+
+        response = client.get(response['_links']['self'])
+        response = json.loads(response.data.decode('utf-8'))
+        assert results == response['results']

@@ -67,7 +67,7 @@ class Pagination(object):
         so that the current timestamp will be included in the range
         """
         if len(self.items) > 0:
-            return self._to_timestamp(self.items[0].created_at) - 1/1000
+            return self._to_timestamp(self.items[0].created_at) - 1/100000
         return self._to_timestamp(datetime.utcnow())
 
     @property
