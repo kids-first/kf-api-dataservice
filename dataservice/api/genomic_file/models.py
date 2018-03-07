@@ -83,6 +83,10 @@ class GenomicFile(db.Model, Base):
 
         indexd_url = current_app.config['INDEXD_URL']
         resp = requests.get(indexd_url + self.uuid)
+
+        # File does not exist
+        if resp.status_code == 404:
+            return
         for prop, v in resp.json().items():
             if hasattr(self, prop):
                 setattr(self, prop, v)
@@ -122,8 +126,9 @@ def register_indexd(mapper, connection, target):
     req_body = {
         "file_name": target.file_name,
         "size": target.size,
+        "form": "object",
         "hashes": {
-            "md5": target.md5sum
+            "md5": str(target.md5sum).replace('-', '')
         },
         "urls": [
             target.file_url
@@ -135,6 +140,7 @@ def register_indexd(mapper, connection, target):
     resp = requests.post(current_app.config['INDEXD_URL'],
                          auth=(current_app.config['INDEXD_USER'],
                                current_app.config['INDEXD_PASS']),
+                         headers={'Content-Type': 'application/json'},
                          json=req_body)
 
     try:

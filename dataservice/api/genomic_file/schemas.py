@@ -13,7 +13,7 @@ class GenomicFileSchema(BaseSchema):
 
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',
-                                         required=False,
+                                         required=True,
                                          load_only=True)
 
     urls = ma.List(ma.Str())
