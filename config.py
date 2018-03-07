@@ -6,7 +6,6 @@ class Config:
     HOST = "0.0.0.0"
     SSL_DISABLE = os.environ.get("SSL_DISABLE", False)
 
-    RESTPLUS_MASK_SWAGGER = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     PG_HOST = os.environ.get('PG_HOST', 'localhost')
