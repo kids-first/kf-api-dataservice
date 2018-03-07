@@ -44,7 +44,7 @@ class TestAPI:
         ('/participants/123', 'PUT', 'could not find Participant `123`'),
         ('/participants/123', 'DELETE', 'could not find Participant `123`'),
         ('/genomic-files', 'GET', 'success'),
-        ('/genomic-files/123', 'PUT', 'could not find GenomicFile `123`'),
+        ('/genomic-files/123', 'PATCH', 'could not find GenomicFile `123`'),
         ('/genomic-files/123', 'DELETE', 'could not find GenomicFile `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):

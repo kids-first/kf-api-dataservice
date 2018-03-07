@@ -137,7 +137,7 @@ def test_update(client, mocker, entities):
     indexd = MockIndexd()
     mock.post = indexd.post
     mock.get = indexd.get
-    mock.put = indexd.put
+    mock.patch = indexd.patch
 
     resp = _new_genomic_file(client)
     participant = resp['results']
@@ -147,7 +147,7 @@ def test_update(client, mocker, entities):
     body = {
         'file_name': 'hg37.bam'
     }
-    response = client.put(url_for(GENOMICFILE_URL,
+    response = client.patch(url_for(GENOMICFILE_URL,
                                   kf_id=kf_id),
                                data=json.dumps(body),
                           headers={'Content-Type': 'application/json'})
