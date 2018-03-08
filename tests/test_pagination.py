@@ -3,6 +3,7 @@ import pytest
 from dateutil import parser
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.sample.models import Sample
@@ -17,6 +18,13 @@ class TestPagination:
 
     @pytest.fixture(scope='module')
     def participants(client):
+
+        # Add a bunch of studies for pagination
+        for _ in range(101):
+            s = Study(external_id='blah')
+            db.session.add(s)
+        db.session.commit()
+
         s = Study(external_id='blah', name='test')
         db.session.add(s)
         db.session.flush()
@@ -38,6 +46,7 @@ class TestPagination:
         ('/demographics'),
         ('/samples'),
         ('/diagnoses'),
+        ('/studies'),
     ])
     def test_pagination(self, client, participants, endpoint):
         """ Test pagination of resource """
@@ -69,6 +78,7 @@ class TestPagination:
         ('/demographics'),
         ('/samples'),
         ('/diagnoses'),
+        ('/studies'),
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -92,6 +102,7 @@ class TestPagination:
         ('/demographics'),
         ('/samples'),
         ('/diagnoses'),
+        ('/studies'),
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -120,6 +131,7 @@ class TestPagination:
         ('/demographics'),
         ('/samples'),
         ('/diagnoses'),
+        ('/studies'),
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
