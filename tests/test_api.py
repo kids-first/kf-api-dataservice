@@ -21,7 +21,8 @@ class TestAPI:
         ('/persons', 'GET', 404),
         ('/participants/123', 'GET', 404),
         ('/studies', 'GET', 200),
-        ('/studies/123', 'GET', 404)
+        ('/studies/123', 'GET', 404),
+        ('/investigators', 'GET', 200),
     ])
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
@@ -54,6 +55,10 @@ class TestAPI:
         ('/studies/123', 'GET', 'could not find study `123`'),
         ('/studies/123', 'PATCH', 'could not find study `123`'),
         ('/studies/123', 'DELETE', 'could not find study `123`'),
+        ('/investigators', 'GET', 'success'),
+        ('/investigators/123', 'GET', 'could not find investigator `123`'),
+        ('/investigators/123', 'PATCH', 'could not find investigator `123`'),
+        ('/investigators/123', 'DELETE', 'could not find investigator `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -70,7 +75,8 @@ class TestAPI:
         ('/samples', 'GET'),
         ('/diagnoses', 'GET'),
         ('/demographics', 'GET'),
-        ('/studies', 'GET')
+        ('/studies', 'GET'),
+        ('/investigators', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -89,7 +95,8 @@ class TestAPI:
         ('/diagnoses', 'PATCH', ['created_at', 'modified_at']),
         ('/samples', 'PATCH', ['created_at', 'modified_at']),
         ('/studies', 'PATCH', ['created_at', 'modified_at']),
-        ('/studies', 'PATCH', ['created_at', 'modified_at'])
+        ('/studies', 'PATCH', ['created_at', 'modified_at']),
+        ('/investigators', 'PATCH', ['created_at', 'modified_at']),
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
@@ -113,7 +120,8 @@ class TestAPI:
                                           '/demographics',
                                           '/diagnoses',
                                           '/samples',
-                                          '/studies'])
+                                          '/studies',
+                                          '/investigators'])
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]

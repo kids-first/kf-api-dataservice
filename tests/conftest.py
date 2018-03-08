@@ -3,6 +3,7 @@ import pytest
 
 from dataservice import create_app
 from dataservice.extensions import db
+from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.demographic.models import Demographic
@@ -37,6 +38,9 @@ def entities(client):
     Create mock entities
     """
     inputs = {
+        '/investigators': {
+            'name': 'submitter'
+        },
         '/studies': {
             'external_id': 'phs001'
         },
@@ -77,6 +81,7 @@ def entities(client):
     }
 
     # Create and save entities to db
+    investigator = Investigator(**inputs['/investigators'])
     study = Study(**inputs['/studies'])
     p = Participant(**inputs['/participants'])
     demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
@@ -88,6 +93,7 @@ def entities(client):
 
     # Add participants to study
     study.participants.extend([p])
+    study.investigator = investigator
 
     db.session.add(study)
     db.session.commit()
@@ -105,5 +111,6 @@ def entities(client):
     inputs['kf_ids'].update({'/demographics': p.demographic.kf_id})
     inputs['kf_ids'].update({'/diagnoses': diagnosis.kf_id})
     inputs['kf_ids'].update({'/samples': sample.kf_id})
+    inputs['kf_ids'].update({'/investigators': investigator.kf_id})
 
     return inputs
