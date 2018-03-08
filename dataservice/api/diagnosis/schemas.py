@@ -20,6 +20,7 @@ class DiagnosisSchema(BaseSchema):
 
     class Meta(BaseSchema.Meta):
         model = Diagnosis
+        resource_url = 'api.diagnoses_list'
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.diagnoses', kf_id='<kf_id>'),

@@ -3,6 +3,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
+from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.diagnosis.schemas import DiagnosisSchema
 from dataservice.api.common.views import CRUDView
@@ -16,7 +17,8 @@ class DiagnosisListAPI(CRUDView):
     rule = '/diagnoses'
     schemas = {'Diagnosis': DiagnosisSchema}
 
-    def get(self):
+    @paginated
+    def get(self, after, limit):
         """
         Get all diagnoses
         ---
@@ -28,8 +30,10 @@ class DiagnosisListAPI(CRUDView):
             resource:
               Diagnosis
         """
-        d = Diagnosis.query.all()
-        return DiagnosisSchema(many=True).jsonify(d)
+        q = Diagnosis.query
+
+        return (DiagnosisSchema(many=True)
+                .jsonify(Pagination(q, after, limit)))
 
     def post(self):
         """

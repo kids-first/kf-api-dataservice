@@ -6,6 +6,7 @@ from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.sample.models import Sample
+from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.study.models import Study
 
 
@@ -27,6 +28,8 @@ class TestPagination:
             p.demographic = d
             samp = Sample()
             p.samples = [samp]
+            diag = Diagnosis()
+            p.diagnoses = [diag]
             db.session.add(p)
         db.session.commit()
 
@@ -34,6 +37,7 @@ class TestPagination:
         ('/participants'),
         ('/demographics'),
         ('/samples'),
+        ('/diagnoses'),
     ])
     def test_pagination(self, client, participants, endpoint):
         """ Test pagination of resource """
@@ -64,6 +68,7 @@ class TestPagination:
         ('/participants'),
         ('/demographics'),
         ('/samples'),
+        ('/diagnoses'),
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -86,6 +91,7 @@ class TestPagination:
         ('/participants'),
         ('/demographics'),
         ('/samples'),
+        ('/diagnoses'),
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -113,6 +119,7 @@ class TestPagination:
         ('/participants'),
         ('/demographics'),
         ('/samples'),
+        ('/diagnoses'),
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
