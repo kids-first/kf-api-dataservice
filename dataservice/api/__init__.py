@@ -9,6 +9,8 @@ from dataservice.api.diagnosis import DiagnosisAPI
 from dataservice.api.diagnosis import DiagnosisListAPI
 from dataservice.api.sample import SampleAPI
 from dataservice.api.sample import SampleListAPI
+from dataservice.api.study import StudyAPI
+from dataservice.api.study import StudyListAPI
 from dataservice.api.demographic import DemographicAPI
 from dataservice.api.demographic import DemographicListAPI
 
