@@ -3,6 +3,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
+from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.demographic.schemas import DemographicSchema
 from dataservice.api.common.views import CRUDView
@@ -16,7 +17,8 @@ class DemographicListAPI(CRUDView):
     rule = '/demographics'
     schemas = {'Demographic': DemographicSchema}
 
-    def get(self):
+    @paginated
+    def get(self, after, limit):
         """
         Get all demographics
         ---
@@ -27,8 +29,9 @@ class DemographicListAPI(CRUDView):
             resource:
               Demographic
         """
-        d = Demographic.query.all()
-        return DemographicSchema(many=True).jsonify(d)
+        q = Demographic.query
+        return (DemographicSchema(many=True)
+                .jsonify(Pagination(q, after, limit)))
 
     def post(self):
         """

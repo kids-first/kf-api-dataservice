@@ -14,6 +14,7 @@ class DemographicSchema(BaseSchema):
                                load_only=True)
 
     class Meta(BaseSchema.Meta):
+        resource_url = 'api.demographics_list'
         model = Demographic
 
     _links = ma.Hyperlinks({
