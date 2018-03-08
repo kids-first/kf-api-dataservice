@@ -19,6 +19,7 @@ class SampleSchema(BaseSchema):
 
     class Meta(BaseSchema.Meta):
         model = Sample
+        resource_url = 'api.samples_list'
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.samples', kf_id='<kf_id>'),

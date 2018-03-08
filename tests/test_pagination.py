@@ -5,6 +5,7 @@ from dateutil import parser
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
 from dataservice.api.demographic.models import Demographic
+from dataservice.api.sample.models import Sample
 from dataservice.api.study.models import Study
 
 
@@ -24,12 +25,15 @@ class TestPagination:
                             is_proband=True)
             d = Demographic(race='cat')
             p.demographic = d
+            samp = Sample()
+            p.samples = [samp]
             db.session.add(p)
         db.session.commit()
 
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
         ('/demographics'),
+        ('/samples'),
     ])
     def test_pagination(self, client, participants, endpoint):
         """ Test pagination of resource """
@@ -59,6 +63,7 @@ class TestPagination:
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
         ('/demographics'),
+        ('/samples'),
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -80,6 +85,7 @@ class TestPagination:
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
         ('/demographics'),
+        ('/samples'),
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -106,6 +112,7 @@ class TestPagination:
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
         ('/demographics'),
+        ('/samples'),
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
