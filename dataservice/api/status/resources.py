@@ -1,9 +1,6 @@
-import os
-import subprocess
-
+from flask import current_app
 from flask.views import MethodView
 
-from dataservice.utils import _get_version
 from dataservice.api.common.schemas import StatusSchema
 
 
@@ -26,19 +23,11 @@ class StatusAPI(MethodView):
                 schema:
                     $ref: '#/definitions/Status'
         """
-        commit = (subprocess.check_output(
-                  ['git', 'rev-parse', '--short', 'HEAD'])
-                  .decode("utf-8").strip())
-
-        tags = (subprocess.check_output(
-                ['git', 'tag', '-l', '--points-at', 'HEAD'])
-                .decode('utf-8').split('\n'))
-        tags = [] if tags[0] == '' else tags
         resp = {
                 'message': 'Welcome to the Kids First Dataservice API',
                 'code': 200,
-                'version': _get_version(),
-                'commit': commit,
-                'tags': tags
+                'version': current_app.config['PKG_VERSION'],
+                'commit': current_app.config['GIT_COMMIT'],
+                'tags': current_app.config['GIT_TAGS']
         }
         return StatusSchema().jsonify(resp)

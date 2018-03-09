@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
+import subprocess
 from flask import Flask
 
 from dataservice import commands
@@ -41,6 +42,7 @@ def create_app(config_name):
     register_error_handlers(app)
     register_blueprints(app)
     register_spec(app)
+    prefetch_status(app)
 
     return app
 
@@ -126,3 +128,22 @@ def register_error_handlers(app):
 def register_blueprints(app):
     from dataservice.api import api
     app.register_blueprint(api)
+
+
+def prefetch_status(app):
+    """
+    Pre-computes the status response by making system calls to get git branch
+    info and python package version
+
+    This saves the api from having to make a system level call during a request
+    """
+    app.config['GIT_COMMIT'] = (subprocess.check_output(
+                                ['git', 'rev-parse', '--short', 'HEAD'])
+                                .decode("utf-8").strip())
+
+    tags = (subprocess.check_output(
+            ['git', 'tag', '-l', '--points-at', 'HEAD'])
+            .decode('utf-8').split('\n'))
+
+    app.config['GIT_TAGS'] = [] if tags[0] == '' else tags
+    app.config['PKG_VERSION'] = _get_version()
