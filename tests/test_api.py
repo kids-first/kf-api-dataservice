@@ -123,6 +123,7 @@ class TestAPI:
         status = status['_status']
         assert 'commit' in status
         assert len(status['commit']) == 7
+        assert 'branch' in status
         assert 'version' in status
         assert status['version'].count('.') == 2
         assert 'tags' in status

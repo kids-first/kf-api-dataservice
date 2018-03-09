@@ -28,6 +28,7 @@ class StatusAPI(MethodView):
                 'code': 200,
                 'version': current_app.config['PKG_VERSION'],
                 'commit': current_app.config['GIT_COMMIT'],
+                'branch': current_app.config['GIT_BRANCH'],
                 'tags': current_app.config['GIT_TAGS']
         }
         return StatusSchema().jsonify(resp)

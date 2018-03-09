@@ -141,6 +141,10 @@ def prefetch_status(app):
                                 ['git', 'rev-parse', '--short', 'HEAD'])
                                 .decode("utf-8").strip())
 
+    app.config['GIT_BRANCH'] = (subprocess.check_output(
+                                ['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
+                                .decode("utf-8").strip())
+
     tags = (subprocess.check_output(
             ['git', 'tag', '-l', '--points-at', 'HEAD'])
             .decode('utf-8').split('\n'))
