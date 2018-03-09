@@ -4,6 +4,9 @@ from dateutil import parser
 
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
+from dataservice.api.demographic.models import Demographic
+from dataservice.api.sample.models import Sample
+from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.study.models import Study
 
 
@@ -21,11 +24,20 @@ class TestPagination:
             p = Participant(external_id="test",
                             study_id=s.kf_id,
                             is_proband=True)
+            d = Demographic(race='cat')
+            p.demographic = d
+            samp = Sample()
+            p.samples = [samp]
+            diag = Diagnosis()
+            p.diagnoses = [diag]
             db.session.add(p)
         db.session.commit()
 
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
+        ('/demographics'),
+        ('/samples'),
+        ('/diagnoses'),
     ])
     def test_pagination(self, client, participants, endpoint):
         """ Test pagination of resource """
@@ -51,10 +63,12 @@ class TestPagination:
         ids_seen.extend([r['kf_id'] for r in resp['results']])
 
         assert len(ids_seen) == resp['total']
-        assert set(ids_seen) == {p.kf_id for p in Participant.query.all()}
 
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
+        ('/demographics'),
+        ('/samples'),
+        ('/diagnoses'),
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -75,6 +89,9 @@ class TestPagination:
 
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
+        ('/demographics'),
+        ('/samples'),
+        ('/diagnoses'),
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -100,6 +117,9 @@ class TestPagination:
 
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
+        ('/demographics'),
+        ('/samples'),
+        ('/diagnoses'),
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
