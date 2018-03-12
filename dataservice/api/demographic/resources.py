@@ -98,11 +98,9 @@ class DemographicAPI(CRUDView):
                       .format('demographic', kf_id))
             return DemographicSchema().jsonify(d)
 
-    def put(self, kf_id):
+    def patch(self, kf_id):
         """
-        Update existing demographic
-
-        Update an existing demographic given a Kids First id
+        Update an existing demographic. Allows partial update of resource
         ---
         template:
           path:
@@ -111,34 +109,26 @@ class DemographicAPI(CRUDView):
             resource:
               Demographic
         """
-        body = request.json
-
-        # Check if demographic exists
+        body = request.json or {}
         try:
-            d1 = Demographic.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
+            dm = Demographic.query.filter_by(kf_id=kf_id).one()
         except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('demographic', kf_id))
+            abort(404, 'could not find {} `{}`'
+                  .format('demographic', kf_id))
 
-        # Validation only
+        # Partial update - validate but allow missing required fields
         try:
-            d = DemographicSchema(strict=True).load(body).data
-        # Request body not valid
-        except ValidationError as e:
-            abort(400, 'could not update demographic: {}'.format(e.messages))
+            dm = DemographicSchema(strict=True).load(body, instance=dm,
+                                                     partial=True).data
+        except ValidationError as err:
+            abort(400, 'could not update demographic: {}'.format(err.messages))
 
-        # Deserialize
-        d1.external_id = body.get('external_id')
-        d1.race = body.get('race')
-        d1.gender = body.get('gender')
-        d1.ethnicity = body.get('ethnicity')
-        d1.participant_id = body.get('participant_id')
-
-        # Save to database
+        db.session.add(dm)
         db.session.commit()
 
-        return DemographicSchema(200, 'demographic {} updated'
-                                 .format(d1.kf_id)).jsonify(d1), 200
+        return DemographicSchema(
+            200, 'demographic {} updated'.format(dm.kf_id)
+        ).jsonify(dm), 200
 
     def delete(self, kf_id):
         """

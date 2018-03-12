@@ -10,14 +10,10 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 
 
-@pytest.yield_fixture(scope='module')
-def app():
-    return create_app('testing')
-
-
 @pytest.yield_fixture(scope='session')
 def app():
     yield create_app('testing')
+
 
 @pytest.yield_fixture(scope='module')
 def client(app):
@@ -82,14 +78,18 @@ def entities(client):
 
     # Create and save entities to db
     study = Study(**inputs['/studies'])
-    p = Participant(**inputs['/participants'], study=study)
+    p = Participant(**inputs['/participants'])
     demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
     sample = Sample(**inputs['/samples'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
     p.demographic = demo
     p.samples = [sample]
     p.diagnoses = [diagnosis]
-    db.session.add(p)
+
+    # Add participants to study
+    study.participants.extend([p])
+
+    db.session.add(study)
     db.session.commit()
 
     # Add foreign keys
@@ -101,5 +101,6 @@ def entities(client):
 
     # Add kf_ids
     inputs['kf_ids'] = {'/participants': p.kf_id}
+    inputs['kf_ids'].update({'/demographics': p.demographic.kf_id})
 
     return inputs
