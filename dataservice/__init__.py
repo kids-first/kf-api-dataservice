@@ -106,17 +106,6 @@ def register_extensions(app):
     db.init_app(app)
     ma.init_app(app)
 
-    # If using sqlite, must instruct sqlalchemy to set foreign key constraint
-    if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
-        from sqlalchemy.engine import Engine
-        from sqlalchemy import event
-
-        @event.listens_for(Engine, "connect")
-        def set_sqlite_pragma(dbapi_connection, connection_record):
-            cursor = dbapi_connection.cursor()
-            cursor.execute("PRAGMA foreign_keys=ON")
-            cursor.close()
-
     # Migrate
     migrate.init_app(app, db)
 
