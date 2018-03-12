@@ -45,9 +45,9 @@ class TestAPI:
         ('/demographics/123', 'PATCH', 'could not find demographic `123`'),
         ('/demographics/123', 'DELETE', 'could not find demographic `123`'),
         ('/participants', 'GET', 'success'),
-        ('/participants/123', 'GET', 'could not find Participant `123`'),
-        ('/participants/123', 'PATCH', 'could not find Participant `123`'),
-        ('/participants/123', 'DELETE', 'could not find Participant `123`')
+        ('/participants/123', 'GET', 'could not find participant `123`'),
+        ('/participants/123', 'PATCH', 'could not find participant `123`'),
+        ('/participants/123', 'DELETE', 'could not find participant `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """

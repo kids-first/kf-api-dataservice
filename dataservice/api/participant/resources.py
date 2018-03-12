@@ -1,4 +1,3 @@
-from pprint import pprint
 from flask import abort, request
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import joinedload
@@ -87,7 +86,7 @@ class ParticipantAPI(CRUDView):
             participant = Participant.query.filter_by(kf_id=kf_id).one()
         except NoResultFound:
             abort(404, 'could not find {} `{}`'
-                  .format('Participant', kf_id))
+                  .format('participant', kf_id))
         return ParticipantSchema().jsonify(participant)
 
     def patch(self, kf_id):
@@ -106,7 +105,7 @@ class ParticipantAPI(CRUDView):
             p = Participant.query.filter_by(kf_id=kf_id).one()
         except NoResultFound:
             abort(404, 'could not find {} `{}`'
-                  .format('Participant', kf_id))
+                  .format('participant', kf_id))
 
         # Partial update - validate but allow missing required fields
         try:
@@ -136,7 +135,7 @@ class ParticipantAPI(CRUDView):
         try:
             p = Participant.query.filter_by(kf_id=kf_id).one()
         except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('Participant', kf_id))
+            abort(404, 'could not find {} `{}`'.format('participant', kf_id))
 
         db.session.delete(p)
         db.session.commit()

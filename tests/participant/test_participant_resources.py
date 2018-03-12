@@ -1,5 +1,4 @@
 import json
-from pprint import pprint
 from datetime import datetime
 from dateutil import parser, tz
 
