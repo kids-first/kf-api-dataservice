@@ -13,6 +13,7 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.outcome.models import Outcome
+from dataservice.api.phenotype.models import Phenotype
 
 
 @pytest.yield_fixture(scope='session')
@@ -103,11 +104,14 @@ def entities(client):
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
     outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
     aliquot = Aliquot(**inputs['/aliquots'])
+    phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
     p.demographic = demo
     sample.aliquots = [aliquot]
     p.samples = [sample]
     p.diagnoses = [diagnosis]
     p.outcomes = [outcome]
+    p.phenotypes = [phenotype]
+
     # Add participants to study
     study.investigator = investigator
     study.participants.append(p)

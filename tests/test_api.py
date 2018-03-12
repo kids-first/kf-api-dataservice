@@ -21,6 +21,8 @@ class TestAPI:
         ('/diagnoses/123', 'GET', 404),
         ('/demographics', 'GET', 200),
         ('/demographics/123', 'GET', 404),
+        ('/phenotypes', 'GET', 200),
+        ('/phenotypes/123', 'GET', 404),
         ('/participants', 'GET', 200),
         ('/persons', 'GET', 404),
         ('/participants/123', 'GET', 404),
@@ -57,6 +59,10 @@ class TestAPI:
         ('/demographics/123', 'GET', 'could not find demographic `123`'),
         ('/demographics/123', 'PATCH', 'could not find demographic `123`'),
         ('/demographics/123', 'DELETE', 'could not find demographic `123`'),
+        ('/phenotypes', 'GET', 'success'),
+        ('/phenotypes/123', 'GET', 'could not find phenotype `123`'),
+        ('/phenotypes/123', 'PATCH', 'could not find phenotype `123`'),
+        ('/phenotypes/123', 'DELETE', 'could not find phenotype `123`'),
         ('/participants', 'GET', 'success'),
         ('/participants/123', 'GET', 'could not find participant `123`'),
         ('/participants/123', 'PATCH', 'could not find participant `123`'),
@@ -92,7 +98,9 @@ class TestAPI:
         ('/studies', 'GET'),
         ('/investigators', 'GET'),
         ('/participants', 'GET'),
-        ('/outcomes', 'GET')
+        ('/outcomes', 'GET'),
+        ('/studies', 'GET'),
+        ('/phenotypes', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """

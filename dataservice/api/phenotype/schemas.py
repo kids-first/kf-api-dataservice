@@ -20,10 +20,11 @@ class PhenotypeSchema(BaseSchema):
 
     class Meta(BaseSchema.Meta):
         model = Phenotype
-        resource_url = 'api.phenotypes_list'
+        resource_url = 'api.phenotypes'
+        collection_url = 'api.phenotypes_list'
 
     _links = ma.Hyperlinks({
-        'self': ma.URLFor('api.phenotypes', kf_id='<kf_id>'),
-        'collection': ma.URLFor('api.phenotypes_list'),
+        'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
+        'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
     })
