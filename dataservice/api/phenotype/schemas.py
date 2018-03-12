@@ -14,7 +14,7 @@ class PhenotypeSchema(BaseSchema):
     # dump_only=True for foreign keys by default. See link below
     # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/20
     participant_id = field_for(Phenotype, 'participant_id', required=True,
-                               load_only=True, example='DZB048J5')
+                               load_only=True, example='PT_DZB048J5')
     age_at_event_days = field_for(Phenotype, 'age_at_event_days',
                                   validate=validate_age, example=232)
 
