@@ -1,5 +1,4 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
@@ -84,13 +83,11 @@ class DiagnosisAPI(CRUDView):
               Diagnosis
         """
         # Get one
-        try:
-            d = Diagnosis.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
+        dg = Diagnosis.query.get(kf_id)
+        if dg is None:
             abort(404, 'could not find {} `{}`'
                   .format('diagnosis', kf_id))
-        return DiagnosisSchema().jsonify(d)
+        return DiagnosisSchema().jsonify(dg)
 
     def patch(self, kf_id):
         """
@@ -103,14 +100,13 @@ class DiagnosisAPI(CRUDView):
             resource:
               Diagnosis
         """
-        body = request.json or {}
-        try:
-            dg = Diagnosis.query.filter_by(kf_id=kf_id).one()
-        except NoResultFound:
+        dg = Diagnosis.query.get(kf_id)
+        if dg is None:
             abort(404, 'could not find {} `{}`'
                   .format('diagnosis', kf_id))
 
         # Partial update - validate but allow missing required fields
+        body = request.json or {}
         try:
             dg = DiagnosisSchema(strict=True).load(body, instance=dg,
                                                    partial=True).data
@@ -139,15 +135,14 @@ class DiagnosisAPI(CRUDView):
         """
 
         # Check if diagnosis exists
-        try:
-            d = Diagnosis.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('diagnosis', kf_id))
+        dg = Diagnosis.query.get(kf_id)
+        if dg is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('diagnosis', kf_id))
 
         # Save in database
-        db.session.delete(d)
+        db.session.delete(dg)
         db.session.commit()
 
         return DiagnosisSchema(200, 'diagnosis {} deleted'
-                               .format(d.kf_id)).jsonify(d), 200
+                               .format(dg.kf_id)).jsonify(dg), 200

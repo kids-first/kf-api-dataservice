@@ -1,5 +1,4 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from marshmallow import ValidationError
 
@@ -82,12 +81,12 @@ class ParticipantAPI(CRUDView):
             resource:
               Participant
         """
-        try:
-            participant = Participant.query.filter_by(kf_id=kf_id).one()
-        except NoResultFound:
+        p = Participant.query.get(kf_id)
+        if p is None:
             abort(404, 'could not find {} `{}`'
                   .format('participant', kf_id))
-        return ParticipantSchema().jsonify(participant)
+
+        return ParticipantSchema().jsonify(p)
 
     def patch(self, kf_id):
         """
@@ -100,14 +99,13 @@ class ParticipantAPI(CRUDView):
             resource:
               Participant
         """
-        body = request.json or {}
-        try:
-            p = Participant.query.filter_by(kf_id=kf_id).one()
-        except NoResultFound:
+        p = Participant.query.get(kf_id)
+        if p is None:
             abort(404, 'could not find {} `{}`'
                   .format('participant', kf_id))
 
         # Partial update - validate but allow missing required fields
+        body = request.json or {}
         try:
             p = ParticipantSchema(strict=True).load(body, instance=p,
                                                     partial=True).data
@@ -132,10 +130,10 @@ class ParticipantAPI(CRUDView):
             resource:
               Participant
         """
-        try:
-            p = Participant.query.filter_by(kf_id=kf_id).one()
-        except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('participant', kf_id))
+        p = Participant.query.get(kf_id)
+        if p is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('participant', kf_id))
 
         db.session.delete(p)
         db.session.commit()

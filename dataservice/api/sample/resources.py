@@ -1,5 +1,4 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
@@ -83,13 +82,11 @@ class SampleAPI(CRUDView):
             resource:
               Sample
         """
-        try:
-            s = Sample.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
+        sa = Sample.query.get(kf_id)
+        if sa is None:
             abort(404, 'could not find {} `{}`'
                   .format('sample', kf_id))
-        return SampleSchema().jsonify(s)
+        return SampleSchema().jsonify(sa)
 
     def patch(self, kf_id):
         """
@@ -102,26 +99,25 @@ class SampleAPI(CRUDView):
             resource:
               Sample
         """
-        body = request.json or {}
-        try:
-            dg = Sample.query.filter_by(kf_id=kf_id).one()
-        except NoResultFound:
+        sa = Sample.query.get(kf_id)
+        if sa is None:
             abort(404, 'could not find {} `{}`'
                   .format('sample', kf_id))
 
         # Partial update - validate but allow missing required fields
+        body = request.json or {}
         try:
-            dg = SampleSchema(strict=True).load(body, instance=dg,
+            sa = SampleSchema(strict=True).load(body, instance=sa,
                                                 partial=True).data
         except ValidationError as err:
             abort(400, 'could not update sample: {}'.format(err.messages))
 
-        db.session.add(dg)
+        db.session.add(sa)
         db.session.commit()
 
         return SampleSchema(
-            200, 'sample {} updated'.format(dg.kf_id)
-        ).jsonify(dg), 200
+            200, 'sample {} updated'.format(sa.kf_id)
+        ).jsonify(sa), 200
 
     def delete(self, kf_id):
         """
@@ -138,15 +134,14 @@ class SampleAPI(CRUDView):
         """
 
         # Check if sample exists
-        try:
-            s = Sample.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('sample', kf_id))
+        sa = Sample.query.get(kf_id)
+        if sa is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('sample', kf_id))
 
         # Save in database
-        db.session.delete(s)
+        db.session.delete(sa)
         db.session.commit()
 
         return SampleSchema(200, 'sample {} deleted'
-                            .format(s.kf_id)).jsonify(s), 200
+                            .format(sa.kf_id)).jsonify(sa), 200

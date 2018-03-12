@@ -1,5 +1,4 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
@@ -83,20 +82,17 @@ class DemographicAPI(CRUDView):
             resource:
               Demographic
         """
-
         # Get all
         if kf_id is None:
-            d = Demographic.query.all()
-            return DemographicSchema(many=True).jsonify(d)
+            dm = Demographic.query.all()
+            return DemographicSchema(many=True).jsonify(dm)
         # Get one
         else:
-            try:
-                d = Demographic.query.filter_by(kf_id=kf_id).one()
-            # Not found in database
-            except NoResultFound:
+            dm = Demographic.query.get(kf_id)
+            if dm is None:
                 abort(404, 'could not find {} `{}`'
                       .format('demographic', kf_id))
-            return DemographicSchema().jsonify(d)
+            return DemographicSchema().jsonify(dm)
 
     def patch(self, kf_id):
         """
@@ -109,14 +105,13 @@ class DemographicAPI(CRUDView):
             resource:
               Demographic
         """
-        body = request.json or {}
-        try:
-            dm = Demographic.query.filter_by(kf_id=kf_id).one()
-        except NoResultFound:
+        dm = Demographic.query.get(kf_id)
+        if dm is None:
             abort(404, 'could not find {} `{}`'
                   .format('demographic', kf_id))
 
         # Partial update - validate but allow missing required fields
+        body = request.json or {}
         try:
             dm = DemographicSchema(strict=True).load(body, instance=dm,
                                                      partial=True).data
@@ -144,15 +139,14 @@ class DemographicAPI(CRUDView):
               Demographic
         """
         # Check if demographic exists
-        try:
-            d = Demographic.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('demographic', kf_id))
+        dm = Demographic.query.get(kf_id)
+        if dm is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('demographic', kf_id))
 
         # Save in database
-        db.session.delete(d)
+        db.session.delete(dm)
         db.session.commit()
 
         return DemographicSchema(200, 'demographic {} deleted'
-                                 .format(d.kf_id)).jsonify(d), 200
+                                 .format(dm.kf_id)).jsonify(dm), 200
