@@ -1,5 +1,7 @@
 import json
 from urllib.parse import urlparse
+from datetime import datetime
+from dateutil import parser, tz
 
 from flask import url_for
 
@@ -188,19 +190,6 @@ class SampleTest(FlaskTestCase):
         self.assertEqual(participant_id,
                          kwargs['participant_id'])
 
-    def test_get_not_found(self):
-        """
-        Test get sample that does not exist
-        """
-        # Create sample
-        kf_id = 'non_existent'
-        response = self.client.get(url_for(SAMPLES_URL, kf_id=kf_id),
-                                   headers=self._api_headers())
-        self.assertEqual(response.status_code, 404)
-        response = json.loads(response.data.decode("utf-8"))
-        message = "could not find sample `{}`".format(kf_id)
-        self.assertIn(message, response['_status']['message'])
-
     def test_get_all(self):
         """
         Test retrieving all samples
@@ -214,113 +203,99 @@ class SampleTest(FlaskTestCase):
         content = response.get('results')
         self.assertEqual(len(content), 1)
 
-    def test_put(self):
+    def test_patch(self):
         """
-        Test update existing sample
+        Test updating an existing sample
         """
         kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
 
-        # Send put request
+        # Update existing sample
         body = {
-            'tissue_type': 'abnormal',
+            'tissue_type': 'saliva',
             'participant_id': kwargs['participant_id']
         }
-        response = self.client.put(url_for(SAMPLES_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        # Check status code
+        response = self.client.patch(url_for(SAMPLES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
         self.assertEqual(response.status_code, 200)
-        # Check field values got updated
-        response = json.loads(response.data.decode('utf-8'))
-        sample = response['results']
-        self.assertEqual(kwargs['kf_id'], sample['kf_id'])
-        # Fields that should be None since they were not in put request body
-        self.assertIs(None, sample['external_id'])
-        self.assertIs(None, sample['composition'])
-        self.assertIs(None, sample['anatomical_site'])
-        self.assertIs(None, sample['tumor_descriptor'])
-        self.assertEqual([], sample['aliquots'])
-        # Fields that should be updated w values
-        self.assertEqual(body['tissue_type'], sample['tissue_type'])
 
-    def test_put_not_found(self):
-        """
-        Test update non-existent sample
-        """
-        # Send put request
-        kf_id = 'non-existent'
-        body = {}
-        response = self.client.put(url_for(SAMPLES_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        # Check status code
-        self.assertEqual(response.status_code, 404)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not find sample'
-        self.assertIn(message, response['_status']['message'])
-        # Check database
-        c = Sample.query.filter_by(kf_id=kf_id).count()
-        self.assertEqual(c, 0)
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertIn('sample', resp['_status']['message'])
+        self.assertIn('updated', resp['_status']['message'])
 
-    def test_put_bad_input(self):
-        """
-        Test update existing sample with bad input
+        # Content - check only patched fields are updated
+        sample = resp['results']
+        sa = Sample.query.get(kf_id)
+        for k, v in body.items():
+            self.assertEqual(v, getattr(sa, k))
+        # Content - Check remaining fields are unchanged
+        unchanged_keys = (set(sample.keys()) -
+                          set(body.keys()))
+        for k in unchanged_keys:
+            val = getattr(sa, k)
+            if isinstance(val, datetime):
+                d = val.replace(tzinfo=tz.tzutc())
+                self.assertEqual(str(parser.parse(sample[k])), str(d))
+            else:
+                self.assertEqual(sample[k], val)
 
-        Participant with participant_id does not exist
+        self.assertEqual(1, Sample.query.count())
+
+    def test_patch_bad_input(self):
         """
-        # Create and save sample to db
+        Test updating an existing participant with invalid input
+        """
         kwargs = self._create_save_to_db()
-
-        # Send put request
+        kf_id = kwargs.get('kf_id')
         body = {
             'participant_id': 'AAAA1111'
         }
-        response = self.client.put(url_for(SAMPLES_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+        response = self.client.patch(url_for(SAMPLES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         # Check status code
         self.assertEqual(response.status_code, 400)
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        message = 'Cannot update sample without an existing'
         message = 'participant "AAAA1111" does not exist'
         self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Sample.query.first()
-        self.assertEqual(d.tissue_type, kwargs.get('tissue_type'))
-        self.assertEqual(d.age_at_event_days, kwargs.get('age_at_event_days'))
+        # Check that properties are unchanged
+        sa = Sample.query.first()
+        for k, v in kwargs.items():
+            if k == 'participant_id':
+                continue
+            self.assertEqual(v, getattr(sa, k))
 
-    def test_put_missing_req_params(self):
+    def test_patch_missing_req_params(self):
         """
         Test create sample that is missing required parameters in body
         """
-        # Create and save sample to db
+        # Create and save diagnosis to db
         kwargs = self._create_save_to_db()
-        # Create sample data
+        kf_id = kwargs.get('kf_id')
+        # Create diagnosis data
         body = {
-            'tissue_type': 'abnormal'
+            'tissue_type': 'blood'
         }
         # Send put request
-        response = self.client.put(url_for(SAMPLES_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+        response = self.client.patch(url_for(SAMPLES_URL,
+                                             kf_id=kwargs['kf_id']),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not update sample'
-        self.assertIn(message, response['_status']['message'])
         # Check field values
-        d = Sample.query.first()
-        self.assertEqual(d.tissue_type, kwargs['tissue_type'])
+        sa = Sample.query.get(kf_id)
+        for k, v in body.items():
+            self.assertEqual(v, getattr(sa, k))
 
     def test_delete(self):
         """

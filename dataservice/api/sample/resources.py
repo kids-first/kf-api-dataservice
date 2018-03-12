@@ -91,11 +91,9 @@ class SampleAPI(CRUDView):
                   .format('sample', kf_id))
         return SampleSchema().jsonify(s)
 
-    def put(self, kf_id):
+    def patch(self, kf_id):
         """
-        Update existing sample
-
-        Update an existing sample given a Kids First id
+        Update an existing sample. Allows partial update of resource
         ---
         template:
           path:
@@ -104,37 +102,26 @@ class SampleAPI(CRUDView):
             resource:
               Sample
         """
-        body = request.json
-
-        # Check if sample exists
+        body = request.json or {}
         try:
-            s1 = Sample.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
+            dg = Sample.query.filter_by(kf_id=kf_id).one()
         except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('sample', kf_id))
+            abort(404, 'could not find {} `{}`'
+                  .format('sample', kf_id))
 
-        # Validation only
+        # Partial update - validate but allow missing required fields
         try:
-            s = SampleSchema(strict=True).load(body).data
-        # Request body not valid
-        except ValidationError as e:
-            abort(400, 'could not update sample: {}'.format(e.messages))
+            dg = SampleSchema(strict=True).load(body, instance=dg,
+                                                partial=True).data
+        except ValidationError as err:
+            abort(400, 'could not update sample: {}'.format(err.messages))
 
-        # Deserialize
-        s1.external_id = body.get('external_id')
-        s1.tissue_type = body.get('tissue_type')
-        s1.composition = body.get('composition')
-        s1.anatomical_site = body.get('anatomical_site')
-        s1.tumor_descriptor = body.get('tumor_descriptor')
-        s1.aliquots = body.get('aliquots', [])
-        s1.age_at_event_days = body.get('age_at_event_days')
-        s1.participant_id = body.get('participant_id')
-
-        # Save to database
+        db.session.add(dg)
         db.session.commit()
 
-        return SampleSchema(200, 'sample {} updated'
-                            .format(s1.kf_id)).jsonify(s1), 200
+        return SampleSchema(
+            200, 'sample {} updated'.format(dg.kf_id)
+        ).jsonify(dg), 200
 
     def delete(self, kf_id):
         """

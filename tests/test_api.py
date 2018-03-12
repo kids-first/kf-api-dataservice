@@ -34,7 +34,7 @@ class TestAPI:
         ('/persons', 'GET', 'not found'),
         ('/samples', 'GET', 'success'),
         ('/samples/123', 'GET', 'could not find sample `123`'),
-        ('/samples/123', 'PUT', 'could not find sample `123`'),
+        ('/samples/123', 'PATCH', 'could not find sample `123`'),
         ('/samples/123', 'DELETE', 'could not find sample `123`'),
         ('/diagnoses', 'GET', 'success'),
         ('/diagnoses/123', 'GET', 'could not find diagnosis `123`'),
@@ -79,7 +79,8 @@ class TestAPI:
         ('/participants', 'POST', ['created_at', 'modified_at']),
         ('/participants', 'PATCH', ['created_at', 'modified_at']),
         ('/demographics', 'PATCH', ['created_at', 'modified_at']),
-        ('/diagnoses', 'PATCH', ['created_at', 'modified_at'])
+        ('/diagnoses', 'PATCH', ['created_at', 'modified_at']),
+        ('/samples', 'PATCH', ['created_at', 'modified_at'])
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
@@ -104,7 +105,8 @@ class TestAPI:
         ('/demographics', 'PATCH', 'blah'),
         ('/diagnoses', 'POST', 'blah'),
         ('/diagnoses', 'PATCH', 'blah'),
-        ('/samples', 'POST', 'blah')
+        ('/samples', 'POST', 'blah'),
+        ('/samples', 'PATCH', 'blah')
     ])
     def test_unknown_field(self, client, entities, endpoint, method, field):
         """ Test that unknown fields are rejected when trying to create  """
@@ -126,7 +128,8 @@ class TestAPI:
 
     @pytest.mark.parametrize('resource,field', [
         ('/participants', 'demographic'),
-        ('/participants', 'diagnoses')
+        ('/participants', 'diagnoses'),
+        ('/participants', 'samples'),
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
