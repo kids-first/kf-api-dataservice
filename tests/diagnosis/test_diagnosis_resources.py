@@ -1,6 +1,8 @@
 import json
 from flask import url_for
 from urllib.parse import urlparse
+from datetime import datetime
+from dateutil import parser, tz
 
 from dataservice.extensions import db
 from dataservice.api.common import id_service
@@ -11,6 +13,8 @@ from tests.utils import FlaskTestCase
 
 DIAGNOSES_URL = 'api.diagnoses'
 DIAGNOSES_LIST_URL = 'api.diagnoses_list'
+
+from pprint import pprint
 
 
 class DiagnosisTest(FlaskTestCase):
@@ -47,16 +51,15 @@ class DiagnosisTest(FlaskTestCase):
 
         # Check response status status_code
         self.assertEqual(response.status_code, 201)
+
         # Check response content
         response = json.loads(response.data.decode('utf-8'))
         diagnosis = response['results']
-        self.assertEqual(kwargs['external_id'], diagnosis['external_id'])
-        self.assertEqual(kwargs['diagnosis'], diagnosis['diagnosis'])
-        self.assertEqual(kwargs['age_at_event_days'],
-                         diagnosis['age_at_event_days'])
-        self.assertEqual(kwargs['diagnosis_category'],
-                         diagnosis['diagnosis_category'])
-        self.assertEqual(kwargs['tumor_location'], diagnosis['tumor_location'])
+        dg = Diagnosis.query.get(diagnosis.get('kf_id'))
+        for k, v in kwargs.items():
+            if k == 'participant_id':
+                continue
+            self.assertEqual(diagnosis[k], getattr(dg, k))
 
     def test_post_missing_req_params(self):
         """
@@ -190,30 +193,12 @@ class DiagnosisTest(FlaskTestCase):
         diagnosis = response['results']
         participant_link = response['_links']['participant']
         participant_id = urlparse(participant_link).path.split('/')[-1]
-        self.assertEqual(diagnosis['kf_id'], kwargs['kf_id'])
-        self.assertEqual(participant_id,
-                         kwargs['participant_id'])
-        self.assertEqual(diagnosis['external_id'], kwargs['external_id'])
-        self.assertEqual(diagnosis['diagnosis'], kwargs['diagnosis'])
-        self.assertEqual(kwargs['diagnosis_category'],
-                         diagnosis['diagnosis_category'])
-        self.assertEqual(kwargs['tumor_location'], diagnosis['tumor_location'])
-        self.assertEqual(diagnosis['age_at_event_days'],
-                         kwargs['age_at_event_days'])
-        self.assertEqual(participant_id, kwargs['participant_id'])
-
-    def test_get_not_found(self):
-        """
-        Test get diagnosis that does not exist
-        """
-        # Create diagnosis
-        kf_id = 'non_existent'
-        response = self.client.get(url_for(DIAGNOSES_URL, kf_id=kf_id),
-                                   headers=self._api_headers())
-        self.assertEqual(response.status_code, 404)
-        response = json.loads(response.data.decode("utf-8"))
-        message = "could not find diagnosis `{}`".format(kf_id)
-        self.assertIn(message, response['_status']['message'])
+        for k, v in kwargs.items():
+            if k == 'participant_id':
+                self.assertEqual(participant_id,
+                                 kwargs['participant_id'])
+            else:
+                self.assertEqual(diagnosis[k], diagnosis[k])
 
     def test_get_all(self):
         """
@@ -228,76 +213,62 @@ class DiagnosisTest(FlaskTestCase):
         content = response.get('results')
         self.assertEqual(len(content), 1)
 
-    def test_put(self):
+    def test_patch(self):
         """
-        Test update existing diagnosis
+        Test updating an existing diagnosis
         """
         kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
 
-        # Send put request
+        # Update existing diagnosis
         body = {
             'diagnosis': 'hangry',
             'diagnosis_category': 'birth defect',
             'participant_id': kwargs['participant_id']
         }
-        response = self.client.put(url_for(DIAGNOSES_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        # Check status code
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
         self.assertEqual(response.status_code, 200)
-        # Check field values got updated
-        response = json.loads(response.data.decode('utf-8'))
-        diagnosis = response['results']
-        self.assertEqual(kwargs['kf_id'], diagnosis['kf_id'])
-        # Fields that should be None since they were not in put request body
-        self.assertIs(None, diagnosis['external_id'])
-        self.assertIs(None, diagnosis['age_at_event_days'])
-        self.assertIs(None, diagnosis['tumor_location'])
-        # Fields that should be updated w values
-        self.assertEqual(body['diagnosis'], diagnosis['diagnosis'])
-        self.assertEqual(body['diagnosis_category'],
-                         diagnosis['diagnosis_category'])
 
-    def test_put_not_found(self):
-        """
-        Test update non-existent diagnosis
-        """
-        # Send put request
-        kf_id = 'non-existent'
-        body = {}
-        response = self.client.put(url_for(DIAGNOSES_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        # Check status code
-        self.assertEqual(response.status_code, 404)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not find diagnosis'
-        self.assertIn(message, response['_status']['message'])
-        # Check database
-        c = Diagnosis.query.filter_by(kf_id=kf_id).count()
-        self.assertEqual(c, 0)
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertIn('diagnosis', resp['_status']['message'])
+        self.assertIn('updated', resp['_status']['message'])
 
-    def test_put_bad_input(self):
-        """
-        Test update existing diagnosis with bad input
+        # Content - check only patched fields are updated
+        diagnosis = resp['results']
+        dg = Diagnosis.query.get(kf_id)
+        for k, v in body.items():
+            self.assertEqual(v, getattr(dg, k))
+        # Content - Check remaining fields are unchanged
+        unchanged_keys = (set(diagnosis.keys()) -
+                          set(body.keys()))
+        for k in unchanged_keys:
+            val = getattr(dg, k)
+            if isinstance(val, datetime):
+                d = val.replace(tzinfo=tz.tzutc())
+                self.assertEqual(str(parser.parse(diagnosis[k])), str(d))
+            else:
+                self.assertEqual(diagnosis[k], val)
 
-        Participant with participant_id does not exist
+        self.assertEqual(1, Diagnosis.query.count())
+
+    def test_patch_bad_input(self):
         """
-        # Create and save diagnosis to db
+        Test updating an existing participant with invalid input
+        """
         kwargs = self._create_save_to_db()
-
-        # Send put request
+        kf_id = kwargs.get('kf_id')
         body = {
             'participant_id': 'AAAA1111'
         }
-        response = self.client.put(url_for(DIAGNOSES_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         # Check status code
         self.assertEqual(response.status_code, 400)
         # Check response body
@@ -305,36 +276,37 @@ class DiagnosisTest(FlaskTestCase):
         # Check error message
         message = 'participant "AAAA1111" does not exist'
         self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Diagnosis.query.first()
-        self.assertEqual(d.diagnosis, kwargs.get('diagnosis'))
-        self.assertEqual(d.age_at_event_days, kwargs.get('age_at_event_days'))
+        # Check that properties are unchanged
+        dg = Diagnosis.query.first()
+        for k, v in kwargs.items():
+            if k == 'participant_id':
+                continue
+            self.assertEqual(v, getattr(dg, k))
 
-    def test_put_missing_req_params(self):
+    def test_patch_missing_req_params(self):
         """
         Test create diagnosis that is missing required parameters in body
         """
         # Create and save diagnosis to db
         kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
         # Create diagnosis data
         body = {
             'diagnosis': 'hangry and flu'
         }
         # Send put request
-        response = self.client.put(url_for(DIAGNOSES_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kwargs['kf_id']),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not update diagnosis'
-        self.assertIn(message, response['_status']['message'])
         # Check field values
-        d = Diagnosis.query.first()
-        self.assertEqual(d.diagnosis, kwargs['diagnosis'])
+        dg = Diagnosis.query.get(kf_id)
+        for k, v in body.items():
+            self.assertEqual(v, getattr(dg, k))
 
     def test_delete(self):
         """
@@ -347,23 +319,6 @@ class DiagnosisTest(FlaskTestCase):
                                       headers=self._api_headers())
         # Check status code
         self.assertEqual(response.status_code, 200)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check database
-        d = Diagnosis.query.first()
-        self.assertIs(d, None)
-
-    def test_delete_not_found(self):
-        """
-        Test delete diagnosis that does not exist
-        """
-        kf_id = 'non-existent'
-        # Send get request
-        response = self.client.delete(url_for(DIAGNOSES_URL,
-                                              kf_id=kf_id),
-                                      headers=self._api_headers())
-        # Check status code
-        self.assertEqual(response.status_code, 404)
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check database

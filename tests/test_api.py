@@ -38,7 +38,7 @@ class TestAPI:
         ('/samples/123', 'DELETE', 'could not find sample `123`'),
         ('/diagnoses', 'GET', 'success'),
         ('/diagnoses/123', 'GET', 'could not find diagnosis `123`'),
-        ('/diagnoses/123', 'PUT', 'could not find diagnosis `123`'),
+        ('/diagnoses/123', 'PATCH', 'could not find diagnosis `123`'),
         ('/diagnoses/123', 'DELETE', 'could not find diagnosis `123`'),
         ('/demographics', 'GET', 'success'),
         ('/demographics/123', 'GET', 'could not find demographic `123`'),
@@ -78,7 +78,8 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint, method, fields', [
         ('/participants', 'POST', ['created_at', 'modified_at']),
         ('/participants', 'PATCH', ['created_at', 'modified_at']),
-        ('/demographics', 'PATCH', ['created_at', 'modified_at'])
+        ('/demographics', 'PATCH', ['created_at', 'modified_at']),
+        ('/diagnoses', 'PATCH', ['created_at', 'modified_at'])
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
@@ -101,6 +102,8 @@ class TestAPI:
         ('/participants', 'POST', 'blah'),
         ('/participants', 'PATCH', 'blah'),
         ('/demographics', 'PATCH', 'blah'),
+        ('/diagnoses', 'POST', 'blah'),
+        ('/diagnoses', 'PATCH', 'blah'),
         ('/samples', 'POST', 'blah')
     ])
     def test_unknown_field(self, client, entities, endpoint, method, field):

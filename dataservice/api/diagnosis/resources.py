@@ -92,11 +92,9 @@ class DiagnosisAPI(CRUDView):
                   .format('diagnosis', kf_id))
         return DiagnosisSchema().jsonify(d)
 
-    def put(self, kf_id):
+    def patch(self, kf_id):
         """
-        Update existing diagnosis
-
-        Update an existing diagnosis given a Kids First id
+        Update an existing diagnosis. Allows partial update of resource
         ---
         template:
           path:
@@ -105,34 +103,26 @@ class DiagnosisAPI(CRUDView):
             resource:
               Diagnosis
         """
-        body = request.json
+        body = request.json or {}
         try:
-            # Check if diagnosis exists
-            d1 = Diagnosis.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
+            dg = Diagnosis.query.filter_by(kf_id=kf_id).one()
         except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('diagnosis', kf_id))
+            abort(404, 'could not find {} `{}`'
+                  .format('diagnosis', kf_id))
 
-        # Validation only
+        # Partial update - validate but allow missing required fields
         try:
-            d = DiagnosisSchema(strict=True).load(body).data
-        # Request body not valid
-        except ValidationError as e:
-            abort(400, 'could not update diagnosis: {}'.format(e.messages))
+            dg = DiagnosisSchema(strict=True).load(body, instance=dg,
+                                                   partial=True).data
+        except ValidationError as err:
+            abort(400, 'could not update diagnosis: {}'.format(err.messages))
 
-        # Deserialize
-        d1.external_id = body.get('external_id')
-        d1.diagnosis = body.get('diagnosis')
-        d1.diagnosis_category = body.get('diagnosis_category')
-        d1.tumor_location = body.get('tumor_location')
-        d1.age_at_event_days = body.get('age_at_event_days')
-        d1.participant_id = body.get('participant_id')
-
-        # Save to database
+        db.session.add(dg)
         db.session.commit()
 
-        return DiagnosisSchema(200, 'diagnosis {} updated'
-                               .format(d1.kf_id)).jsonify(d1), 200
+        return DiagnosisSchema(
+            200, 'diagnosis {} updated'.format(dg.kf_id)
+        ).jsonify(dg), 200
 
     def delete(self, kf_id):
         """
