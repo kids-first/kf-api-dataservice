@@ -1,8 +1,7 @@
 #!groovy
 properties([
-    pipelineTriggers([[$class:"SCMTrigger", scmpoll_spec:"H/2 * * * *"]])
+    pipelineTriggers([[$class:"GitHubPushTrigger"]])
 ])
-
 pipeline {
   agent { label 'docker-slave' }
   stages{
