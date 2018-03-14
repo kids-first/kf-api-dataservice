@@ -19,10 +19,11 @@ class SampleSchema(BaseSchema):
 
     class Meta(BaseSchema.Meta):
         model = Sample
-        resource_url = 'api.samples_list'
+        resource_url = 'api.samples'
+        collection_url = 'api.samples_list'
 
     _links = ma.Hyperlinks({
-        'self': ma.URLFor('api.samples', kf_id='<kf_id>'),
-        'collection': ma.URLFor('api.samples_list'),
+        'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
+        'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
     })

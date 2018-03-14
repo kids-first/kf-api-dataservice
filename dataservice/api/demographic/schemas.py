@@ -14,11 +14,12 @@ class DemographicSchema(BaseSchema):
                                load_only=True)
 
     class Meta(BaseSchema.Meta):
-        resource_url = 'api.demographics_list'
+        resource_url = 'api.demographics'
+        collection_url = 'api.demographics_list'
         model = Demographic
 
     _links = ma.Hyperlinks({
-        'self': ma.URLFor('api.demographics', kf_id='<kf_id>'),
-        'collection': ma.URLFor('api.demographics_list'),
+        'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
+        'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
     })

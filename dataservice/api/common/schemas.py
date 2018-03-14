@@ -56,10 +56,10 @@ class BaseSchema(ma.ModelSchema):
 
             # If an 'after' param could not be parsed, don't include the param
             after = None if p.after.timestamp() == 0 else p.curr_num
-            _links['self'] = url_for(self.Meta.resource_url,
+            _links['self'] = url_for(self.Meta.collection_url,
                                      after=after)
             if p.has_next:
-                _links['next'] = url_for(self.Meta.resource_url,
+                _links['next'] = url_for(self.Meta.collection_url,
                                          after=p.next_num)
             resp['total'] = int(p.total)
             resp['limit'] = int(p.limit)
