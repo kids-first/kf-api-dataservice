@@ -1,5 +1,4 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
@@ -84,19 +83,18 @@ class PhenotypeAPI(CRUDView):
               Phenotype
         """
         # Get one
-        try:
-            p = Phenotype.query.filter_by(kf_id=kf_id).one()
+        p = Phenotype.query.get(kf_id)
         # Not found in database
-        except NoResultFound:
+        if p is None:
             abort(404, 'could not find {} `{}`'
                   .format('phenotype', kf_id))
         return PhenotypeSchema().jsonify(p)
 
     def patch(self, kf_id):
         """
-        Partially update existing phenotype
+        Update an existing phenotype
 
-        Update an existing phenotype given a Kids First id
+        Allows partial update of resource
         ---
         template:
           path:
@@ -105,33 +103,28 @@ class PhenotypeAPI(CRUDView):
             resource:
               Phenotype
         """
-        body = request.json
-        try:
-            # Check if phenotype exists
-            p1 = Phenotype.query.filter_by(kf_id=kf_id).one()
+        # Partial update - validate but allow missing required fields
+        body = request.json or {}
+        # Check if phenotype exists
+        p = Phenotype.query.get(kf_id)
         # Not found in database
-        except NoResultFound:
+        if p is None:
             abort(404, 'could not find {} `{}`'.format('phenotype', kf_id))
 
         # Validation only
         try:
-            p = PhenotypeSchema(strict=True).load(body).data
+            p = PhenotypeSchema(strict=True).load(body, instance=p,
+                                                  partial=True).data
         # Request body not valid
         except ValidationError as e:
             abort(400, 'could not update phenotype: {}'.format(e.messages))
 
-        # Deserialize
-        p1.phenotype = body.get('phenotype')
-        p1.hpo_id = body.get('hpo_id')
-        p1.observed = body.get('observed')
-        p1.age_at_event_days = body.get('age_at_event_days')
-        p1.participant_id = body.get('participant_id')
-
         # Save to database
+        db.session.add(p)
         db.session.commit()
 
         return PhenotypeSchema(200, 'phenotype {} updated'
-                               .format(p1.kf_id)).jsonify(p1), 200
+                               .format(p.kf_id)).jsonify(p), 200
 
     def delete(self, kf_id):
         """
@@ -148,10 +141,9 @@ class PhenotypeAPI(CRUDView):
         """
 
         # Check if phenotype exists
-        try:
-            p = Phenotype.query.filter_by(kf_id=kf_id).one()
+        p = Phenotype.query.get(kf_id)
         # Not found in database
-        except NoResultFound:
+        if p is None:
             abort(404, 'could not find {} `{}`'.format('phenotype', kf_id))
 
         # Save in database

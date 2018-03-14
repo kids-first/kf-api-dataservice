@@ -152,8 +152,8 @@ class PhenotypeTest(FlaskTestCase):
         ph1 = self._create_save_to_db()
         # Create another phenotype for the same participant
         ph2 = {
-            'phenotype': 'Hand Tremor',
-            'hpo_id': 'HP:0002378',
+            'phenotype': 'Tall stature',
+            'hpo_id': 'HP:0000098',
             'observed': 'positive',
             'participant_id': ph1['participant_id']
         }
@@ -195,19 +195,6 @@ class PhenotypeTest(FlaskTestCase):
                          kwargs['age_at_event_days'])
         self.assertEqual(participant_id, kwargs['participant_id'])
 
-    def test_get_not_found(self):
-        """
-        Test get phenotype that does not exist
-        """
-        # Create phenotype
-        kf_id = 'non_existent'
-        response = self.client.get(url_for(PHENOTYPES_URL, kf_id=kf_id),
-                                   headers=self._api_headers())
-        self.assertEqual(response.status_code, 404)
-        response = json.loads(response.data.decode("utf-8"))
-        message = "could not find phenotype `{}`".format(kf_id)
-        self.assertIn(message, response['_status']['message'])
-
     def test_get_all(self):
         """
         Test retrieving all phenotypes
@@ -243,35 +230,12 @@ class PhenotypeTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         phenotype = response['results']
         self.assertEqual(kwargs['kf_id'], phenotype['kf_id'])
-        # Fields that should be None since they were not in patch request body
-        self.assertIs(None, phenotype['age_at_event_days'])
-        self.assertIs(None, phenotype['observed'])
+        
         # Fields that should be updated w values
         self.assertEqual(body['phenotype'], phenotype['phenotype'])
         self.assertEqual(body['hpo_id'],
                          phenotype['hpo_id'])
 
-    def test_patch_not_found(self):
-        """
-        Test update non-existent phenotype
-        """
-        # Send patch request
-        kf_id = 'non-existent'
-        body = {}
-        response = self.client.patch(url_for(PHENOTYPES_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        # Check status code
-        self.assertEqual(response.status_code, 404)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not find phenotype'
-        self.assertIn(message, response['_status']['message'])
-        # Check database
-        c = Phenotype.query.filter_by(kf_id=kf_id).count()
-        self.assertEqual(c, 0)
 
     def test_patch_bad_input(self):
         """
@@ -316,11 +280,11 @@ class PhenotypeTest(FlaskTestCase):
                                    headers=self._api_headers(),
                                    data=json.dumps(body))
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not update phenotype'
+        # Check message
+        message = 'updated'
         self.assertIn(message, response['_status']['message'])
         # Check field values
         p = Phenotype.query.first()
@@ -343,22 +307,6 @@ class PhenotypeTest(FlaskTestCase):
         p = Phenotype.query.first()
         self.assertIs(p, None)
 
-    def test_delete_not_found(self):
-        """
-        Test delete phenotype that does not exist
-        """
-        kf_id = 'non-existent'
-        # Send get request
-        response = self.client.delete(url_for(PHENOTYPES_URL,
-                                              kf_id=kf_id),
-                                      headers=self._api_headers())
-        # Check status code
-        self.assertEqual(response.status_code, 404)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check database
-        p = Phenotype.query.first()
-        self.assertIs(p, None)
 
     def _create_save_to_db(self):
         """
