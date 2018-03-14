@@ -134,3 +134,27 @@ class TestPagination:
         response = client.get(response['_links']['self'])
         response = json.loads(response.data.decode('utf-8'))
         assert results == response['results']
+
+    @pytest.mark.parametrize('endpoint', [
+        ('/participants'),
+        ('/demographics'),
+        ('/samples'),
+        ('/diagnoses'),
+    ])
+    def test_individual_links(self, client, participants, endpoint):
+        """ Test that each individual result has properly formatted _links """
+        response = client.get(endpoint)
+        response = json.loads(response.data.decode('utf-8'))
+        results = response['results']
+
+        for result in results:
+            assert '_links' in result
+            self_link = result['_links']
+            response = client.get(result['_links']['self'])
+            assert response.status_code  == 200
+            response = json.loads(response.data.decode('utf-8'))
+            assert response['_status']['code'] == 200
+            # Should only return the single entity
+            assert isinstance(response['results'], dict)
+            assert result['kf_id'] == response['results']['kf_id']
+            assert 'collection' in result['_links']
