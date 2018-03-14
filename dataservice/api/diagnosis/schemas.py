@@ -20,10 +20,11 @@ class DiagnosisSchema(BaseSchema):
 
     class Meta(BaseSchema.Meta):
         model = Diagnosis
-        resource_url = 'api.diagnoses_list'
+        resource_url = 'api.diagnoses'
+        collection_url = 'api.diagnoses_list'
 
     _links = ma.Hyperlinks({
-        'self': ma.URLFor('api.diagnoses', kf_id='<kf_id>'),
-        'collection': ma.URLFor('api.diagnoses_list'),
+        'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
+        'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
     })
