@@ -118,6 +118,7 @@ class StatusSchema(Schema):
     code = fields.Integer(description='HTTP response code', example=200)
     version = fields.Str(description='API version number', example='1.2.0')
     commit = fields.Str(description='API short commit hash', example='aef3b5a')
+    branch = fields.Str(description='API branch name', example='master')
     tags = fields.List(
             fields.String(description='Any tags associated with the version',
                           example=['rc', 'beta']))
