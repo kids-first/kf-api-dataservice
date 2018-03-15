@@ -25,7 +25,6 @@ def validate_positive_number(value):
     """
     Validates a that value is a positive number
     """
-
-    type_str = 'integer' if type(value) == int else 'float'
+    type_str = type(value).__name__
     if int(value) < 0:
         raise ValidationError('Must be a positive {}'.format(type_str))

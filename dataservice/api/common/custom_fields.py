@@ -24,7 +24,7 @@ class DateOrDatetime(fields.DateTime):
         Convert from string to datetime object
         """
         try:
-            value = parser.parse(value) if value else None
+            value = parser.parse(str(value)) if value else None
         except ValueError as e:
             raise ValidationError('Invalid date or datetime string')
 
