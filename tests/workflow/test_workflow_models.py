@@ -21,7 +21,7 @@ WORKFLOW_COMMIT_URL = ('https://github.com/kids-first/kf-alignment-workflow/'
                        'commit/0d7f93dff6463446b0ed43dc2883f60c28e6f1f4')
 
 
-@patch('dataservice.api.genomic_file.models.requests')
+@patch('dataservice.extensions.flask_indexd.requests')
 class ModelTest(FlaskTestCase):
     """
     Test Workflow database model
@@ -32,9 +32,9 @@ class ModelTest(FlaskTestCase):
         Test create workflow
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
-        mock.get = indexd.get
-        mock.put = indexd.put
+        mock.Session().post = indexd.post
+        mock.Session().get = indexd.get
+        mock.Session().put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 
@@ -70,9 +70,9 @@ class ModelTest(FlaskTestCase):
         Test update workflow
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
-        mock.get = indexd.get
-        mock.put = indexd.put
+        mock.Session().post = indexd.post
+        mock.Session().get = indexd.get
+        mock.Session().put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
         se = SequencingExperiment.query.all()[0]
@@ -105,9 +105,9 @@ class ModelTest(FlaskTestCase):
         Test delete workflow
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
-        mock.get = indexd.get
-        mock.put = indexd.put
+        mock.Session().post = indexd.post
+        mock.Session().get = indexd.get
+        mock.Session().put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
         kf_id = workflows[0].kf_id
@@ -129,9 +129,9 @@ class ModelTest(FlaskTestCase):
         Test delete GenomicFile and WorkflowGenomicFile
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
-        mock.get = indexd.get
-        mock.put = indexd.put
+        mock.Session().post = indexd.post
+        mock.Session().get = indexd.get
+        mock.Session().put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 
@@ -179,9 +179,9 @@ class ModelTest(FlaskTestCase):
         reference Workflow and GenomicFile. This checks foreign key constraint
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
-        mock.get = indexd.get
-        mock.put = indexd.put
+        mock.Session().post = indexd.post
+        mock.Session().get = indexd.get
+        mock.Session().put = indexd.put
         # Create study_participant
         data = {
             'is_input': True,
@@ -201,9 +201,9 @@ class ModelTest(FlaskTestCase):
         workflow genomic file requires workflow_id, genomic_file_id, is_input
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
-        mock.get = indexd.get
-        mock.put = indexd.put
+        mock.Session().post = indexd.post
+        mock.Session().get = indexd.get
+        mock.Session().put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 
@@ -234,9 +234,9 @@ class ModelTest(FlaskTestCase):
         cannot be created
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
-        mock.get = indexd.get
-        mock.put = indexd.put
+        mock.Session().post = indexd.post
+        mock.Session().get = indexd.get
+        mock.Session().put = indexd.put
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
 

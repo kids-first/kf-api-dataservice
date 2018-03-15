@@ -43,12 +43,16 @@ def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
 
 
-@pytest.fixture
-def entities(client, mocker):
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+@pytest.yield_fixture(scope='function')
+def mock_indexd(client, mocker):
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
-    mock.get = indexd.get
-    mock.post = indexd.post
+    mock.Session = indexd
+    yield mock
+
+
+@pytest.fixture
+def entities(client, mock_indexd):
     """
     Create mock entities
     """
