@@ -1,12 +1,12 @@
 from dataservice.extensions import ma
 from marshmallow import (
-        fields,
-        post_dump,
-        pre_dump,
-        validates_schema,
-        ValidationError
+    fields,
+    post_dump,
+    pre_dump,
+    validates_schema,
+    ValidationError
 )
-from flask import url_for, request
+from flask import url_for
 from dataservice.api.common.pagination import Pagination
 from flask_marshmallow import Schema
 
@@ -120,8 +120,8 @@ class StatusSchema(Schema):
     commit = fields.Str(description='API short commit hash', example='aef3b5a')
     branch = fields.Str(description='API branch name', example='master')
     tags = fields.List(
-            fields.String(description='Any tags associated with the version',
-                          example=['rc', 'beta']))
+        fields.String(description='Any tags associated with the version',
+                      example=['rc', 'beta']))
 
     @post_dump(pass_many=False)
     def wrap_envelope(self, data):

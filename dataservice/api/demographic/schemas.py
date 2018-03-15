@@ -5,11 +5,6 @@ from dataservice.extensions import ma
 
 
 class DemographicSchema(BaseSchema):
-    # Should not have to do this, since participant_id is part of the
-    # Demographic model and should be dumped. However it looks like this is
-    # still a bug in marshmallow_sqlalchemy. The bug is that ma sets
-    # dump_only=True for foreign keys by default. See link below
-    # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/20
     participant_id = field_for(Demographic, 'participant_id', required=True,
                                load_only=True)
 

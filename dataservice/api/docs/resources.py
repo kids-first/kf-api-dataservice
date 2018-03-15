@@ -1,6 +1,4 @@
-import os
 import glob
-import subprocess
 from flask.views import View
 from flask import jsonify, current_app, render_template
 

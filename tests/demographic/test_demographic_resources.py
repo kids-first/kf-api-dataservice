@@ -215,7 +215,6 @@ class DemographicTest(FlaskTestCase):
 
         # Message
         resp = json.loads(response.data.decode("utf-8"))
-        self._test_response_content(resp, 200)
         self.assertIn('demographic', resp['_status']['message'])
         self.assertIn('updated', resp['_status']['message'])
 
@@ -334,12 +333,3 @@ class DemographicTest(FlaskTestCase):
         kwargs['kf_id'] = d.kf_id
 
         return kwargs
-
-    def _test_response_content(self, resp, status_code):
-        """
-        Test that response body has expected fields
-        """
-        self.assertIn('results', resp)
-        self.assertIn('_status', resp)
-        self.assertIn('message', resp['_status'])
-        self.assertEqual(resp['_status']['code'], status_code)

@@ -14,8 +14,6 @@ from tests.utils import FlaskTestCase
 DIAGNOSES_URL = 'api.diagnoses'
 DIAGNOSES_LIST_URL = 'api.diagnoses_list'
 
-from pprint import pprint
-
 
 class DiagnosisTest(FlaskTestCase):
     """
