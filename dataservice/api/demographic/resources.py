@@ -82,17 +82,12 @@ class DemographicAPI(CRUDView):
             resource:
               Demographic
         """
-        # Get all
-        if kf_id is None:
-            dm = Demographic.query.all()
-            return DemographicSchema(many=True).jsonify(dm)
-        # Get one
-        else:
-            dm = Demographic.query.get(kf_id)
-            if dm is None:
-                abort(404, 'could not find {} `{}`'
-                      .format('demographic', kf_id))
-            return DemographicSchema().jsonify(dm)
+        dm = Demographic.query.get(kf_id)
+        if dm is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('demographic', kf_id))
+
+        return DemographicSchema().jsonify(dm)
 
     def patch(self, kf_id):
         """
