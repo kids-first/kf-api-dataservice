@@ -216,7 +216,7 @@ class PhenotypeTest(FlaskTestCase):
 
         # Send patch request
         body = {
-            'phenotype': 'Hand Tremor',
+            'phenotype': 'Tall stature',
             'hpo_id': 'HP:0002378',
             'participant_id': kwargs['participant_id']
         }
@@ -272,7 +272,7 @@ class PhenotypeTest(FlaskTestCase):
         kwargs = self._create_save_to_db()
         # Create phenotype data
         body = {
-            'phenotype': 'Hand Tremor'
+            'phenotype': 'Tall stature'
         }
         # Send patch request
         response = self.client.patch(url_for(PHENOTYPES_URL,
@@ -288,7 +288,8 @@ class PhenotypeTest(FlaskTestCase):
         self.assertIn(message, response['_status']['message'])
         # Check field values
         p = Phenotype.query.first()
-        self.assertEqual(p.phenotype, kwargs['phenotype'])
+        self.assertEqual(p.phenotype, body['phenotype'])
+        self.assertEqual(kwargs['hpo_id'],p.hpo_id)
 
     def test_delete(self):
         """

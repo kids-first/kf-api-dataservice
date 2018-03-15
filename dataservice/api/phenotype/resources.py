@@ -103,7 +103,6 @@ class PhenotypeAPI(CRUDView):
             resource:
               Phenotype
         """
-        # Partial update - validate but allow missing required fields
         body = request.json or {}
         # Check if phenotype exists
         p = Phenotype.query.get(kf_id)
