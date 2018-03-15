@@ -1,22 +1,23 @@
 from flask import Blueprint
+
 from dataservice.api.docs import Documentation, Swagger
 from dataservice.api.status import StatusAPI
-
 from dataservice.api.common.views import CRUDView
-from dataservice.api.diagnosis import DiagnosisAPI
-from dataservice.api.diagnosis import DiagnosisListAPI
-from dataservice.api.participant import ParticipantAPI
-from dataservice.api.participant import ParticipantListAPI
-from dataservice.api.investigator import InvestigatorAPI
-from dataservice.api.investigator import InvestigatorListAPI
-from dataservice.api.sample import SampleAPI
-from dataservice.api.sample import SampleListAPI
+
 from dataservice.api.study import StudyAPI
 from dataservice.api.study import StudyListAPI
+from dataservice.api.investigator import InvestigatorAPI
+from dataservice.api.investigator import InvestigatorListAPI
+from dataservice.api.participant import ParticipantAPI
+from dataservice.api.participant import ParticipantListAPI
 from dataservice.api.demographic import DemographicAPI
 from dataservice.api.demographic import DemographicListAPI
-
-from dataservice.api.study.models import Study
+from dataservice.api.diagnosis import DiagnosisAPI
+from dataservice.api.diagnosis import DiagnosisListAPI
+from dataservice.api.sample import SampleAPI
+from dataservice.api.sample import SampleListAPI
+from dataservice.api.aliquot import AliquotAPI
+from dataservice.api.aliquot import AliquotListAPI
 
 
 api = Blueprint('api', __name__, url_prefix='', template_folder='templates')
