@@ -1,5 +1,4 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
@@ -84,19 +83,15 @@ class DiagnosisAPI(CRUDView):
               Diagnosis
         """
         # Get one
-        try:
-            d = Diagnosis.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
+        dg = Diagnosis.query.get(kf_id)
+        if dg is None:
             abort(404, 'could not find {} `{}`'
                   .format('diagnosis', kf_id))
-        return DiagnosisSchema().jsonify(d)
+        return DiagnosisSchema().jsonify(dg)
 
-    def put(self, kf_id):
+    def patch(self, kf_id):
         """
-        Update existing diagnosis
-
-        Update an existing diagnosis given a Kids First id
+        Update an existing diagnosis. Allows partial update of resource
         ---
         template:
           path:
@@ -105,34 +100,25 @@ class DiagnosisAPI(CRUDView):
             resource:
               Diagnosis
         """
-        body = request.json
+        dg = Diagnosis.query.get(kf_id)
+        if dg is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('diagnosis', kf_id))
+
+        # Partial update - validate but allow missing required fields
+        body = request.json or {}
         try:
-            # Check if diagnosis exists
-            d1 = Diagnosis.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('diagnosis', kf_id))
+            dg = DiagnosisSchema(strict=True).load(body, instance=dg,
+                                                   partial=True).data
+        except ValidationError as err:
+            abort(400, 'could not update diagnosis: {}'.format(err.messages))
 
-        # Validation only
-        try:
-            d = DiagnosisSchema(strict=True).load(body).data
-        # Request body not valid
-        except ValidationError as e:
-            abort(400, 'could not update diagnosis: {}'.format(e.messages))
-
-        # Deserialize
-        d1.external_id = body.get('external_id')
-        d1.diagnosis = body.get('diagnosis')
-        d1.diagnosis_category = body.get('diagnosis_category')
-        d1.tumor_location = body.get('tumor_location')
-        d1.age_at_event_days = body.get('age_at_event_days')
-        d1.participant_id = body.get('participant_id')
-
-        # Save to database
+        db.session.add(dg)
         db.session.commit()
 
-        return DiagnosisSchema(200, 'diagnosis {} updated'
-                               .format(d1.kf_id)).jsonify(d1), 200
+        return DiagnosisSchema(
+            200, 'diagnosis {} updated'.format(dg.kf_id)
+        ).jsonify(dg), 200
 
     def delete(self, kf_id):
         """
@@ -149,15 +135,14 @@ class DiagnosisAPI(CRUDView):
         """
 
         # Check if diagnosis exists
-        try:
-            d = Diagnosis.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('diagnosis', kf_id))
+        dg = Diagnosis.query.get(kf_id)
+        if dg is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('diagnosis', kf_id))
 
         # Save in database
-        db.session.delete(d)
+        db.session.delete(dg)
         db.session.commit()
 
         return DiagnosisSchema(200, 'diagnosis {} deleted'
-                               .format(d.kf_id)).jsonify(d), 200
+                               .format(dg.kf_id)).jsonify(dg), 200

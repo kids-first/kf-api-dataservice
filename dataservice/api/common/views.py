@@ -1,7 +1,6 @@
 import yaml
 import jinja2
 from flask.views import MethodView
-from flask import render_template
 from dataservice.api.common.schemas import (
     response_generator,
     paginated_generator
@@ -42,9 +41,9 @@ class CRUDView(MethodView):
             for name, schema in c.schemas.items():
                 spec.definition(name, schema=schema)
                 ResponseSchema = response_generator(schema)
-                spec.definition(name+'Response', schema=ResponseSchema)
+                spec.definition(name + 'Response', schema=ResponseSchema)
                 PaginatedSchema = paginated_generator(schema)
-                spec.definition(name+'Paginated', schema=PaginatedSchema)
+                spec.definition(name + 'Paginated', schema=PaginatedSchema)
 
     @staticmethod
     def register_views(app):
@@ -80,7 +79,7 @@ class CRUDView(MethodView):
         # No yaml section
         if yaml_start == -1:
             return
-        yaml_spec = yaml.safe_load(func.__doc__[yaml_start+3:])
+        yaml_spec = yaml.safe_load(func.__doc__[yaml_start + 3:])
 
         # No template to insert
         if 'template' not in yaml_spec:
@@ -95,7 +94,7 @@ class CRUDView(MethodView):
         templated_spec.update(yaml_spec)
 
         # Dump the deserialized spec back to yaml in the docstring
-        func.__doc__ = func.__doc__[:yaml_start+4]
+        func.__doc__ = func.__doc__[:yaml_start + 4]
         func.__doc__ += yaml.dump(templated_spec, default_flow_style=False)
         # The docstring is now ready for further processing by apispec
 

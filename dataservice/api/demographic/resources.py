@@ -1,5 +1,4 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
@@ -83,26 +82,16 @@ class DemographicAPI(CRUDView):
             resource:
               Demographic
         """
+        dm = Demographic.query.get(kf_id)
+        if dm is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('demographic', kf_id))
 
-        # Get all
-        if kf_id is None:
-            d = Demographic.query.all()
-            return DemographicSchema(many=True).jsonify(d)
-        # Get one
-        else:
-            try:
-                d = Demographic.query.filter_by(kf_id=kf_id).one()
-            # Not found in database
-            except NoResultFound:
-                abort(404, 'could not find {} `{}`'
-                      .format('demographic', kf_id))
-            return DemographicSchema().jsonify(d)
+        return DemographicSchema().jsonify(dm)
 
-    def put(self, kf_id):
+    def patch(self, kf_id):
         """
-        Update existing demographic
-
-        Update an existing demographic given a Kids First id
+        Update an existing demographic. Allows partial update of resource
         ---
         template:
           path:
@@ -111,34 +100,25 @@ class DemographicAPI(CRUDView):
             resource:
               Demographic
         """
-        body = request.json
+        dm = Demographic.query.get(kf_id)
+        if dm is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('demographic', kf_id))
 
-        # Check if demographic exists
+        # Partial update - validate but allow missing required fields
+        body = request.json or {}
         try:
-            d1 = Demographic.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('demographic', kf_id))
+            dm = DemographicSchema(strict=True).load(body, instance=dm,
+                                                     partial=True).data
+        except ValidationError as err:
+            abort(400, 'could not update demographic: {}'.format(err.messages))
 
-        # Validation only
-        try:
-            d = DemographicSchema(strict=True).load(body).data
-        # Request body not valid
-        except ValidationError as e:
-            abort(400, 'could not update demographic: {}'.format(e.messages))
-
-        # Deserialize
-        d1.external_id = body.get('external_id')
-        d1.race = body.get('race')
-        d1.gender = body.get('gender')
-        d1.ethnicity = body.get('ethnicity')
-        d1.participant_id = body.get('participant_id')
-
-        # Save to database
+        db.session.add(dm)
         db.session.commit()
 
-        return DemographicSchema(200, 'demographic {} updated'
-                                 .format(d1.kf_id)).jsonify(d1), 200
+        return DemographicSchema(
+            200, 'demographic {} updated'.format(dm.kf_id)
+        ).jsonify(dm), 200
 
     def delete(self, kf_id):
         """
@@ -154,15 +134,14 @@ class DemographicAPI(CRUDView):
               Demographic
         """
         # Check if demographic exists
-        try:
-            d = Demographic.query.filter_by(kf_id=kf_id).one()
-        # Not found in database
-        except NoResultFound:
-            abort(404, 'could not find {} `{}`'.format('demographic', kf_id))
+        dm = Demographic.query.get(kf_id)
+        if dm is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('demographic', kf_id))
 
         # Save in database
-        db.session.delete(d)
+        db.session.delete(dm)
         db.session.commit()
 
         return DemographicSchema(200, 'demographic {} deleted'
-                                 .format(d.kf_id)).jsonify(d), 200
+                                 .format(dm.kf_id)).jsonify(dm), 200

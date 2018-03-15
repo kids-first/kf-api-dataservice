@@ -15,6 +15,8 @@ class TestAPI:
         ('/samples/123', 'GET', 404),
         ('/diagnoses', 'GET', 200),
         ('/diagnoses/123', 'GET', 404),
+        ('/demographics', 'GET', 200),
+        ('/demographics/123', 'GET', 404),
         ('/participants', 'GET', 200),
         ('/persons', 'GET', 404),
         ('/participants/123', 'GET', 404)
@@ -32,16 +34,20 @@ class TestAPI:
         ('/persons', 'GET', 'not found'),
         ('/samples', 'GET', 'success'),
         ('/samples/123', 'GET', 'could not find sample `123`'),
-        ('/samples/123', 'PUT', 'could not find sample `123`'),
+        ('/samples/123', 'PATCH', 'could not find sample `123`'),
         ('/samples/123', 'DELETE', 'could not find sample `123`'),
         ('/diagnoses', 'GET', 'success'),
         ('/diagnoses/123', 'GET', 'could not find diagnosis `123`'),
-        ('/diagnoses/123', 'PUT', 'could not find diagnosis `123`'),
+        ('/diagnoses/123', 'PATCH', 'could not find diagnosis `123`'),
         ('/diagnoses/123', 'DELETE', 'could not find diagnosis `123`'),
+        ('/demographics', 'GET', 'success'),
+        ('/demographics/123', 'GET', 'could not find demographic `123`'),
+        ('/demographics/123', 'PATCH', 'could not find demographic `123`'),
+        ('/demographics/123', 'DELETE', 'could not find demographic `123`'),
         ('/participants', 'GET', 'success'),
-        ('/participants/123', 'GET', 'could not find Participant `123`'),
-        ('/participants/123', 'PUT', 'could not find Participant `123`'),
-        ('/participants/123', 'DELETE', 'could not find Participant `123`')
+        ('/participants/123', 'GET', 'could not find participant `123`'),
+        ('/participants/123', 'PATCH', 'could not find participant `123`'),
+        ('/participants/123', 'DELETE', 'could not find participant `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -56,7 +62,8 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint,method', [
         ('/participants', 'GET'),
         ('/samples', 'GET'),
-        ('/diagnoses', 'GET')
+        ('/diagnoses', 'GET'),
+        ('/demographics', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -68,40 +75,57 @@ class TestAPI:
         assert 'code' in body['_status']
         assert type(body['_status']['code']) is int
 
-    @pytest.mark.parametrize('endpoint,field', [
-        ('/participants', 'created_at'),
-        ('/participants', 'modified_at')
+    @pytest.mark.parametrize('endpoint, method, fields', [
+        ('/participants', 'POST', ['created_at', 'modified_at']),
+        ('/participants', 'PATCH', ['created_at', 'modified_at']),
+        ('/demographics', 'PATCH', ['created_at', 'modified_at']),
+        ('/diagnoses', 'PATCH', ['created_at', 'modified_at']),
+        ('/samples', 'PATCH', ['created_at', 'modified_at'])
     ])
-    def test_read_only(self, client, entities, endpoint, field):
+    def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
         inputs = entities[endpoint]
-        inputs.update({field: 'test'})
-        resp = client.post(endpoint,
-                           data=json.dumps(inputs),
-                           headers={'Content-Type': 'application/json'})
+        method_name = method.lower()
+        [inputs.update({field: 'test'}) for field in fields]
+        call_func = getattr(client, method_name)
+        kwargs = {'data': json.dumps(inputs),
+                  'headers': {'Content-Type': 'application/json'}}
+        if method_name in {'put', 'patch'}:
+            kf_id = entities.get('kf_ids').get(endpoint)
+            endpoint = '{}/{}'.format(endpoint, kf_id)
+        resp = call_func(endpoint, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
-        assert (field not in body['results']
-                or body['results'][field] != 'test')
+        for field in fields:
+            assert (field not in body['results']
+                    or body['results'][field] != 'test')
 
-    @pytest.mark.parametrize('endpoint,field', [
-        ('/participants', 'blah'),
-        ('/samples', 'blah')
-    ])
-    def test_unknown_field(self, client, entities, endpoint, field):
+    @pytest.mark.parametrize('method', ['POST', 'PATCH'])
+    @pytest.mark.parametrize('endpoint', ['/participants',
+                                          '/demographics',
+                                          '/diagnoses',
+                                          '/samples'])
+    def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
-        inputs.update({field: 'test'})
-        resp = client.post(endpoint,
-                           data=json.dumps(inputs),
-                           headers={'Content-Type': 'application/json'})
+        inputs.update({'blah': 'test'})
+        action = 'create'
+        if method.lower() in {'put', 'patch'}:
+            action = 'update'
+            kf_id = entities.get('kf_ids').get(endpoint)
+            endpoint = '{}/{}'.format(endpoint, kf_id)
+        call_func = getattr(client, method.lower())
+        resp = call_func(endpoint, data=json.dumps(inputs),
+                         headers={'Content-Type': 'application/json'})
+
         body = json.loads(resp.data.decode('utf-8'))
         assert body['_status']['code'] == 400
-        assert 'could not create ' in body['_status']['message']
+        assert 'could not {} '.format(action) in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']
 
     @pytest.mark.parametrize('resource,field', [
         ('/participants', 'demographic'),
-        ('/participants', 'diagnoses')
+        ('/participants', 'diagnoses'),
+        ('/participants', 'samples'),
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """

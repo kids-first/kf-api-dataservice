@@ -23,7 +23,6 @@ from dataservice.api.study_file.models import StudyFile
 from config import config
 
 from sqlalchemy.exc import IntegrityError
-from werkzeug.exceptions import HTTPException
 
 
 def create_app(config_name):
@@ -119,10 +118,10 @@ def register_error_handlers(app):
     NB: Exceptions to be handled must be imported in the head of this module
     """
     from dataservice.api import errors
-    app.register_error_handler(HTTPException, errors.http_error)
     app.register_error_handler(IntegrityError, errors.integrity_error)
-    app.register_error_handler(404, errors.http_error)
-    app.register_error_handler(400, errors.http_error)
+    from werkzeug.exceptions import default_exceptions
+    for ex in default_exceptions:
+        app.register_error_handler(ex, errors.http_error)
 
 
 def register_blueprints(app):

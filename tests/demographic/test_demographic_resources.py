@@ -1,5 +1,7 @@
 import json
 from flask import url_for
+from datetime import datetime
+from dateutil import parser, tz
 from urllib.parse import urlparse
 
 from dataservice.extensions import db
@@ -26,7 +28,7 @@ class DemographicTest(FlaskTestCase):
         db.session.add(study)
         db.session.commit()
 
-        # Create a participant
+        # Create a demographic
         p = Participant(external_id='Test subject 0', is_proband=True,
                         study_id=study.kf_id)
         db.session.add(p)
@@ -47,13 +49,15 @@ class DemographicTest(FlaskTestCase):
 
         # Check response status status_code
         self.assertEqual(response.status_code, 201)
+
         # Check response content
         response = json.loads(response.data.decode('utf-8'))
         demographic = response['results']
-        self.assertEqual(kwargs['external_id'], demographic['external_id'])
-        self.assertEqual(kwargs['race'], demographic['race'])
-        self.assertEqual(kwargs['ethnicity'], demographic['ethnicity'])
-        self.assertEqual(kwargs['gender'], demographic['gender'])
+        dm = Demographic.query.get(demographic.get('kf_id'))
+        for k, v in kwargs.items():
+            if k == 'participant_id':
+                continue
+            self.assertEqual(demographic[k], getattr(dm, k))
 
     def test_post_missing_req_params(self):
         """
@@ -190,117 +194,77 @@ class DemographicTest(FlaskTestCase):
         content = response.get('results')
         self.assertEqual(len(content), 1)
 
-    def test_put(self):
+    def test_patch(self):
         """
         Test update existing demographic
         """
+        # Send patch request
         kwargs = self._create_save_to_db()
-
-        # Send put request
+        kf_id = kwargs.get('kf_id')
         body = {
             'race': 'black or african',
             'gender': 'male',
             'participant_id': kwargs['participant_id']
         }
-        response = self.client.put(url_for(DEMOGRAPHICS_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+        response = self.client.patch(url_for(DEMOGRAPHICS_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         # Check status code
         self.assertEqual(response.status_code, 200)
-        # Check field values got updated
-        response = json.loads(response.data.decode('utf-8'))
-        demographic = response['results']
-        self.assertEqual(kwargs['kf_id'], demographic['kf_id'])
-        # Fields that should be None since they were not in put request body
-        self.assertIs(None, demographic['external_id'])
-        self.assertIs(None, demographic['ethnicity'])
-        # Fields that should be updated w values
-        self.assertEqual(body['race'], demographic['race'])
-        self.assertEqual(body['gender'], demographic['gender'])
 
-    def test_put_not_found(self):
-        """
-        Test update non-existent demographic
-        """
-        # Send put request
-        kf_id = 'non-existent'
-        body = {
-            'race': 'black or african',
-            'gender': 'male',
-            'participant_id': id_service.kf_id_generator('PT')()
-        }
-        response = self.client.put(url_for(DEMOGRAPHICS_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        # Check status code
-        self.assertEqual(response.status_code, 404)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not find demographic'
-        self.assertIn(message, response['_status']['message'])
-        # Check database
-        c = Demographic.query.filter_by(kf_id=kf_id).count()
-        self.assertEqual(c, 0)
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertIn('demographic', resp['_status']['message'])
+        self.assertIn('updated', resp['_status']['message'])
 
-    def test_put_bad_input(self):
-        """
-        Test update existing demographic with bad input
+        # Content - check only patched fields are updated
+        demographic = resp['results']
+        dm = Demographic.query.get(kf_id)
+        for k, v in body.items():
+            self.assertEqual(v, getattr(dm, k))
 
-        Participant with participant_id does not exist
+        # Content - Check remaining fields are unchanged
+        unchanged_keys = (set(demographic.keys()) -
+                          set(body.keys()))
+        for k in unchanged_keys:
+            val = getattr(dm, k)
+            if isinstance(val, datetime):
+                d = val.replace(tzinfo=tz.tzutc())
+                self.assertEqual(str(parser.parse(demographic[k])), str(d))
+            else:
+                self.assertEqual(demographic[k], val)
+
+        self.assertEqual(1, Demographic.query.count())
+
+    def test_patch_bad_input(self):
         """
-        # Create and save demographic to db
+        Test updating an existing participant with invalid input
+        """
         kwargs = self._create_save_to_db()
-
-        # Send put request
+        kf_id = kwargs.get('kf_id')
         body = {
             'race': 'black or african',
             'gender': 'male',
             'participant_id': 'AAAA1111'
         }
-        response = self.client.put(url_for(DEMOGRAPHICS_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+        response = self.client.patch(url_for(DEMOGRAPHICS_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         # Check status code
         self.assertEqual(response.status_code, 400)
         # Check response body
         response = json.loads(response.data.decode("utf-8"))
         # Check error message
-        message = '"AAAA1111" does not exist'
+        message = 'participant "AAAA1111" does not exist'
         self.assertIn(message, response['_status']['message'])
-        # Check field values
+        # Check that properties are unchanged
         d = Demographic.query.first()
-        self.assertEqual(d.race, kwargs.get('race'))
-        self.assertEqual(d.gender, kwargs.get('gender'))
-
-    def test_put_missing_req_params(self):
-        """
-        Test create demographic that is missing required parameters in body
-        """
-        # Create and save demographic to db
-        kwargs = self._create_save_to_db()
-        # Create demographic data
-        body = {
-            'gender': 'male'
-        }
-        # Send put request
-        response = self.client.put(url_for(DEMOGRAPHICS_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        # Check status code
-        self.assertEqual(response.status_code, 400)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not update demographic'
-        self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Demographic.query.first()
-        self.assertEqual(d.gender, kwargs['gender'])
+        for k, v in kwargs.items():
+            if k == 'participant_id':
+                continue
+            self.assertEqual(v, getattr(d, k))
 
     def test_delete(self):
         """
