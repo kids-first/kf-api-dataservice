@@ -5,7 +5,7 @@ from flask import Flask
 
 from dataservice import commands
 from dataservice.utils import _get_version
-from dataservice.extensions import db, ma, migrate
+from dataservice.extensions import db, ma, indexd, migrate
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
@@ -107,6 +107,7 @@ def register_extensions(app):
     # SQLAlchemy
     db.init_app(app)
     ma.init_app(app)
+    indexd.init_app(app)
 
     # Migrate
     migrate.init_app(app, db)

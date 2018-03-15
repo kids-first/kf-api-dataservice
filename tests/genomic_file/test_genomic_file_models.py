@@ -26,13 +26,13 @@ class ModelTest(FlaskTestCase):
     Test GenomicFile database model
     """
 
-    @patch('dataservice.api.genomic_file.models.requests')
+    @patch('dataservice.extensions.flask_indexd.requests')
     def test_create_and_find(self, mock):
         """
         Test create genomic file
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
+        mock.Session().post = indexd.post
         # Create genomic file dependent entities
         self._create_save_dependents()
 
@@ -72,13 +72,13 @@ class ModelTest(FlaskTestCase):
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
-    @patch('dataservice.api.genomic_file.models.requests')
+    @patch('dataservice.extensions.flask_indexd.requests')
     def test_create_via_experiment(self, mock):
         """
         Test create genomic file
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
+        mock.Session().post = indexd.post
         # Create and save genomic files and dependent entities
         experiment_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -96,13 +96,13 @@ class ModelTest(FlaskTestCase):
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
-    @patch('dataservice.api.genomic_file.models.requests')
+    @patch('dataservice.extensions.flask_indexd.requests')
     def test_update(self, mock):
         """
         Test update genomic file
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
+        mock.Session().post = indexd.post
         # Create and save genomic files and dependent entities
         experiment_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -120,13 +120,13 @@ class ModelTest(FlaskTestCase):
         [self.assertEqual(getattr(gf, k), v)
          for k, v in kwargs.items()]
 
-    @patch('dataservice.api.genomic_file.models.requests')
+    @patch('dataservice.extensions.flask_indexd.requests')
     def test_delete(self, mock):
         """
         Test delete existing genomic file
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
+        mock.Session().post = indexd.post
         # Create and save genomic files and dependent entities
         experiment_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -144,7 +144,7 @@ class ModelTest(FlaskTestCase):
             kf_id=experiment_id).one()
         self.assertEqual(len(experiment.genomic_files), 0)
 
-    @patch('dataservice.api.genomic_file.models.requests')
+    @patch('dataservice.extensions.flask_indexd.requests')
     def test_delete_via_experiment(self, mock):
         """
         Test delete existing genomic file
@@ -152,7 +152,7 @@ class ModelTest(FlaskTestCase):
         Delete sequencing experiment to which genomic file belongs
         """
         indexd = MockIndexd()
-        mock.post = indexd.post
+        mock.Session().post = indexd.post
         # Create and save genomic files and dependent entities
         experiment_id, kwargs_dict = self._create_save_genomic_files()
 

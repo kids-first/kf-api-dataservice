@@ -5,7 +5,7 @@ from requests.exceptions import HTTPError
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 
-from dataservice.extensions import db
+from dataservice.extensions import db, indexd
 from dataservice.api.common.model import Base, KfId
 
 
@@ -67,15 +67,9 @@ class GenomicFile(db.Model, Base):
         """
         Gets additional fields from indexd
         """
-        if current_app.config['INDEXD_URL'] is None:
-            return
+        resp = indexd.get(self.uuid)
 
-        indexd_url = current_app.config['INDEXD_URL']
-        resp = requests.get(indexd_url + self.uuid)
-
-        # File does not exist
-        if resp.status_code == 404:
-            return
+        # Might want to use partial deserialization here
         for prop, v in resp.json().items():
             if hasattr(self, prop):
                 setattr(self, prop, v)
@@ -87,24 +81,7 @@ class GenomicFile(db.Model, Base):
 @event.listens_for(GenomicFile, 'before_insert')
 def register_indexd(mapper, connection, target):
     """
-    Registers the genomic file with indexd by sending a POST with simple
-    auth to /index/ with a document formatted as:
-
-      {
-        "file_name": "my_file",
-        "hashes": {
-          "md5": "0b7940593044dff8e74380476b2b27a9"
-        },
-        "size": 123,
-        "urls": [
-          "s3://mybucket/mykey/"
-        ],
-        "metadata": {
-          "acls": "phs000000",
-          "kf_id": "PT_00000000"
-        }
-      }
-
+    Registers the genomic file with indexd.
     The response upon successful registry will contain a `did` which will
     be used as the target's uuid so that it may be joined with the indexd
     data.
@@ -112,36 +89,8 @@ def register_indexd(mapper, connection, target):
     if current_app.config['INDEXD_URL'] is None:
         return
 
-    req_body = {
-        "file_name": target.file_name,
-        "size": target.size,
-        "form": "object",
-        "hashes": {
-            "md5": str(target.md5sum).replace('-', '')
-        },
-        "urls": [
-            target.file_url
-        ],
-        "metadata": target._metadata
-    }
-
-    # Register the file on indexd
-    resp = requests.post(current_app.config['INDEXD_URL'],
-                         auth=(current_app.config['INDEXD_USER'],
-                               current_app.config['INDEXD_PASS']),
-                         headers={'Content-Type': 'application/json'},
-                         json=req_body)
-
-    try:
-        resp.raise_for_status()
-    except HTTPError:
-        message = 'could not register genomic_file'
-        # Attach indexd error message, if there is one
-        if 'error' in resp.json():
-            message = '{}: {}'.format(message, resp.json()['error'])
-        abort(resp.status_code, message)
-
-    resp = resp.json()
+    resp = indexd.new(target)
+    # Update the target's uuid with the new did recieved from indexd
     target.uuid = resp['did']
     return target
 
@@ -151,40 +100,7 @@ def update_indexd(mapper, connection, target):
     """
     Updates a document in indexd
     """
-    if current_app.config['INDEXD_URL'] is None:
-        return
-
-    # Get the current revision if not already loaded
-    if target.rev is None:
-        resp = requests.get(current_app.config['INDEXD_URL']+target.uuid)
-        resp.raise_for_status()
-        target.rev = resp.json()['rev']
-
-    req_body = {
-        "file_name": target.file_name,
-        "size": target.size,
-        "hashes": {
-            "md5": target.md5sum
-        },
-        "urls": [
-            target.file_url
-        ],
-        "metadata": target._metadata
-    }
-
-    # Update the file on indexd
-    url = '{}{}?rev={}'.format(current_app.config['INDEXD_URL'],
-                               target.uuid,
-                               target.rev)
-    resp = requests.put(url,
-                        auth=(current_app.config['INDEXD_USER'],
-                              current_app.config['INDEXD_PASS']),
-                        json=req_body)
-
-    try:
-        resp.raise_for_status()
-    except HTTPError:
-        abort(resp.status_code, 'could not update genomic_file')
+    indexd.update(target)
 
 
 @event.listens_for(GenomicFile, 'before_delete')
@@ -192,24 +108,8 @@ def delete_indexd(mapper, connection, target):
     """
     Deletes a document in indexd
     """
-    if current_app.config['INDEXD_URL'] is None:
-        return
-
     # Get the current revision if not already loaded
     if target.rev is None:
-        resp = requests.get(current_app.config['INDEXD_URL']+target.uuid)
-        resp.raise_for_status()
-        target.rev = resp.json()['rev']
+        target.merge_indexd()
 
-    url = '{}{}?rev={}'.format(current_app.config['INDEXD_URL'],
-                               target.uuid,
-                               target.rev)
-    resp = requests.delete(url,
-                           auth=(current_app.config['INDEXD_USER'],
-                                 current_app.config['INDEXD_PASS']))
-
-    try:
-        resp.raise_for_status()
-    except HTTPError:
-        abort(resp.status_code,
-              'could not delete genomic_file: {}'.format(resp.json()))
+    indexd.delete(target)

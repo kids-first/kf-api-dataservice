@@ -20,10 +20,10 @@ GENOMICFILE_LIST_URL = 'api.genomic_files_list'
 
 @pytest.fixture
 def genomic_files(client, mocker, entities):
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
-    mock.get = indexd.get
-    mock.post = indexd.post
+    mock.Session().get = indexd.get
+    mock.Session().post = indexd.post
 
     props = {
         'file_name': 'hg38.bam',
@@ -41,8 +41,8 @@ def test_new(client, mocker, entities):
     Test creating a new genomic file
     """
     # Mock data returned from gen3
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.post = MockIndexd().post
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
+    mock.Session().post = MockIndexd().post
 
     resp = _new_genomic_file(client)
     assert 'genomic_file' in resp['_status']['message']
@@ -58,8 +58,8 @@ def test_new_indexd_error(client, mocker, entities):
     Test case when indexd errors
     """
     # Mock data returned from gen3
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
-    mock.post = MockIndexd(status_code=500).post
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
+    mock.Session().post = MockIndexd(status_code=500).post
 
     body = {
         'file_name': 'hg38.bam',
@@ -77,7 +77,7 @@ def test_new_indexd_error(client, mocker, entities):
                                 data=json.dumps(body))
     resp = json.loads(response.data.decode("utf-8"))
 
-    assert 'could not register' in resp['_status']['message']
+    assert 'does not exist' in resp['_status']['message']
     assert GenomicFile.query.count() == init_count
 
 
@@ -87,10 +87,10 @@ def test_get_list(client, genomic_files, mocker):
     info loaded from indexd
     """
     # Mock data returned from gen3
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
-    mock.get = indexd.get
-    mock.post = indexd.post
+    mock.Session().get = indexd.get
+    mock.Session().post = indexd.post
 
     resp = client.get(url_for(GENOMICFILE_LIST_URL))
     resp = json.loads(resp.data.decode('utf-8'))
@@ -106,9 +106,9 @@ def test_get_one(client, mocker, entities):
     info loaded from indexd
     """
     # Mock data returned from gen3
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
-    mock.get = indexd.get
+    mock.Session().get = indexd.get
     
     gf = GenomicFile.query.first()
     gf.merge_indexd()
@@ -133,10 +133,10 @@ def test_update(client, mocker, entities):
     """
     Test updating an existing genomic file
     """
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
-    mock.post = indexd.post
-    mock.get = indexd.get
+    mock.Session().post = indexd.post
+    mock.Session().get = indexd.get
     mock.patch = indexd.patch
 
     resp = _new_genomic_file(client)
@@ -170,10 +170,10 @@ def test_delete(client, mocker, entities):
     """
     Test deleting a participant by id
     """
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
-    mock.get = indexd.get
-    mock.post = indexd.post
+    mock.Session().get = indexd.get
+    mock.Session().post = indexd.post
 
     init = GenomicFile.query.count()
 
@@ -186,7 +186,7 @@ def test_delete(client, mocker, entities):
 
     resp = json.loads(response.data.decode("utf-8"))
 
-    assert mock.delete.call_count == 1
+    assert mock.Session().delete.call_count == 1
     assert 'genomic_file' in resp['_status']['message']
     assert 'deleted' in resp['_status']['message']
     assert GenomicFile.query.count() == init
@@ -196,17 +196,17 @@ def test_delete_error(client, mocker, entities):
     """
     Test handling of indexd error
     """
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
-    mock.get = indexd.get
-    mock.post = indexd.post
+    mock.Session().get = indexd.get
+    mock.Session().post = indexd.post
 
     response_mock = MagicMock()
     response_mock.status_code = 500
     def exc():
         raise HTTPError()
     response_mock.raise_for_status = exc
-    mock.delete.return_value = response_mock
+    mock.Session().delete.return_value = response_mock
 
     init = GenomicFile.query.count()
 
@@ -219,7 +219,7 @@ def test_delete_error(client, mocker, entities):
 
     resp = json.loads(response.data.decode("utf-8"))
 
-    assert mock.delete.call_count == 1
+    assert indexd.Session().delete.call_count == 1
     assert 'could not delete genomic_file' in resp['_status']['message']
     assert GenomicFile.query.count() == init + 1
 

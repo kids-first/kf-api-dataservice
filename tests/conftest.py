@@ -43,10 +43,10 @@ def swagger(client):
 
 @pytest.fixture
 def entities(client, mocker):
-    mock = mocker.patch('dataservice.api.genomic_file.models.requests')
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
-    mock.get = indexd.get
-    mock.post = indexd.post
+    mock.Session().get = indexd.get
+    mock.Session().post = indexd.post
     """
     Create mock entities
     """
