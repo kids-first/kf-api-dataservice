@@ -25,15 +25,7 @@ class SampleTest(FlaskTestCase):
         """
         Test create a new sample
         """
-        study = Study(external_id='phs001')
-        db.session.add(study)
-        db.session.commit()
-
-        # Create a participant
-        p = Participant(external_id='Test subject 0',
-                        is_proband=True, study_id=study.kf_id)
-        db.session.add(p)
-        db.session.commit()
+        kwargs = self._create_save_to_db()
 
         # Create sample data
         kwargs = {
@@ -43,7 +35,7 @@ class SampleTest(FlaskTestCase):
             'anatomical_site': 'Brain',
             'age_at_event_days': 365,
             'tumor_descriptor': 'Metastatic',
-            'participant_id': p.kf_id
+            'participant_id': kwargs.get('participant_id')
         }
         # Send post request
         response = self.client.post(url_for(SAMPLES_LIST_URL),
@@ -59,6 +51,7 @@ class SampleTest(FlaskTestCase):
         for k, v in kwargs.items():
             if k is not 'participant_id':
                 self.assertEqual(sample.get(k), v)
+        self.assertEqual(2, Sample.query.count())
 
     def test_post_missing_req_params(self):
         """

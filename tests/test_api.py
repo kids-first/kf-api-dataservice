@@ -99,19 +99,15 @@ class TestAPI:
             assert (field not in body['results']
                     or body['results'][field] != 'test')
 
-    @pytest.mark.parametrize('endpoint, method, field', [
-        ('/participants', 'POST', 'blah'),
-        ('/participants', 'PATCH', 'blah'),
-        ('/demographics', 'PATCH', 'blah'),
-        ('/diagnoses', 'POST', 'blah'),
-        ('/diagnoses', 'PATCH', 'blah'),
-        ('/samples', 'POST', 'blah'),
-        ('/samples', 'PATCH', 'blah')
-    ])
-    def test_unknown_field(self, client, entities, endpoint, method, field):
+    @pytest.mark.parametrize('method', ['POST', 'PATCH'])
+    @pytest.mark.parametrize('endpoint', ['/participants',
+                                          '/demographics',
+                                          '/diagnoses',
+                                          '/samples'])
+    def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
-        inputs.update({field: 'test'})
+        inputs.update({'blah': 'test'})
         action = 'create'
         if method.lower() in {'put', 'patch'}:
             action = 'update'

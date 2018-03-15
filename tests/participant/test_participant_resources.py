@@ -26,7 +26,6 @@ class ParticipantTest(FlaskTestCase):
         resp = json.loads(response.data.decode("utf-8"))
 
         self.assertEqual(response.status_code, 201)
-        self._test_response_content(resp, 201)
 
         self.assertIn('participant', resp['_status']['message'])
         self.assertIn('created', resp['_status']['message'])
@@ -77,7 +76,6 @@ class ParticipantTest(FlaskTestCase):
                                    headers=self._api_headers())
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 200)
-        self._test_response_content(resp, 200)
 
         participant = resp['results']
         p = Participant.query.first()
@@ -123,7 +121,6 @@ class ParticipantTest(FlaskTestCase):
 
         # Message
         resp = json.loads(response.data.decode("utf-8"))
-        self._test_response_content(resp, 200)
         self.assertIn('participant', resp['_status']['message'])
         self.assertIn('updated', resp['_status']['message'])
 
@@ -221,12 +218,3 @@ class ParticipantTest(FlaskTestCase):
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
         return response
-
-    def _test_response_content(self, resp, status_code):
-        """
-        Test that response body has expected fields
-        """
-        self.assertIn('results', resp)
-        self.assertIn('_status', resp)
-        self.assertIn('message', resp['_status'])
-        self.assertEqual(resp['_status']['code'], status_code)

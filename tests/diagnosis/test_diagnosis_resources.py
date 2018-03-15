@@ -26,14 +26,7 @@ class DiagnosisTest(FlaskTestCase):
         """
         Test create a new diagnosis
         """
-        # Create study
-        study = Study(external_id='phs001')
-
-        # Create a participant
-        p = Participant(external_id='Test subject 0', is_proband=True,
-                        study=study)
-        db.session.add(p)
-        db.session.commit()
+        kwargs = self._create_save_to_db()
 
         # Create diagnosis data
         kwargs = {
@@ -42,7 +35,7 @@ class DiagnosisTest(FlaskTestCase):
             'age_at_event_days': 365,
             'diagnosis_category': 'cancer',
             'tumor_location': 'Brain',
-            'participant_id': p.kf_id
+            'participant_id': kwargs.get('participant_id')
         }
         # Send get request
         response = self.client.post(url_for(DIAGNOSES_LIST_URL),
@@ -60,6 +53,7 @@ class DiagnosisTest(FlaskTestCase):
             if k == 'participant_id':
                 continue
             self.assertEqual(diagnosis[k], getattr(dg, k))
+        self.assertEqual(2, Diagnosis.query.count())
 
     def test_post_missing_req_params(self):
         """
