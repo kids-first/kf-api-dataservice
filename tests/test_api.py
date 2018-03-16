@@ -13,6 +13,8 @@ class TestAPI:
 
     @pytest.mark.parametrize('endpoint,method,status_code', [
         ('/status', 'GET', 200),
+        ('/sequencing-experiments', 'GET', 200),
+        ('/sequencing-experiments/123', 'GET', 404),
         ('/aliquots', 'GET', 200),
         ('/aliquots/123', 'GET', 404),
         ('/samples', 'GET', 200),
@@ -43,6 +45,13 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint,method,status_message', [
         ('/status', 'GET', 'Welcome to'),
         ('/persons', 'GET', 'not found'),
+        ('/sequencing-experiments', 'GET', 'success'),
+        ('/sequencing-experiments/123', 'GET',
+         'could not find sequencing_experiment `123`'),
+        ('/sequencing-experiments/123', 'PATCH',
+         'could not find sequencing_experiment `123`'),
+        ('/sequencing-experiments/123', 'DELETE',
+         'could not find sequencing_experiment `123`'),
         ('/aliquots', 'GET', 'success'),
         ('/aliquots/123', 'GET', 'could not find aliquot `123`'),
         ('/aliquots/123', 'PATCH', 'could not find aliquot `123`'),
@@ -91,6 +100,8 @@ class TestAPI:
         assert status_message in resp['_status']['message']
 
     @pytest.mark.parametrize('endpoint,method', [
+        ('/participants', 'GET'),
+        ('/sequencing-experiments', 'GET'),
         ('/aliquots', 'GET'),
         ('/samples', 'GET'),
         ('/diagnoses', 'GET'),
@@ -113,19 +124,25 @@ class TestAPI:
         assert type(body['_status']['code']) is int
 
     @pytest.mark.parametrize('endpoint, method, fields', [
-        ('/participants', 'POST', ['created_at', 'modified_at']),
-        ('/participants', 'PATCH', ['created_at', 'modified_at']),
-        ('/demographics', 'PATCH', ['created_at', 'modified_at']),
-        ('/diagnoses', 'PATCH', ['created_at', 'modified_at']),
-        ('/samples', 'PATCH', ['created_at', 'modified_at']),
         ('/studies', 'POST', ['created_at', 'modified_at']),
         ('/studies', 'PATCH', ['created_at', 'modified_at']),
+        ('/investigators', 'POST', ['created_at', 'modified_at']),
+        ('/investigators', 'PATCH', ['created_at', 'modified_at']),
+        ('/participants', 'POST', ['created_at', 'modified_at']),
+        ('/participants', 'PATCH', ['created_at', 'modified_at']),
         ('/outcomes', 'POST', ['created_at', 'modified_at']),
         ('/outcomes', 'PATCH', ['created_at', 'modified_at']),
         ('/phenotypes', 'POST', ['created_at', 'modified_at']),
         ('/phenotypes', 'PATCH', ['created_at', 'modified_at']),
-        ('/investigators', 'PATCH', ['created_at', 'modified_at']),
-        ('/aliquots', 'PATCH', ['created_at', 'modified_at'])
+        ('/demographics', 'PATCH', ['created_at', 'modified_at']),
+        ('/diagnoses', 'POST', ['created_at', 'modified_at']),
+        ('/diagnoses', 'PATCH', ['created_at', 'modified_at']),
+        ('/samples', 'POST', ['created_at', 'modified_at']),
+        ('/samples', 'PATCH', ['created_at', 'modified_at']),
+        ('/aliquots', 'POST', ['created_at', 'modified_at']),
+        ('/aliquots', 'PATCH', ['created_at', 'modified_at']),
+        ('/sequencing-experiments', 'POST', ['created_at', 'modified_at']),
+        ('/sequencing-experiments', 'PATCH', ['created_at', 'modified_at'])
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
@@ -149,12 +166,12 @@ class TestAPI:
                                           '/demographics',
                                           '/diagnoses',
                                           '/samples',
+                                          '/sequencing-experiments',
                                           '/studies',
                                           '/investigators',
                                           '/outcomes',
                                           '/phenotypes',
                                           '/aliquots'])
-
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
@@ -177,9 +194,10 @@ class TestAPI:
         ('/participants', 'demographic'),
         ('/participants', 'diagnoses'),
         ('/participants', 'samples'),
-        ('/samples', 'aliquots'),
         ('/participants', 'outcomes'),
-        ('/participants', 'phenotypes')
+        ('/participants', 'phenotypes'),
+        ('/samples', 'aliquots'),
+        ('/aliquots', 'sequencing_experiments')
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
@@ -203,8 +221,18 @@ class TestAPI:
                               ('/aliquots', 'concentration', -12),
                               ('/aliquots', 'volume', -12),
                               ('/outcomes', 'age_at_event_days', -12),
-                              ('/phenotypes', 'age_at_event_days', -12)])
-
+                              ('/phenotypes', 'age_at_event_days', -12),
+                              ('/sequencing-experiments',
+                               'max_insert_size', -12),
+                              ('/sequencing-experiments',
+                               'mean_insert_size', -12),
+                              ('/sequencing-experiments',
+                               'mean_depth', -12),
+                              ('/sequencing-experiments',
+                               'mean_read_length', -12),
+                              ('/sequencing-experiments', 'total_reads', -12),
+                              ('/sequencing-experiments',
+                               'experiment_date', 'hai der')])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]
@@ -225,7 +253,8 @@ class TestAPI:
     @pytest.mark.parametrize('method', ['POST'])
     @pytest.mark.parametrize('endpoint, field',
                              [('/aliquots', 'sample_id'),
-                              ('/aliquots', 'analyte_type')])
+                              ('/aliquots', 'analyte_type'),
+                              ('/sequencing-experiments', 'aliquot_id')])
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
         """ Tests missing required parameters """
@@ -247,8 +276,9 @@ class TestAPI:
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint, field',
                              [('/aliquots', 'sample_id'),
-                             ('/outcomes', 'participant_id'),
-                             ('/phenotypes', 'participant_id')])
+                              ('/outcomes', 'participant_id'),
+                              ('/phenotypes', 'participant_id'),
+                              ('/sequencing-experiments', 'aliquot_id')])
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key

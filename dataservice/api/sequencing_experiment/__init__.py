@@ -1,2 +1,4 @@
-from dataservice.api.sequencing_experiment.resources import SequencingExperimentAPI
-from dataservice.api.sequencing_experiment.resources import SequencingExperimentListAPI
+from dataservice.api.sequencing_experiment.resources import (
+    SequencingExperimentAPI,
+    SequencingExperimentListAPI
+)
