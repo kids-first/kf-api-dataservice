@@ -101,6 +101,7 @@ def entities(client):
 
     # Add kf_ids
     inputs['kf_ids'] = {'/participants': p.kf_id}
+    inputs['kf_ids'].update({'/studies': study.kf_id})
     inputs['kf_ids'].update({'/demographics': p.demographic.kf_id})
     inputs['kf_ids'].update({'/diagnoses': diagnosis.kf_id})
     inputs['kf_ids'].update({'/samples': sample.kf_id})

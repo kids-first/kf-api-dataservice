@@ -19,7 +19,9 @@ class TestAPI:
         ('/demographics/123', 'GET', 404),
         ('/participants', 'GET', 200),
         ('/persons', 'GET', 404),
-        ('/participants/123', 'GET', 404)
+        ('/participants/123', 'GET', 404),
+        ('/studies', 'GET', 200),
+        ('/studies/123', 'GET', 404)
     ])
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
@@ -47,7 +49,11 @@ class TestAPI:
         ('/participants', 'GET', 'success'),
         ('/participants/123', 'GET', 'could not find participant `123`'),
         ('/participants/123', 'PATCH', 'could not find participant `123`'),
-        ('/participants/123', 'DELETE', 'could not find participant `123`')
+        ('/participants/123', 'DELETE', 'could not find participant `123`'),
+        ('/studies', 'GET', 'success'),
+        ('/studies/123', 'GET', 'could not find study `123`'),
+        ('/studies/123', 'PATCH', 'could not find study `123`'),
+        ('/studies/123', 'DELETE', 'could not find study `123`'),
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -63,7 +69,8 @@ class TestAPI:
         ('/participants', 'GET'),
         ('/samples', 'GET'),
         ('/diagnoses', 'GET'),
-        ('/demographics', 'GET')
+        ('/demographics', 'GET'),
+        ('/studies', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -80,7 +87,9 @@ class TestAPI:
         ('/participants', 'PATCH', ['created_at', 'modified_at']),
         ('/demographics', 'PATCH', ['created_at', 'modified_at']),
         ('/diagnoses', 'PATCH', ['created_at', 'modified_at']),
-        ('/samples', 'PATCH', ['created_at', 'modified_at'])
+        ('/samples', 'PATCH', ['created_at', 'modified_at']),
+        ('/studies', 'PATCH', ['created_at', 'modified_at']),
+        ('/studies', 'PATCH', ['created_at', 'modified_at'])
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
@@ -103,7 +112,8 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint', ['/participants',
                                           '/demographics',
                                           '/diagnoses',
-                                          '/samples'])
+                                          '/samples',
+                                          '/studies'])
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
