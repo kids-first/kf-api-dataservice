@@ -1,4 +1,60 @@
-Primary API for interacting with the Kid's First Data Model.
+<center>
+![Kids First](/logo)
+</center>
+
+Welcome to the developer documentation for the Kids First Dataservice API!
+
+The dataservice is the primary hub for retrieval and creation of Kids First
+data. It exposes functionality using a familiar REST interface over HTTP
+requests.
+
+# Connect to the API
+
+The API is currently only available internally inside the Kids First cloud
+environments.
+
+## curl
+
+Curl is the quickest way to communicate with the api from a unix shell
+
+Get the system status:
+```bash
+curl -H "Content-Type: application/json" http://kf-api-dataservice-qa.kids-first.io/status
+```
+
+Create a new study with the name 'my study':
+```bash
+curl -XPOST -H "Content-Type: application/json" http://kf-api-dataservice-qa.kids-first.io/studies -d '{ "name": "my study" }'
+```
+
+## Python
+
+We suggest using the popular `requests` package to interact with the API.
+
+To get the system status:
+```python
+import requests
+
+resp = requests.get('http://kf-api-dataservice-qa.kids-first.io/status',
+                    headers={'Content-Type': 'application/json'})
+
+print(resp.json())
+```
+
+To create a new study:
+```python
+import requests
+
+body = {
+  "name": "my name"
+}
+
+resp = requests.post('http://kf-api-dataservice-qa.kids-first.io/studies',
+                     headers={'Content-Type': 'application/json'},
+                     json=body)
+
+print(resp.json())
+```
 
 # Identifiers
 
