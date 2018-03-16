@@ -1,7 +1,4 @@
-import requests
-
-from flask import abort, current_app
-from requests.exceptions import HTTPError
+from flask import current_app
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -62,54 +59,3 @@ class GenomicFile(db.Model, Base):
     # The metadata property is already used by sqlalchemy
     _metadata = {}
     size = None
-
-    def merge_indexd(self):
-        """
-        Gets additional fields from indexd
-        """
-        resp = indexd.get(self.uuid)
-
-        # Might want to use partial deserialization here
-        for prop, v in resp.json().items():
-            if hasattr(self, prop):
-                setattr(self, prop, v)
-
-        if 'metadata' in resp.json():
-            self._metadata = resp.json()['metadata']
-
-
-@event.listens_for(GenomicFile, 'before_insert')
-def register_indexd(mapper, connection, target):
-    """
-    Registers the genomic file with indexd.
-    The response upon successful registry will contain a `did` which will
-    be used as the target's uuid so that it may be joined with the indexd
-    data.
-    """
-    if current_app.config['INDEXD_URL'] is None:
-        return
-
-    resp = indexd.new(target)
-    # Update the target's uuid with the new did recieved from indexd
-    target.uuid = resp['did']
-    return target
-
-
-@event.listens_for(GenomicFile, 'before_update')
-def update_indexd(mapper, connection, target):
-    """
-    Updates a document in indexd
-    """
-    indexd.update(target)
-
-
-@event.listens_for(GenomicFile, 'before_delete')
-def delete_indexd(mapper, connection, target):
-    """
-    Deletes a document in indexd
-    """
-    # Get the current revision if not already loaded
-    if target.rev is None:
-        target.merge_indexd()
-
-    indexd.delete(target)
