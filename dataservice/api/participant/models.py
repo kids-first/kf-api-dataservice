@@ -21,7 +21,7 @@ class Participant(db.Model, Base):
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     """
-    __tablename__ = "participant"
+    __tablename__ = 'participant'
     __prefix__ = 'PT'
 
     external_id = db.Column(db.Text(), doc='ID used by external study')
@@ -34,20 +34,20 @@ class Participant(db.Model, Base):
     consent_type = db.Column(db.Text(),
                              doc='Type of the consent participant belongs to')
     diagnoses = db.relationship(Diagnosis,
-                                cascade="all, delete-orphan",
+                                cascade='all, delete-orphan',
                                 backref=db.backref('participants',
                                                    lazy=True))
     samples = db.relationship(Sample, backref='participant',
-                              cascade="all, delete-orphan")
+                              cascade='all, delete-orphan')
     demographic = db.relationship(Demographic, backref='participant',
-                                  uselist=False, cascade="all, delete-orphan",
+                                  uselist=False, cascade='all, delete-orphan',
                                   lazy=True)
     outcomes = db.relationship(Outcome,
-                               cascade="all, delete-orphan",
+                               cascade='all, delete-orphan',
                                backref=db.backref('participants',
                                                   lazy=True))
     phenotypes = db.relationship(Phenotype,
-                                 cascade="all, delete-orphan",
+                                 cascade='all, delete-orphan',
                                  backref=db.backref('participants',
                                                     lazy=True))
     study_id = db.Column(KfId(),

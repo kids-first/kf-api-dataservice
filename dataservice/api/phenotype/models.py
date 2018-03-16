@@ -20,7 +20,9 @@ class Phenotype(db.Model, Base):
     phenotype = db.Column(db.Text())
     hpo_id = db.Column(db.Text())
     observed = db.Column(db.Text())
-    age_at_event_days = db.Column(db.Integer())
+    age_at_event_days = db.Column(db.Integer(),
+                                  doc='Age at the time of event occurred in '
+                                      'number of days since birth.')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                nullable=False)

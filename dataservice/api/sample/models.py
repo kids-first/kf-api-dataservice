@@ -22,14 +22,23 @@ class Sample(db.Model, Base):
     __tablename__ = 'sample'
     __prefix__ = 'SA'
 
-    external_id = db.Column(db.Text())
-    tissue_type = db.Column(db.Text())
-    composition = db.Column(db.Text())
-    anatomical_site = db.Column(db.Text())
-    age_at_event_days = db.Column(db.Integer())
-    tumor_descriptor = db.Column(db.Text())
+    external_id = db.Column(db.Text(),
+                            doc='Identifier used by external systems')
+    tissue_type = db.Column(db.Text(),
+                            doc='Description of the kind of sample collected')
+    composition = db.Column(db.Text(),
+                            doc='The cellular composition of the sample')
+    anatomical_site = db.Column(db.Text(),
+                                doc='The anatomical location of collection')
+    age_at_event_days = db.Column(db.Integer(),
+                                  doc='Age at the time of event occurred in '
+                                      'number of days since birth.')
+    tumor_descriptor = db.Column(db.Text(),
+                                 doc='Disease present in the sample')
     aliquots = db.relationship(Aliquot, backref='samples',
-                               cascade="all, delete-orphan")
+                               cascade="all, delete-orphan",
+                               doc='kf_id of aliquots derived from the sample')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
-                               nullable=False)
+                               nullable=False,
+                               doc='The kf_id of the sample\'s donor')
