@@ -35,6 +35,52 @@ class Indexd(object):
         if hasattr(ctx, 'indexd_session'):
             ctx.indexd_session.close()
 
+    def merge_properties(self, uuid, record):
+        """
+        Get an object from indexd by uuid and merge the object's properties
+        onto the SQLAlchemy model instance
+
+        :param uuid: UUID of indexd object
+        :param record: SQLAlchemy model instance representing file-like object
+        """
+        resp = self.get(uuid)
+
+        # Might want to use partial deserialization here
+        for prop, v in resp.json().items():
+            if hasattr(record, prop):
+                setattr(record, prop, v)
+
+        if 'metadata' in resp.json():
+            record._metadata = resp.json()['metadata']
+
+    def register_record(self, record):
+        """
+        Registers a new record with indexd.
+
+        The response upon successful registry will contain a `did` which will
+        be used as the target's uuid so that it may be joined with the indexd
+        data.
+        """
+        if current_app.config['INDEXD_URL'] is None:
+            return
+
+        resp = self.create(record)
+
+        # Update the records' uuid with the new did recieved from indexd
+        record.uuid = resp['did']
+
+        return record
+
+    def delete_record(self, record):
+        """
+        Deletes a document in indexd
+        """
+        # Get the current revision if not already loaded
+        if record.rev is None:
+            self.merge_properties(record.uuid, record)
+
+        self.delete(record)
+
     def get(self, did):
         """
         Retrieves a record from indexd
@@ -56,7 +102,7 @@ class Indexd(object):
 
         return resp
 
-    def new(self, record):
+    def create(self, record):
         """
         Registers a new record in indexd
 
@@ -85,7 +131,7 @@ class Indexd(object):
             "rev": <first-8-char-of-a-uuid>
           }
 
-        :param record: A file-like object
+        :param record: SQLAlchemy model instance representing file-like object
         :returns: Non-error response from indexd
         :throws: Aborts on non-ok http code returned from indexd
         """
@@ -113,7 +159,7 @@ class Indexd(object):
             # Attach indexd error message, if there is one
             if 'error' in resp.json():
                 message = '{}: {}'.format(message, resp.json()['error'])
-            abort(resp.status_code, message)
+            abort(resp.status_code or 500, message)
 
         resp = resp.json()
         return resp
@@ -122,13 +168,17 @@ class Indexd(object):
         """
         Updates a record in indexd
 
-        :param record: A file-like object
+        :param record: SQLAlchemy model instance representing file-like object
         :throws: Aborts on non-ok http code returned from indexd
         """
         # Fetch rev for the did
         if record.rev is None:
-            r = self.session.get(current_app.config['INDEXD_URL']+record.uuid)
-            r.raise_for_status()
+            r = self.session.get(current_app.config['INDEXD_URL']
+                                 + record.uuid)
+            try:
+                r.raise_for_status()
+            except HTTPError:
+                abort(r.status_code or 500, 'could not update record')
             record.rev = r.json()['rev']
 
         req_body = {
@@ -151,17 +201,18 @@ class Indexd(object):
         try:
             resp.raise_for_status()
         except HTTPError:
-            abort(resp.status_code, 'could not update record')
+            abort(resp.status_code or 500, 'could not update record')
 
     def delete(self, record):
         """
         Delete a record from indexd by did
 
-        :param record: A file-like object
+        :param record: SQLAlchemy model instance representing file-like object
         :throws: Aborts on non-ok http code returned from indexd
         """
         if record.rev is None:
-            r = self.session.get(current_app.config['INDEXD_URL']+record.uuid)
+            r = self.session.get(current_app.config['INDEXD_URL']
+                                 + record.uuid)
             # r.raise_for_status()
             record.rev = r.json()['rev']
 
@@ -173,7 +224,7 @@ class Indexd(object):
         try:
             resp.raise_for_status()
         except HTTPError:
-            abort(resp.status_code,
+            abort(resp.status_code or 500,
                   'could not delete record: {}'.format(resp.json()))
 
     @property

@@ -1,8 +1,7 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
-from dataservice.extensions import db
+from dataservice.extensions import db, indexd
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.genomic_file.schemas import GenomicFileSchema
@@ -35,8 +34,10 @@ class GenomicFileListAPI(CRUDView):
         # Get a page of the data from the model first
         q = GenomicFile.query
         pager = Pagination(q, after, limit)
+
+        # For each genomic_file, get indexd properties and merge into obj
         for gf in pager.items:
-            gf.merge_indexd()
+            indexd.merge_properties(gf.uuid, gf)
 
         return (GenomicFileSchema(many=True)
                 .jsonify(pager))
@@ -57,6 +58,9 @@ class GenomicFileListAPI(CRUDView):
         except ValidationError as err:
             abort(400,
                   'could not create genomic_file: {}'.format(err.messages))
+
+        # Register genomic file with indexd
+        indexd.register_record(gf)
 
         db.session.add(gf)
         db.session.commit()
@@ -85,12 +89,14 @@ class GenomicFileAPI(CRUDView):
             resource:
               GenomicFile
         """
+        # Get genomic_file from db
         genomic_file = GenomicFile.query.get(kf_id)
         if genomic_file is None:
             abort(404, 'could not find {} `{}`'
                   .format('GenomicFile', kf_id))
 
-        genomic_file.merge_indexd()
+        # Get genomic_file indexd properties and merge into obj
+        indexd.merge_properties(genomic_file.uuid, genomic_file)
 
         sch = GenomicFileSchema(many=False)
         return sch.jsonify(genomic_file)
@@ -112,19 +118,21 @@ class GenomicFileAPI(CRUDView):
             abort(404, 'could not find {} `{}`'
                   .format('GenomicFile', kf_id))
 
-        # Fetch fields from indexd first
-        gf.merge_indexd()
-        # Deserialization will require this field and won't merge automatically
-        if 'sequencing_experiment_id' not in body:
-            body['sequencing_experiment_id'] = gf.sequencing_experiment_id
+        # Get genomic_file indexd properties and merge into obj
+        indexd.merge_properties(gf.uuid, gf)
 
+        # Update genomic_file with properties in patch request
         try:
             gf = GenomicFileSchema(strict=True).load(body, instance=gf,
                                                      partial=True).data
         except ValidationError as err:
             abort(400,
-                  'could not create genomic_file: {}'.format(err.messages))
+                  'could not update genomic_file: {}'.format(err.messages))
 
+        # Send update request to indexd
+        indexd.update(gf)
+
+        # Save updated genomic_file in db
         db.session.add(gf)
         db.session.commit()
 
@@ -146,6 +154,9 @@ class GenomicFileAPI(CRUDView):
         gf = GenomicFile.query.get(kf_id)
         if gf is None:
             abort(404, 'could not find {} `{}`'.format('GenomicFile', kf_id))
+
+        # Delete genomic file from indexd
+        indexd.delete_record(gf)
 
         db.session.delete(gf)
         db.session.commit()

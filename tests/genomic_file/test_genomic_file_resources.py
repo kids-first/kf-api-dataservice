@@ -1,6 +1,4 @@
 import json
-import requests
-from unittest.mock import patch
 import pytest
 from unittest.mock import MagicMock
 from requests.exceptions import HTTPError
@@ -73,11 +71,11 @@ def test_new_indexd_error(client, mocker, entities):
     }
     init_count = GenomicFile.query.count()
     response = client.post(url_for(GENOMICFILE_LIST_URL),
-                                headers={'Content-Type': 'application/json'},
-                                data=json.dumps(body))
+                           headers={'Content-Type': 'application/json'},
+                           data=json.dumps(body))
     resp = json.loads(response.data.decode("utf-8"))
 
-    assert 'does not exist' in resp['_status']['message']
+    assert 'could not register' in resp['_status']['message']
     assert GenomicFile.query.count() == init_count
 
 
@@ -109,9 +107,9 @@ def test_get_one(client, mocker, entities):
     mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
     indexd = MockIndexd()
     mock.Session().get = indexd.get
-    
+
     gf = GenomicFile.query.first()
-    gf.merge_indexd()
+    indexd.merge_properties(gf.uuid, gf)
 
     resp = client.get(url_for(GENOMICFILE_URL, kf_id=gf.kf_id))
     resp = json.loads(resp.data.decode('utf-8'))
@@ -139,18 +137,16 @@ def test_update(client, mocker, entities):
     mock.Session().get = indexd.get
     mock.patch = indexd.patch
 
-    resp = _new_genomic_file(client)
-    participant = resp['results']
-    kf_id = participant.get('kf_id')
-    orig = resp['results']
+    gf = GenomicFile.query.first()
+    kf_id = gf.kf_id
 
     body = {
         'file_name': 'hg37.bam'
     }
     response = client.patch(url_for(GENOMICFILE_URL,
-                                  kf_id=kf_id),
-                               data=json.dumps(body),
-                          headers={'Content-Type': 'application/json'})
+                                    kf_id=kf_id),
+                            data=json.dumps(body),
+                            headers={'Content-Type': 'application/json'})
 
     assert response.status_code == 200
 
@@ -203,6 +199,7 @@ def test_delete_error(client, mocker, entities):
 
     response_mock = MagicMock()
     response_mock.status_code = 500
+
     def exc():
         raise HTTPError()
     response_mock.raise_for_status = exc
@@ -237,8 +234,8 @@ def _new_genomic_file(client):
         'controlled_access': False
     }
     response = client.post(url_for(GENOMICFILE_LIST_URL),
-                                headers={'Content-Type': 'application/json'},
-                                data=json.dumps(body))
+                           headers={'Content-Type': 'application/json'},
+                           data=json.dumps(body))
     resp = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 201
     return resp
