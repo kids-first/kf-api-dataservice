@@ -143,5 +143,6 @@ def entities(client):
     inputs['kf_ids'].update({'/aliquots': aliquot.kf_id})
     inputs['kf_ids'].update({'/investigators': investigator.kf_id})
     inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
+    inputs['kf_ids'].update({'/phenotypes': phenotype.kf_id})
 
     return inputs

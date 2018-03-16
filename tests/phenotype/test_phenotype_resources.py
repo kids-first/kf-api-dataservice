@@ -88,7 +88,7 @@ class PhenotypeTest(FlaskTestCase):
         """
         Test create phenotype with bad input data
 
-        Participant with participant_id does not exist in db
+        Phenotype with negative age
         """
         # Create phenotype data
         kwargs = {

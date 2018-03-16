@@ -122,6 +122,7 @@ class TestAPI:
         ('/studies', 'PATCH', ['created_at', 'modified_at']),
         ('/outcomes', 'POST', ['created_at', 'modified_at']),
         ('/outcomes', 'PATCH', ['created_at', 'modified_at']),
+        ('/phenotypes', 'PATCH', ['created_at', 'modified_at']),
         ('/investigators', 'PATCH', ['created_at', 'modified_at']),
         ('/aliquots', 'PATCH', ['created_at', 'modified_at'])
     ])
@@ -150,6 +151,7 @@ class TestAPI:
                                           '/studies',
                                           '/investigators',
                                           '/outcomes',
+                                          '/phenotypes',
                                           '/aliquots'])
 
     def test_unknown_field(self, client, entities, endpoint, method):
