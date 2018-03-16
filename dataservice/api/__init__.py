@@ -3,10 +3,12 @@ from dataservice.api.docs import Documentation, Swagger
 from dataservice.api.status import StatusAPI
 
 from dataservice.api.common.views import CRUDView
-from dataservice.api.participant import ParticipantAPI
-from dataservice.api.participant import ParticipantListAPI
 from dataservice.api.diagnosis import DiagnosisAPI
 from dataservice.api.diagnosis import DiagnosisListAPI
+from dataservice.api.participant import ParticipantAPI
+from dataservice.api.participant import ParticipantListAPI
+from dataservice.api.investigator import InvestigatorAPI
+from dataservice.api.investigator import InvestigatorListAPI
 from dataservice.api.sample import SampleAPI
 from dataservice.api.sample import SampleListAPI
 from dataservice.api.study import StudyAPI
