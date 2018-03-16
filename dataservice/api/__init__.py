@@ -23,8 +23,6 @@ from dataservice.api.outcome import OutcomeListAPI
 from dataservice.api.phenotype.resources import PhenotypeAPI
 from dataservice.api.phenotype.resources import PhenotypeListAPI
 
-from dataservice.api.study.models import Study
-
 
 api = Blueprint('api', __name__, url_prefix='', template_folder='templates')
 
