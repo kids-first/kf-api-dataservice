@@ -18,6 +18,10 @@ from dataservice.api.sample import SampleAPI
 from dataservice.api.sample import SampleListAPI
 from dataservice.api.aliquot import AliquotAPI
 from dataservice.api.aliquot import AliquotListAPI
+from dataservice.api.outcome import OutcomeAPI
+from dataservice.api.outcome import OutcomeListAPI
+
+from dataservice.api.study.models import Study
 
 
 api = Blueprint('api', __name__, url_prefix='', template_folder='templates')
