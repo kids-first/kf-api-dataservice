@@ -102,7 +102,7 @@ def entities(client):
     sample = Sample(**inputs['/samples'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
     outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
-
+    aliquot = Aliquot(**inputs['/aliquots'])
     p.demographic = demo
     sample.aliquots = [aliquot]
     p.samples = [sample]

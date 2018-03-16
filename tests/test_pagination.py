@@ -61,7 +61,7 @@ class TestPagination:
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
-        ('/aliquots')
+        ('/aliquots'),
         ('/outcomes')
     ])
 

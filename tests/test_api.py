@@ -112,6 +112,7 @@ class TestAPI:
         ('/samples', 'PATCH', ['created_at', 'modified_at']),
         ('/studies', 'POST', ['created_at', 'modified_at']),
         ('/studies', 'PATCH', ['created_at', 'modified_at']),
+        ('/outcomes', 'POST', ['created_at', 'modified_at']),
         ('/outcomes', 'PATCH', ['created_at', 'modified_at']),
         ('/investigators', 'PATCH', ['created_at', 'modified_at']),
         ('/aliquots', 'PATCH', ['created_at', 'modified_at'])
@@ -140,7 +141,7 @@ class TestAPI:
                                           '/samples',
                                           '/studies',
                                           '/investigators',
-                                          '/outcomes'
+                                          '/outcomes',
                                           '/aliquots'])
 
     def test_unknown_field(self, client, entities, endpoint, method):
@@ -166,6 +167,7 @@ class TestAPI:
         ('/participants', 'diagnoses'),
         ('/participants', 'samples'),
         ('/samples', 'aliquots'),
+        ('/participants', 'outcomes'),
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
