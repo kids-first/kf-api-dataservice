@@ -1,1 +1,1 @@
-from dataservice.api.docs.resources import Documentation, Swagger
+from dataservice.api.docs.resources import Documentation, Swagger, Logo
