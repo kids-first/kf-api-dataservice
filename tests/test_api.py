@@ -32,7 +32,9 @@ class TestAPI:
         ('/studies/123', 'GET', 404),
         ('/investigators', 'GET', 200),
         ('/outcomes', 'GET', 200),
-        ('/outcomes/123', 'GET', 404)
+        ('/outcomes/123', 'GET', 404),
+        ('/family-relationships', 'GET', 200),
+        ('/family-relationship/123', 'GET', 404)
     ])
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
@@ -45,37 +47,6 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint,method,status_message', [
         ('/status', 'GET', 'Welcome to'),
         ('/persons', 'GET', 'not found'),
-        ('/sequencing-experiments', 'GET', 'success'),
-        ('/sequencing-experiments/123', 'GET',
-         'could not find sequencing_experiment `123`'),
-        ('/sequencing-experiments/123', 'PATCH',
-         'could not find sequencing_experiment `123`'),
-        ('/sequencing-experiments/123', 'DELETE',
-         'could not find sequencing_experiment `123`'),
-        ('/aliquots', 'GET', 'success'),
-        ('/aliquots/123', 'GET', 'could not find aliquot `123`'),
-        ('/aliquots/123', 'PATCH', 'could not find aliquot `123`'),
-        ('/aliquots/123', 'DELETE', 'could not find aliquot `123`'),
-        ('/samples', 'GET', 'success'),
-        ('/samples/123', 'GET', 'could not find sample `123`'),
-        ('/samples/123', 'PATCH', 'could not find sample `123`'),
-        ('/samples/123', 'DELETE', 'could not find sample `123`'),
-        ('/diagnoses', 'GET', 'success'),
-        ('/diagnoses/123', 'GET', 'could not find diagnosis `123`'),
-        ('/diagnoses/123', 'PATCH', 'could not find diagnosis `123`'),
-        ('/diagnoses/123', 'DELETE', 'could not find diagnosis `123`'),
-        ('/demographics', 'GET', 'success'),
-        ('/demographics/123', 'GET', 'could not find demographic `123`'),
-        ('/demographics/123', 'PATCH', 'could not find demographic `123`'),
-        ('/demographics/123', 'DELETE', 'could not find demographic `123`'),
-        ('/phenotypes', 'GET', 'success'),
-        ('/phenotypes/123', 'GET', 'could not find phenotype `123`'),
-        ('/phenotypes/123', 'PATCH', 'could not find phenotype `123`'),
-        ('/phenotypes/123', 'DELETE', 'could not find phenotype `123`'),
-        ('/participants', 'GET', 'success'),
-        ('/participants/123', 'GET', 'could not find participant `123`'),
-        ('/participants/123', 'PATCH', 'could not find participant `123`'),
-        ('/participants/123', 'DELETE', 'could not find participant `123`'),
         ('/studies', 'GET', 'success'),
         ('/studies/123', 'GET', 'could not find study `123`'),
         ('/studies/123', 'PATCH', 'could not find study `123`'),
@@ -84,10 +55,48 @@ class TestAPI:
         ('/investigators/123', 'GET', 'could not find investigator `123`'),
         ('/investigators/123', 'PATCH', 'could not find investigator `123`'),
         ('/investigators/123', 'DELETE', 'could not find investigator `123`'),
+        ('/participants', 'GET', 'success'),
+        ('/participants/123', 'GET', 'could not find participant `123`'),
+        ('/participants/123', 'PATCH', 'could not find participant `123`'),
+        ('/participants/123', 'DELETE', 'could not find participant `123`'),
         ('/outcomes', 'GET', 'success'),
         ('/outcomes/123', 'GET', 'could not find outcome `123`'),
         ('/outcomes/123', 'PATCH', 'could not find outcome `123`'),
-        ('/outcomes/123', 'DELETE', 'could not find outcome `123`')
+        ('/outcomes/123', 'DELETE', 'could not find outcome `123`'),
+        ('/phenotypes', 'GET', 'success'),
+        ('/phenotypes/123', 'GET', 'could not find phenotype `123`'),
+        ('/phenotypes/123', 'PATCH', 'could not find phenotype `123`'),
+        ('/phenotypes/123', 'DELETE', 'could not find phenotype `123`'),
+        ('/demographics', 'GET', 'success'),
+        ('/demographics/123', 'GET', 'could not find demographic `123`'),
+        ('/demographics/123', 'PATCH', 'could not find demographic `123`'),
+        ('/demographics/123', 'DELETE', 'could not find demographic `123`'),
+        ('/diagnoses', 'GET', 'success'),
+        ('/diagnoses/123', 'GET', 'could not find diagnosis `123`'),
+        ('/diagnoses/123', 'PATCH', 'could not find diagnosis `123`'),
+        ('/diagnoses/123', 'DELETE', 'could not find diagnosis `123`'),
+        ('/samples', 'GET', 'success'),
+        ('/samples/123', 'GET', 'could not find sample `123`'),
+        ('/samples/123', 'PATCH', 'could not find sample `123`'),
+        ('/samples/123', 'DELETE', 'could not find sample `123`'),
+        ('/aliquots', 'GET', 'success'),
+        ('/aliquots/123', 'GET', 'could not find aliquot `123`'),
+        ('/aliquots/123', 'PATCH', 'could not find aliquot `123`'),
+        ('/aliquots/123', 'DELETE', 'could not find aliquot `123`'),
+        ('/sequencing-experiments', 'GET', 'success'),
+        ('/sequencing-experiments/123', 'GET',
+         'could not find sequencing_experiment `123`'),
+        ('/sequencing-experiments/123', 'PATCH',
+         'could not find sequencing_experiment `123`'),
+        ('/sequencing-experiments/123', 'DELETE',
+         'could not find sequencing_experiment `123`'),
+        ('/family-relationships', 'GET', 'success'),
+        ('/family-relationships/123', 'GET',
+         'could not find family_relationship `123`'),
+        ('/family-relationships/123', 'PATCH',
+         'could not find family_relationship `123`'),
+        ('/family-relationships/123', 'DELETE',
+         'could not find family_relationship `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -100,18 +109,17 @@ class TestAPI:
         assert status_message in resp['_status']['message']
 
     @pytest.mark.parametrize('endpoint,method', [
-        ('/participants', 'GET'),
-        ('/sequencing-experiments', 'GET'),
-        ('/aliquots', 'GET'),
-        ('/samples', 'GET'),
-        ('/diagnoses', 'GET'),
-        ('/demographics', 'GET'),
         ('/studies', 'GET'),
         ('/investigators', 'GET'),
         ('/participants', 'GET'),
         ('/outcomes', 'GET'),
-        ('/studies', 'GET'),
-        ('/phenotypes', 'GET')
+        ('/phenotypes', 'GET'),
+        ('/demographics', 'GET'),
+        ('/diagnoses', 'GET'),
+        ('/samples', 'GET'),
+        ('/aliquots', 'GET'),
+        ('/sequencing-experiments', 'GET'),
+        ('/family-relationships', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -142,7 +150,8 @@ class TestAPI:
         ('/aliquots', 'POST', ['created_at', 'modified_at']),
         ('/aliquots', 'PATCH', ['created_at', 'modified_at']),
         ('/sequencing-experiments', 'POST', ['created_at', 'modified_at']),
-        ('/sequencing-experiments', 'PATCH', ['created_at', 'modified_at'])
+        ('/sequencing-experiments', 'PATCH', ['created_at', 'modified_at']),
+        ('/family-relationships', 'PATCH', ['created_at', 'modified_at'])
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
@@ -162,16 +171,17 @@ class TestAPI:
                     or body['results'][field] != 'test')
 
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
-    @pytest.mark.parametrize('endpoint', ['/participants',
+    @pytest.mark.parametrize('endpoint', ['/studies',
+                                          '/investigators',
+                                          '/participants',
+                                          '/outcomes',
+                                          '/phenotypes',
                                           '/demographics',
                                           '/diagnoses',
                                           '/samples',
+                                          '/aliquots',
                                           '/sequencing-experiments',
-                                          '/studies',
-                                          '/investigators',
-                                          '/outcomes',
-                                          '/phenotypes',
-                                          '/aliquots'])
+                                          '/family-relationships'])
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
@@ -194,9 +204,9 @@ class TestAPI:
         ('/participants', 'demographic'),
         ('/participants', 'diagnoses'),
         ('/participants', 'samples'),
+        ('/samples', 'aliquots'),
         ('/participants', 'outcomes'),
         ('/participants', 'phenotypes'),
-        ('/samples', 'aliquots'),
         ('/aliquots', 'sequencing_experiments')
     ])
     def test_relations(self, client, entities, resource, field):
@@ -254,7 +264,10 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint, field',
                              [('/aliquots', 'sample_id'),
                               ('/aliquots', 'analyte_type'),
-                              ('/sequencing-experiments', 'aliquot_id')])
+                              ('/sequencing-experiments', 'aliquot_id'),
+                              ('/family-relationships', 'participant_id'),
+                              ('/family-relationships', 'relative_id')
+                              ])
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
         """ Tests missing required parameters """
@@ -278,7 +291,9 @@ class TestAPI:
                              [('/aliquots', 'sample_id'),
                               ('/outcomes', 'participant_id'),
                               ('/phenotypes', 'participant_id'),
-                              ('/sequencing-experiments', 'aliquot_id')])
+                              ('/sequencing-experiments', 'aliquot_id'),
+                              ('/family-relationships', 'participant_id'),
+                              ('/family-relationships', 'relative_id')])
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key

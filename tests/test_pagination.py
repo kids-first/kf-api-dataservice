@@ -13,6 +13,8 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.family_relationship.models import FamilyRelationship
+from dataservice.utils import iterate_pairwise
 
 
 class TestPagination:
@@ -39,6 +41,7 @@ class TestPagination:
         s.investigator = inv
         db.session.add(s)
         db.session.flush()
+        participants = []
         for i in range(102):
             p = Participant(external_id="test",
                             study_id=s.kf_id,
@@ -63,29 +66,42 @@ class TestPagination:
             p.outcomes = [outcome]
             phen = Phenotype()
             p.phenotypes = [phen]
+            participants.append(p)
             db.session.add(p)
         db.session.commit()
 
-    @pytest.mark.parametrize('endpoint', [
-        ('/studies'),
-        ('/investigators'),
-        ('/participants'),
-        ('/outcomes'),
-        ('/phenotypes'),
-        ('/demographics'),
-        ('/diagnoses'),
-        ('/samples'),
-        ('/aliquots'),
-        ('/sequencing-experiments')
+        # Family relationships
+        for participant, relative in iterate_pairwise(participants):
+            gender = participant.demographic.gender
+            rel = 'mother'
+            if gender == 'male':
+                rel = 'father'
+            r = FamilyRelationship(participant=participant, relative=relative,
+                                   participant_to_relative_relation=rel)
+            db.session.add(r)
+        db.session.commit()
+
+    @pytest.mark.parametrize('endpoint, expected_total', [
+        ('/studies', 102),
+        ('/investigators', 102),
+        ('/participants', 102),
+        ('/outcomes', 102),
+        ('/phenotypes', 102),
+        ('/demographics', 102),
+        ('/diagnoses', 102),
+        ('/samples', 102),
+        ('/aliquots', 102),
+        ('/sequencing-experiments', 102),
+        ('/family-relationships', 101)
     ])
-    def test_pagination(self, client, participants, endpoint):
+    def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
 
         assert len(resp['results']) == 10
         assert resp['limit'] == 10
-        assert resp['total'] == 102
+        assert resp['total'] == expected_total
 
         ids_seen = []
         # Iterate through via the `next` link
@@ -113,7 +129,8 @@ class TestPagination:
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
-        ('/sequencing-experiments')
+        ('/sequencing-experiments'),
+        ('/family-relationships')
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -142,7 +159,8 @@ class TestPagination:
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
-        ('/sequencing-experiments')
+        ('/sequencing-experiments'),
+        ('/family-relationships')
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -175,7 +193,8 @@ class TestPagination:
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
-        ('/sequencing-experiments')
+        ('/sequencing-experiments'),
+        ('/family-relationships')
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
@@ -193,13 +212,13 @@ class TestPagination:
 
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
-        ('/demographics'),
-        ('/samples'),
         ('/outcomes'),
+        ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
-        ('/sequencing-experiments')
+        ('/sequencing-experiments'),
+        ('/family-relationships')
     ])
     def test_individual_links(self, client, participants, endpoint):
         """ Test that each individual result has properly formatted _links """
