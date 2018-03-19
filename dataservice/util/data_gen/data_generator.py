@@ -418,16 +418,15 @@ class DataGenerator(object):
         for i in range(total):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
-                'file_size': (random.randint(min_size_mb, max_size_mb) *
-                              MB_TO_BYTES),
+                'size': (random.randint(min_size_mb, max_size_mb) *
+                         MB_TO_BYTES),
                 'data_type': random.choice(self.data_type_list),
                 'file_format': random.choice(
                     self.file_format_list),
-                'file_url': 's3://file_{}'.format(i),
+                'urls': ['s3://file_{}'.format(i)],
                 'controlled_access': random.choice(
                     self.controlled_access_list),
-                'md5sum': str(
-                    uuid.uuid4())
+                'hashes': {'md5': str(uuid.uuid4()).replace('-', '')}
             }
             sequencing_experiments = self._create_experiments(
                 random.randint(self.min_seq_exps, self.max_seq_exps))

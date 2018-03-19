@@ -285,8 +285,8 @@ class ModelTest(FlaskTestCase):
             'file_name': 'file_{}'.format(_id),
             'data_type': data_type,
             'file_format': '.cram',
-            'file_url': 's3://file_{}'.format(_id),
-            'md5sum': str(uuid.uuid4())
+            'urls': ['s3://file_{}'.format(_id)],
+            'hashes': {'md5': str(uuid.uuid4())}
         }
         return GenomicFile(**data)
 

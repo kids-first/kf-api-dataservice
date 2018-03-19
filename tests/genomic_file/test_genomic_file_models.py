@@ -1,7 +1,9 @@
 import uuid
 import random
+import pytest
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 from unittest.mock import patch
 
 from dataservice.extensions import db
@@ -12,7 +14,7 @@ from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 
 from tests.utils import FlaskTestCase
-from tests.mocks import MockIndexd
+from tests.mocks import MockIndexd, MockResp
 
 
 MAX_SIZE_MB = 5000
@@ -42,23 +44,27 @@ class ModelTest(FlaskTestCase):
         # Create genomic genomic files for just one biospecimen
         biospecimen = Biospecimen.query.all()[0]
         kf_id = biospecimen.kf_id
+        # Properties keyed on kf_id
         kwargs_dict = {}
         for i in range(2):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
                 'data_type': 'submitted aligned read',
                 'file_format': '.cram',
-                'file_url': 's3://file_{}'.format(i),
-                'md5sum': uuid.uuid4(),
+                'urls': ['s3://file_{}'.format(i)],
+                'hashes': {'md5': str(uuid.uuid4())},
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
                 'biospecimen_id': biospecimen.kf_id,
                 'sequencing_experiment_id': se.kf_id
             }
-            kwargs_dict[kwargs['md5sum']] = kwargs
             # Add genomic file to db session
-            db.session.add(GenomicFile(**kwargs))
+            gf = GenomicFile(**kwargs)
+            db.session.add(gf)
+            db.session.flush()
+            kwargs['kf_id'] = gf.kf_id
+            kwargs_dict[kwargs['kf_id']] = kwargs
         db.session.commit()
 
         # Check database
@@ -68,8 +74,17 @@ class ModelTest(FlaskTestCase):
 
         # Check all input field values with persisted field values
         # for each genomic file
-        for _md5sum, kwargs in kwargs_dict.items():
-            gf = GenomicFile.query.filter_by(md5sum=_md5sum).one()
+        for kf_id, kwargs in kwargs_dict.items():
+            # Mock out the response from indexd for the file
+            mock_file = {
+                'file_name': kwargs['file_name'],
+                'urls': kwargs['urls'],
+                'hashes': kwargs['hashes']
+            }
+            mock.Session().get.return_value = MockResp(resp=mock_file)
+
+            gf = GenomicFile.query.get(kf_id)
+            gf.merge_indexd()
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
@@ -92,8 +107,18 @@ class ModelTest(FlaskTestCase):
 
         # Check all input field values with persisted field values
         # for each genomic file
-        for _md5sum, kwargs in kwargs_dict.items():
-            gf = GenomicFile.query.filter_by(md5sum=_md5sum).one()
+        for kf_id, kwargs in kwargs_dict.items():
+            # Mock out the response from indexd for the file
+            mock_file = {
+                'file_name': kwargs['file_name'],
+                'urls': kwargs['urls'],
+                'hashes': kwargs['hashes'],
+                'size': kwargs['size']
+            }
+            mock.Session().get.return_value = MockResp(resp=mock_file)
+            gf = GenomicFile.query.get(kf_id)
+            gf.merge_indexd()
+
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
@@ -111,13 +136,13 @@ class ModelTest(FlaskTestCase):
         kwargs = kwargs_dict[list(kwargs_dict.keys())[0]]
         kwargs['file_name'] = 'updated file name'
         kwargs['data_type'] = 'updated data type'
-        gf = GenomicFile.query.filter_by(md5sum=kwargs['md5sum']).one()
+        gf = GenomicFile.query.get(kwargs['kf_id'])
         [setattr(gf, k, v)
          for k, v in kwargs.items()]
         db.session.commit()
 
         # Check database
-        gf = GenomicFile.query.filter_by(md5sum=kwargs['md5sum']).one()
+        gf = GenomicFile.query.get(kwargs['kf_id'])
         [self.assertEqual(getattr(gf, k), v)
          for k, v in kwargs.items()]
 
@@ -163,12 +188,22 @@ class ModelTest(FlaskTestCase):
 
         # Delete biospecimen
         db.session.delete(biospecimen)
+
+        # Delete experiment
+        db.session.delete(experiment)
         db.session.commit()
 
         # Check database
-        for gf_md5sum in kwargs_dict.keys():
-            gf = GenomicFile.query.filter_by(md5sum=gf_md5sum).one_or_none()
-            self.assertIs(gf, None)
+        assert GenomicFile.query.count() == 0
+
+        for kf_id in kwargs_dict.keys():
+            gf = GenomicFile.query.get(kf_id)
+            assert gf is None
+
+        # Check that indexd was called successfully
+        assert mock.Session().delete.call_count == 2
+
+    ## TODO Check that file is not deleted if deletion on indexd fails
 
     def test_not_null_constraint(self):
         """
@@ -201,15 +236,15 @@ class ModelTest(FlaskTestCase):
         for i in range(2):
             kwargs = {
                 'file_name': 'file_{}'.format(i),
-                'file_size': (random.randint(MIN_SIZE_MB, MAX_SIZE_MB) *
+                'size': (random.randint(MIN_SIZE_MB, MAX_SIZE_MB) *
                               MB_TO_BYTES),
                 'data_type': 'submitted aligned read',
                 'file_format': '.cram',
-                'file_url': 's3://file_{}'.format(i),
+                'urls': ['s3://file_{}'.format(i)],
                 'controlled_access': True,
-                'md5sum': str(uuid.uuid4()),
                 'is_harmonized': True,
-                'reference_genome': 'Test01'
+                'reference_genome': 'Test01',
+                'hashes': {'md5': uuid.uuid4()}
             }
             kwargs_dict[kwargs['md5sum']] = kwargs
             # Add genomic file to list in biospecimen

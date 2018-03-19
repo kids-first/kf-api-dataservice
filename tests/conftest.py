@@ -64,9 +64,9 @@ def entities(client, mock_indexd):
             'file_name': 'hg38.fq',
             'data_type': 'reads',
             'file_format': 'fastq',
-            'file_url': 's3://bucket/key',
+            'size': 1000,
             'urls': ['s3://bucket/key'],
-            'md5sum': str(uuid.uuid4()),
+            'hashes': {'md5': str(uuid.uuid4())},
             'controlled_access': False
         },
         '/studies': {

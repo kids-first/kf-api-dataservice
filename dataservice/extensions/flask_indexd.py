@@ -93,12 +93,8 @@ class Indexd(object):
             "file_name": record.file_name,
             "size": record.size,
             "form": "object",
-            "hashes": {
-                "md5": str(record.md5sum).replace('-', '')
-            },
-            "urls": [
-                record.file_url
-            ],
+            "hashes": record.hashes,
+            "urls": record.urls,
             "metadata": record._metadata
         }
 
@@ -133,12 +129,8 @@ class Indexd(object):
         req_body = {
             "file_name": record.file_name,
             "size": record.size,
-            "hashes": {
-                "md5": record.md5sum
-            },
-            "urls": [
-                record.file_url
-            ],
+            "hashes": record.hashes,
+            "urls": record.urls,
             "metadata": record._metadata
         }
 

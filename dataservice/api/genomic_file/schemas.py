@@ -18,11 +18,11 @@ class GenomicFileSchema(BaseSchema):
 
     urls = ma.List(ma.Str())
     file_name = ma.Str()
-    rev = ma.Str()
     hashes = ma.Dict()
     metadata = ma.Dict(attribute='_metadata')
     size = ma.Int()
 
     _links = ma.Hyperlinks({
-        'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>')
+        'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
+        'collection': ma.URLFor(Meta.collection_url)
     }, description='Resource links and pagination')

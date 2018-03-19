@@ -55,8 +55,8 @@ def test_new_indexd_error(client, entities):
         'size': 123,
         'data_type': 'aligned reads',
         'file_format': 'bam',
-        'file_url': 's3://bucket/key',
-        'md5sum': 'd418219b883fce3a085b1b7f38b01e37',
+        'urls': ['s3://bucket/key'],
+        'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'sequencing_experiment_id': 'SE_AAAAAAAA',
         'controlled_access': False
     }
@@ -101,7 +101,7 @@ def test_get_one(client, entities):
     # check properties from indexd
     assert resp['hashes'] == gf.hashes
     assert resp['metadata'] == gf._metadata
-    assert resp['rev'] == gf.rev
+    assert 'rev' not in resp
     assert resp['size'] == gf.size
     # check properties from datamodel
     assert resp['file_name'] == gf.file_name
@@ -109,7 +109,7 @@ def test_get_one(client, entities):
     assert resp['file_format'] == gf.file_format
 
 
-def test_update(client, entities):
+def test_update(client, mock_indexd, entities):
     """
     Test updating an existing genomic file
     """
@@ -127,6 +127,8 @@ def test_update(client, entities):
                                data=json.dumps(body),
                           headers={'Content-Type': 'application/json'})
 
+    assert mock_indexd.Session().put.call_count == 1
+
     assert response.status_code == 200
 
     resp = json.loads(response.data.decode("utf-8"))
@@ -138,6 +140,7 @@ def test_update(client, entities):
     assert gf['file_name'] == body['file_name']
 
     gf = GenomicFile.query.first()
+    gf.merge_indexd()
     assert gf.file_name, body['file_name']
 
 
@@ -199,8 +202,8 @@ def _new_genomic_file(client):
         'size': 123,
         'data_type': 'aligned reads',
         'file_format': 'bam',
-        'file_url': 's3://bucket/key',
-        'md5sum': 'd418219b883fce3a085b1b7f38b01e37',
+        'urls': ['s3://bucket/key'],
+        'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'controlled_access': False
     }
