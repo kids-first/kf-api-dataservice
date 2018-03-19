@@ -88,7 +88,7 @@ class GenomicFileAPI(CRUDView):
         genomic_file = GenomicFile.query.get(kf_id)
         if genomic_file is None:
             abort(404, 'could not find {} `{}`'
-                  .format('GenomicFile', kf_id))
+                  .format('genomic_file', kf_id))
 
         genomic_file.merge_indexd()
 
@@ -110,7 +110,7 @@ class GenomicFileAPI(CRUDView):
         gf = GenomicFile.query.get(kf_id)
         if gf is None:
             abort(404, 'could not find {} `{}`'
-                  .format('GenomicFile', kf_id))
+                  .format('genomic_file', kf_id))
 
         # Fetch fields from indexd first
         gf.merge_indexd()
@@ -123,7 +123,7 @@ class GenomicFileAPI(CRUDView):
                                                      partial=True).data
         except ValidationError as err:
             abort(400,
-                  'could not create genomic_file: {}'.format(err.messages))
+                  'could not update genomic_file: {}'.format(err.messages))
 
         db.session.add(gf)
         db.session.commit()
@@ -145,7 +145,7 @@ class GenomicFileAPI(CRUDView):
         """
         gf = GenomicFile.query.get(kf_id)
         if gf is None:
-            abort(404, 'could not find {} `{}`'.format('GenomicFile', kf_id))
+            abort(404, 'could not find {} `{}`'.format('genomic_file', kf_id))
 
         db.session.delete(gf)
         db.session.commit()

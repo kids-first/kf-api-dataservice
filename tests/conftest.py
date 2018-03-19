@@ -27,7 +27,7 @@ def app():
     yield create_app('testing')
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.yield_fixture(scope='function')
 def client(app):
     app_context = app.app_context()
     app_context.push()
@@ -221,12 +221,15 @@ def entities(client, mock_indexd):
     inputs['/genomic-files']['sequencing-experiment_id'] = seq_exp.kf_id
     # Study and study_files
     inputs['/study-files']['study_id'] = study.kf_id
+    # Genomic File and Sequencing Experiment
+    inputs['/genomic-files']['sequencing_experiment_id'] = seq_exp.kf_id
 
     # Add kf_ids
     inputs['kf_ids'] = {}
     inputs['kf_ids'].update({'/studies': study.kf_id})
     inputs['kf_ids'].update({'/study-files': sf.kf_id})
     inputs['kf_ids'].update({'/investigators': investigator.kf_id})
+    inputs['kf_ids'].update({'/genomic-files': genomic_file.kf_id})
     inputs['kf_ids'].update({'/participants': p.kf_id})
     inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
     inputs['kf_ids'].update({'/phenotypes': phenotype.kf_id})

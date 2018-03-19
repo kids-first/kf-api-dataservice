@@ -98,8 +98,8 @@ class TestAPI:
         ('/family-relationships/123', 'DELETE',
          'could not find family_relationship `123`'),
         ('/genomic-files', 'GET', 'success'),
-        ('/genomic-files/123', 'PATCH', 'could not find GenomicFile `123`'),
-        ('/genomic-files/123', 'DELETE', 'could not find GenomicFile `123`')
+        ('/genomic-files/123', 'PATCH', 'could not find genomic_file `123`'),
+        ('/genomic-files/123', 'DELETE', 'could not find genomic_file `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -194,6 +194,8 @@ class TestAPI:
             endpoint = '{}/{}'.format(endpoint, kf_id)
         resp = call_func(endpoint, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
+        if 'genomic-files' not in endpoint:
+            return
         for field in fields:
             assert (field not in body['results']
                     or body['results'][field] != 'test')
