@@ -21,6 +21,8 @@ class TestAPI:
         ('/diagnoses/123', 'GET', 404),
         ('/demographics', 'GET', 200),
         ('/demographics/123', 'GET', 404),
+        ('/phenotypes', 'GET', 200),
+        ('/phenotypes/123', 'GET', 404),
         ('/participants', 'GET', 200),
         ('/persons', 'GET', 404),
         ('/participants/123', 'GET', 404),
@@ -57,6 +59,10 @@ class TestAPI:
         ('/demographics/123', 'GET', 'could not find demographic `123`'),
         ('/demographics/123', 'PATCH', 'could not find demographic `123`'),
         ('/demographics/123', 'DELETE', 'could not find demographic `123`'),
+        ('/phenotypes', 'GET', 'success'),
+        ('/phenotypes/123', 'GET', 'could not find phenotype `123`'),
+        ('/phenotypes/123', 'PATCH', 'could not find phenotype `123`'),
+        ('/phenotypes/123', 'DELETE', 'could not find phenotype `123`'),
         ('/participants', 'GET', 'success'),
         ('/participants/123', 'GET', 'could not find participant `123`'),
         ('/participants/123', 'PATCH', 'could not find participant `123`'),
@@ -92,7 +98,9 @@ class TestAPI:
         ('/studies', 'GET'),
         ('/investigators', 'GET'),
         ('/participants', 'GET'),
-        ('/outcomes', 'GET')
+        ('/outcomes', 'GET'),
+        ('/studies', 'GET'),
+        ('/phenotypes', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -114,6 +122,8 @@ class TestAPI:
         ('/studies', 'PATCH', ['created_at', 'modified_at']),
         ('/outcomes', 'POST', ['created_at', 'modified_at']),
         ('/outcomes', 'PATCH', ['created_at', 'modified_at']),
+        ('/phenotypes', 'POST', ['created_at', 'modified_at']),
+        ('/phenotypes', 'PATCH', ['created_at', 'modified_at']),
         ('/investigators', 'PATCH', ['created_at', 'modified_at']),
         ('/aliquots', 'PATCH', ['created_at', 'modified_at'])
     ])
@@ -142,6 +152,7 @@ class TestAPI:
                                           '/studies',
                                           '/investigators',
                                           '/outcomes',
+                                          '/phenotypes',
                                           '/aliquots'])
 
     def test_unknown_field(self, client, entities, endpoint, method):
@@ -168,6 +179,7 @@ class TestAPI:
         ('/participants', 'samples'),
         ('/samples', 'aliquots'),
         ('/participants', 'outcomes'),
+        ('/participants', 'phenotypes')
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
@@ -190,7 +202,9 @@ class TestAPI:
                               ('/aliquots', 'shipment_date', 'hai der'),
                               ('/aliquots', 'concentration', -12),
                               ('/aliquots', 'volume', -12),
-                              ('/outcomes', 'age_at_event_days', -12)])
+                              ('/outcomes', 'age_at_event_days', -12),
+                              ('/phenotypes', 'age_at_event_days', -12)])
+
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]
@@ -233,7 +247,8 @@ class TestAPI:
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint, field',
                              [('/aliquots', 'sample_id'),
-                             ('/outcomes', 'participant_id')])
+                             ('/outcomes', 'participant_id'),
+                             ('/phenotypes', 'participant_id')])
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key

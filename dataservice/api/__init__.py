@@ -20,6 +20,8 @@ from dataservice.api.aliquot import AliquotAPI
 from dataservice.api.aliquot import AliquotListAPI
 from dataservice.api.outcome import OutcomeAPI
 from dataservice.api.outcome import OutcomeListAPI
+from dataservice.api.phenotype.resources import PhenotypeAPI
+from dataservice.api.phenotype.resources import PhenotypeListAPI
 
 from dataservice.api.study.models import Study
 
