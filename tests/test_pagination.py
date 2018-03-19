@@ -4,15 +4,15 @@ from dateutil import parser
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
+from dataservice.api.investigator.models import Investigator
 from dataservice.api.participant.models import Participant
+from dataservice.api.outcome.models import Outcome
+from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
-from dataservice.api.phenotype.models import Phenotype
-from dataservice.api.study.models import Study
-from dataservice.api.investigator.models import Investigator
-from dataservice.api.outcome.models import Outcome
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 
 class TestPagination:
@@ -45,7 +45,16 @@ class TestPagination:
                             is_proband=True)
             d = Demographic(race='cat')
             p.demographic = d
-            aliquot = Aliquot(analyte_type='an analyte')
+            se_kwargs = {
+                'external_id': 'se1',
+                'experiment_strategy': 'WGS',
+                'center': 'Baylor',
+                'is_paired_end': True,
+                'platform': 'Illumina'
+            }
+            seq_exp = SequencingExperiment(**se_kwargs)
+            aliquot = Aliquot(analyte_type='an analyte',
+                              sequencing_experiments=[seq_exp])
             samp = Sample(aliquots=[aliquot])
             p.samples = [samp]
             diag = Diagnosis()
@@ -61,14 +70,14 @@ class TestPagination:
         ('/studies'),
         ('/investigators'),
         ('/participants'),
+        ('/outcomes'),
+        ('/phenotypes'),
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
-        ('/outcomes'),
-        ('/phenotypes')
+        ('/sequencing-experiments')
     ])
-
     def test_pagination(self, client, participants, endpoint):
         """ Test pagination of resource """
         resp = client.get(endpoint)
@@ -98,12 +107,13 @@ class TestPagination:
         ('/studies'),
         ('/investigators'),
         ('/participants'),
+        ('/outcomes'),
+        ('/phenotypes'),
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
-        ('/outcomes'),
-        ('/phenotypes')
+        ('/sequencing-experiments')
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -126,12 +136,13 @@ class TestPagination:
         ('/studies'),
         ('/investigators'),
         ('/participants'),
+        ('/outcomes'),
+        ('/phenotypes'),
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
-        ('/outcomes'),
-        ('/phenotypes')
+        ('/sequencing-experiments')
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -158,12 +169,13 @@ class TestPagination:
         ('/studies'),
         ('/investigators'),
         ('/participants'),
+        ('/outcomes'),
+        ('/phenotypes'),
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
-        ('/outcomes'),
-        ('/phenotypes')
+        ('/sequencing-experiments')
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
@@ -186,7 +198,8 @@ class TestPagination:
         ('/outcomes'),
         ('/diagnoses'),
         ('/samples'),
-        ('/aliquots')
+        ('/aliquots'),
+        ('/sequencing-experiments')
     ])
     def test_individual_links(self, client, participants, endpoint):
         """ Test that each individual result has properly formatted _links """

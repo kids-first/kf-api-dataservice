@@ -22,8 +22,8 @@ from dataservice.api.outcome import OutcomeAPI
 from dataservice.api.outcome import OutcomeListAPI
 from dataservice.api.phenotype.resources import PhenotypeAPI
 from dataservice.api.phenotype.resources import PhenotypeListAPI
-
-from dataservice.api.study.models import Study
+from dataservice.api.sequencing_experiment import SequencingExperimentAPI
+from dataservice.api.sequencing_experiment import SequencingExperimentListAPI
 
 
 api = Blueprint('api', __name__, url_prefix='', template_folder='templates')

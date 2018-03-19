@@ -1,6 +1,5 @@
 import json
 from datetime import datetime
-from dateutil import tz
 import pytest
 
 from dataservice import create_app
@@ -14,6 +13,7 @@ from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 
 @pytest.yield_fixture(scope='session')
@@ -77,6 +77,22 @@ def entities(client):
             'volume': 13.99,
             'shipment_date': str(datetime.utcnow())
         },
+        '/sequencing-experiments': {
+            'external_id': 'se1',
+            'experiment_date': str(datetime.utcnow()),
+            'experiment_strategy': 'WGS',
+            'center': 'Baylor',
+            'library_name': 'a library',
+            'library_strand': 'a strand',
+            'is_paired_end': True,
+            'platform': 'Illumina',
+            'instrument_model': 'HiSeqX',
+            'max_insert_size': 500,
+            'mean_insert_size': 300,
+            'mean_depth': 60.89,
+            'total_reads': 1000,
+            'mean_read_length': 50
+        },
         '/diagnoses': {
             'external_id': 'd0',
             'diagnosis': 'diag',
@@ -98,13 +114,16 @@ def entities(client):
     investigator = Investigator(**inputs['/investigators'])
     study = Study(**inputs['/studies'])
     p = Participant(**inputs['/participants'])
-
+    outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
+    phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
     demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
     sample = Sample(**inputs['/samples'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
-    outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
     aliquot = Aliquot(**inputs['/aliquots'])
-    phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
+    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'])
+
+    aliquot.sequencing_experiments = [seq_exp]
+    sample.aliquots = [aliquot]
     p.demographic = demo
     sample.aliquots = [aliquot]
     p.samples = [sample]
@@ -131,18 +150,20 @@ def entities(client):
 
     # Sample and aliquot
     inputs['/aliquots']['sample_id'] = sample.kf_id
+    # Aliquot and sequencing_experiment
+    inputs['/sequencing-experiments']['aliquot_id'] = aliquot.kf_id
 
     # Add kf_ids
     inputs['kf_ids'] = {}
     inputs['kf_ids'].update({'/studies': study.kf_id})
     inputs['kf_ids'].update({'/investigators': investigator.kf_id})
     inputs['kf_ids'].update({'/participants': p.kf_id})
+    inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
+    inputs['kf_ids'].update({'/phenotypes': phenotype.kf_id})
     inputs['kf_ids'].update({'/demographics': p.demographic.kf_id})
     inputs['kf_ids'].update({'/diagnoses': diagnosis.kf_id})
     inputs['kf_ids'].update({'/samples': sample.kf_id})
     inputs['kf_ids'].update({'/aliquots': aliquot.kf_id})
-    inputs['kf_ids'].update({'/investigators': investigator.kf_id})
-    inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
-    inputs['kf_ids'].update({'/phenotypes': phenotype.kf_id})
+    inputs['kf_ids'].update({'/sequencing-experiments': seq_exp.kf_id})
 
     return inputs
