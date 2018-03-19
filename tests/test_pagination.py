@@ -11,6 +11,7 @@ from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.study.models import Study
 from dataservice.api.investigator.models import Investigator
+from dataservice.api.outcome.models import Outcome
 
 
 class TestPagination:
@@ -48,6 +49,8 @@ class TestPagination:
             p.samples = [samp]
             diag = Diagnosis()
             p.diagnoses = [diag]
+            outcome = Outcome()
+            p.outcomes = [outcome]
             db.session.add(p)
         db.session.commit()
 
@@ -58,8 +61,10 @@ class TestPagination:
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
-        ('/aliquots')
+        ('/aliquots'),
+        ('/outcomes')
     ])
+
     def test_pagination(self, client, participants, endpoint):
         """ Test pagination of resource """
         resp = client.get(endpoint)
@@ -92,7 +97,8 @@ class TestPagination:
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
-        ('/aliquots')
+        ('/aliquots'),
+        ('/outcomes')
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -118,7 +124,8 @@ class TestPagination:
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
-        ('/aliquots')
+        ('/aliquots'),
+        ('/outcomes')
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -148,7 +155,8 @@ class TestPagination:
         ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
-        ('/aliquots')
+        ('/aliquots'),
+        ('/outcomes')
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
@@ -167,6 +175,8 @@ class TestPagination:
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
         ('/demographics'),
+        ('/samples'),
+        ('/outcomes'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots')

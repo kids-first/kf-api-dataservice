@@ -12,6 +12,7 @@ from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
+from dataservice.api.outcome.models import Outcome
 
 
 @pytest.yield_fixture(scope='session')
@@ -82,7 +83,7 @@ def entities(client):
         },
         '/outcomes': {
             'vital_status': 'Alive',
-            'disease_related': False,
+            'disease_related': 'False',
             'age_at_event_days': 120,
         },
         '/phenotypes': {
@@ -96,21 +97,22 @@ def entities(client):
     investigator = Investigator(**inputs['/investigators'])
     study = Study(**inputs['/studies'])
     p = Participant(**inputs['/participants'])
-    demo = Demographic(**inputs['/demographics'])
-    sample = Sample(**inputs['/samples'])
-    aliquot = Aliquot(**inputs['/aliquots'])
-    diagnosis = Diagnosis(**inputs['/diagnoses'])
 
-    sample.aliquots = [aliquot]
+    demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
+    sample = Sample(**inputs['/samples'], participant_id=p.kf_id)
+    diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
+    outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
+    aliquot = Aliquot(**inputs['/aliquots'])
     p.demographic = demo
+    sample.aliquots = [aliquot]
     p.samples = [sample]
     p.diagnoses = [diagnosis]
-
+    p.outcomes = [outcome]
     # Add participants to study
     study.investigator = investigator
     study.participants.append(p)
-
     db.session.add(study)
+    db.session.add(p)
     db.session.commit()
 
     # Add foreign keys
@@ -135,5 +137,7 @@ def entities(client):
     inputs['kf_ids'].update({'/diagnoses': diagnosis.kf_id})
     inputs['kf_ids'].update({'/samples': sample.kf_id})
     inputs['kf_ids'].update({'/aliquots': aliquot.kf_id})
+    inputs['kf_ids'].update({'/investigators': investigator.kf_id})
+    inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
 
     return inputs

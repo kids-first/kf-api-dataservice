@@ -27,6 +27,8 @@ class TestAPI:
         ('/studies', 'GET', 200),
         ('/studies/123', 'GET', 404),
         ('/investigators', 'GET', 200),
+        ('/outcomes', 'GET', 200),
+        ('/outcomes/123', 'GET', 404)
     ])
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
@@ -66,7 +68,11 @@ class TestAPI:
         ('/investigators', 'GET', 'success'),
         ('/investigators/123', 'GET', 'could not find investigator `123`'),
         ('/investigators/123', 'PATCH', 'could not find investigator `123`'),
-        ('/investigators/123', 'DELETE', 'could not find investigator `123`')
+        ('/investigators/123', 'DELETE', 'could not find investigator `123`'),
+        ('/outcomes', 'GET', 'success'),
+        ('/outcomes/123', 'GET', 'could not find outcome `123`'),
+        ('/outcomes/123', 'PATCH', 'could not find outcome `123`'),
+        ('/outcomes/123', 'DELETE', 'could not find outcome `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -85,7 +91,8 @@ class TestAPI:
         ('/demographics', 'GET'),
         ('/studies', 'GET'),
         ('/investigators', 'GET'),
-        ('/participants', 'GET')
+        ('/participants', 'GET'),
+        ('/outcomes', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -105,6 +112,8 @@ class TestAPI:
         ('/samples', 'PATCH', ['created_at', 'modified_at']),
         ('/studies', 'POST', ['created_at', 'modified_at']),
         ('/studies', 'PATCH', ['created_at', 'modified_at']),
+        ('/outcomes', 'POST', ['created_at', 'modified_at']),
+        ('/outcomes', 'PATCH', ['created_at', 'modified_at']),
         ('/investigators', 'PATCH', ['created_at', 'modified_at']),
         ('/aliquots', 'PATCH', ['created_at', 'modified_at'])
     ])
@@ -132,7 +141,9 @@ class TestAPI:
                                           '/samples',
                                           '/studies',
                                           '/investigators',
+                                          '/outcomes',
                                           '/aliquots'])
+
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
@@ -156,6 +167,7 @@ class TestAPI:
         ('/participants', 'diagnoses'),
         ('/participants', 'samples'),
         ('/samples', 'aliquots'),
+        ('/participants', 'outcomes'),
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
@@ -177,7 +189,8 @@ class TestAPI:
                               ('/aliquots', 'shipment_date', '12000'),
                               ('/aliquots', 'shipment_date', 'hai der'),
                               ('/aliquots', 'concentration', -12),
-                              ('/aliquots', 'volume', -12)])
+                              ('/aliquots', 'volume', -12),
+                              ('/outcomes', 'age_at_event_days', -12)])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]
@@ -219,7 +232,8 @@ class TestAPI:
 
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint, field',
-                             [('/aliquots', 'sample_id')])
+                             [('/aliquots', 'sample_id'),
+                             ('/outcomes', 'participant_id')])
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key
