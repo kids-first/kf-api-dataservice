@@ -1,6 +1,5 @@
 import json
 import requests
-from unittest.mock import patch
 import pytest
 from unittest.mock import MagicMock
 from requests.exceptions import HTTPError
@@ -10,8 +9,6 @@ from flask import url_for
 from dataservice.extensions import db
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
-
-from tests.mocks import MockIndexd
 
 
 GENOMICFILE_URL = 'api.genomic_files'
@@ -109,25 +106,29 @@ def test_get_one(client, entities):
     assert resp['file_format'] == gf.file_format
 
 
-def test_update(client, mock_indexd, entities):
+def test_update(client, indexd, entities):
     """
     Test updating an existing genomic file
+
+    This will should create a new version in indexd
     """
 
     resp = _new_genomic_file(client)
+    orig_calls = indexd.post.call_count
     participant = resp['results']
     kf_id = participant.get('kf_id')
     orig = resp['results']
 
     body = {
-        'file_name': 'hg37.bam'
+        'file_name': 'hg37.bam',
+        'size': 23498
     }
     response = client.patch(url_for(GENOMICFILE_URL,
                                   kf_id=kf_id),
                                data=json.dumps(body),
-                          headers={'Content-Type': 'application/json'})
+                            headers={'Content-Type': 'application/json'})
 
-    assert mock_indexd.Session().put.call_count == 1
+    assert indexd.post.call_count == orig_calls + 1
 
     assert response.status_code == 200
 
@@ -144,7 +145,7 @@ def test_update(client, mock_indexd, entities):
     assert gf.file_name, body['file_name']
 
 
-def test_delete(client, mock_indexd, entities):
+def test_delete(client, indexd, entities):
     """
     Test deleting a participant by id
     """
@@ -162,10 +163,10 @@ def test_delete(client, mock_indexd, entities):
     assert 'genomic_file' in resp['_status']['message']
     assert 'deleted' in resp['_status']['message']
     assert GenomicFile.query.count() == init
-    assert mock_indexd.Session().delete.call_count == 1
+    assert indexd.delete.call_count == 1
 
 
-def test_delete_error(client, mock_indexd, entities):
+def test_delete_error(client, indexd, entities):
     """
     Test handling of indexd error
     """
@@ -176,7 +177,7 @@ def test_delete_error(client, mock_indexd, entities):
     def exc():
         raise HTTPError()
     response_mock.raise_for_status = exc
-    mock_indexd.Session().delete.return_value = response_mock
+    indexd.delete.return_value = response_mock
 
     init = GenomicFile.query.count()
 
@@ -189,7 +190,7 @@ def test_delete_error(client, mock_indexd, entities):
 
     resp = json.loads(response.data.decode("utf-8"))
 
-    assert mock_indexd.Session().delete.call_count == 1
+    assert indexd.delete.call_count == 1
     assert 'could not delete record' in resp['_status']['message']
     assert 'fake error message' in resp['_status']['message']
     assert GenomicFile.query.count() == init + 1

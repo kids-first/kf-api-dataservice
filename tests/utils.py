@@ -3,7 +3,6 @@ from dataservice import create_app
 from dataservice.extensions import db
 
 from unittest.mock import patch, Mock
-#from tests.mocks import mock_indexd_post, mock_indexd_get, mock_indexd_put
 
 class FlaskTestCase(unittest.TestCase):
 

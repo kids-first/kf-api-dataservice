@@ -1,5 +1,8 @@
 import uuid
-from unittest.mock import MagicMock
+import json
+import pytest
+
+from unittest.mock import MagicMock, patch
 from requests.exceptions import HTTPError
 
 
@@ -12,6 +15,9 @@ class MockResp(MagicMock):
     def json(self):
         return self.resp
 
+    def data(self):
+        return json.dumps(self.resp)
+
     def raise_for_status(self):
         if self.status_code != 200:
             raise HTTPError('{} Client Error'.format(self.status_code),
@@ -19,6 +25,12 @@ class MockResp(MagicMock):
 
 
 class MockIndexd(MagicMock):
+    """
+    Mocks out common indexd service endpoints with templated responses
+
+    - POST - create new document or version
+    - GET - get info on a document or version by did
+    """
 
     doc = {
         "baseid": "dc51eafd-1a7a-48ea-8800-3dfef5f9bd49",
@@ -68,12 +80,11 @@ class MockIndexd(MagicMock):
 
         return MockResp(resp=resp, status_code=self.status_code)
 
-    def patch(self, url, *args, **kwargs):
-        """
-        Mocks a response from POST /index/
-        """
-        did = url.split('/')[-1].split('?')[0]
-        resp = self.doc.copy()
-        resp['did'] = did
 
-        return MockResp(resp=resp, status_code=self.status_code)
+@pytest.yield_fixture(scope='function')
+def indexd(mocker):
+    mock = mocker.patch('dataservice.extensions.flask_indexd.requests')
+    indexd_mock = MockIndexd()
+    mock.Session().get.side_effect = indexd_mock.get
+    mock.Session().post.side_effect = indexd_mock.post
+    yield mock.Session()
