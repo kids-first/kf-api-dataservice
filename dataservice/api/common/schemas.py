@@ -77,6 +77,17 @@ class BaseSchema(ma.ModelSchema):
             raise ValidationError('Unknown field', unknown)
 
 
+class IndexdFileSchema(Schema):
+    class Meta:
+        exclude = ('latest_did',)
+
+    urls = ma.List(ma.Str())
+    file_name = ma.Str()
+    hashes = ma.Dict()
+    metadata = ma.Dict(attribute='_metadata')
+    size = ma.Int()
+
+
 class ErrorSchema(Schema):
     """ Handles HTTPException marshalling """
 

@@ -1,34 +1,15 @@
-import requests
 from sqlalchemy.dialects.postgresql import UUID
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, IndexdFile, KfId
 
-from flask import abort, current_app
-from requests.exceptions import HTTPError
-from sqlalchemy import event
-from sqlalchemy.dialects.postgresql import UUID
 
-from dataservice.extensions import db, indexd
-from dataservice.api.common.model import Base, KfId
-
-
-class GenomicFile(db.Model, Base):
+class GenomicFile(db.Model, Base, IndexdFile):
     """
     GenomicFile entity.
 
     A GenomicFile has fields that are stored in both the datamodel, and in
     the Gen3 indexd service. The two are linked through a common uuid.
 
-    ## Lifetime
-
-    ### Creation
-
-    When a genomic file is created, an instance of the orm model here is
-    created, and when persisted to the database, a request is sent to Gen3
-    indexd to register the file in the service. Upon successful registry
-    of the file, a response containing a did (digital identifier) will be
-    recieved. The GenomicFile will then be inserted into the database using
-    the did as its uuid.
 
     :param kf_id: Unique id given by the Kid's First DCC
     :param uuid: The baseid assigned to the file by indexd

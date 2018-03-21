@@ -1,5 +1,4 @@
 from flask import abort, request
-from sqlalchemy.orm.exc import NoResultFound
 from marshmallow import ValidationError
 
 from dataservice.extensions import db

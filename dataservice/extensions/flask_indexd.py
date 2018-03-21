@@ -1,4 +1,5 @@
 import requests
+import uuid
 
 from flask import current_app, abort
 from flask import _app_ctx_stack as stack
@@ -17,6 +18,7 @@ class Indexd(object):
 
     def init_app(self, app):
         app.config.setdefault('INDEXD_URL', None)
+        self.url = app.config['INDEXD_URL']
         if hasattr(app, 'teardown_appcontext'):
             app.teardown_appcontext(self.teardown)
         else:
@@ -35,15 +37,20 @@ class Indexd(object):
         if hasattr(ctx, 'indexd_session'):
             ctx.indexd_session.close()
 
-    def get(self, did):
+    def get(self, record):
         """
         Retrieves a record from indexd
 
-        :param did: The did to fetch from indexd
+        :param record: The record object
         :returns: Non-error response from indexd
         :throws: Aborts on non-ok http code returned from indexd
         """
-        resp = self.session.get(current_app.config['INDEXD_URL'] + did)
+        # If running in dev mode, dont call indexd
+        if self.url is None:
+            return record
+
+        url = self.url + record.latest_did
+        resp = self.session.get(url)
 
         try:
             resp.raise_for_status()
@@ -54,7 +61,15 @@ class Indexd(object):
                 message = '{}: {}'.format(message, resp.json()['error'])
             abort(resp.status_code, message)
 
-        return resp
+        # Might want to use partial deserialization here
+        for prop, v in resp.json().items():
+            if hasattr(record, prop):
+                setattr(record, prop, v)
+
+        if 'metadata' in resp.json():
+            self._metadata = resp.json()['metadata']
+
+        return record
 
     def new(self, record):
         """
@@ -89,6 +104,12 @@ class Indexd(object):
         :returns: Non-error response from indexd
         :throws: Aborts on non-ok http code returned from indexd
         """
+        # If running in dev mode, dont call indexd
+        if self.url is None:
+            record.uuid = str(uuid.uuid4())
+            record.latest_did = str(uuid.uuid4())
+            return record
+
         req_body = {
             "file_name": record.file_name,
             "size": record.size,
@@ -99,7 +120,7 @@ class Indexd(object):
         }
 
         # Register the file on indexd
-        resp = self.session.post(current_app.config['INDEXD_URL'],
+        resp = self.session.post(self.url,
                                  json=req_body)
 
         try:
@@ -126,8 +147,13 @@ class Indexd(object):
         :param record: A file-like object
         :throws: Aborts on non-ok http code returned from indexd
         """
+        # If running in dev mode, dont call indexd
+        if self.url is None:
+            record.latest_did = str(uuid.uuid4())
+            return record
+
         # Fetch rev for the did
-        url = current_app.config['INDEXD_URL']+record.latest_did
+        url = self.url + record.latest_did
         r = self.session.get(url)
         r.raise_for_status()
         record.rev = r.json()['rev']
@@ -141,8 +167,7 @@ class Indexd(object):
         }
 
         # Update the file on indexd
-        url = '{}{}?rev={}'.format(current_app.config['INDEXD_URL'],
-                                   record.latest_did, record.rev)
+        url = '{}{}?rev={}'.format(self.url, record.latest_did, record.rev)
         resp = self.session.post(url, json=req_body)
 
         try:
@@ -162,6 +187,10 @@ class Indexd(object):
         :param record: A file-like object
         :throws: Aborts on non-ok http code returned from indexd
         """
+        # If running in dev mode, dont call indexd
+        if self.url is None:
+            return record
+
         if record.rev is None:
             r = self.session.get(self.url + record.latest_did)
             # r.raise_for_status()
@@ -177,6 +206,8 @@ class Indexd(object):
             if 'error' in resp.json():
                 message += ': {}'.format(resp.json()['error'])
             abort(resp.status_code, message)
+
+        return record
 
     @property
     def session(self):
