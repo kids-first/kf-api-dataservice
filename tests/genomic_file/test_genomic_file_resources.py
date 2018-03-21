@@ -29,17 +29,20 @@ def genomic_files(client, entities):
     db.session.commit()
 
 
-def test_new(client, entities):
+def test_new(client, indexd, entities):
     """
     Test creating a new genomic file
     """
+    orig_calls = indexd.post.call_count
     resp = _new_genomic_file(client)
     assert 'genomic_file' in resp['_status']['message']
     assert 'created' in resp['_status']['message']
     assert resp['results']['file_name'] == 'hg38.bam'
 
     genomic_file = resp['results']
-    assert GenomicFile.query.get(genomic_file['kf_id'])
+    gf = GenomicFile.query.get(genomic_file['kf_id'])
+    assert gf
+    assert indexd.post.call_count == orig_calls + 1
 
 
 def test_new_indexd_error(client, entities):
@@ -59,8 +62,8 @@ def test_new_indexd_error(client, entities):
     }
     init_count = GenomicFile.query.count()
     response = client.post(url_for(GENOMICFILE_LIST_URL),
-                                headers={'Content-Type': 'application/json'},
-                                data=json.dumps(body))
+                           headers={'Content-Type': 'application/json'},
+                           data=json.dumps(body))
     resp = json.loads(response.data.decode("utf-8"))
 
     assert 'does not exist' in resp['_status']['message']
@@ -118,17 +121,22 @@ def test_update(client, indexd, entities):
     participant = resp['results']
     kf_id = participant.get('kf_id')
     orig = resp['results']
+    orig_gf = GenomicFile.query.get(kf_id)
+    orig_uuid = orig_gf.uuid
+    orig_did = orig_gf.latest_did
 
     body = {
         'file_name': 'hg37.bam',
         'size': 23498
     }
+
     response = client.patch(url_for(GENOMICFILE_URL,
                                   kf_id=kf_id),
                                data=json.dumps(body),
                             headers={'Content-Type': 'application/json'})
 
     assert indexd.post.call_count == orig_calls + 1
+    assert indexd.post.called_with(orig_gf.latest_did)
 
     assert response.status_code == 200
 
@@ -136,13 +144,17 @@ def test_update(client, indexd, entities):
     assert 'genomic_file' in resp['_status']['message']
     assert 'updated' in resp['_status']['message']
 
+    # Test response
     gf = resp['results']
     assert gf['kf_id'] == kf_id
     assert gf['file_name'] == body['file_name']
 
-    gf = GenomicFile.query.first()
+    # Test database object
+    gf = GenomicFile.query.get(kf_id)
     gf.merge_indexd()
     assert gf.file_name, body['file_name']
+    assert gf.uuid == orig_uuid
+    assert gf.latest_did != orig_did
 
 
 def test_delete(client, indexd, entities):

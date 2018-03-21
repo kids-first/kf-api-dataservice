@@ -53,20 +53,33 @@ class MockIndexd(MagicMock):
         "version": None
     }
 
+    # Need to store docs so new docs vs new versions can be differentiated
+    baseid_by_did = {}
+
     def __init__(self, *args, status_code=200, **kwargs):
         super(MockIndexd, self).__init__(*args, **kwargs)
         self.status_code = status_code
 
 
-    def post(self, *args, **kwargs):
+    def post(self, url, *args, **kwargs):
         """
         Mocks a response from POST /index/
         """
+
         resp = {
-          'baseid': 'dc51eafd-1a7a-48ea-8800-3dfef5f9bd49',
+          'baseid': str(uuid.uuid4()),
           'did': str(uuid.uuid4()),
-          'rev': '2e68e5f2'
+          'rev': str(uuid.uuid4())[:8]
         }
+
+        did = url.split('/')[-1].split('?')[0]
+        if len(did) == 56:
+            # If there was a did in the url, assume it was an update
+            resp['baseid'] = self.baseid_by_did['did']
+        else:
+            # Otherwise, assume creation of a new doc and track the baseid
+            self.baseid_by_did[resp['did']] = resp['baseid']
+
         mock_resp = MockResp(resp=resp, status_code=self.status_code)
         return mock_resp
 

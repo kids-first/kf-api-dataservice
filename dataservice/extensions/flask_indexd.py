@@ -112,7 +112,12 @@ class Indexd(object):
             abort(resp.status_code, message)
 
         resp = resp.json()
-        return resp
+
+        # Update the record object with the id fields
+        record.uuid = resp['baseid']
+        record.latest_did = resp['did']
+
+        return record
 
     def update(self, record):
         """
@@ -122,7 +127,8 @@ class Indexd(object):
         :throws: Aborts on non-ok http code returned from indexd
         """
         # Fetch rev for the did
-        r = self.session.get(current_app.config['INDEXD_URL']+record.uuid)
+        url = current_app.config['INDEXD_URL']+record.latest_did
+        r = self.session.get(url)
         r.raise_for_status()
         record.rev = r.json()['rev']
 
@@ -136,13 +142,18 @@ class Indexd(object):
 
         # Update the file on indexd
         url = '{}{}?rev={}'.format(current_app.config['INDEXD_URL'],
-                                   record.uuid, record.rev)
-        resp = self.session.put(url, json=req_body)
+                                   record.latest_did, record.rev)
+        resp = self.session.post(url, json=req_body)
 
         try:
             resp.raise_for_status()
         except HTTPError:
             abort(resp.status_code, 'could not update record')
+
+        did = resp.json()['did']
+        record.latest_did = did
+
+        return record
 
     def delete(self, record):
         """

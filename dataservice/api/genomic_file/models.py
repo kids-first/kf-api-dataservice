@@ -1,4 +1,7 @@
 import requests
+from sqlalchemy.dialects.postgresql import UUID
+from dataservice.extensions import db
+from dataservice.api.common.model import Base, IndexdFile, KfId
 
 from flask import abort, current_app
 from requests.exceptions import HTTPError
@@ -38,6 +41,7 @@ class GenomicFile(db.Model, Base):
     :param is_harmonized: Whether or not the file is harmonized
     :param reference_genome: Original reference genome of the
      unharmonized genomic files
+    :param latest_did: UUID for the latest version of the file in indexd
     :param urls: Locations of file
     :param hashes: A dict keyed by hash type containing hashes of the file
     :param _metadata: A dict with any additional information
@@ -54,6 +58,7 @@ class GenomicFile(db.Model, Base):
                                  ' the unharmonized genomic files')
     controlled_access = db.Column(db.Boolean(), doc='Whether or not the file'
                                   'is controlled access')
+    latest_did = db.Column(UUID(), nullable=False)
     sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'),
@@ -96,10 +101,7 @@ def register_indexd(mapper, connection, target):
     if current_app.config['INDEXD_URL'] is None:
         return
 
-    resp = indexd.new(target)
-    # Update the target's uuid with the new did recieved from indexd
-    target.uuid = resp['did']
-    return target
+    return indexd.new(target)
 
 
 @event.listens_for(GenomicFile, 'before_update')
@@ -107,7 +109,7 @@ def update_indexd(mapper, connection, target):
     """
     Updates a document in indexd
     """
-    indexd.update(target)
+    return indexd.update(target)
 
 
 @event.listens_for(GenomicFile, 'before_delete')

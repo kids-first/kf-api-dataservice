@@ -10,11 +10,17 @@ class GenomicFileSchema(BaseSchema):
         model = GenomicFile
         resource_url = 'api.genomic_files'
         collection_url = 'api.genomic_files_list'
+        exclude = ('latest_did',)
 
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',
                                          required=True,
                                          load_only=True)
+
+    latest_did = field_for(GenomicFile,
+                           'latest_did',
+                           required=False,
+                           load_only=True)
 
     urls = ma.List(ma.Str())
     file_name = ma.Str()
