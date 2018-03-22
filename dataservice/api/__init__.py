@@ -10,6 +10,8 @@ from dataservice.api.investigator import InvestigatorAPI
 from dataservice.api.investigator import InvestigatorListAPI
 from dataservice.api.participant import ParticipantAPI
 from dataservice.api.participant import ParticipantListAPI
+from dataservice.api.family_relationship import FamilyRelationshipAPI
+from dataservice.api.family_relationship import FamilyRelationshipListAPI
 from dataservice.api.demographic import DemographicAPI
 from dataservice.api.demographic import DemographicListAPI
 from dataservice.api.diagnosis import DiagnosisAPI
