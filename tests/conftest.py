@@ -7,6 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
+from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
@@ -107,13 +108,28 @@ def entities(client):
             'phenotype': 'test phenotype 1',
             'hpo_id': 'HP:0000118',
             'age_at_event_days': 120
+        },
+        '/family-relationships': {
+            'participant_to_relative_relation': 'mother'
         }
     }
 
     # Create and save entities to db
+    # Study, investigator
     investigator = Investigator(**inputs['/investigators'])
     study = Study(**inputs['/studies'])
+    study.investigator = investigator
+
+    # Add participants to study
     p = Participant(**inputs['/participants'])
+    p1 = Participant(**inputs['/participants'])
+    p2 = Participant(**inputs['/participants'])
+
+    study.participants.extend([p, p1, p2])
+    db.session.add(study)
+    db.session.commit()
+
+    # Add entities to participant
     outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
     phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
     demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
@@ -131,11 +147,12 @@ def entities(client):
     p.outcomes = [outcome]
     p.phenotypes = [phenotype]
 
-    # Add participants to study
-    study.investigator = investigator
-    study.participants.append(p)
-    db.session.add(study)
-    db.session.add(p)
+    # Family relationship
+    inputs['/family-relationships']['participant_id'] = p1.kf_id
+    inputs['/family-relationships']['relative_id'] = p2.kf_id
+    fr = FamilyRelationship(**inputs['/family-relationships'])
+
+    db.session.add(fr)
     db.session.commit()
 
     # Add foreign keys
@@ -165,5 +182,6 @@ def entities(client):
     inputs['kf_ids'].update({'/samples': sample.kf_id})
     inputs['kf_ids'].update({'/aliquots': aliquot.kf_id})
     inputs['kf_ids'].update({'/sequencing-experiments': seq_exp.kf_id})
+    inputs['kf_ids'].update({'/family-relationships': fr.kf_id})
 
     return inputs
