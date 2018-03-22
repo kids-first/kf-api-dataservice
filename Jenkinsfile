@@ -86,5 +86,34 @@ pipeline {
        slackSend (color: '#41aa58', message: ":white_check_mark: DEPLOYED TO QA: (${env.BUILD_URL})")
      }
     }
+    stage("Promotion dataservice-api to PRD") {
+      when {
+             expression {
+               return env.BRANCH_NAME == 'master';
+             }
+           }
+      steps {
+             script {
+                     env.DEPLOY_TO_PRD = input message: 'User input required',
+                                     submitter: 'lubneuskia,heatha',
+                                     parameters: [choice(name: 'dataservice-api: Deploy to PRD Environment', choices: 'no\nyes', description: 'Choose "yes" if you want to deploy the PRD server')]
+             }
+     }
+    }
+    stage('Deploy PRD') {
+      when {
+       environment name: 'DEPLOY_TO_PRD', value: 'yes'
+       expression {
+           return env.BRANCH_NAME == 'master';
+       }
+     }
+     steps {
+       slackSend (color: '#005e99', message: ":deploying_prd: DEPLOYING TO PRD: (${env.BUILD_URL})")
+       sh '''
+       aws-ecs-service-type-1/dataservice-api/deploy_stage/deploy.sh prd
+       '''
+       slackSend (color: '#41aa58', message: ":white_check_mark: DEPLOYED TO PRD: (${env.BUILD_URL})")
+     }
+    }
   }
 }
