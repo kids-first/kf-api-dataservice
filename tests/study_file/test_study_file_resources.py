@@ -12,14 +12,14 @@ STUDY_FILE_LIST_URL = 'api.study_files_list'
 
 
 class StudyFileTest(FlaskTestCase):
-    '''
+    """
     Test study_file api endopoints
-    '''
+    """
 
     def test_post_study_file(self):
-        '''
+        """
         Test creating a new study_file
-        '''
+        """
         response = self._make_study_file(file_name='TEST')
         resp = json.loads(response.data.decode('utf-8'))
 
@@ -36,9 +36,9 @@ class StudyFileTest(FlaskTestCase):
         self.assertEqual(s.file_name, study_file['file_name'])
 
     def test_get_study_file(self):
-        '''
+        """
         Test retrieving a study_file by id
-        '''
+        """
         resp = self._make_study_file(file_name='TEST')
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
@@ -53,9 +53,9 @@ class StudyFileTest(FlaskTestCase):
         self.assertEqual(kf_id, study_file['kf_id'])
 
     def test_patch_study_file(self):
-        '''
+        """
         Test updating an existing study_file
-        '''
+        """
         response = self._make_study_file(file_name='TEST')
         resp = json.loads(response.data.decode('utf-8'))
         study_file = resp['results']
@@ -84,9 +84,9 @@ class StudyFileTest(FlaskTestCase):
         self.assertEqual(study_file['file_name'], body['file_name'])
 
     def test_delete_study_file(self):
-        '''
+        """
         Test deleting a study_file by id
-        '''
+        """
         resp = self._make_study_file(file_name='TEST')
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
@@ -106,9 +106,9 @@ class StudyFileTest(FlaskTestCase):
         self.assertEqual(response.status_code, 404)
 
     def _make_study_file(self, file_name='TEST'):
-        '''
+        """
         Convenience method to create a study_file with a given source name
-        '''
+        """
         # Create study
         study = Study(external_id='phs001')
         db.session.add(study)
