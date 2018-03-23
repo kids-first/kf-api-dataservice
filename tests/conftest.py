@@ -15,6 +15,7 @@ from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.study_file.models import StudyFile
 
 
 @pytest.yield_fixture(scope='session')
@@ -109,8 +110,12 @@ def entities(client):
             'hpo_id': 'HP:0000118',
             'age_at_event_days': 120
         },
+
         '/family-relationships': {
             'participant_to_relative_relation': 'mother'
+        },
+        '/study-files':{
+            'file_name': 'test_file_name 1'
         }
     }
 
@@ -121,6 +126,7 @@ def entities(client):
     study.investigator = investigator
 
     # Add participants to study
+    sf = StudyFile(**inputs['/study-files'], study_id=study.kf_id)
     p = Participant(**inputs['/participants'])
     p1 = Participant(**inputs['/participants'])
     p2 = Participant(**inputs['/participants'])
@@ -153,6 +159,14 @@ def entities(client):
     fr = FamilyRelationship(**inputs['/family-relationships'])
 
     db.session.add(fr)
+
+    # Add participants to study
+    study.investigator = investigator
+    study.study_files = [sf]
+    study.participants.append(p)
+    db.session.add(study)
+    db.session.add(p)
+
     db.session.commit()
 
     # Add foreign keys
@@ -169,10 +183,13 @@ def entities(client):
     inputs['/aliquots']['sample_id'] = sample.kf_id
     # Aliquot and sequencing_experiment
     inputs['/sequencing-experiments']['aliquot_id'] = aliquot.kf_id
+    # Study and study_files
+    inputs['/study-files']['study_id'] = study.kf_id
 
     # Add kf_ids
     inputs['kf_ids'] = {}
     inputs['kf_ids'].update({'/studies': study.kf_id})
+    inputs['kf_ids'].update({'/study-files': sf.kf_id})
     inputs['kf_ids'].update({'/investigators': investigator.kf_id})
     inputs['kf_ids'].update({'/participants': p.kf_id})
     inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
