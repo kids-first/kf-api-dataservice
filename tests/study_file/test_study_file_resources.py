@@ -83,35 +83,6 @@ class StudyFileTest(FlaskTestCase):
         self.assertEqual(study_file['kf_id'], kf_id)
         self.assertEqual(study_file['file_name'], body['file_name'])
 
-    def test_patch_study_file_no_required_field(self):
-        '''
-        Test that we may update the study_file without a required field
-        '''
-        response = self._make_study_file(file_name='TEST')
-        resp = json.loads(response.data.decode('utf-8'))
-        study_file = resp['results']
-        kf_id = study_file.get('kf_id')
-        file_name = study_file.get('file_name')
-
-        # Update the study_file via http api
-        body = {
-            'file_name': 'TEST-2'
-        }
-        response = self.client.patch(url_for(STUDY_FILE_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
-        self.assertEqual(response.status_code, 200)
-
-
-        resp = json.loads(response.data.decode('utf-8'))
-        self.assertIn('study_file', resp['_status']['message'])
-        self.assertIn('updated', resp['_status']['message'])
-
-        study_file = resp['results']
-        self.assertEqual(study_file['kf_id'], kf_id)
-        self.assertEqual(study_file['file_name'], body['file_name'])
-        
     def test_delete_study_file(self):
         '''
         Test deleting a study_file by id

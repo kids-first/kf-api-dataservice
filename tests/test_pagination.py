@@ -29,13 +29,9 @@ class TestPagination:
         # Add a bunch of studies for pagination
         for _ in range(101):
             s = Study(external_id='blah')
-            db.session.add(s)
-        db.session.commit()
-
-        # Add study files for studies
-        for _ in range(102):
             sf = StudyFile(file_name='blah', study_id =s.kf_id)
-            db.session.add(sf)
+            s.study_files.extend([sf])
+            db.session.add(s)
         db.session.commit()
 
         # Add a bunch of investigators
@@ -100,7 +96,7 @@ class TestPagination:
         ('/aliquots', 102),
         ('/sequencing-experiments', 102),
         ('/family-relationships', 101),
-        ('/study-files',102)
+        ('/study-files',101)
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
