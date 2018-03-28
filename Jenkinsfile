@@ -18,6 +18,8 @@ pipeline {
            script {
                tag=sh(returnStdout: true, script: "git tag -l --points-at HEAD").trim()
                env.tag = tag
+               echo tag
+               echo env.tag
              }
       }
     }
