@@ -1,9 +1,10 @@
 from flask import abort, request
+from sqlalchemy.orm import joinedload
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
-from dataservice.api.sample.models import Sample
+from dataservice.api.sample.models import Sample, Aliquot
 from dataservice.api.sample.schemas import SampleSchema
 from dataservice.api.common.views import CRUDView
 
@@ -29,7 +30,11 @@ class SampleListAPI(CRUDView):
             resource:
               Sample
         """
-        q = Sample.query
+        q = (Sample.query
+                   .options(
+                       joinedload('aliquots')
+                       .load_only('kf_id')
+                    ))
 
         return (SampleSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
