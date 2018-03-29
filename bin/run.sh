@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 source venv/bin/activate
 flask db upgrade
-exec gunicorn -b :80 --access-logfile - manage:app --threads 4
+supervisord -c  /etc/supervisor/conf.d/supervisord.conf

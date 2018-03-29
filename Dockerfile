@@ -32,4 +32,3 @@ COPY        bin/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 #COPY        bin/gunicorn.conf /etc/supervisor/conf.d/gunicorn.conf
 
 # Start processes
-CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
