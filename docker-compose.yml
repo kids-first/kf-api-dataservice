@@ -7,7 +7,7 @@ services:
       POSTGRES_DB: "dataservice"
   dataservice:
     build: .
-    command: /bin/bash -c "sleep 5; ./bin/run.sh"
+    command: /bin/ash -c "sleep 5; ./bin/run.sh"
     volumes:
       - .:/app
     ports:
