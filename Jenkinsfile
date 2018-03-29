@@ -96,8 +96,8 @@ pipeline {
       steps {
         slackSend (color: '#005e99', message: ":deploying_qa: Regagging image with 'pre-release'")
         sh '''
-          MANIFEST=$(aws ecr batch-get-image --repository-name kf-api-dataservice --image-ids imageTag=latest --query images[].imageManifest --output text)
-          aws ecr put-image --repository-name kf-api-dataservice --image-tag "prerelease-$tag" --image-manifest "$MANIFEST"
+          MANIFEST=$(aws ecr batch-get-image --region us-east-1 --repository-name kf-api-dataservice --image-ids imageTag=latest --query images[].imageManifest --output text)
+          aws ecr put-image --region us-east-1 --repository-name kf-api-dataservice --image-tag "prerelease-$tag" --image-manifest "$MANIFEST"
         '''
       }
     }
@@ -145,8 +145,8 @@ pipeline {
       steps {
         slackSend (color: '#005e99', message: ":deploying_qa: Regagging image with 'pre-release'")
         sh '''
-          MANIFEST=$(aws ecr batch-get-image --repository-name kf-api-dataservice --image-ids imageTag="prerelease-$tag" --query images[].imageManifest --output text)
-          aws ecr put-image --repository-name kf-api-dataservice --image-tag "$tag" --image-manifest "$MANIFEST"
+          MANIFEST=$(aws ecr batch-get-image --region us-east-1 --repository-name kf-api-dataservice --image-ids imageTag="prerelease-$tag" --query images[].imageManifest --output text)
+          aws ecr put-image --region us-east-1 --repository-name kf-api-dataservice --image-tag "$tag" --image-manifest "$MANIFEST"
         '''
       }
     }
