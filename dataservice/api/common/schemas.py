@@ -1,4 +1,4 @@
-from dataservice.extensions import ma
+from dataservice.extensions import cache, ma
 from marshmallow import (
     fields,
     post_dump,
@@ -30,6 +30,15 @@ class BaseSchema(ma.ModelSchema):
             self.__pagination__ = data
             return data.items
         return data
+
+    @cache.cached(timeout=50, key_prefix='blah')
+    def dump_cache(self, *args, **kwargs):
+        return super(BaseSchema, self).dump(*args, **kwargs)
+
+    def dump(self, *args, **kwargs):
+        if 'many' in kwargs and kwargs['many'] == True:
+            return self.dump_cache(*args, **kwargs)
+        return super(BaseSchema, self).dump(*args, **kwargs)
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):

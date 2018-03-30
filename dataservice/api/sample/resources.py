@@ -1,7 +1,7 @@
 from flask import abort, request
 from marshmallow import ValidationError
 
-from dataservice.extensions import db
+from dataservice.extensions import cache, db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.sample.models import Sample
 from dataservice.api.sample.schemas import SampleSchema
