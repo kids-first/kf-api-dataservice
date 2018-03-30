@@ -46,6 +46,8 @@ class ModelTest(FlaskTestCase):
                 'file_url': 's3://file_{}'.format(i),
                 'md5sum': str(uuid.uuid4()),
                 'controlled_access': True,
+                'is_harmonized': True,
+                'original_reference_genome': 'Test01',
                 'sequencing_experiment_id': experiment.kf_id
             }
             kwargs_dict[kwargs['md5sum']] = kwargs
@@ -187,7 +189,9 @@ class ModelTest(FlaskTestCase):
                 'file_format': '.cram',
                 'file_url': 's3://file_{}'.format(i),
                 'controlled_access': True,
-                'md5sum': str(uuid.uuid4())
+                'md5sum': str(uuid.uuid4()),
+                'is_harmonized': True,
+                'original_reference_genome': 'Test01'
             }
             kwargs_dict[kwargs['md5sum']] = kwargs
             # Add genomic file to list in experiment

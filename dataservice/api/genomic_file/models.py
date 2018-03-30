@@ -19,6 +19,9 @@ class GenomicFile(db.Model, Base):
     :param file_url: Location of file
     :param md5sum: 128 bit md5 hash of file
     :param controlled_access: whether or not the file is controlled access
+    :param is_harmonized: whether or not the file is harmonized
+    :param original_reference_genome: original reference genome of the
+     unharmonized genomic files
     """
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
@@ -28,6 +31,8 @@ class GenomicFile(db.Model, Base):
     file_format = db.Column(db.Text())
     file_size = db.Column(db.BigInteger())
     file_url = db.Column(db.Text())
+    is_harmonized = db.Column(db.Boolean())
+    original_reference_genome = db.Column(db.Text())
     # See link for why md5sum should use uuid type
     # https://dba.stackexchange.com/questions/115271/what-is-the-optimal-data-type-for-an-md5-field
     md5sum = db.Column(UUID(), unique=True)

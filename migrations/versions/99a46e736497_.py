@@ -1,4 +1,5 @@
-"""empty message
+"""
+Add uberon to sample
 
 Revision ID: 99a46e736497
 Revises: dda74cdf687d
