@@ -26,7 +26,6 @@ class SampleTest(FlaskTestCase):
         Test create a new sample
         """
         kwargs = self._create_save_to_db()
-
         # Create sample data
         kwargs = {
             'external_id': 's1',
@@ -37,6 +36,7 @@ class SampleTest(FlaskTestCase):
             'tumor_descriptor': 'Metastatic',
             'participant_id': kwargs.get('participant_id')
         }
+
         # Send post request
         response = self.client.post(url_for(SAMPLES_LIST_URL),
                                     data=json.dumps(kwargs),
@@ -344,16 +344,17 @@ class SampleTest(FlaskTestCase):
             'anatomical_site': 'Brain',
             'age_at_event_days': 365,
             'tumor_descriptor': 'Metastatic',
+            'uberon': 'UBERON:0000955'
         }
-        d = Sample(**kwargs)
+        s = Sample(**kwargs)
 
         # Create and save participant with sample
-        p = Participant(external_id='Test subject 0', samples=[d],
+        p = Participant(external_id='Test subject 0', samples=[s],
                         is_proband=True, study_id=study.kf_id)
         db.session.add(p)
         db.session.commit()
 
         kwargs['participant_id'] = p.kf_id
-        kwargs['kf_id'] = d.kf_id
+        kwargs['kf_id'] = s.kf_id
 
         return kwargs
