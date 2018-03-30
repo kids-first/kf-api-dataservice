@@ -118,7 +118,9 @@ class ModelTest(FlaskTestCase):
             'diagnosis': 'diagnosis {}'.format(_id),
             'age_at_event_days': 365,
             'diagnosis_category': 'cancer',
-            'tumor_location': 'Brain'
+            'tumor_location': 'Brain',
+            'mondo': 'DOID:8469',
+            'ncit': 'DOID:8469'
         }
         if participant_id:
             kwargs['participant_id'] = participant_id
