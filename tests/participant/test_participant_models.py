@@ -19,7 +19,6 @@ class ModelTest(FlaskTestCase):
         s = Study(external_id='phs001')
         data = {
             'external_id': external_id,
-            'family_id':'Test_family_id_0',
             'is_proband': False,
             'consent_type': 'GRU-IRB',
             'race': 'asian',
@@ -52,7 +51,6 @@ class ModelTest(FlaskTestCase):
         self.assertGreater(new_participant.modified_at, dt)
         self.assertIs(type(uuid.UUID(new_participant.uuid)), uuid.UUID)
         self.assertEqual(new_participant.external_id, 'Test_Participant_0')
-        self.assertEqual(new_participant.family_id, 'Test_family_id_0')
         self.assertEqual(new_participant.is_proband,False)
         self.assertEqual(new_participant.race,'asian')
 

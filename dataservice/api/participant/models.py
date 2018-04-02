@@ -27,7 +27,9 @@ class Participant(db.Model, Base):
     __prefix__ = 'PT'
 
     external_id = db.Column(db.Text(), doc='ID used by external study')
-    family_id = db.Column(db.Text(),
+    family_id = db.Column(KfId(),
+                          db.ForeignKey('family.kf_id'),
+                          nullable=True,
                           doc='Id for the participants grouped by family')
     is_proband = db.Column(
         db.Boolean(),
