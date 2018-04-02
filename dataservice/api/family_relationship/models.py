@@ -40,11 +40,15 @@ class FamilyRelationship(db.Model, Base):
 
     participant_id = db.Column(
         KfId(),
-        db.ForeignKey('participant.kf_id'), nullable=False)
+        db.ForeignKey('participant.kf_id'),
+        nullable=False,
+        doc='kf_id of one participant in the relationship')
 
     relative_id = db.Column(
         KfId(),
-        db.ForeignKey('participant.kf_id'), nullable=False)
+        db.ForeignKey('participant.kf_id'),
+        nullable=False,
+        doc='kf_id of the other participant in the relationship')
 
     participant_to_relative_relation = db.Column(db.Text(), nullable=False)
 

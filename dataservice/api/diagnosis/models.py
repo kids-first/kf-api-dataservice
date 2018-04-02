@@ -30,7 +30,8 @@ class Diagnosis(db.Model, Base):
     tumor_location = db.Column(db.Text(),
                                doc='location of the tumor')
     age_at_event_days = db.Column(db.Integer(),
-                                  doc='age when diagnosis was made')
+                                  doc='Age at the time of event occurred in '
+                                      'number of days since birth.')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',

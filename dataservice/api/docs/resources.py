@@ -1,11 +1,16 @@
 import glob
 from flask.views import View
-from flask import jsonify, current_app, render_template
+from flask import jsonify, current_app, render_template, send_file
 
 
 class Documentation(View):
     def dispatch_request(self):
         return render_template('redoc.html')
+
+
+class Logo(View):
+    def dispatch_request(self):
+        return send_file('../docs/dataservice.png')
 
 
 class Swagger(View):
@@ -43,5 +48,6 @@ class Swagger(View):
             tags.append(tag)
 
         self.spec['tags'] = tags
+        self.spec['info']['x-logo'] = {'url': '/logo'}
 
         return jsonify(self.spec)

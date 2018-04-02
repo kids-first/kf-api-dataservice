@@ -16,11 +16,15 @@ class Investigator(db.Model, Base):
     __tablename__ = 'investigator'
     __prefix__ = 'IG'
 
-    name = db.Column(db.Text())
-    institution = db.Column(db.Text())
+    name = db.Column(db.Text(),
+                     doc='The name of the investigator')
+    institution = db.Column(db.Text(),
+                            doc='The name of the investigator\'s institution')
     studies = db.relationship(Study,
                               backref=db.backref('investigator',
-                                                 lazy=True))
+                                                 lazy=True),
+                              doc='kf_id of the studies belonging to this '
+                                  'investigator')
 
     def __repr__(self):
         return '<Investigator {}>'.format(self.kf_id)

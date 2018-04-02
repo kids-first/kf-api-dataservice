@@ -17,10 +17,17 @@ class Demographic(db.Model, Base):
     """
     __tablename__ = 'demographic'
     __prefix__ = 'DM'
-    external_id = db.Column(db.Text())
-    race = db.Column(db.Text())
-    ethnicity = db.Column(db.Text())
-    gender = db.Column(db.Text())
+    external_id = db.Column(db.Text(),
+                            doc='Identifier used by external systems')
+    race = db.Column(db.Text(),
+                     doc='The race of the participant')
+    ethnicity = db.Column(db.Text(),
+                          doc='The ethnicity of the participant')
+    gender = db.Column(db.Text(),
+                       doc='The gender of the participant')
     participant_id = db.Column(KfId,
                                db.ForeignKey('participant.kf_id'),
-                               nullable=False, unique=True)
+                               nullable=False,
+                               unique=True,
+                               doc='kf_id of the participant this demographic'
+                                   ' describes')

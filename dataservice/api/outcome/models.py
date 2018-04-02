@@ -18,9 +18,14 @@ class Outcome(db.Model, Base):
     __tablename__ = 'outcome'
     __prefix__ = 'OC'
 
-    vital_status = db.Column(db.Text())
+    vital_status = db.Column(db.Text(),
+                             doc='The vital status reported')
     disease_related = db.Column(db.Text())
-    age_at_event_days = db.Column(db.Integer())
+    age_at_event_days = db.Column(db.Integer(),
+                                  doc='Age at the time of event occurred in '
+                                      'number of days since birth.')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
-                               nullable=False)
+                               nullable=False,
+                               doc='kf_id of the participant this outcome was '
+                                   'reported for')
