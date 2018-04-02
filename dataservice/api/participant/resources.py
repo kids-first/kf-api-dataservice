@@ -33,7 +33,6 @@ class ParticipantListAPI(CRUDView):
                         .options(joinedload(Participant.diagnoses))
                         .options(joinedload(Participant.samples))
                         .options(joinedload(Participant.phenotypes))
-                        .options(joinedload(Participant.demographic))
                         .options(joinedload(Participant.outcomes)))
 
         return (ParticipantSchema(many=True)
