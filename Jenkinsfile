@@ -8,7 +8,17 @@ pipeline {
     stage('Get Code') {
       steps {
           deleteDir()
-          checkout scm
+          checkout ([
+              $class: 'GitSCM',
+              branches: scm.branches,
+              doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+              extensions: [[$class: 'CloneOption', noTags: false, shallow: false, depth: 0, reference: '']],
+              userRemoteConfigs: scm.userRemoteConfigs,
+           ])
+           script {
+               tag=sh(returnStdout: true, script: "git tag -l --points-at HEAD").trim()
+               env.tag = tag
+             }
       }
     }
     stage('GetOpsScripts') {
@@ -16,6 +26,8 @@ pipeline {
         slackSend (color: '#ddaa00', message: ":construction_worker: GETTING SCRIPTS:")
         sh '''
         git clone git@github.com:kids-first/aws-ecs-service-type-1.git
+        cd aws-ecs-service-type-1
+        git checkout feature/adding-jenkins-docker
         '''
       }
     }
@@ -72,6 +84,23 @@ pipeline {
         }
       }
     }
+    stage('Retag with pre-release'){
+      when {
+        expression {
+            return env.BRANCH_NAME == 'master';
+        }
+        expression {
+          return tag != '';
+        }
+      }
+      steps {
+        slackSend (color: '#005e99', message: ":deploying_qa: Retagging image with 'pre-release'")
+        sh '''
+          MANIFEST=$(aws ecr batch-get-image --region us-east-1 --repository-name kf-api-dataservice --image-ids imageTag=latest --query images[].imageManifest --output text)
+          aws ecr put-image --region us-east-1 --repository-name kf-api-dataservice --image-tag "prerelease-$tag" --image-manifest "$MANIFEST"
+        '''
+      }
+    }
     stage('Deploy QA') {
       when {
        expression {
@@ -91,6 +120,9 @@ pipeline {
              expression {
                return env.BRANCH_NAME == 'master';
              }
+             expression {
+               return tag != '';
+             }
            }
       steps {
              script {
@@ -100,11 +132,32 @@ pipeline {
              }
      }
     }
+    stage('Retag with release'){
+      when {
+        environment name: 'DEPLOY_TO_PRD', value: 'yes'
+        expression {
+            return env.BRANCH_NAME == 'master';
+        }
+        expression {
+          return tag != '';
+        }
+      }
+      steps {
+        slackSend (color: '#005e99', message: ":deploying_qa: Retagging image with 'release'")
+        sh '''
+          MANIFEST=$(aws ecr batch-get-image --region us-east-1 --repository-name kf-api-dataservice --image-ids imageTag="prerelease-$tag" --query images[].imageManifest --output text)
+          aws ecr put-image --region us-east-1 --repository-name kf-api-dataservice --image-tag "$tag" --image-manifest "$MANIFEST"
+        '''
+      }
+    }
     stage('Deploy PRD') {
       when {
        environment name: 'DEPLOY_TO_PRD', value: 'yes'
        expression {
            return env.BRANCH_NAME == 'master';
+       }
+       expression {
+         return tag != '';
        }
      }
      steps {

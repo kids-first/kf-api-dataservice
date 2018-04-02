@@ -10,14 +10,14 @@ STUDY_LIST_URL = 'api.studies_list'
 
 
 class StudyTest(FlaskTestCase):
-    '''
+    """
     Test study api endopoints
-    '''
+    """
 
     def test_post_study(self):
-        '''
+        """
         Test creating a new study
-        '''
+        """
         response = self._make_study(external_id='TEST')
         resp = json.loads(response.data.decode('utf-8'))
 
@@ -33,9 +33,9 @@ class StudyTest(FlaskTestCase):
         self.assertEqual(s.external_id, study['external_id'])
 
     def test_get_study(self):
-        '''
+        """
         Test retrieving a study by id
-        '''
+        """
         resp = self._make_study('TEST')
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
@@ -50,9 +50,9 @@ class StudyTest(FlaskTestCase):
         self.assertEqual(kf_id, study['kf_id'])
 
     def test_patch_study(self):
-        '''
+        """
         Test updating an existing study
-        '''
+        """
         response = self._make_study(external_id='TEST')
         resp = json.loads(response.data.decode('utf-8'))
         study = resp['results']
@@ -81,9 +81,9 @@ class StudyTest(FlaskTestCase):
         self.assertEqual(study['external_id'], body['external_id'])
 
     def test_patch_study_no_required_field(self):
-        '''
+        """
         Test that we may update the study without a required field
-        '''
+        """
         response = self._make_study(external_id='TEST')
         resp = json.loads(response.data.decode('utf-8'))
         study = resp['results']
@@ -112,9 +112,9 @@ class StudyTest(FlaskTestCase):
         self.assertEqual(study['version'], body['version'])
 
     def test_delete_study(self):
-        '''
+        """
         Test deleting a study by id
-        '''
+        """
         resp = self._make_study('TEST')
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
@@ -134,9 +134,9 @@ class StudyTest(FlaskTestCase):
         self.assertEqual(response.status_code, 404)
 
     def _make_study(self, external_id='TEST-0001'):
-        '''
+        """
         Convenience method to create a study with a given source name
-        '''
+        """
         body = {
             'external_id': external_id,
             'version': '1.0'
