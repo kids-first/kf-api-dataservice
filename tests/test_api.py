@@ -30,6 +30,8 @@ class TestAPI:
         ('/participants/123', 'GET', 404),
         ('/studies', 'GET', 200),
         ('/studies/123', 'GET', 404),
+        ('/study-files', 'GET', 200),
+        ('/study-files/123', 'GET', 404),
         ('/investigators', 'GET', 200),
         ('/outcomes', 'GET', 200),
         ('/outcomes/123', 'GET', 404),
@@ -51,6 +53,10 @@ class TestAPI:
         ('/studies/123', 'GET', 'could not find study `123`'),
         ('/studies/123', 'PATCH', 'could not find study `123`'),
         ('/studies/123', 'DELETE', 'could not find study `123`'),
+        ('/study-files', 'GET', 'success'),
+        ('/study-files/123', 'GET', 'could not find study_file `123`'),
+        ('/study-files/123', 'PATCH', 'could not find study_file `123`'),
+        ('/study-files/123', 'DELETE', 'could not find study_file `123`'),
         ('/investigators', 'GET', 'success'),
         ('/investigators/123', 'GET', 'could not find investigator `123`'),
         ('/investigators/123', 'PATCH', 'could not find investigator `123`'),
@@ -119,7 +125,8 @@ class TestAPI:
         ('/samples', 'GET'),
         ('/aliquots', 'GET'),
         ('/sequencing-experiments', 'GET'),
-        ('/family-relationships', 'GET')
+        ('/family-relationships', 'GET'),
+        ('/study-files', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -134,6 +141,8 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint, method, fields', [
         ('/studies', 'POST', ['created_at', 'modified_at']),
         ('/studies', 'PATCH', ['created_at', 'modified_at']),
+        ('/study-files', 'POST', ['created_at', 'modified_at']),
+        ('/study-files', 'PATCH', ['created_at', 'modified_at']),
         ('/investigators', 'POST', ['created_at', 'modified_at']),
         ('/investigators', 'PATCH', ['created_at', 'modified_at']),
         ('/participants', 'POST', ['created_at', 'modified_at']),
@@ -181,7 +190,9 @@ class TestAPI:
                                           '/samples',
                                           '/aliquots',
                                           '/sequencing-experiments',
-                                          '/family-relationships'])
+                                          '/family-relationships',
+                                          '/study-files'
+                                          ])
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
@@ -207,7 +218,8 @@ class TestAPI:
         ('/samples', 'aliquots'),
         ('/participants', 'outcomes'),
         ('/participants', 'phenotypes'),
-        ('/aliquots', 'sequencing_experiments')
+        ('/aliquots', 'sequencing_experiments'),
+        ('/studies', 'study_files')
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
@@ -266,8 +278,9 @@ class TestAPI:
                               ('/aliquots', 'analyte_type'),
                               ('/sequencing-experiments', 'aliquot_id'),
                               ('/family-relationships', 'participant_id'),
-                              ('/family-relationships', 'relative_id')
-                              ])
+                              ('/family-relationships', 'relative_id'),
+                              ('/study-files', 'study_id')])
+
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
         """ Tests missing required parameters """
@@ -293,7 +306,9 @@ class TestAPI:
                               ('/phenotypes', 'participant_id'),
                               ('/sequencing-experiments', 'aliquot_id'),
                               ('/family-relationships', 'participant_id'),
-                              ('/family-relationships', 'relative_id')])
+                              ('/family-relationships', 'relative_id'),
+                              ('/study-files', 'study_id')])
+
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key

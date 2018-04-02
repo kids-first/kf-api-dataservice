@@ -15,6 +15,7 @@ from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.utils import iterate_pairwise
+from dataservice.api.study_file.models import StudyFile
 
 
 class TestPagination:
@@ -28,6 +29,8 @@ class TestPagination:
         # Add a bunch of studies for pagination
         for _ in range(101):
             s = Study(external_id='blah')
+            sf = StudyFile(file_name='blah', study_id =s.kf_id)
+            s.study_files.extend([sf])
             db.session.add(s)
         db.session.commit()
 
@@ -92,7 +95,8 @@ class TestPagination:
         ('/samples', 102),
         ('/aliquots', 102),
         ('/sequencing-experiments', 102),
-        ('/family-relationships', 101)
+        ('/family-relationships', 101),
+        ('/study-files',101)
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
@@ -130,7 +134,8 @@ class TestPagination:
         ('/samples'),
         ('/aliquots'),
         ('/sequencing-experiments'),
-        ('/family-relationships')
+        ('/family-relationships'),
+        ('/study-files')
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -160,7 +165,8 @@ class TestPagination:
         ('/samples'),
         ('/aliquots'),
         ('/sequencing-experiments'),
-        ('/family-relationships')
+        ('/family-relationships'),
+        ('/study-files')
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -194,7 +200,8 @@ class TestPagination:
         ('/samples'),
         ('/aliquots'),
         ('/sequencing-experiments'),
-        ('/family-relationships')
+        ('/family-relationships'),
+        ('/study-files')
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
@@ -218,7 +225,8 @@ class TestPagination:
         ('/samples'),
         ('/aliquots'),
         ('/sequencing-experiments'),
-        ('/family-relationships')
+        ('/family-relationships'),
+        ('/study-files')
     ])
     def test_individual_links(self, client, participants, endpoint):
         """ Test that each individual result has properly formatted _links """
