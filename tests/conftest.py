@@ -8,7 +8,6 @@ from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family_relationship.models import FamilyRelationship
-from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
@@ -55,9 +54,7 @@ def entities(client):
             'external_id': 'p0',
             'is_proband': True,
             'family_id': 'family0',
-            'consent_type': 'GRU-IRB'
-        },
-        '/demographics': {
+            'consent_type': 'GRU-IRB',
             'race': 'black',
             'gender': 'male',
             'ethnicity': 'hispanic or latino'
@@ -138,7 +135,6 @@ def entities(client):
     # Add entities to participant
     outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
     phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
-    demo = Demographic(**inputs['/demographics'], participant_id=p.kf_id)
     sample = Sample(**inputs['/samples'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
     aliquot = Aliquot(**inputs['/aliquots'])
@@ -146,7 +142,6 @@ def entities(client):
 
     aliquot.sequencing_experiments = [seq_exp]
     sample.aliquots = [aliquot]
-    p.demographic = demo
     sample.aliquots = [aliquot]
     p.samples = [sample]
     p.diagnoses = [diagnosis]
@@ -174,8 +169,7 @@ def entities(client):
     inputs['/participants']['study_id'] = study.kf_id
 
     # Entity and participant
-    endpoints = ['/demographics', '/diagnoses', '/samples', '/outcomes',
-                 '/phenotypes']
+    endpoints = ['/diagnoses', '/samples', '/outcomes', '/phenotypes']
     for e in endpoints:
         inputs[e]['participant_id'] = p.kf_id
 
@@ -194,7 +188,6 @@ def entities(client):
     inputs['kf_ids'].update({'/participants': p.kf_id})
     inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
     inputs['kf_ids'].update({'/phenotypes': phenotype.kf_id})
-    inputs['kf_ids'].update({'/demographics': p.demographic.kf_id})
     inputs['kf_ids'].update({'/diagnoses': diagnosis.kf_id})
     inputs['kf_ids'].update({'/samples': sample.kf_id})
     inputs['kf_ids'].update({'/aliquots': aliquot.kf_id})
