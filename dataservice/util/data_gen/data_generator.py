@@ -11,7 +11,6 @@ from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family_relationship.models import FamilyRelationship
-from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
@@ -39,7 +38,6 @@ class DataGenerator(object):
         self._sample_choices()
         self._aliquot_choices()
         self._experiment_choices()
-        self._demographics_choices()
         self._genomic_files_choices()
         self._outcomes_choices()
         self._phenotype_choices()
@@ -54,6 +52,24 @@ class DataGenerator(object):
         data_lim_mod = ['IRB', 'PUB', 'COL', 'NPU', 'MDS', 'GSO']
         self.consent_type_list = [(x + '-' + y)
                                   for x in data_lim for y in data_lim_mod]
+        self.race_list = [
+            "White",
+            "Black or African American",
+            "Asian",
+            "Native Hawaiian or Other Pacific Islander",
+            "American Indian or Alaska Native",
+            "Other",
+            "Unavailable",
+            "Not Reported",
+            "not allowed to collect"]
+        self.ethnicity_list = [
+            "hispanic or latino",
+            "not hispanic or latino",
+            "Unknown",
+            "not reported",
+            "not allowed to collect"]
+        self.gender_list = ['female', 'male', 'unknown', 'unspecified',
+                            'not reported']
 
     def _sample_choices(self):
         """
@@ -124,29 +140,6 @@ class DataGenerator(object):
             'Other']
         self.platform_list = ['Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                               'Complete Genomics', 'PacBio', 'Other']
-
-    def _demographics_choices(self):
-        """
-        Provides the choices for filling Demographics entity
-        """
-        self.race_list = [
-            "White",
-            "Black or African American",
-            "Asian",
-            "Native Hawaiian or Other Pacific Islander",
-            "American Indian or Alaska Native",
-            "Other",
-            "Unavailable",
-            "Not Reported",
-            "not allowed to collect"]
-        self.ethnicity_list = [
-            "hispanic or latino",
-            "not hispanic or latino",
-            "Unknown",
-            "not reported",
-            "not allowed to collect"]
-        self.gender_list = ['female', 'male', 'unknown', 'unspecified',
-                            'not reported']
 
     def _diagnoses_choices(self):
         """
@@ -318,7 +311,7 @@ class DataGenerator(object):
         """
         participants = Participant.query.all()
         for participant, relative in self._pairwise(participants):
-            gender = participant.demographic.gender
+            gender = participant.gender
             rel = 'mother'
             if gender == 'male':
                 rel = 'father'
@@ -329,8 +322,7 @@ class DataGenerator(object):
 
     def _create_participants_and_studies(self, total):
         """
-        Creates studies and participants with samples, demographics,
-        and diagnoses
+        Creates studies and participants with samples, and diagnoses
         """
         # Studies
         studies = self._create_studies_investigators()
@@ -342,7 +334,6 @@ class DataGenerator(object):
             self._get_unique_sites(diagnoses)
             samples = self._create_samples(random.randint(self.min_samples,
                                                           self.max_samples))
-            demographic = self._create_demographics(i)
             outcomes = self._create_outcomes(random.randint(self.min_outcomes,
                                                             self.max_outcomes))
             phenotypes = self._create_phenotypes(
@@ -353,7 +344,6 @@ class DataGenerator(object):
                 is_proband=random.choice(self.is_proband_list),
                 consent_type=random.choice(self.consent_type_list),
                 samples=samples,
-                demographic=demographic,
                 diagnoses=diagnoses,
                 outcomes=outcomes,
                 phenotypes=phenotypes,
@@ -507,18 +497,6 @@ class DataGenerator(object):
                                           is_input=is_input)
                 db.session.add(wgf)
         db.session.commit()
-
-    def _create_demographics(self, i):
-        """
-        Create demographics
-        """
-        data = {
-            'external_id': 'demo_id_{}'.format(i),
-            'race': random.choice(self.race_list),
-            'ethnicity': random.choice(self.ethnicity_list),
-            'gender': random.choice(self.gender_list)
-        }
-        return Demographic(**data)
 
     def _create_diagnoses(self, total):
         """
