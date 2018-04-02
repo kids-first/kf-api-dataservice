@@ -10,14 +10,14 @@ INVESTIGATOR_LIST_URL = 'api.investigators_list'
 
 
 class InvestigatorTest(FlaskTestCase):
-    '''
+    """
     Test investigator api
-    '''
+    """
 
     def test_post_investigator(self):
-        '''
+        """
         Test creating a new investigator
-        '''
+        """
         response = self._make_investigator(name='TEST')
         resp = json.loads(response.data.decode('utf-8'))
 
@@ -33,9 +33,9 @@ class InvestigatorTest(FlaskTestCase):
         self.assertEqual(inv.name, investigator['name'])
 
     def test_get_investigator(self):
-        '''
+        """
         Test retrieving a investigator by id
-        '''
+        """
         resp = self._make_investigator('TEST')
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
@@ -51,9 +51,9 @@ class InvestigatorTest(FlaskTestCase):
         self.assertEqual(kf_id, investigator['kf_id'])
 
     def test_patch_investigator(self):
-        '''
+        """
         Test updating an existing investigator
-        '''
+        """
         response = self._make_investigator(name='TEST')
         resp = json.loads(response.data.decode('utf-8'))
         investigator = resp['results']
@@ -81,9 +81,9 @@ class InvestigatorTest(FlaskTestCase):
         self.assertEqual(investigator['name'], body['name'])
 
     def test_delete_investigator(self):
-        '''
+        """
         Test deleting a investigator by id
-        '''
+        """
         resp = self._make_investigator('TEST')
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
@@ -103,9 +103,9 @@ class InvestigatorTest(FlaskTestCase):
         self.assertEqual(response.status_code, 404)
 
     def _make_investigator(self, name='test'):
-        '''
+        """
         Convenience method to create a investigator with a given name
-        '''
+        """
         body = {
             'name': name
         }
