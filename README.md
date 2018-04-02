@@ -79,6 +79,22 @@ the dataservice can be configured with the following environment variables:
 - `PG_USER` - the postgres user to connect with
 - `PG_PASS` - the password of the user
 
+#### Indexd
+
+Gen3/Indexd is used for tracking most of the file information in the data
+model. It requires some environment variables to be set for the full
+functionality, however, this requires a deploment of Indexd which is currently
+difficult to do for development. The `INDEXD_URL` can be set to `None` so
+that files may still be registered in the data model, though many of the fields
+will not be persisted.
+
+- `INDEXD_URL` - the url of the indexd api
+- `INDEXD_USER` - the username of a user in the indexd api
+- `INDEXD_PASS` - the password of the user in the indexd api
+
+Alternativly, an `INDEXD_SECRET` may be used in place of the `INDEXD_USER`
+and `INDEXD_PASS` to load the secrets from vault.
+
 ## Documentation
 
 The swagger docs are located at the root `localhost:5000/`.
