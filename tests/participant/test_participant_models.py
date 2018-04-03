@@ -43,9 +43,10 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
 
+        orig = Participant.query.count()
         self._create_participant('Test_Participant_0')
 
-        self.assertEqual(Participant.query.count(), 1)
+        self.assertEqual(Participant.query.count(), orig+1)
         new_participant = Participant.query.first()
         self.assertGreater(new_participant.created_at, dt)
         self.assertGreater(new_participant.modified_at, dt)

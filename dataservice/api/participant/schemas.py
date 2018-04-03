@@ -6,20 +6,34 @@ from dataservice.extensions import ma
 
 
 class ParticipantSchema(BaseSchema):
-    # Should not have to do this, since participant_id is part of the
-    # Demographic model and should be dumped. However it looks like this is
-    # still a bug in marshmallow_sqlalchemy. The bug is that ma sets
-    # dump_only=True for foreign keys by default. See link below
-    # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/20
     study_id = field_for(Participant, 'study_id', required=True,
                          load_only=True)
+    family_id = field_for(Participant, 'family_id',
+                          required=False,
+                          load_only=True, example='FM_ABB2C104')
 
     class Meta(BaseSchema.Meta):
         model = Participant
         resource_url = 'api.participants'
         collection_url = 'api.participants_list'
+        exclude = ('study', 'family')
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
-        'collection': ma.URLFor(Meta.collection_url)
+        'collection': ma.URLFor(Meta.collection_url),
+        'study': ma.URLFor('api.studies', kf_id='<study_id>'),
     })
+
+    def dump(self, p, *args, **kwargs):
+        """
+        Check if there is a family_id present on the participant and insert
+        a link if there is before dumping, then remove link after the dump
+        """
+        if kwargs['many'] is False and p.family_id is not None:
+            self.fields['_links'].schema['family'] = (
+                ma.URLFor('api.families', kf_id='<family_id>')
+            )
+            data = super(ParticipantSchema, self).dump(p, *args, **kwargs)
+            del self.fields['_links'].schema['family']
+            return data
+        return super(ParticipantSchema, self).dump(p, *args, **kwargs)

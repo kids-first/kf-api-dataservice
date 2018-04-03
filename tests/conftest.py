@@ -7,6 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
+from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
@@ -53,11 +54,13 @@ def entities(client):
         '/participants': {
             'external_id': 'p0',
             'is_proband': True,
-            'family_id': 'family0',
             'consent_type': 'GRU-IRB',
             'race': 'black',
             'gender': 'male',
             'ethnicity': 'hispanic or latino'
+        },
+        '/families': {
+            'external_id': 'family0'
         },
         '/samples': {
             'external_id': 's0',
@@ -128,6 +131,9 @@ def entities(client):
     p1 = Participant(**inputs['/participants'])
     p2 = Participant(**inputs['/participants'])
 
+    family = Family(**inputs['/families'])
+    family.participants.extend([p1, p2])
+
     study.participants.extend([p, p1, p2])
     db.session.add(study)
     db.session.commit()
@@ -193,5 +199,6 @@ def entities(client):
     inputs['kf_ids'].update({'/aliquots': aliquot.kf_id})
     inputs['kf_ids'].update({'/sequencing-experiments': seq_exp.kf_id})
     inputs['kf_ids'].update({'/family-relationships': fr.kf_id})
+    inputs['kf_ids'].update({'/families': family.kf_id})
 
     return inputs
