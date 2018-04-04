@@ -20,7 +20,7 @@ class ModelTest(FlaskTestCase):
         Test create diagnosis
         """
         diagnoses, kwarg_dict = self._create_diagnoses()
-        
+
         dt = datetime.now()
 
         self.assertEqual(Diagnosis.query.count(), len(diagnoses))
@@ -119,8 +119,8 @@ class ModelTest(FlaskTestCase):
             'age_at_event_days': 365,
             'diagnosis_category': 'cancer',
             'tumor_location': 'Brain',
-            'mondo': 'DOID:8469',
-            'ncit': 'DOID:8469'
+            'mondo_id': 'DOID:8469',
+            'icd_id': 'J10.01'
         }
         if participant_id:
             kwargs['participant_id'] = participant_id
