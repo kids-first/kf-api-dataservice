@@ -10,6 +10,7 @@ class Phenotype(db.Model, Base):
     :param modified_at: Last time of object modification
     :param phenotype: Name given to Phenotype by contributor
     :param hpo_id: hpo id
+    :param snomed_id: snomed id
     :param observed: whether phenotype is negative or positive
     :param age_at_event_days: Age at the time phenotype was
             observed, expressed in number of days since birth
@@ -19,6 +20,7 @@ class Phenotype(db.Model, Base):
 
     phenotype = db.Column(db.Text())
     hpo_id = db.Column(db.Text())
+    snomed_id = db.Column(db.Text())
     observed = db.Column(db.Text())
     age_at_event_days = db.Column(db.Integer(),
                                   doc='Age at the time of event occurred in '

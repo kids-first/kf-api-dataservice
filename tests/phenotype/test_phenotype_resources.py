@@ -63,6 +63,7 @@ class PhenotypeTest(FlaskTestCase):
         ph2 = {
             'phenotype': 'Tall stature',
             'hpo_id': 'HP:0000098',
+            'snomed_id': '38033009',
             'observed': 'positive',
             'participant_id': ph1['participant_id']
         }
@@ -139,7 +140,7 @@ class PhenotypeTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         phenotype = response['results']
         self.assertEqual(kwargs['kf_id'], phenotype['kf_id'])
-        
+
         # Fields that should be updated w values
         self.assertEqual(body['phenotype'], phenotype['phenotype'])
         self.assertEqual(body['hpo_id'],
@@ -178,6 +179,7 @@ class PhenotypeTest(FlaskTestCase):
         kwargs = {
             'phenotype': 'Hand Tremor',
             'hpo_id': 'HP:0002378',
+            'snomed_id': '38033009',
             'observed': 'positive',
             'age_at_event_days': 365
         }
