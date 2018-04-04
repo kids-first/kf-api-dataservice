@@ -45,8 +45,8 @@ class ModelTest(FlaskTestCase):
         """
         Test creation of aliquot via sample and person
         """
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         s = Sample.query.filter_by(external_id=sample_id).one_or_none()
         p = Participant.query.filter_by(
@@ -61,8 +61,8 @@ class ModelTest(FlaskTestCase):
         Test creation of aliquot
         """
         dt = datetime.now()
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         self.assertEqual(Aliquot.query.count(), 1)
         new_aliquot = Aliquot.query.first()
@@ -82,8 +82,8 @@ class ModelTest(FlaskTestCase):
         test finding the aliquot with aliquot_id
         """
         dt = datetime.now()
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
 
         # get aliquot
@@ -99,8 +99,8 @@ class ModelTest(FlaskTestCase):
         """
         Test Updating aliquot
         """
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         # get aliquot
         a = Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
@@ -115,8 +115,8 @@ class ModelTest(FlaskTestCase):
         """
         Test Deleting Aliquot
         """
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         # get Aliquot
         a = Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
@@ -137,8 +137,8 @@ class ModelTest(FlaskTestCase):
         """
         Test deleting aliquot via sample and participant
         """
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
 
         # Delete Participant
@@ -192,8 +192,8 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
@@ -246,8 +246,8 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
@@ -308,8 +308,8 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
@@ -317,7 +317,7 @@ class ModelTest(FlaskTestCase):
         # adding another sample to participant
         sample_data = self._make_sample(external_id='Test_Sample_1')
         s = Sample(**sample_data,participant_id=p.kf_id)
-        
+
         db.session.add(s)
         db.session.commit()
 
@@ -363,7 +363,7 @@ class ModelTest(FlaskTestCase):
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
-            'concentration': 100.0,
+            'concentration': 100,
             'volume': 12.67,
             'shipment_date': dt
         }
@@ -383,4 +383,3 @@ class ModelTest(FlaskTestCase):
             'tumor_descriptor': 'Metastatic'
         }
         return body
-

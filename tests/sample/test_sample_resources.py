@@ -343,8 +343,7 @@ class SampleTest(FlaskTestCase):
             'composition': 'composition1',
             'anatomical_site': 'Brain',
             'age_at_event_days': 365,
-            'tumor_descriptor': 'Metastatic',
-            'uberon': 'UBERON:0000955'
+            'tumor_descriptor': 'Metastatic'
         }
         s = Sample(**kwargs)
 

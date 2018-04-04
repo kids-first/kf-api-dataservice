@@ -18,12 +18,10 @@ class Sample(db.Model, Base):
             acquired, expressed in number of days since birth
     :param tumor_descriptor: The kind of disease present in the tumor
            specimen as related to a specific timepoint
-    :param uberon: Uber-anatomy ontology for anatomical_site
     """
     __tablename__ = 'sample'
     __prefix__ = 'SA'
 
-<<<<<<< HEAD
     external_id = db.Column(db.Text(),
                             doc='Identifier used by external systems')
     tissue_type = db.Column(db.Text(),
@@ -37,7 +35,6 @@ class Sample(db.Model, Base):
                                       'number of days since birth.')
     tumor_descriptor = db.Column(db.Text(),
                                  doc='Disease present in the sample')
-    uberon = db.Column(db.Text())
     aliquots = db.relationship(Aliquot, backref='samples',
                                cascade="all, delete-orphan",
                                doc='kf_id of aliquots derived from the sample')

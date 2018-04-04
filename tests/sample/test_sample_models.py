@@ -22,7 +22,7 @@ class ModelTest(FlaskTestCase):
         """
         participant_id = "Test_Subject_0"
         sample_id = "Test_Sample_0"
-        data = self._make_sample(external_id=sample_id) 
+        data = self._make_sample(external_id=sample_id)
         sample_0 = Sample(**data)
         participant_0 = Participant(
             external_id=participant_id,
@@ -186,7 +186,7 @@ class ModelTest(FlaskTestCase):
         # adding another sample to participant
         data = self._make_sample(external_id='Test_Sample_1')
         s = Sample(**data, participant_id=p.kf_id)
-    
+
         db.session.add(s)
         db.session.commit()
         p = Participant.query.filter_by(external_id=participant_id).all()
@@ -256,7 +256,6 @@ class ModelTest(FlaskTestCase):
             'composition': 'Test_comp_0',
             'anatomical_site': 'Brain',
             'age_at_event_days': 456,
-            'tumor_descriptor': 'Metastatic',
-            'uberon': 'UBERON:0000955'
+            'tumor_descriptor': 'Metastatic'
         }
         return body
