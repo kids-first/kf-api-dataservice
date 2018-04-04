@@ -8,6 +8,26 @@ from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 
 
+class AliasGroup(db.Model, Base):
+    """
+    Alias group.
+
+    Each record in this table represents a group of particpants who are
+    aliased to each other (they are all the same person, but have distinct
+    entries in the participant table). Participants with the same
+    alias_group_id are all aliases of each other.
+
+    :param kf_id: Unique id given by the Kid's First DCC
+    :param created_at: Time of object creation
+    :param modified_at: Last time of object modification
+    """
+    __tablename__ = "alias_group"
+    __prefix__ = 'AG'
+
+    participants = db.relationship('Participant',
+                                   backref='alias_group')
+
+
 class Participant(db.Model, Base):
     """
     Participant entity.
@@ -57,9 +77,12 @@ class Participant(db.Model, Base):
                                  cascade='all, delete-orphan',
                                  backref=db.backref('participants',
                                                     lazy=True))
+
     study_id = db.Column(KfId(),
                          db.ForeignKey('study.kf_id'),
                          nullable=False)
+
+    alias_group_id = db.Column(KfId(), db.ForeignKey('alias_group.kf_id'))
 
     def upstream_immediate_relatives(self):
         """
@@ -93,6 +116,88 @@ class Participant(db.Model, Base):
         """
         return chain(self.upstream_immediate_relatives(),
                      self.downstream_immediate_relatives())
+
+    def add_alias(self, pt):
+        """
+        A convenience method to make participant 'pt'
+        an alias of participant 'self'.
+
+        There are 4 cases to consider:
+
+        1) Participant pt and self have not been assigned an alias
+        group. Create a new alias group and add both particpants to it.
+
+        2) Participant pt does not have an alias group, but participant self
+        does. Add pt to self's alias group.
+
+        3) Participant self does not have an alias group but particpant pt
+        does. Add self to pt's alias group
+
+        4) Both participants already have an alias group. Find which particpant
+        has the smaller alias group and merge all particpants in the
+        smaller group into the larger group
+
+        ** NOTE ** A particpant's aliases can also be created manually by
+        direct manipulation of the particpants in an AliasGroup or
+        the particpant's alias_group_id. However, then it is completely up to
+        the user to ensure all aliases are in the right group and there aren't
+        redundant groups that exist.
+        """
+        # Neither particpant has an alias group yet
+        if (not pt.alias_group) and (not self.alias_group):
+            g = AliasGroup()
+            g.participants.extend([self, pt])
+
+        # Self belongs to alias group, pt does not
+        elif (not pt.alias_group) and (self.alias_group):
+            self.alias_group.particpants.append(pt)
+
+        # pt belongs to an alias group, self does not
+        elif pt.alias_group and (not self.alias_group):
+            pt.alias_group.particpants.append(self)
+
+        # Both particpants belong to two different alias groups
+        elif pt.alias_group and self.alias_group:
+            # Find smaller alias group first
+            c1 = (Participant.query.
+                  filter_by(alias_group_id=self.alias_group_id).count())
+            c2 = (Participant.query.
+                  filter_by(alias_group_id=pt.alias_group_id).count())
+
+            smaller_alias_group = self.alias_group
+            larger_alias_group = pt.alias_group
+            if c2 <= c1:
+                larger_alias_group = self.alias_group
+                smaller_alias_group = pt.alias_group
+
+            # Merge smaller alias group with larger alias group
+            # aka, change all participants' alias_group_id in the smaller group
+            # to be the alias_group_id of the larger group
+            for p in (db.session.query(Participant).
+                      filter(Participant.alias_group_id
+                             == smaller_alias_group.kf_id)):
+                p.alias_group = larger_alias_group
+
+            # Delete old alias group
+            db.session.delete(smaller_alias_group)
+
+    @property
+    def aliases(self):
+        """
+        Retrieve aliases of participant
+
+        Return all participants with same alias group id
+        """
+        if self.alias_group:
+            for pt in (Participant.query.
+                       filter_by(alias_group_id=self.alias_group_id).all()):
+                # Skip self, a participant shouldn't be an alias of itself
+                if self != pt:
+                    yield pt
+                else:
+                    continue
+        else:
+            raise StopIteration
 
     def __repr__(self):
         return '<Participant {}>'.format(self.kf_id)
