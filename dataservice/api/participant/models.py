@@ -4,7 +4,6 @@ from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
-from dataservice.api.demographic.models import Demographic
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 
@@ -18,6 +17,9 @@ class Participant(db.Model, Base):
     :param family_id: Id for the participants grouped by family
     :param is_proband: Denotes whether participant is proband of study
     :param consent_type: Type of the consent participant belongs to
+    :param race: Race of participant
+    :param ethnicity: Ethnicity of participant
+    :param gender: Self reported gender of participant
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     """
@@ -33,15 +35,18 @@ class Participant(db.Model, Base):
         doc='Denotes whether participant is proband of study')
     consent_type = db.Column(db.Text(),
                              doc='Type of the consent participant belongs to')
+    race = db.Column(db.Text(),
+                     doc='The race of the participant')
+    ethnicity = db.Column(db.Text(),
+                          doc='The ethnicity of the participant')
+    gender = db.Column(db.Text(),
+                       doc='The gender of the participant')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
                                 backref=db.backref('participants',
                                                    lazy=True))
     samples = db.relationship(Sample, backref='participant',
                               cascade='all, delete-orphan')
-    demographic = db.relationship(Demographic, backref='participant',
-                                  uselist=False, cascade='all, delete-orphan',
-                                  lazy=True)
     outcomes = db.relationship(Outcome,
                                cascade='all, delete-orphan',
                                backref=db.backref('participants',

@@ -8,7 +8,6 @@ from dataservice.api.investigator.models import Investigator
 from dataservice.api.participant.models import Participant
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
-from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
 from dataservice.api.aliquot.models import Aliquot
@@ -46,11 +45,15 @@ class TestPagination:
         db.session.flush()
         participants = []
         for i in range(102):
-            p = Participant(external_id="test",
-                            study_id=s.kf_id,
-                            is_proband=True)
-            d = Demographic(race='cat')
-            p.demographic = d
+            data = {
+                'external_id': "test",
+                'is_proband': True,
+                'consent_type': 'GRU-IRB',
+                'race': 'asian',
+                'ethnicity': 'not hispanic',
+                'gender': 'male'
+            }
+            p = Participant(**data, study_id=s.kf_id)
             se_kwargs = {
                 'external_id': 'se1',
                 'experiment_strategy': 'WGS',
@@ -75,7 +78,7 @@ class TestPagination:
 
         # Family relationships
         for participant, relative in iterate_pairwise(participants):
-            gender = participant.demographic.gender
+            gender = participant.gender
             rel = 'mother'
             if gender == 'male':
                 rel = 'father'
@@ -90,7 +93,6 @@ class TestPagination:
         ('/participants', 102),
         ('/outcomes', 102),
         ('/phenotypes', 102),
-        ('/demographics', 102),
         ('/diagnoses', 102),
         ('/samples', 102),
         ('/aliquots', 102),
@@ -129,7 +131,6 @@ class TestPagination:
         ('/participants'),
         ('/outcomes'),
         ('/phenotypes'),
-        ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
@@ -160,7 +161,6 @@ class TestPagination:
         ('/participants'),
         ('/outcomes'),
         ('/phenotypes'),
-        ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
@@ -195,7 +195,6 @@ class TestPagination:
         ('/participants'),
         ('/outcomes'),
         ('/phenotypes'),
-        ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),
@@ -220,7 +219,6 @@ class TestPagination:
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
         ('/outcomes'),
-        ('/demographics'),
         ('/diagnoses'),
         ('/samples'),
         ('/aliquots'),

@@ -12,13 +12,21 @@ class ModelTest(FlaskTestCase):
     Test database model
     """
 
-    def _create_participant(self, external_id="Test_Participant_0"):
+    def _create_participant(self, external_id='Test_Participant_0'):
         """
         Create participant with external id
         """
         s = Study(external_id='phs001')
-        p = Participant(external_id=external_id, family_id="Test_family_id_0",
-                        is_proband=False, consent_type="GRU-IRB")
+        data = {
+            'external_id': external_id,
+            'family_id':'Test_family_id_0',
+            'is_proband': False,
+            'consent_type': 'GRU-IRB',
+            'race': 'asian',
+            'ethnicity': 'not hispanic',
+            'gender': 'female'
+        }
+        p = Participant(**data)
         s.participants.append(p)
         db.session.add(s)
         db.session.commit()
@@ -43,9 +51,10 @@ class ModelTest(FlaskTestCase):
         self.assertGreater(new_participant.created_at, dt)
         self.assertGreater(new_participant.modified_at, dt)
         self.assertIs(type(uuid.UUID(new_participant.uuid)), uuid.UUID)
-        self.assertEqual(new_participant.external_id, "Test_Participant_0")
-        self.assertEqual(new_participant.family_id, "Test_family_id_0")
+        self.assertEqual(new_participant.external_id, 'Test_Participant_0')
+        self.assertEqual(new_participant.family_id, 'Test_family_id_0')
         self.assertEqual(new_participant.is_proband,False)
+        self.assertEqual(new_participant.race,'asian')
 
     def test_get_participant(self):
         """
@@ -56,15 +65,16 @@ class ModelTest(FlaskTestCase):
 
         participant = self._get_participant(kf_id)
         self.assertEqual(Participant.query.count(), 1)
-        self.assertEqual(participant.external_id, "Test_Participant_0")
+        self.assertEqual(participant.external_id, 'Test_Participant_0')
         self.assertEqual(participant.is_proband,False)
         self.assertEqual(participant.kf_id, kf_id)
+        self.assertEqual(participant.ethnicity,'not hispanic')
 
     def test_participant_not_found(self):
         """
         Test retrieving a participant that does not exist
         """
-        participant = self._get_participant("non_existent_id")
+        participant = self._get_participant('non_existent_id')
         self.assertEqual(participant, None)
 
     def test_update_participant(self):

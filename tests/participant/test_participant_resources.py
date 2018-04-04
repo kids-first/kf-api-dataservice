@@ -38,6 +38,9 @@ class ParticipantTest(FlaskTestCase):
         self.assertEqual(p.consent_type, participant['consent_type'])
         self.assertEqual(p.family_id, participant['family_id'])
         self.assertEqual(p.is_proband, participant['is_proband'])
+        self.assertEqual(p.race, participant['race'])
+        self.assertEqual(p.ethnicity, participant['ethnicity'])
+        self.assertEqual(p.gender, participant['gender'])
 
     def test_post_missing_req_params(self):
         """
@@ -82,6 +85,9 @@ class ParticipantTest(FlaskTestCase):
         self.assertEqual(kf_id, participant['kf_id'])
         self.assertEqual(p.consent_type, participant['consent_type'])
         self.assertEqual(p.family_id, participant['family_id'])
+        self.assertEqual(p.race, participant['race'])
+        self.assertEqual(p.ethnicity, participant['ethnicity'])
+        self.assertEqual(p.gender, participant['gender'])
 
     def test_get_all_participants(self):
         """
@@ -110,6 +116,7 @@ class ParticipantTest(FlaskTestCase):
         body = {
             'external_id': 'participant 0',
             'consent_type': 'something',
+            'gender': 'updated_gender',
             'kf_id': kf_id
         }
         response = self.client.patch(url_for(PARTICIPANT_URL,
@@ -212,6 +219,9 @@ class ParticipantTest(FlaskTestCase):
             'family_id': 'Test_Family_id_0',
             'is_proband': True,
             'consent_type': 'GRU-IRB',
+            'race': 'asian',
+            'ethnicity': 'not hispanic',
+            'gender': 'female',
             'study_id': s.kf_id
         }
         response = self.client.post(url_for(PARTICIPANT_LIST_URL),

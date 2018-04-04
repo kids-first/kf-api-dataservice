@@ -11,8 +11,6 @@ class TestSwagger:
     @pytest.mark.parametrize('path', [
         'definitions.Participant',
         'definitions.Diagnosis',
-        'definitions.Demographic',
-        'definitions.DemographicPaginated',
         'definitions.DiagnosisPaginated',
         'definitions.DiagnosisResponse',
         'definitions.ParticipantResponse',
@@ -28,7 +26,6 @@ class TestSwagger:
         check_field(path.split('.'), swagger)
 
     @pytest.mark.parametrize('endpoint', [
-        '/demographics',
         '/diagnoses',
         '/samples',
         '/participants',
@@ -47,8 +44,7 @@ class TestSwagger:
         ('info.title', 'Kids First Data Service'),
         ('paths./participants/{kf_id}.get.description', 'Get Participant by id'),
         ('paths./diagnoses/{kf_id}.get.description', 'Get Diagnosis by id'),
-        ('paths./samples/{kf_id}.get.description', 'Get Sample by id'),
-        ('paths./demographics/{kf_id}.get.description', 'Get Demographic by id'),
+        ('paths./samples/{kf_id}.get.description', 'Get Sample by id')
     ])
     def test_field_equals(self, swagger, path, value):
         """ Test swagger spec field values """

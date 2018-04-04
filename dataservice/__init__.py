@@ -10,7 +10,6 @@ from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family_relationship.models import FamilyRelationship
-from dataservice.api.demographic.models import Demographic
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
