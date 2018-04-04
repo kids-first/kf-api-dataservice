@@ -28,8 +28,8 @@ class ModelTest(FlaskTestCase):
         participant_id = "Test_Subject_0"
         sample_id = "Test_Sample_0"
         aliquot_id = "Test_Aliquot_0"
-        sample_data =self._make_sample(external_id=sample_id)
-        aliquot_data=self._make_aliquot(external_id=aliquot_id)
+        sample_data = self._make_sample(external_id=sample_id)
+        aliquot_data = self._make_aliquot(external_id=aliquot_id)
         aliquot_0 = Aliquot(**aliquot_data)
         sample_0 = Sample(**sample_data, aliquots=[aliquot_0])
         participant_0 = Participant(
