@@ -1,4 +1,5 @@
 from flask import abort, request
+from sqlalchemy.orm import joinedload
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
@@ -29,7 +30,11 @@ class AliquotListAPI(CRUDView):
             resource:
               Aliquot
         """
-        q = Aliquot.query
+        q = (Aliquot.query
+                    .options(
+                        joinedload('sequencing_experiments')
+                        .load_only('kf_id')
+                     ))
 
         return (AliquotSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
