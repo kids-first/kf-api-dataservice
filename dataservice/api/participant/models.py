@@ -1,5 +1,7 @@
 from itertools import chain
 
+from sqlalchemy import and_
+
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.diagnosis.models import Diagnosis
@@ -189,15 +191,12 @@ class Participant(db.Model, Base):
         Return all participants with same alias group id
         """
         if self.alias_group:
-            for pt in (Participant.query.
-                       filter_by(alias_group_id=self.alias_group_id).all()):
-                # Skip self, a participant shouldn't be an alias of itself
-                if self != pt:
-                    yield pt
-                else:
-                    continue
+            return [pt for pt in Participant.query.filter(
+                and_(Participant.alias_group_id == self.alias_group_id),
+                Participant.kf_id != self.kf_id)
+            ]
         else:
-            raise StopIteration
+            return []
 
     def __repr__(self):
         return '<Participant {}>'.format(self.kf_id)

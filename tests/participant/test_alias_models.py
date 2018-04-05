@@ -132,7 +132,7 @@ class ModelTest(FlaskTestCase):
 
         # Check aliases of other particpants in group
         for p in g.participants:
-            self.assertEqual(2, len([a for a in p.aliases]))
+            self.assertEqual(2, len(p.aliases))
 
     def test_invalid_alias(self):
         """
@@ -148,7 +148,7 @@ class ModelTest(FlaskTestCase):
             db.session.commit()
 
         db.session.rollback()
-        self.assertEqual(3, len([a for a in p0.aliases]))
+        self.assertEqual(3, len(p0.aliases))
 
     def test_add_multiple(self):
         """
@@ -166,7 +166,7 @@ class ModelTest(FlaskTestCase):
 
         # p0 should be in new alias group, but have no aliases
         # (since a participant cannot be an alias of itself)
-        self.assertEqual(0, len([a for a in p0.aliases]))
+        self.assertEqual(0, len(p0.aliases))
 
         # Add p1 as an alias of p0
         p1 = Participant.query.get(data['p1']['obj'].kf_id)
@@ -197,7 +197,7 @@ class ModelTest(FlaskTestCase):
 
         # Other particpants in alias group should have 1 less alias
         p1 = Participant.query.get(data['p1']['obj'].kf_id)
-        self.assertEqual(2, len([a for a in p1.aliases]))
+        self.assertEqual(2, len(p1.aliases))
 
         # Delete particpant
         db.session.delete(p1)
@@ -205,7 +205,7 @@ class ModelTest(FlaskTestCase):
 
         # Other particpants in alias group should have 1 less alias
         p2 = Participant.query.get(data['p2']['obj'].kf_id)
-        self.assertEqual(1, len([a for a in p2.aliases]))
+        self.assertEqual(1, len(p2.aliases))
 
         # Delete an alias group
         db.session.delete(g)
@@ -214,4 +214,4 @@ class ModelTest(FlaskTestCase):
         # All remaining particpants should exist and have no aliases
         self.assertEqual(4, Participant.query.count())
         for p in Participant.query.all():
-            self.assertEqual(0, len([a for a in p.aliases]))
+            self.assertEqual(0, len(p.aliases))
