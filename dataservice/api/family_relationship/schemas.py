@@ -17,7 +17,7 @@ class FamilyRelationshipSchema(BaseSchema):
         model = FamilyRelationship
         resource_url = 'api.family_relationships'
         collection_url = 'api.family_relationships_list'
-        exclude = ('relative', 'participant')
+        exclude = BaseSchema.Meta.exclude + ('relative', 'participant')
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),

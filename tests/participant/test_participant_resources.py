@@ -6,6 +6,7 @@ from flask import url_for
 
 from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
+from dataservice.api.family.models import Family
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
@@ -36,7 +37,7 @@ class ParticipantTest(FlaskTestCase):
         self.assertEqual(p.kf_id, participant['kf_id'])
         self.assertEqual(p.external_id, participant['external_id'])
         self.assertEqual(p.consent_type, participant['consent_type'])
-        self.assertEqual(p.family_id, participant['family_id'])
+        self.assertEqual(p.family_id, resp['_links']['family'][-11:])
         self.assertEqual(p.is_proband, participant['is_proband'])
         self.assertEqual(p.race, participant['race'])
         self.assertEqual(p.ethnicity, participant['ethnicity'])
@@ -84,10 +85,35 @@ class ParticipantTest(FlaskTestCase):
         p = Participant.query.first()
         self.assertEqual(kf_id, participant['kf_id'])
         self.assertEqual(p.consent_type, participant['consent_type'])
-        self.assertEqual(p.family_id, participant['family_id'])
-        self.assertEqual(p.race, participant['race'])
-        self.assertEqual(p.ethnicity, participant['ethnicity'])
-        self.assertEqual(p.gender, participant['gender'])
+        self.assertTrue(resp['_links']['family'].endswith(p.family_id))
+
+    def test_get_participant_no_family(self):
+        """
+        Test that there is no family link if the participant doesnt have one
+        """
+        s = Study(external_id='phs001')
+        db.session.add(s)
+        db.session.commit()
+
+        body = {
+            'external_id': 'p01',
+            'is_proband': True,
+            'consent_type': 'GRU-IRB',
+            'study_id': s.kf_id
+        }
+        resp = self.client.post(url_for(PARTICIPANT_LIST_URL),
+                                headers=self._api_headers(),
+                                data=json.dumps(body))
+        resp = json.loads(resp.data.decode("utf-8"))
+        kf_id = resp['results']['kf_id']
+
+        response = self.client.get(url_for(PARTICIPANT_URL,
+                                           kf_id=kf_id),
+                                   headers=self._api_headers())
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue('family' not in resp['_links'])
 
     def test_get_all_participants(self):
         """
@@ -211,12 +237,13 @@ class ParticipantTest(FlaskTestCase):
         """
         # Make required entities first
         s = Study(external_id='phs001')
-        db.session.add(s)
+        fam = Family(external_id='family0')
+        db.session.add_all([s, fam])
         db.session.commit()
 
         body = {
             'external_id': external_id,
-            'family_id': 'Test_Family_id_0',
+            'family_id': fam.kf_id,
             'is_proband': True,
             'consent_type': 'GRU-IRB',
             'race': 'asian',

@@ -33,6 +33,8 @@ class TestAPI:
         ('/investigators', 'GET', 200),
         ('/outcomes', 'GET', 200),
         ('/outcomes/123', 'GET', 404),
+        ('/families', 'GET', 200),
+        ('/families/123', 'GET', 404),
         ('/family-relationships', 'GET', 200),
         ('/family-relationship/123', 'GET', 404)
     ])
@@ -90,6 +92,9 @@ class TestAPI:
          'could not find sequencing_experiment `123`'),
         ('/sequencing-experiments/123', 'DELETE',
          'could not find sequencing_experiment `123`'),
+        ('/families/123', 'GET', 'could not find family `123`'),
+        ('/families/123', 'PATCH', 'could not find family `123`'),
+        ('/families/123', 'DELETE', 'could not find family `123`'),
         ('/family-relationships', 'GET', 'success'),
         ('/family-relationships/123', 'GET',
          'could not find family_relationship `123`'),
@@ -119,7 +124,9 @@ class TestAPI:
         ('/aliquots', 'GET'),
         ('/sequencing-experiments', 'GET'),
         ('/family-relationships', 'GET'),
-        ('/study-files', 'GET')
+        ('/study-files', 'GET'),
+        ('/families', 'GET'),
+        ('/family-relationships', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -150,6 +157,8 @@ class TestAPI:
         ('/samples', 'PATCH', ['created_at', 'modified_at']),
         ('/aliquots', 'POST', ['created_at', 'modified_at']),
         ('/aliquots', 'PATCH', ['created_at', 'modified_at']),
+        ('/families', 'POST', ['created_at', 'modified_at']),
+        ('/families', 'PATCH', ['created_at', 'modified_at']),
         ('/sequencing-experiments', 'POST', ['created_at', 'modified_at']),
         ('/sequencing-experiments', 'PATCH', ['created_at', 'modified_at']),
         ('/family-relationships', 'PATCH', ['created_at', 'modified_at'])
@@ -171,6 +180,26 @@ class TestAPI:
             assert (field not in body['results']
                     or body['results'][field] != 'test')
 
+    @pytest.mark.parametrize('field', ['uuid'])
+    @pytest.mark.parametrize('endpoint', ['/studies',
+                                          '/investigators',
+                                          '/participants',
+                                          '/outcomes',
+                                          '/phenotypes',
+                                          '/diagnoses',
+                                          '/samples',
+                                          '/aliquots',
+                                          '/sequencing-experiments',
+                                          '/family-relationships',
+                                          '/study-files',
+                                          '/families',
+                                          '/family-relationships'])
+    def test_excluded_field(self, client, entities, field, endpoint):
+        """ Test that certain fields are excluded from serialization """
+        body = json.loads(client.get(endpoint).data.decode('utf-8'))
+        for res in body['results']:
+            assert field not in res
+
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint', ['/studies',
                                           '/investigators',
@@ -182,8 +211,9 @@ class TestAPI:
                                           '/aliquots',
                                           '/sequencing-experiments',
                                           '/family-relationships',
-                                          '/study-files'
-                                          ])
+                                          '/study-files',
+                                          '/families',
+                                          '/family-relationships'])
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
@@ -209,7 +239,9 @@ class TestAPI:
         ('/participants', 'outcomes'),
         ('/participants', 'phenotypes'),
         ('/aliquots', 'sequencing_experiments'),
-        ('/studies', 'study_files')
+        ('/studies', 'study_files'),
+        ('/families', 'participants'),
+        ('/aliquots', 'sequencing_experiments')
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
