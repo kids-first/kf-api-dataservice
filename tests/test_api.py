@@ -180,6 +180,26 @@ class TestAPI:
             assert (field not in body['results']
                     or body['results'][field] != 'test')
 
+    @pytest.mark.parametrize('field', ['uuid'])
+    @pytest.mark.parametrize('endpoint', ['/studies',
+                                          '/investigators',
+                                          '/participants',
+                                          '/outcomes',
+                                          '/phenotypes',
+                                          '/diagnoses',
+                                          '/samples',
+                                          '/aliquots',
+                                          '/sequencing-experiments',
+                                          '/family-relationships',
+                                          '/study-files',
+                                          '/families',
+                                          '/family-relationships'])
+    def test_excluded_field(self, client, entities, field, endpoint):
+        """ Test that certain fields are excluded from serialization """
+        body = json.loads(client.get(endpoint).data.decode('utf-8'))
+        for res in body['results']:
+            assert field not in res
+
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint', ['/studies',
                                           '/investigators',
