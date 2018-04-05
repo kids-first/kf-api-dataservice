@@ -3,8 +3,10 @@ import jinja2
 from flask.views import MethodView
 from dataservice.api.common.schemas import (
     response_generator,
-    paginated_generator
+    paginated_generator,
+    error_response_generator
 )
+from dataservice.utils import to_snake_case
 
 
 class CRUDView(MethodView):
@@ -39,11 +41,20 @@ class CRUDView(MethodView):
             if len(c.schemas) == 0:
                 continue
             for name, schema in c.schemas.items():
+                name_snake_case = to_snake_case(name)
                 spec.definition(name, schema=schema)
                 ResponseSchema = response_generator(schema)
                 spec.definition(name + 'Response', schema=ResponseSchema)
-                PaginatedSchema = paginated_generator(schema)
+                PaginatedSchema = paginated_generator(name_snake_case, schema)
                 spec.definition(name + 'Paginated', schema=PaginatedSchema)
+                ErrorResponseSchema = error_response_generator(
+                    to_snake_case(name), 404)
+                spec.definition(name + 'NotFoundErrorResponse',
+                                schema=ErrorResponseSchema)
+                ErrorResponseSchema = error_response_generator(
+                    name_snake_case, 400)
+                spec.definition(name + 'ClientErrorResponse',
+                                schema=ErrorResponseSchema)
 
     @staticmethod
     def register_views(app):
