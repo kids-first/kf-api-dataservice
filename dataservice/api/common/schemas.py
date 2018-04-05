@@ -139,12 +139,13 @@ def response_generator(schema):
     return RespSchema
 
 
-def paginated_generator(resource_name, schema):
+def paginated_generator(url, schema):
+
     class PaginatedSchema(Schema):
         _status = fields.Dict(example={'message': 'success', 'code': 200})
         _links = fields.Dict(
-            example={'next': '/{}?after=1519402953'.format(resource_name),
-                     'self': '/{}?after=1519402952'.format(resource_name)
+            example={'next': '{}?after=1519402953'.format(url),
+                     'self': '{}?after=1519402952'.format(url)
                      })
         limit = fields.Integer(example=10,
                                description='Max number of results per page')

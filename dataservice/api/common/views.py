@@ -1,5 +1,6 @@
 import yaml
 import jinja2
+from flask import url_for
 from flask.views import MethodView
 from dataservice.api.common.schemas import (
     response_generator,
@@ -40,21 +41,25 @@ class CRUDView(MethodView):
         for c in cls.__subclasses__():
             if len(c.schemas) == 0:
                 continue
+
             for name, schema in c.schemas.items():
-                name_snake_case = to_snake_case(name)
                 spec.definition(name, schema=schema)
                 ResponseSchema = response_generator(schema)
                 spec.definition(name + 'Response', schema=ResponseSchema)
-                PaginatedSchema = paginated_generator(name_snake_case, schema)
-                spec.definition(name + 'Paginated', schema=PaginatedSchema)
+
+                name_snake_case = to_snake_case(name)
                 ErrorResponseSchema = error_response_generator(
-                    to_snake_case(name), 404)
+                    name_snake_case, 404)
                 spec.definition(name + 'NotFoundErrorResponse',
                                 schema=ErrorResponseSchema)
                 ErrorResponseSchema = error_response_generator(
                     name_snake_case, 400)
                 spec.definition(name + 'ClientErrorResponse',
                                 schema=ErrorResponseSchema)
+                if c.__name__.endswith('ListAPI'):
+                    url = c.rule
+                    PaginatedSchema = paginated_generator(url, schema)
+                    spec.definition(name + 'Paginated', schema=PaginatedSchema)
 
     @staticmethod
     def register_views(app):
