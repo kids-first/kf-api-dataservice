@@ -132,7 +132,8 @@ class ModelTest(FlaskTestCase):
                             'aa/wga.cgi?view_pdf&stacc=phs000178.v9.p8'),
             'external_id': 'phs001',
             'name': 'study1',
-            'version': 'v1'
+            'version': 'v1',
+            'release_status': 'pending'
         }
         study = Study(**kwargs)
 

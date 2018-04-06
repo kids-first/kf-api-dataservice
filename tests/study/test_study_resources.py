@@ -61,7 +61,8 @@ class StudyTest(FlaskTestCase):
 
         # Update the study via http api
         body = {
-            'external_id': 'new_id'
+            'external_id': 'new_id',
+            'release_status': 'published'
         }
         response = self.client.patch(url_for(STUDY_URL,
                                            kf_id=kf_id),
@@ -79,6 +80,7 @@ class StudyTest(FlaskTestCase):
         study = resp['results']
         self.assertEqual(study['kf_id'], kf_id)
         self.assertEqual(study['external_id'], body['external_id'])
+        self.assertEqual(study['release_status'], body['release_status'])
 
     def test_patch_study_no_required_field(self):
         """
@@ -139,7 +141,8 @@ class StudyTest(FlaskTestCase):
         """
         body = {
             'external_id': external_id,
-            'version': '1.0'
+            'version': '1.0',
+            'release_status': 'pending'
         }
         response = self.client.post(url_for(STUDY_LIST_URL),
                                     headers=self._api_headers(),

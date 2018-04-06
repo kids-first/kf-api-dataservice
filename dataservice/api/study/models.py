@@ -17,6 +17,7 @@ class Study(db.Model, Base):
     :param version: dbGaP version
     :param name: Name or title of study
     :param attribution: Link to attribution prose provided by dbGaP
+    :param release_status: Release status of the study
     """
     __tablename__ = 'study'
     __prefix__ = 'SD'
@@ -25,10 +26,16 @@ class Study(db.Model, Base):
                                       nullable=False,
                                       default='dbGaP')
 
-    external_id = db.Column(db.Text(), nullable=False)
-    version = db.Column(db.Text())
-    name = db.Column(db.Text())
-    attribution = db.Column(db.Text())
+    external_id = db.Column(db.Text(), nullable=False,
+                            doc='dbGaP accession number')
+    version = db.Column(db.Text(),
+                        doc='dbGaP version')
+    name = db.Column(db.Text(),
+                     doc='Name or title of study')
+    attribution = db.Column(db.Text(),
+                            doc='Link to attribution prose provided by dbGaP')
+    release_status = db.Column(db.Text(),
+                               doc='Release status of the study')
 
     participants = db.relationship(Participant,
                                    cascade="all, delete-orphan",

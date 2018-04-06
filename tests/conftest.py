@@ -98,7 +98,10 @@ def entities(client):
         '/diagnoses': {
             'external_id': 'd0',
             'diagnosis': 'diag',
-            'age_at_event_days': 365
+            'age_at_event_days': 365,
+            'mondo_id': 'DOID:8469',
+            'icd_id': 'J10.01',
+            'uberon_id':'UBERON:0000955'
         },
         '/outcomes': {
             'vital_status': 'Alive',
@@ -108,6 +111,7 @@ def entities(client):
         '/phenotypes': {
             'phenotype': 'test phenotype 1',
             'hpo_id': 'HP:0000118',
+            'snomed_id': '38033009',
             'age_at_event_days': 120
         },
 

@@ -22,14 +22,7 @@ class ModelTest(FlaskTestCase):
         """
         participant_id = "Test_Subject_0"
         sample_id = "Test_Sample_0"
-        data = {
-            'external_id': sample_id,
-            'tissue_type': 'Normal',
-            'composition': 'Test_comp_0',
-            'anatomical_site': 'Brain',
-            'age_at_event_days': 456,
-            'tumor_descriptor': 'Metastatic'
-        }
+        data = self._make_sample(external_id=sample_id)
         sample_0 = Sample(**data)
         participant_0 = Participant(
             external_id=participant_id,
@@ -60,14 +53,9 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         # Creating Sample
-        s = Sample(
-            external_id='Test_Sample_0',
-            tissue_type='Normal',
-            composition='Test_comp_0',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            tumor_descriptor='Metastatic',
-            participant_id=p.kf_id)
+        sample_id = "Test_Sample_0"
+        data = self._make_sample(external_id=sample_id)
+        s = Sample(**data, participant_id=p.kf_id)
         db.session.add(s)
         db.session.commit()
 
@@ -158,19 +146,15 @@ class ModelTest(FlaskTestCase):
 
     def test_not_null_constraint(self):
         """
-        Test sample cannot be created with out required parameters such as participant_id
+        Test sample cannot be created with out required parameters
+        such as participant_id
         """
         # Create Sample
         sample_id = "Test_Sample_0"
 
         # With Missing Kf_id
-        s = Sample(
-            external_id='Test_Sample_0',
-            tissue_type='Normal',
-            composition='Test_comp_0',
-            anatomical_site='Brain',
-            tumor_descriptor='Metastatic',
-            age_at_event_days=456)
+        data = self._make_sample(external_id=sample_id)
+        s = Sample(**data)
 
         # Add Sample to db
         self.assertRaises(IntegrityError, db.session.add(s))
@@ -184,14 +168,8 @@ class ModelTest(FlaskTestCase):
         sample_id = "Test_Sample_0"
 
         # With Empty Kf_id
-        s = Sample(
-            external_id='Test_Sample_0',
-            tissue_type='Normal',
-            composition='Test_comp_0',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            tumor_descriptor='Metastatic',
-            participant_id='')
+        data = self._make_sample(external_id=sample_id)
+        s = Sample(**data, participant_id='')
 
         # Add Sample to db
         self.assertRaises(IntegrityError, db.session.add(s))
@@ -206,14 +184,8 @@ class ModelTest(FlaskTestCase):
             external_id=participant_id).one_or_none()
 
         # adding another sample to participant
-        s = Sample(
-            external_id='Test_Sample_1',
-            tissue_type='Normal',
-            composition='Test_comp_1',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            tumor_descriptor='Metastatic',
-            participant_id=p.kf_id)
+        data = self._make_sample(external_id='Test_Sample_1')
+        s = Sample(**data, participant_id=p.kf_id)
 
         db.session.add(s)
         db.session.commit()
@@ -234,14 +206,8 @@ class ModelTest(FlaskTestCase):
             external_id=participant_id).one_or_none()
 
         # adding another sample to participant
-        s = Sample(
-            external_id='Test_Sample_1',
-            tissue_type='Normal',
-            composition='Test_comp_1',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            tumor_descriptor='Metastatic',
-            participant_id=p.kf_id)
+        data = self._make_sample(external_id='Test_Sample_1')
+        s = Sample(**data, participant_id=p.kf_id)
 
         db.session.add(s)
         db.session.commit()
@@ -269,15 +235,8 @@ class ModelTest(FlaskTestCase):
             external_id=participant_id).one_or_none()
 
         # adding another sample to participant
-        s = Sample(
-            external_id='Test_Sample_1',
-            tissue_type='Normal',
-            composition='Test_comp_1',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            tumor_descriptor='Metastatic',
-            participant_id=p.kf_id)
-
+        data = self._make_sample(external_id='Test_Sample_1')
+        s = Sample(**data, participant_id=p.kf_id)
         db.session.add(s)
         db.session.commit()
 
@@ -285,3 +244,18 @@ class ModelTest(FlaskTestCase):
         db.session.delete(s)
         db.session.commit()
         self.assertEqual(Sample.query.count(), 1)
+
+    def _make_sample(self, external_id=None):
+        '''
+        Convenience method to create a sample with a given source name
+        '''
+        dt = datetime.now()
+        body = {
+            'external_id': external_id,
+            'tissue_type': 'Normal',
+            'composition': 'Test_comp_0',
+            'anatomical_site': 'Brain',
+            'age_at_event_days': 456,
+            'tumor_descriptor': 'Metastatic'
+        }
+        return body

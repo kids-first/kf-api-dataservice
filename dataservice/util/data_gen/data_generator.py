@@ -384,7 +384,7 @@ class DataGenerator(object):
                 'shipment_destination':
                     random.choice(self.shipment_destination_list),
                 'analyte_type': random.choice(self.analyte_type_list),
-                'concentration': random.randint(70, 400),
+                'concentration': random.randint(700, 4000),
                 'volume': (random.randint(200, 400)) / 10,
                 'shipment_date': dt - relativedelta.relativedelta(
                     years=random.randint(1, 2)) - relativedelta.relativedelta(

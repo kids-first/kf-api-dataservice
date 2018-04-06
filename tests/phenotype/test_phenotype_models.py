@@ -33,6 +33,7 @@ class ModelTest(FlaskTestCase):
         data = {
             'phenotype': 'test phenotype 1',
             'hpo_id': 'HP:0000118',
+            'snomed_id': '38033009',
             'age_at_event_days': 120,
             'participant_id': p.kf_id
         }

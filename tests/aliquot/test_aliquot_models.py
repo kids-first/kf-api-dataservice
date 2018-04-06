@@ -28,23 +28,8 @@ class ModelTest(FlaskTestCase):
         participant_id = "Test_Subject_0"
         sample_id = "Test_Sample_0"
         aliquot_id = "Test_Aliquot_0"
-        sample_data = {
-            'external_id': sample_id,
-            'tissue_type': 'Normal',
-            'composition': 'Test_comp_0',
-            'anatomical_site': 'Brain',
-            'age_at_event_days': 456,
-            'tumor_descriptor': 'Metastatic'
-        }
-        aliquot_data = {
-            'external_id': aliquot_id,
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        sample_data = self._make_sample(external_id=sample_id)
+        aliquot_data = self._make_aliquot(external_id=aliquot_id)
         aliquot_0 = Aliquot(**aliquot_data)
         sample_0 = Sample(**sample_data, aliquots=[aliquot_0])
         participant_0 = Participant(
@@ -60,8 +45,8 @@ class ModelTest(FlaskTestCase):
         """
         Test creation of aliquot via sample and person
         """
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         s = Sample.query.filter_by(external_id=sample_id).one_or_none()
         p = Participant.query.filter_by(
@@ -75,44 +60,13 @@ class ModelTest(FlaskTestCase):
         """
         Test creation of aliquot
         """
-        # Create study
-        study = Study(external_id='phs001')
-
         dt = datetime.now()
-        participant_id = "Test_Subject_0"
-        # creating participant
-        p = Participant(external_id=participant_id,
-                        is_proband=True, study=study)
-        db.session.add(p)
-        db.session.commit()
-
-        # Creating Sample
-        s = Sample(
-            external_id='Test_Sample_0',
-            tissue_type='Normal',
-            composition='Test_comp_0',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            participant_id=p.kf_id)
-        db.session.add(s)
-        db.session.commit()
-
-        # creating aliquot
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_0',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
-        a = Aliquot(**aliquot_data, sample_id=s.kf_id)
-        db.session.add(a)
-        db.session.commit()
-
+        (participant_id,
+         sample_id,
+         aliquot_id) = self.create_participant_sample_aliquot()
         self.assertEqual(Aliquot.query.count(), 1)
         new_aliquot = Aliquot.query.first()
+        s = Sample.query.first()
         self.assertGreater(new_aliquot.created_at, dt)
         self.assertGreater(new_aliquot.modified_at, dt)
         self.assertIs(type(uuid.UUID(new_aliquot.uuid)), uuid.UUID)
@@ -128,8 +82,8 @@ class ModelTest(FlaskTestCase):
         test finding the aliquot with aliquot_id
         """
         dt = datetime.now()
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
 
         # get aliquot
@@ -145,8 +99,8 @@ class ModelTest(FlaskTestCase):
         """
         Test Updating aliquot
         """
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         # get aliquot
         a = Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
@@ -161,8 +115,8 @@ class ModelTest(FlaskTestCase):
         """
         Test Deleting Aliquot
         """
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         # get Aliquot
         a = Aliquot.query.filter_by(external_id=aliquot_id).one_or_none()
@@ -183,8 +137,8 @@ class ModelTest(FlaskTestCase):
         """
         Test deleting aliquot via sample and participant
         """
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
 
         # Delete Participant
@@ -213,16 +167,7 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # Create aliquot without sample kf_id
-        aliquot_id = "Test_Aliquot_0"
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_0',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        aliquot_data=self._make_aliquot(external_id="Test_Aliquot_0")
         a = Aliquot(**aliquot_data)
 
         # Add Aliquot to db
@@ -235,16 +180,7 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # Create aliquot
-        aliquot_id = "Test_Aliquot_0"
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_0',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        aliquot_data=self._make_aliquot(external_id="Test_Aliquot_0")
         a = Aliquot(**aliquot_data, sample_id='')
 
         # Add aliquot to db
@@ -256,49 +192,26 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
 
         # adding another sample to participant
-        s = Sample(
-            external_id='Test_Sample_1',
-            tissue_type='Normal',
-            composition='Test_comp_1',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            tumor_descriptor='Metastatic',
-            participant_id=p.kf_id)
-
+        sample_data =self._make_sample(external_id='Test_Sample_1')
+        s = Sample(**sample_data,participant_id=p.kf_id)
         db.session.add(s)
         db.session.commit()
 
         # adding one aliquot to sample2
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_2',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        aliquot_data=self._make_aliquot(external_id="Test_Aliquot_2")
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
 
         # adding second aliquot to sample2
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_1',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        aliquot_data=self._make_aliquot(external_id="Test_Aliquot_1")
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
@@ -333,49 +246,26 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
 
         # adding another sample to participant
-        s = Sample(
-            external_id='Test_Sample_1',
-            tissue_type='Normal',
-            composition='Test_comp_1',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            tumor_descriptor='Metastatic',
-            participant_id=p.kf_id)
-
+        sample_data = self._make_sample(external_id='Test_Sample_1')
+        s = Sample(**sample_data,participant_id=p.kf_id)
         db.session.add(s)
         db.session.commit()
 
         # adding one aliquot to sample2
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_2',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        aliquot_data=self._make_aliquot(external_id="Test_Aliquot_2")
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
 
         # adding second aliquot to sample2
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_1',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        aliquot_data=self._make_aliquot(external_id="Test_Aliquot_1")
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
@@ -418,49 +308,27 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # create a participant with a sample and a aliquot
-        (participant_id, 
-         sample_id, 
+        (participant_id,
+         sample_id,
          aliquot_id) = self.create_participant_sample_aliquot()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
 
         # adding another sample to participant
-        s = Sample(
-            external_id='Test_Sample_1',
-            tissue_type='Normal',
-            composition='Test_comp_1',
-            anatomical_site='Brain',
-            age_at_event_days=456,
-            tumor_descriptor='Metastatic',
-            participant_id=p.kf_id)
+        sample_data = self._make_sample(external_id='Test_Sample_1')
+        s = Sample(**sample_data,participant_id=p.kf_id)
 
         db.session.add(s)
         db.session.commit()
 
         # adding one aliquot to sample2
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_2',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        aliquot_data=self._make_aliquot(external_id='Test_Aliquot_2')
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
 
         # adding second aliquot to sample2
-        aliquot_data = {
-            'external_id': 'Test_Aliquot_1',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
-            'shipment_date': dt
-        }
+        aliquot_data=self._make_aliquot(external_id='Test_Aliquot_1')
         a = Aliquot(**aliquot_data, sample_id=s.kf_id)
         db.session.add(a)
         db.session.commit()
@@ -484,3 +352,34 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(Sample.query.count(), 2)
         self.assertEqual(Aliquot.query.count(), 2)
+
+    def _make_aliquot(self, external_id=None):
+        '''
+        Convenience method to create a aliquot with a given source name
+        '''
+        dt = datetime.now()
+        body = {
+            'external_id': external_id,
+            'shipment_origin': 'CORIELL',
+            'shipment_destination': 'Broad Institute',
+            'analyte_type': 'DNA',
+            'concentration': 100,
+            'volume': 12.67,
+            'shipment_date': dt
+        }
+        return body
+
+    def _make_sample(self, external_id=None):
+        '''
+        Convenience method to create a sample with a given source name
+        '''
+        dt = datetime.now()
+        body = {
+            'external_id': external_id,
+            'tissue_type': 'Normal',
+            'composition': 'Test_comp_1',
+            'anatomical_site': 'Brain',
+            'age_at_event_days': 456,
+            'tumor_descriptor': 'Metastatic'
+        }
+        return body

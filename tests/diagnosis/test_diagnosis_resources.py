@@ -33,6 +33,9 @@ class DiagnosisTest(FlaskTestCase):
             'age_at_event_days': 365,
             'diagnosis_category': 'cancer',
             'tumor_location': 'Brain',
+            'mondo_id': 'DOID:8469',
+            'icd_id': 'J10.01',
+            'uberon_id':'UBERON:0000955',
             'participant_id': kwargs.get('participant_id')
         }
         # Send get request
@@ -63,7 +66,10 @@ class DiagnosisTest(FlaskTestCase):
             'diagnosis': 'flu',
             'age_at_event_days': 365,
             'diagnosis_category': 'cancer',
-            'tumor_location': 'Brain'
+            'tumor_location': 'Brain',
+            'mondo_id': 'DOID:8469',
+            'uberon_id':'UBERON:0000955',
+            'icd_id': 'J10.01'
             # missing required param participant_id
         }
         # Send post request
@@ -96,6 +102,9 @@ class DiagnosisTest(FlaskTestCase):
             'tumor_location': 'Brain',
             # should be a positive integer
             'age_at_event_days': -5,
+            'mondo_id': 'DOID:8469',
+            'icd_id': 'J10.01',
+            'uberon_id':'UBERON:0000955'
         }
         # Send post request
         response = self.client.post(url_for(DIAGNOSES_LIST_URL),
@@ -127,6 +136,9 @@ class DiagnosisTest(FlaskTestCase):
             'age_at_event_days': 365,
             'diagnosis_category': 'cancer',
             'tumor_location': 'Brain',
+            'mondo_id': 'DOID:8469',
+            'icd_id': 'J10.01',
+            'uberon_id':'UBERON:0000955',
             # kf_id does not exist
             'participant_id': id_service.kf_id_generator('PT')()
         }
@@ -156,6 +168,9 @@ class DiagnosisTest(FlaskTestCase):
             'diagnosis': 'cold',
             'diagnosis_category': 'cancer',
             'tumor_location': 'Brain',
+            'mondo_id': 'DOID:8469',
+            'icd_id': 'J10.01',
+            'uberon_id':'UBERON:0000955',
             'participant_id': d1['participant_id']
         }
         # Send post request
@@ -334,7 +349,10 @@ class DiagnosisTest(FlaskTestCase):
             'diagnosis': 'flu',
             'diagnosis_category': 'cancer',
             'tumor_location': 'Brain',
-            'age_at_event_days': 365
+            'age_at_event_days': 365,
+            'mondo_id': 'DOID:8469',
+            'icd_id': 'J10.01',
+            'uberon_id':'UBERON:0000955'
         }
         d = Diagnosis(**kwargs)
 

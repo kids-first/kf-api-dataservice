@@ -15,7 +15,11 @@ class Diagnosis(db.Model, Base):
     :param diagnosis_category: High level diagnosis categorization
     :param tumor_location: Location of the tumor
     :param age_at_event_days: Age at the time of diagnosis expressed
-    in number of days since birth.
+    in number of days since birth
+    :param mondo_id: The ID of the term from the Monary Disease Ontology
+     which represents a harmonized diagnosis
+    :param icd_id: The ID of the term from the International Classification
+     of Diseases which represents a harmonized diagnosis
     """
     __tablename__ = 'diagnosis'
     __prefix__ = 'DG'
@@ -31,7 +35,17 @@ class Diagnosis(db.Model, Base):
                                doc='location of the tumor')
     age_at_event_days = db.Column(db.Integer(),
                                   doc='Age at the time of event occurred in '
-                                      'number of days since birth.')
+                                      'number of days since birth')
+    mondo_id = db.Column(db.Text(),
+                         doc='The ID of the term from the Monary Disease '
+                         'Ontology which represents a harmonized diagnosis')
+    icd_id = db.Column(db.Text(),
+                       doc='The ID of the term from the International '
+                       'Classification of Diseases which represents a '
+                       'harmonized diagnosis')
+    uberon_id = db.Column(db.Text(),
+                          doc='The ID of the term from Uber-anatomy ontology'
+                          'which represents harmonized anatomical ontologies')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
