@@ -108,13 +108,16 @@ class Indexd(object):
             record.latest_did = str(uuid.uuid4())
             return record
 
+        meta = record._metadata
+        meta.update({'kf_id': record.kf_id})
+
         req_body = {
             "file_name": record.file_name,
             "size": record.size,
             "form": "object",
             "hashes": record.hashes,
             "urls": record.urls,
-            "metadata": record._metadata
+            "metadata": meta
         }
 
         # Register the file on indexd
