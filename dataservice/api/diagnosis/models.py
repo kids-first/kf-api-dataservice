@@ -43,6 +43,9 @@ class Diagnosis(db.Model, Base):
                        doc='The ID of the term from the International '
                        'Classification of Diseases which represents a '
                        'harmonized diagnosis')
+    uberon_id = db.Column(db.Text(),
+                          doc='The ID of the term from Uber-anatomy ontology'
+                          'which represents harmonized anatomical ontologies')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',

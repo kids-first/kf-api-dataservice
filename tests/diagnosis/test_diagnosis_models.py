@@ -120,6 +120,7 @@ class ModelTest(FlaskTestCase):
             'diagnosis_category': 'cancer',
             'tumor_location': 'Brain',
             'mondo_id': 'DOID:8469',
+            'uberon_id':'UBERON:0000955',
             'icd_id': 'J10.01'
         }
         if participant_id:

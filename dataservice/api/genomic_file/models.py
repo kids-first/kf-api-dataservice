@@ -18,25 +18,28 @@ class GenomicFile(db.Model, Base):
     :param file_size: Size of file in bytes
     :param file_url: Location of file
     :param md5sum: 128 bit md5 hash of file
-    :param controlled_access: whether or not the file is controlled access
-    :param is_harmonized: whether or not the file is harmonized
-    :param original_reference_genome: original reference genome of the
+    :param controlled_access: Whether or not the file is controlled access
+    :param is_harmonized: Whether or not the file is harmonized
+    :param reference_genome: Original reference genome of the
      unharmonized genomic files
     """
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
 
-    file_name = db.Column(db.Text())
-    data_type = db.Column(db.Text())
-    file_format = db.Column(db.Text())
-    file_size = db.Column(db.BigInteger())
-    file_url = db.Column(db.Text())
-    is_harmonized = db.Column(db.Boolean())
-    original_reference_genome = db.Column(db.Text())
+    file_name = db.Column(db.Text(), doc='Name of file')
+    data_type = db.Column(db.Text(), doc='Type of genomic file')
+    file_format = db.Column(db.Text(), doc='Size of file in bytes')
+    file_size = db.Column(db.BigInteger(), doc='Size of file in bytes')
+    file_url = db.Column(db.Text(), doc='Location of file')
+    is_harmonized = db.Column(db.Boolean(), doc='Whether or not the file'
+                              ' is harmonized')
+    reference_genome = db.Column(db.Text(), doc='Original reference genome of'
+                                 ' the unharmonized genomic files')
     # See link for why md5sum should use uuid type
     # https://dba.stackexchange.com/questions/115271/what-is-the-optimal-data-type-for-an-md5-field
-    md5sum = db.Column(UUID(), unique=True)
-    controlled_access = db.Column(db.Boolean())
+    md5sum = db.Column(UUID(), unique=True, doc='128 bit md5 hash of file')
+    controlled_access = db.Column(db.Boolean(), doc='Whether or not the file'
+                                  'is controlled access')
     sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'),

@@ -100,7 +100,8 @@ def entities(client):
             'diagnosis': 'diag',
             'age_at_event_days': 365,
             'mondo_id': 'DOID:8469',
-            'icd_id': 'J10.01'
+            'icd_id': 'J10.01',
+            'uberon_id':'UBERON:0000955'
         },
         '/outcomes': {
             'vital_status': 'Alive',
