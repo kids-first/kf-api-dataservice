@@ -6,6 +6,10 @@ from flask import _app_ctx_stack as stack
 from requests.exceptions import HTTPError
 
 
+class RecordNotFound(HTTPError):
+    """ Could not find the record in indexd """
+
+
 class Indexd(object):
     """
     Indexd flask extension for interacting with the Gen3 Indexd service
@@ -44,24 +48,18 @@ class Indexd(object):
         :param record: The record object
         :returns: Non-error response from indexd
         :throws: Aborts on non-ok http code returned from indexd
+        :throws: RecordNotFound if record does not exist in indexd
         """
-        # If running in dev mode, dont call indexd
+        # If running in dev mode, don't call indexd
         if self.url is None:
             return record
 
         url = self.url + record.latest_did
         resp = self.session.get(url)
+        self.check_response(resp)
+        resp.raise_for_status()
 
-        try:
-            resp.raise_for_status()
-        except HTTPError:
-            message = 'could not get file record'
-            # Attach indexd error message, if there is one
-            if 'error' in resp.json():
-                message = '{}: {}'.format(message, resp.json()['error'])
-            abort(resp.status_code, message)
-
-        # Might want to use partial deserialization here
+        # update fields on the target record's object
         for prop, v in resp.json().items():
             if hasattr(record, prop):
                 setattr(record, prop, v)
@@ -123,15 +121,7 @@ class Indexd(object):
         resp = self.session.post(self.url,
                                  json=req_body)
 
-        try:
-            resp.raise_for_status()
-        except HTTPError:
-            message = 'could not register record'
-            # Attach indexd error message, if there is one
-            if 'error' in resp.json():
-                message = '{}: {}'.format(message, resp.json()['error'])
-            abort(resp.status_code, message)
-
+        resp.raise_for_status()
         resp = resp.json()
 
         # Update the record object with the id fields
@@ -145,7 +135,6 @@ class Indexd(object):
         Updates a record in indexd
 
         :param record: A file-like object
-        :throws: Aborts on non-ok http code returned from indexd
         """
         # If running in dev mode, dont call indexd
         if self.url is None:
@@ -154,9 +143,10 @@ class Indexd(object):
 
         # Fetch rev for the did
         url = self.url + record.latest_did
-        r = self.session.get(url)
-        r.raise_for_status()
-        record.rev = r.json()['rev']
+        resp = self.session.get(url)
+        self.check_response(resp)
+
+        record.rev = resp.json()['rev']
 
         req_body = {
             "file_name": record.file_name,
@@ -169,11 +159,8 @@ class Indexd(object):
         # Update the file on indexd
         url = '{}{}?rev={}'.format(self.url, record.latest_did, record.rev)
         resp = self.session.post(url, json=req_body)
-
-        try:
-            resp.raise_for_status()
-        except HTTPError:
-            abort(resp.status_code, 'could not update record')
+        self.check_response(resp)
+        resp.raise_for_status()
 
         did = resp.json()['did']
         record.latest_did = did
@@ -193,21 +180,30 @@ class Indexd(object):
 
         if record.rev is None:
             r = self.session.get(self.url + record.latest_did)
-            # r.raise_for_status()
             record.rev = r.json()['rev']
 
         url = '{}{}?rev={}'.format(self.url, record.latest_did, record.rev)
         resp = self.session.delete(url)
-
+        self.check_response(resp)
         try:
             resp.raise_for_status()
         except HTTPError:
-            message = 'could not delete record'
+            message = 'could not get file record'
+            # Attach indexd error message, if there is one
             if 'error' in resp.json():
-                message += ': {}'.format(resp.json()['error'])
+                message = '{}: {}'.format(message, resp.json()['error'])
             abort(resp.status_code, message)
 
         return record
+
+    def check_response(self, resp):
+        """
+        Validate a response from indexd and throw any necessary exceptions
+        """
+        if (resp.status_code == 404 and
+                'error' in resp.json() and
+                resp.json()['error'] == 'no record found'):
+            raise RecordNotFound()
 
     @property
     def session(self):

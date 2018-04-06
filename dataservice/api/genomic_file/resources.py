@@ -33,9 +33,14 @@ class GenomicFileListAPI(CRUDView):
         """
         # Get a page of the data from the model first
         q = GenomicFile.query
-        pager = Pagination(q, after, limit)
-        for gf in pager.items:
-            gf.merge_indexd()
+        refresh = True
+        while refresh:
+            refresh = False
+            pager = Pagination(q, after, limit)
+            for gf in pager.items:
+                merged = gf.merge_indexd()
+                if merged is None:
+                    refresh = True
 
         return (GenomicFileSchema(many=True)
                 .jsonify(pager))

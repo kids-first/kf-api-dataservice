@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects.postgresql import UUID
 
 from dataservice.extensions import db, indexd
+from dataservice.extensions.flask_indexd import RecordNotFound
 from dataservice.api.common.id_service import uuid_generator, kf_id_generator
 
 
@@ -82,8 +83,19 @@ class IndexdFile:
     def merge_indexd(self):
         """
         Gets additional fields from indexd
+
+        If the document matching this object's latest_did cannot be found in
+        indexd, remove the object from the database
+
+        :returns: This object, if merge was successful, otherwise None
         """
-        return indexd.get(self)
+        try:
+            return indexd.get(self)
+        except RecordNotFound as err:
+            self.was_deleted = True
+            db.session.delete(self)
+            db.session.commit()
+            return None
 
 
 @event.listens_for(IndexdFile, 'before_insert', propagate=True)
@@ -102,7 +114,13 @@ def update_indexd(mapper, connection, target):
     """
     Updates a document in indexd
     """
-    return indexd.update(target)
+    try:
+        return indexd.update(target)
+    except RecordNotFound:
+        target.was_deleted = True
+        db.session.delete(target)
+        db.session.commit()
+        return None
 
 
 @event.listens_for(IndexdFile, 'before_delete', propagate=True)
@@ -110,6 +128,10 @@ def delete_indexd(mapper, connection, target):
     """
     Deletes a document in indexd
     """
+    if (hasattr(target, 'was_deleted') and
+            target.was_deleted):
+        return
+
     # Get the current revision if not already loaded
     if target.rev is None:
         target.merge_indexd()

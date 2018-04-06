@@ -7,6 +7,7 @@ from requests.exceptions import HTTPError
 from flask import url_for
 
 from dataservice.extensions import db
+from dataservice.extensions.flask_indexd import RecordNotFound
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
@@ -70,7 +71,7 @@ def test_new_indexd_error(client, entities):
     assert GenomicFile.query.count() == init_count
 
 
-def test_get_list(client, genomic_files):
+def test_get_list(client, genomic_files, indexd):
     """
     Test that genomic files are returned in a paginated list with all
     info loaded from indexd
@@ -82,7 +83,32 @@ def test_get_list(client, genomic_files):
     assert resp['_status']['code'] == 200
     assert resp['total'] == GenomicFile.query.count()
     assert len(resp['results']) == 10
+    assert indexd.get.call_count == 10
 
+
+def test_get_list_with_missing_files(client, indexd, genomic_files):
+    """
+    Test that genomic files that are not found in indexd are automatically
+    deleted
+    """
+    response_mock = MagicMock()
+    response_mock.status_code = 404
+    response_mock.json.return_value = {'error': 'no record found'}
+    def get(*args, **kwargs):
+        return response_mock
+    indexd.get.side_effect = get
+
+    resp = client.get(url_for(GENOMICFILE_LIST_URL))
+    resp = json.loads(resp.data.decode('utf-8'))
+
+    assert resp['_status']['code'] == 200
+    assert resp['total'] == GenomicFile.query.count()
+    # It's expected that all genomic files are removed and none are returned
+    # since indexd says everything is deleted
+    assert len(resp['results']) == 0
+    for res in resp['results']:
+        assert 'kf_id' in res
+    assert indexd.get.call_count == 103
 
 def test_get_one(client, entities):
     """
@@ -203,7 +229,6 @@ def test_delete_error(client, indexd, entities):
     resp = json.loads(response.data.decode("utf-8"))
 
     assert indexd.delete.call_count == 1
-    assert 'could not delete record' in resp['_status']['message']
     assert 'fake error message' in resp['_status']['message']
     assert GenomicFile.query.count() == init + 1
 
