@@ -19,7 +19,7 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     latest_did = field_for(GenomicFile,
                            'latest_did',
                            required=False,
-                           load_only=True)
+                           dump_only=True)
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),

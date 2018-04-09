@@ -78,9 +78,6 @@ class BaseSchema(ma.ModelSchema):
 
 
 class IndexdFileSchema(Schema):
-    class Meta:
-        exclude = ('latest_did',)
-
     urls = ma.List(ma.Str())
     file_name = ma.Str()
     hashes = ma.Dict()
