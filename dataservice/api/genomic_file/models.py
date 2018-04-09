@@ -1,6 +1,7 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from sqlalchemy.dialects.postgresql import UUID
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 
 class GenomicFile(db.Model, Base):
@@ -40,7 +41,14 @@ class GenomicFile(db.Model, Base):
     md5sum = db.Column(UUID(), unique=True, doc='128 bit md5 hash of file')
     controlled_access = db.Column(db.Boolean(), doc='Whether or not the file'
                                   'is controlled access')
-    sequencing_experiment_id = db.Column(KfId(),
-                                         db.ForeignKey(
-                                         'sequencing_experiment.kf_id'),
-                                         nullable=False)
+    sequencing_experiments = db.relationship(SequencingExperiment,
+                                             cascade="all, delete-orphan",
+                                             backref=db.backref(
+                                                                'sequencing'
+                                                                '_experiments',
+                                                                lazy=True),
+                                             doc='kf_id of sequencing '
+                                             'experiments this genomic file'
+                                             ' was used in')
+    biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
+                               nullable=False)
