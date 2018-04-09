@@ -5,7 +5,7 @@ from sqlalchemy import and_
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.diagnosis.models import Diagnosis
-from dataservice.api.sample.models import Sample
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 
@@ -69,8 +69,8 @@ class Participant(db.Model, Base):
                                 cascade='all, delete-orphan',
                                 backref=db.backref('participant',
                                                    lazy=True))
-    samples = db.relationship(Sample, backref='participant',
-                              cascade='all, delete-orphan')
+    biospecimens = db.relationship(Biospecimen, backref='participant',
+                                   cascade='all, delete-orphan')
     outcomes = db.relationship(Outcome,
                                cascade='all, delete-orphan',
                                backref=db.backref('participant',

@@ -14,10 +14,9 @@ from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
-from dataservice.api.sample.models import Sample
-from dataservice.api.aliquot.models import Aliquot
-from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.workflow.models import Workflow, WorkflowGenomicFile
 from dataservice.api.study_file.models import StudyFile
 from config import config
