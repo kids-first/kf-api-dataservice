@@ -94,7 +94,11 @@ class GenomicFileAPI(CRUDView):
             abort(404, 'could not find {} `{}`'
                   .format('genomic_file', kf_id))
 
-        genomic_file.merge_indexd()
+        # Merge will return None if the document wasnt found in indexd
+        merge = genomic_file.merge_indexd()
+        if merge is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('genomic_file', kf_id))
 
         sch = GenomicFileSchema(many=False)
         return sch.jsonify(genomic_file)
@@ -117,7 +121,11 @@ class GenomicFileAPI(CRUDView):
                   .format('genomic_file', kf_id))
 
         # Fetch fields from indexd first
-        gf.merge_indexd()
+        merge = gf.merge_indexd()
+        if merge is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('genomic_file', kf_id))
+
         # Deserialization will require this field and won't merge automatically
         if 'sequencing_experiment_id' not in body:
             body['sequencing_experiment_id'] = gf.sequencing_experiment_id
