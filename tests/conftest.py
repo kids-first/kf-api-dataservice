@@ -10,10 +10,10 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.diagnosis.models import Diagnosis
-from dataservice.api.sample.models import Sample
-from dataservice.api.aliquot.models import Aliquot
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
+from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.study_file.models import StudyFile
 
@@ -62,22 +62,21 @@ def entities(client):
         '/families': {
             'external_id': 'family0'
         },
-        '/samples': {
-            'external_id': 's0',
+        '/biospecimens': {
+            'external_sample_id': 's0',
+            'external_aliquot_id': 'a0',
             'tissue_type': 'tissue',
             'composition': 'comp',
             'anatomical_site': 'site',
             'age_at_event_days': 365,
-            'tumor_descriptor': 'tumor'
-        },
-        '/aliquots': {
-            'external_id': 'AL1',
+            'tumor_descriptor': 'tumor',
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Baylor',
             'analyte_type': 'DNA',
-            'concentration': 200,
+            'concentration': 200.0,
             'volume': 13.99,
-            'shipment_date': str(datetime.utcnow())
+            'shipment_date': str(datetime.utcnow()),
+            'uberon_id': 'test'
         },
         '/sequencing-experiments': {
             'external_id': 'se1',
@@ -120,6 +119,9 @@ def entities(client):
         },
         '/study-files':{
             'file_name': 'test_file_name 1'
+        },
+        '/genomic-files':{
+            'file_name':'test_genomic_file_name 1'
         }
     }
 
@@ -145,15 +147,16 @@ def entities(client):
     # Add entities to participant
     outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
     phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
-    sample = Sample(**inputs['/samples'], participant_id=p.kf_id)
+    biospecimen = Biospecimen(**inputs['/biospecimens'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
-    aliquot = Aliquot(**inputs['/aliquots'])
-    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'])
+    gen_file = GenomicFile(**inputs['/genomic-files'],
+                           biospecimen_id=biospecimen.kf_id)
+    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'],
+                                   genomic_file_id=gen_file.kf_id)
 
-    aliquot.sequencing_experiments = [seq_exp]
-    sample.aliquots = [aliquot]
-    sample.aliquots = [aliquot]
-    p.samples = [sample]
+    biospecimen.genomic_files = [gen_file]
+    gen_file.sequencing_experiments = [seq_exp]
+    p.biospecimens = [biospecimen]
     p.diagnoses = [diagnosis]
     p.outcomes = [outcome]
     p.phenotypes = [phenotype]
@@ -179,14 +182,14 @@ def entities(client):
     inputs['/participants']['study_id'] = study.kf_id
 
     # Entity and participant
-    endpoints = ['/diagnoses', '/samples', '/outcomes', '/phenotypes']
+    endpoints = ['/diagnoses', '/biospecimens', '/outcomes',
+                 '/phenotypes']
     for e in endpoints:
         inputs[e]['participant_id'] = p.kf_id
 
-    # Sample and aliquot
-    inputs['/aliquots']['sample_id'] = sample.kf_id
-    # Aliquot and sequencing_experiment
-    inputs['/sequencing-experiments']['aliquot_id'] = aliquot.kf_id
+    inputs['/genomic-files']['biospecimen_id'] = biospecimen.kf_id
+    # # Genomic_File and sequencing_experiment
+    inputs['/sequencing-experiments']['genomic_file_id'] = gen_file.kf_id
     # Study and study_files
     inputs['/study-files']['study_id'] = study.kf_id
 
@@ -199,10 +202,10 @@ def entities(client):
     inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
     inputs['kf_ids'].update({'/phenotypes': phenotype.kf_id})
     inputs['kf_ids'].update({'/diagnoses': diagnosis.kf_id})
-    inputs['kf_ids'].update({'/samples': sample.kf_id})
-    inputs['kf_ids'].update({'/aliquots': aliquot.kf_id})
+    inputs['kf_ids'].update({'/biospecimens': biospecimen.kf_id})
     inputs['kf_ids'].update({'/sequencing-experiments': seq_exp.kf_id})
     inputs['kf_ids'].update({'/family-relationships': fr.kf_id})
     inputs['kf_ids'].update({'/families': family.kf_id})
+    inputs['kf_ids'].update({'/genomic-files': gen_file.kf_id})
 
     return inputs

@@ -5,9 +5,9 @@ from urllib.parse import urlparse
 from dateutil import parser, tz
 
 from dataservice.extensions import db
+from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
-from dataservice.api.aliquot.models import Aliquot
-from dataservice.api.sample.models import Sample
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
@@ -26,25 +26,11 @@ class SequencingExperimentTest(FlaskTestCase):
         Test create a new sequencing_experiment
         """
         kwargs = self._create_save_to_db()
+        genomic_file_id=kwargs.get('genomic_file_id')
 
         # Create sequencing_experiment data
-        kwargs = {
-            'external_id': 'se1',
-            'experiment_date': str(kwargs.get('experiment_date')),
-            'experiment_strategy': 'WGS',
-            'center': 'Baylor',
-            'library_name': 'a library',
-            'library_strand': 'a strand',
-            'is_paired_end': True,
-            'platform': 'Illumina',
-            'instrument_model': 'HiSeqX',
-            'max_insert_size': 500,
-            'mean_insert_size': 300,
-            'mean_depth': 60.89,
-            'total_reads': 1000,
-            'mean_read_length': 50,
-            'aliquot_id': kwargs.get('aliquot_id')
-        }
+        kwargs = self._make_seq_exp(external_id='se1')
+        kwargs['genomic_file_id'] = genomic_file_id
         # Send get request
         response = self.client.post(url_for(SEQUENCING_EXPERIMENTS_LIST_URL),
                                     data=json.dumps(kwargs),
@@ -57,7 +43,7 @@ class SequencingExperimentTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         sequencing_experiment = response['results']
         for k, v in kwargs.items():
-            if k is 'aliquot_id':
+            if k is 'genomic_file_id':
                 continue
             if k is 'experiment_date':
                 self.assertEqual(parser.parse(sequencing_experiment[k]),
@@ -70,26 +56,11 @@ class SequencingExperimentTest(FlaskTestCase):
     def test_post_multiple(self):
         # Create a sequencing_experiment with participant
         se1 = self._create_save_to_db()
-
+        genomic_file_id = se1.get('genomic_file_id')
         # Create another sequencing_experiment for the same participant
         # Create sequencing_experiment data
-        se2 = {
-            'external_id': 'se2',
-            'experiment_date': str(se1.get('experiment_date')),
-            'experiment_strategy': 'WGS',
-            'center': 'Baylor',
-            'library_name': 'a library',
-            'library_strand': 'a strand',
-            'is_paired_end': True,
-            'platform': 'Illumina',
-            'instrument_model': 'HiSeqX',
-            'max_insert_size': 500,
-            'mean_insert_size': 300,
-            'mean_depth': 60.89,
-            'total_reads': 1000,
-            'mean_read_length': 50,
-            'aliquot_id': se1.get('aliquot_id')
-        }
+        se2 = self._make_seq_exp(external_id='se2')
+        se2['genomic_file_id'] = genomic_file_id
         # Send post request
         response = self.client.post(url_for(SEQUENCING_EXPERIMENTS_LIST_URL),
                                     headers=self._api_headers(),
@@ -98,12 +69,13 @@ class SequencingExperimentTest(FlaskTestCase):
         self.assertEqual(response.status_code, 201)
         # Check database
         self.assertEqual(2, SequencingExperiment.query.count())
-        sequencing_experiments = Aliquot.query.all()[0].sequencing_experiments
+        sequencing_experiments = GenomicFile.query.all()[0].\
+                                  sequencing_experiments
         self.assertEqual(2, len(sequencing_experiments))
 
     def test_get(self):
         """
-        Test retrieval of sequencing_experiment and check link to aliquot
+        Test retrieval of sequencing_experiment
         """
         # Create and save sequencing_experiment to db
         kwargs = self._create_save_to_db()
@@ -117,18 +89,14 @@ class SequencingExperimentTest(FlaskTestCase):
         # Check response content
         response = json.loads(response.data.decode('utf-8'))
         sequencing_experiment = response['results']
-        aliquot_link = response['_links']['aliquot']
-        sample_id = urlparse(aliquot_link).path.split('/')[-1]
         for k, v in kwargs.items():
-            if k == 'aliquot_id':
-                self.assertEqual(sample_id,
-                                 kwargs['aliquot_id'])
-            else:
-                if isinstance(v, datetime):
-                    self.assertEqual(
+            if k == 'genomic_file_id':
+                continue
+            if k is 'experiment_date':
+                self.assertEqual(
                         str(parser.parse(sequencing_experiment[k])), str(v))
-                else:
-                    self.assertEqual(sequencing_experiment[k], kwargs[k])
+            else:
+                self.assertEqual(sequencing_experiment[k], kwargs[k])
 
     def test_patch(self):
         """
@@ -146,8 +114,7 @@ class SequencingExperimentTest(FlaskTestCase):
             'library_strand': 'a strand',
             'is_paired_end': True,
             'platform': 'Illumina',
-            'instrument_model': 'HiSeqX',
-            'aliquot_id': kwargs.get('aliquot_id')
+            'instrument_model': 'HiSeqX'
         }
         response = self.client.patch(url_for(SEQUENCING_EXPERIMENTS_URL,
                                              kf_id=kf_id),
@@ -200,45 +167,56 @@ class SequencingExperimentTest(FlaskTestCase):
         """
         Create and save sequencing_experiment
 
-        Requires creating a participant, and sample
+        Requires creating a participant, and biospecimen
         """
         # Create study
         st = Study(external_id='phs001')
-        # Create sample
-        sa = Sample(external_id='sa0')
-        # Create aliquot
-        al = Aliquot(external_id='al0', analyte_type='DNA')
+        # Create biospecimen
+        sa = Biospecimen(external_sample_id='sa0', analyte_type='DNA')
+        # Create genomic_file
+        gf = GenomicFile(file_name='file_0')
 
-        dt = datetime.now()
-        kwargs = {
-            'external_id': 'se',
-            'experiment_date': dt.replace(tzinfo=tz.tzutc()),
-            'experiment_strategy': 'WGS',
-            'center': 'Broad Institute',
-            'library_name': 'a library',
-            'library_strand': 'a strand',
-            'is_paired_end': True,
-            'platform': 'Illumina',
-            'instrument_model': 'HiSeqX',
-            'max_insert_size': 500,
-            'mean_insert_size': 300,
-            'mean_depth': 60.89,
-            'total_reads': 1000,
-            'mean_read_length': 50
-        }
-        se = SequencingExperiment(**kwargs)
+        kwargs = self._make_seq_exp(external_id='se')
 
-        # Create and save participant, sample, aliquot, sequencing_experiment
-        al.sequencing_experiments.append(se)
-        sa.aliquots.append(al)
+        se = SequencingExperiment(**kwargs, genomic_file_id=gf.kf_id)
+
+        # Create and save participant, biospecimen, genomic_file,
+        # sequencing_experiment
+        gf.sequencing_experiments.append(se)
+        sa.genomic_files.append(gf)
         pt = Participant(external_id='P0',
-                         samples=[sa],
+                         biospecimens=[sa],
                          is_proband=True)
         st.participants.append(pt)
         db.session.add(st)
         db.session.commit()
 
-        kwargs['aliquot_id'] = al.kf_id
+        kwargs['genomic_file_id'] = gf.kf_id
         kwargs['kf_id'] = se.kf_id
 
         return kwargs
+
+    def _make_seq_exp(self, external_id=None):
+        '''
+        Convenience method to create a sequencing experiment with a
+        given source name
+        .replace(tzinfo=tz.tzutc())
+        '''
+        dt = datetime.now()
+        seq_experiment_data = {
+            'external_id':external_id,
+            'experiment_date': str(dt.replace(tzinfo=tz.tzutc())),
+            'experiment_strategy': 'WXS',
+            'center': 'Broad Institute',
+            'library_name': 'Test_library_name_1',
+            'library_strand': 'Unstranded',
+            'is_paired_end': False,
+            'platform': 'Test_platform_name_1',
+            'instrument_model': '454 GS FLX Titanium',
+            'max_insert_size': 600,
+            'mean_insert_size': 500,
+            'mean_depth': 40,
+            'total_reads': 800,
+            'mean_read_length': 200
+        }
+        return seq_experiment_data
