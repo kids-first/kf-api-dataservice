@@ -1,4 +1,6 @@
 from datetime import datetime
+from flask import abort
+from requests.exceptions import HTTPError
 import sqlalchemy.types as types
 from sqlalchemy import event
 from sqlalchemy.ext.declarative import declared_attr
@@ -121,6 +123,8 @@ def update_indexd(mapper, connection, target):
         db.session.delete(target)
         db.session.commit()
         return None
+    except HTTPError as err:
+        abort(500, 'could not update the file: ' + str(err))
 
 
 @event.listens_for(IndexdFile, 'before_delete', propagate=True)

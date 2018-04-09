@@ -62,10 +62,10 @@ class Indexd(object):
         # update fields on the target record's object
         for prop, v in resp.json().items():
             if hasattr(record, prop):
-                setattr(record, prop, v)
-
-        if 'metadata' in resp.json():
-            self._metadata = resp.json()['metadata']
+                if prop == 'metadata':
+                    record._metadata = v
+                else:
+                    setattr(record, prop, v)
 
         return record
 
@@ -109,7 +109,6 @@ class Indexd(object):
             return record
 
         meta = record._metadata
-        meta.update({'kf_id': record.kf_id})
 
         req_body = {
             "file_name": record.file_name,
@@ -152,6 +151,7 @@ class Indexd(object):
         record.rev = resp.json()['rev']
 
         req_body = {
+            "form": "object",
             "file_name": record.file_name,
             "size": record.size,
             "hashes": record.hashes,
