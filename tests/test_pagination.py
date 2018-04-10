@@ -1,6 +1,8 @@
 import json
 import pytest
+import random
 from dateutil import parser
+from sqlalchemy.orm import joinedload
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
@@ -25,10 +27,12 @@ class TestPagination:
     def participants(client):
 
         # Add a bunch of studies for pagination
-        for _ in range(101):
-            s = Study(external_id='blah')
-            sf = StudyFile(file_name='blah', study_id =s.kf_id)
+        studies = []
+        for i in range(101):
+            s = Study(external_id='Study_{}'.format(i))
+            sf = StudyFile(file_name='blah', study_id=s.kf_id)
             s.study_files.extend([sf])
+            studies.append(s)
             db.session.add(s)
         db.session.commit()
 
@@ -38,12 +42,9 @@ class TestPagination:
             db.session.add(inv)
         db.session.commit()
 
-        s = Study(external_id='blah', name='test')
-        s.investigator = inv
-        db.session.add(s)
-        db.session.flush()
         participants = []
         for i in range(102):
+            s = random.choice(studies)
             data = {
                 'external_id': "test",
                 'is_proband': True,
@@ -85,22 +86,32 @@ class TestPagination:
         ('/diagnoses', 102),
         ('/biospecimens', 102),
         ('/family-relationships', 101),
-        ('/study-files',101)
+        ('/study-files', 101)
     ])
-    def test_pagination(self, client, participants, endpoint, expected_total):
+    def test_study_filter(self, client, participants, endpoint):
         """ Test pagination of resource """
+        s = Study.query.options(
+            joinedload(Study.participants)
+            .load_only('kf_id')).first()
+        s = Study.query.first()
+        n_pts = len(s.participants)
+        endpoint = '{}?study_id={}'.format(endpoint, s.kf_id)
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
 
-        assert len(resp['results']) == 10
+        assert len(resp['results']) == min(n_pts, 10)
         assert resp['limit'] == 10
-        assert resp['total'] == expected_total
+        assert resp['total'] == n_pts
 
         ids_seen = []
         # Iterate through via the `next` link
         while 'next' in resp['_links']:
             # Check formatting of next link
             assert float(resp['_links']['next'].split('=')[-1])
+            # Check that all participant belong to study
+            for r in resp['results']:
+                study_id = r['_links']['study'].split('/')[-1]
+                assert study_id == s.kf_id
             # Stash all the ids on the page
             ids_seen.extend([r['kf_id'] for r in resp['results']])
             resp = client.get(resp['_links']['next'])

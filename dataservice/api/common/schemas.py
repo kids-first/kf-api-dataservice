@@ -6,7 +6,7 @@ from marshmallow import (
     validates_schema,
     ValidationError
 )
-from flask import url_for
+from flask import url_for, request
 from dataservice.api.common.pagination import Pagination
 from flask_marshmallow import Schema
 
@@ -57,7 +57,8 @@ class BaseSchema(ma.ModelSchema):
             # If an 'after' param could not be parsed, don't include the param
             after = None if p.after.timestamp() == 0 else p.curr_num
             _links['self'] = url_for(self.Meta.collection_url,
-                                     after=after)
+                                     after=after,
+                                     study_id=request.args.get('study_id'))
             if p.has_next:
                 _links['next'] = url_for(self.Meta.collection_url,
                                          after=p.next_num)
