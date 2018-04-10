@@ -10,12 +10,12 @@ from dataservice import create_app
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant, AliasGroup
+from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.diagnosis.models import Diagnosis
-from dataservice.api.sample.models import Sample
-from dataservice.api.aliquot.models import Aliquot
-from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.workflow.models import (
     Workflow,
@@ -35,8 +35,7 @@ class DataGenerator(object):
         self.setup(config_name)
         self._participant_choices()
         self._diagnoses_choices()
-        self._sample_choices()
-        self._aliquot_choices()
+        self._biospecimen_choices()
         self._experiment_choices()
         self._genomic_files_choices()
         self._outcomes_choices()
@@ -47,6 +46,7 @@ class DataGenerator(object):
         Provides the choices for filling participant entity
         """
         self.max_participants = 10
+
         self.is_proband_list = [True, False]
         data_lim = ['GRU', 'HMB', 'DS', 'Other']
         data_lim_mod = ['IRB', 'PUB', 'COL', 'NPU', 'MDS', 'GSO']
@@ -71,12 +71,12 @@ class DataGenerator(object):
         self.gender_list = ['female', 'male', 'unknown', 'unspecified',
                             'not reported']
 
-    def _sample_choices(self):
+    def _biospecimen_choices(self):
         """
-        Provides the choices for filling sample entity
+        Provides the choices for filling biospecimen entity
         """
-        self.min_samples = 0
-        self.max_samples = 5
+        self.min_biospecimens = 0
+        self.max_biospecimens = 5
         self.tissue_type_list = ['Tumor', 'Normal', 'Abnormal', 'Peritumoral',
                                  'Unknown', 'Not Reported']
         sref_file = open('dataservice/util/data_gen/composition.txt', 'r')
@@ -92,13 +92,6 @@ class DataGenerator(object):
             'NOS',
             'Unknown',
             'Not Reported']
-
-    def _aliquot_choices(self):
-        """
-        Provides the choices for filling aliquot entity
-        """
-        self.min_aliquots = 0
-        self.max_aliquots = 5
         at_file = open('dataservice/util/data_gen/analyte_type.txt', 'r')
         reader = csv.reader(at_file)
         self.analyte_type_list = []
@@ -197,8 +190,9 @@ class DataGenerator(object):
 
     def _get_unique_sites(self, diagnoses):
         """
-        Method to return set of anatomical_sites for samples from diagnoses;
-        Assuming the sample is be collected from the same place that was
+        Method to return set of anatomical_sites for
+        biospecimens from diagnoses;
+        Assuming the biospecimen is be collected from the same place that was
         used for the diagnosis
         """
         self.anatomical_site_list = []
@@ -227,6 +221,8 @@ class DataGenerator(object):
         """
         Create and save all objects to db
         """
+        # Create families
+        self._create_family(self.max_participants)
         # Create participants
         self._create_participants_and_studies(self.max_participants)
         # Create aliased participants
@@ -334,18 +330,18 @@ class DataGenerator(object):
 
     def _create_participants_and_studies(self, total):
         """
-        Creates studies and participants with samples, and diagnoses
+        Creates studies and participants with biospecimens, and diagnoses
         """
         # Studies
         studies = self._create_studies_investigators()
-
         # Participants
         for i in range(total):
             diagnoses = self._create_diagnoses(
                 random.randint(self.min_diagnoses, self.max_diagnoses))
             self._get_unique_sites(diagnoses)
-            samples = self._create_samples(random.randint(self.min_samples,
-                                                          self.max_samples))
+            biospecimens = self._create_biospecimens(random.randint
+                                                     (self.min_biospecimens,
+                                                      self.max_biospecimens))
             outcomes = self._create_outcomes(random.randint(self.min_outcomes,
                                                             self.max_outcomes))
             phenotypes = self._create_phenotypes(
@@ -355,60 +351,89 @@ class DataGenerator(object):
                 # family_id='family_{}'.format(total % (i + 1)),
                 is_proband=random.choice(self.is_proband_list),
                 consent_type=random.choice(self.consent_type_list),
-                samples=samples,
+                biospecimens=biospecimens,
                 diagnoses=diagnoses,
                 outcomes=outcomes,
                 phenotypes=phenotypes,
                 study_id=random.choice(studies).kf_id)
             db.session.add(p)
+            f = Family(participants=[p])
+            db.session.add(f)
         db.session.commit()
 
-    def _create_samples(self, total):
+    def _create_family(self, total):
         """
-        Create samples with aliquots
+        Create Family
+        """
+        f_list = []
+        for i in range(total):
+            f = Family(external_id='family_{}'.format(total % (i + 1)))
+            db.session.add(f)
+        db.session.commit()
+
+    def _create_biospecimens(self, total):
+        """
+        Create biospecimens with genomic_files
         """
 
         s_list = []
+        dt = datetime.now()
         for i in range(total):
-            sample_data = {
-                'external_id': 'sample_{}'.format(i),
+            biospecimen_data = {
+                'external_sample_id': 'sample_{}'.format(i),
                 'tissue_type': random.choice(self.tissue_type_list),
                 'composition': random.choice(self.composition_list),
                 'anatomical_site': random.choice(self.anatomical_site_list),
                 'age_at_event_days': random.randint(0, 32872),
-                'tumor_descriptor': random.choice(self.tumor_descriptor_list)
-            }
-            aliquots = self._create_aliquots(random.randint(self.min_aliquots,
-                                                            self.max_aliquots))
-            s_list.append(Sample(**sample_data, aliquots=aliquots))
-        return s_list
-
-    def _create_aliquots(self, total):
-        """
-        Creates aliquots with sequencing experiments
-        """
-        dt = datetime.now()
-        a_list = []
-        for i in range(total):
-            aliquot_data = {
-                'external_id': 'aliquot_{}'.format(i),
+                'tumor_descriptor': random.choice(self.tumor_descriptor_list),
+                'external_aliquot_id': 'aliquot_{}'.format(i),
                 'shipment_origin': random.choice(self.shipment_origin_list),
                 'shipment_destination':
                     random.choice(self.shipment_destination_list),
                 'analyte_type': random.choice(self.analyte_type_list),
-                'concentration': random.randint(700, 4000),
+                'concentration': (random.randint(700, 4000)) / 10,
                 'volume': (random.randint(200, 400)) / 10,
                 'shipment_date': dt - relativedelta.relativedelta(
                     years=random.randint(1, 2)) - relativedelta.relativedelta(
                     months=random.randint(1, 12)) +
                 relativedelta.relativedelta(days=random.randint(1, 30))
             }
+            genomic_files = self._create_genomic_files(
+                random.randint(self.min_gen_files,
+                               self.max_gen_files))
+            b = Biospecimen(
+                **biospecimen_data, genomic_files=genomic_files
+                )
+            s_list.append(b)
+        return s_list
+
+    def _create_genomic_files(self, total):
+        """
+        Creates genomic files with sequencing experiments
+        """
+        max_size_mb = 5000
+        min_size_mb = 1000
+
+        gf_list = []
+        for i in range(total):
+            kwargs = {
+                'file_name': 'file_{}'.format(i),
+                'file_size': (random.randint(min_size_mb, max_size_mb) *
+                              MB_TO_BYTES),
+                'data_type': random.choice(self.data_type_list),
+                'file_format': random.choice(
+                    self.file_format_list),
+                'file_url': 's3://file_{}'.format(i),
+                'controlled_access': random.choice(
+                    self.controlled_access_list),
+                'md5sum': str(
+                    uuid.uuid4())
+            }
             sequencing_experiments = self._create_experiments(
                 random.randint(self.min_seq_exps, self.max_seq_exps))
-            a_list.append(Aliquot(
-                **aliquot_data,
-                sequencing_experiments=sequencing_experiments))
-        return a_list
+            gf_list.append(GenomicFile(**kwargs,
+                           sequencing_experiments=sequencing_experiments))
+        return gf_list
 
     def _create_experiments(self, total):
         """
@@ -439,37 +464,9 @@ class DataGenerator(object):
                 'total_reads': random.randint(400, 1000),
                 'mean_read_length': random.randint(400, 1000)
             }
-            genomic_files = self._create_genomic_files(
-                random.randint(self.min_gen_files,
-                               self.max_gen_files))
-            e_list.append(SequencingExperiment(**e_data,
-                                               genomic_files=genomic_files))
+
+            e_list.append(SequencingExperiment(**e_data))
         return e_list
-
-    def _create_genomic_files(self, total):
-        """
-        Creates genomic files
-        """
-        max_size_mb = 5000
-        min_size_mb = 1000
-
-        gf_list = []
-        for i in range(total):
-            kwargs = {
-                'file_name': 'file_{}'.format(i),
-                'file_size': (random.randint(min_size_mb, max_size_mb) *
-                              MB_TO_BYTES),
-                'data_type': random.choice(self.data_type_list),
-                'file_format': random.choice(
-                    self.file_format_list),
-                'file_url': 's3://file_{}'.format(i),
-                'controlled_access': random.choice(
-                    self.controlled_access_list),
-                'md5sum': str(
-                    uuid.uuid4()),
-            }
-            gf_list.append(GenomicFile(**kwargs))
-        return gf_list
 
     def _create_workflows(self, total=None):
         """
