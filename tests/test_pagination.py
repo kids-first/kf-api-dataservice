@@ -92,26 +92,30 @@ class TestPagination:
         ('/family-relationships', 101),
         ('/study-files', 101)
     ])
-    def test_filter_study_related_entities(self, client, participants,
-                                           endpoint):
-        """ Test pagination of resource """
+    def test_study_filter_first_order_entities(self, client, participants,
+                                               endpoint):
+        """
+        Test pagination of resources with a study filter
+
+        These resources are directly related to the study by foreign key
+        """
         rel = endpoint.strip('/').replace('-', '_')
         s = Study.query.first()
-        n_pts = len(getattr(s, rel))
+        n_entities = len(getattr(s, rel))
         endpoint = '{}?study_id={}'.format(endpoint, s.kf_id)
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
 
-        assert len(resp['results']) == min(n_pts, 10)
+        assert len(resp['results']) == min(n_entities, 10)
         assert resp['limit'] == 10
-        assert resp['total'] == n_pts
+        assert resp['total'] == n_entities
 
         ids_seen = []
         # Iterate through via the `next` link
         while 'next' in resp['_links']:
             # Check formatting of next link
             assert float(resp['_links']['next'].split('=')[-1])
-            # Check that all participant belong to study
+            # Check that all results have correct study link
             for r in resp['results']:
                 study_id = r['_links']['study'].split('/')[-1]
                 assert study_id == s.kf_id

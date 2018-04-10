@@ -1,5 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
+from sqlalchemy.orm import Load
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
@@ -30,6 +31,14 @@ class DiagnosisListAPI(CRUDView):
               Diagnosis
         """
         q = Diagnosis.query
+
+        # Filter by study
+        from dataservice.api.participant.models import Participant
+        study_id = request.args.get('study_id')
+        if study_id:
+            q = (q.join(Participant.diagnoses)
+                 .options(Load(Participant).load_only('kf_id', 'study_id'))
+                 .filter(Participant.study_id == study_id))
 
         return (DiagnosisSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
