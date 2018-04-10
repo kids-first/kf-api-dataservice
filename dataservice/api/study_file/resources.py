@@ -30,6 +30,11 @@ class StudyFileListAPI(CRUDView):
         """
         q = StudyFile.query
 
+        # Filter by study
+        study_id = request.args.get('study_id')
+        if study_id:
+            q = q.filter_by(study_id=study_id)
+
         return (StudyFileSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
 

@@ -2,7 +2,6 @@ import json
 import pytest
 import random
 from dateutil import parser
-from sqlalchemy.orm import joinedload
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
@@ -30,10 +29,15 @@ class TestPagination:
         studies = []
         for i in range(101):
             s = Study(external_id='Study_{}'.format(i))
-            sf = StudyFile(file_name='blah', study_id=s.kf_id)
-            s.study_files.extend([sf])
             studies.append(s)
             db.session.add(s)
+        db.session.commit()
+
+        # Add a bunch of study files
+        for i in range(101):
+            s = random.choice(studies)
+            sf = StudyFile(file_name='blah', study_id=s.kf_id)
+            s.study_files.append(sf)
         db.session.commit()
 
         # Add a bunch of investigators
@@ -88,13 +92,12 @@ class TestPagination:
         ('/family-relationships', 101),
         ('/study-files', 101)
     ])
-    def test_study_filter(self, client, participants, endpoint):
+    def test_filter_study_related_entities(self, client, participants,
+                                           endpoint):
         """ Test pagination of resource """
-        s = Study.query.options(
-            joinedload(Study.participants)
-            .load_only('kf_id')).first()
+        rel = endpoint.strip('/').replace('-', '_')
         s = Study.query.first()
-        n_pts = len(s.participants)
+        n_pts = len(getattr(s, rel))
         endpoint = '{}?study_id={}'.format(endpoint, s.kf_id)
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
@@ -123,6 +126,44 @@ class TestPagination:
 
         assert len(ids_seen) == resp['total']
 
+    @pytest.mark.parametrize('endpoint, expected_total', [
+        ('/studies', 101),
+        ('/investigators', 102),
+        ('/participants', 102),
+        ('/outcomes', 102),
+        ('/phenotypes', 102),
+        ('/diagnoses', 102),
+        ('/samples', 102),
+        ('/aliquots', 102),
+        ('/sequencing-experiments', 102),
+        ('/family-relationships', 101),
+        ('/study-files', 101)
+    ])
+    def test_pagination(self, client, participants, endpoint, expected_total):
+        """ Test pagination of resource """
+        resp = client.get(endpoint)
+        resp = json.loads(resp.data.decode('utf-8'))
+
+        assert len(resp['results']) == 10
+        assert resp['limit'] == 10
+        assert resp['total'] == expected_total
+
+        ids_seen = []
+        # Iterate through via the `next` link
+        while 'next' in resp['_links']:
+            # Check formatting of next link
+            assert float(resp['_links']['next'].split('=')[-1])
+            # Stash all the ids on the page
+            ids_seen.extend([r['kf_id'] for r in resp['results']])
+            resp = client.get(resp['_links']['next'])
+            resp = json.loads(resp.data.decode('utf-8'))
+            # Check formatting of the self link
+            assert float(resp['_links']['self'].split('=')[-1])
+
+        ids_seen.extend([r['kf_id'] for r in resp['results']])
+
+        assert len(ids_seen) == resp['total']
+
     @pytest.mark.parametrize('endpoint', [
         ('/studies'),
         ('/investigators'),
@@ -131,6 +172,7 @@ class TestPagination:
         ('/phenotypes'),
         ('/diagnoses'),
         ('/biospecimens'),
+        ('/sequencing-experiments'),
         ('/family-relationships'),
         ('/study-files')
     ])
@@ -159,6 +201,7 @@ class TestPagination:
         ('/phenotypes'),
         ('/diagnoses'),
         ('/biospecimens'),
+        ('/sequencing-experiments'),
         ('/family-relationships'),
         ('/study-files')
     ])
@@ -191,6 +234,7 @@ class TestPagination:
         ('/phenotypes'),
         ('/diagnoses'),
         ('/biospecimens'),
+        ('/sequencing-experiments'),
         ('/family-relationships'),
         ('/study-files')
     ])
@@ -213,6 +257,7 @@ class TestPagination:
         ('/outcomes'),
         ('/diagnoses'),
         ('/biospecimens'),
+        ('/sequencing-experiments'),
         ('/family-relationships'),
         ('/study-files')
     ])
