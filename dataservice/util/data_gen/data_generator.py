@@ -109,7 +109,7 @@ class DataGenerator(object):
         """
         Provides the choices for filling Sequencing Experiment entity
         """
-        self.min_seq_exps = 0
+        self.min_seq_exps = 1
         self.max_seq_exps = 3
         aref_file = open('dataservice/util/data_gen/instrument_model.txt', 'r')
         reader = csv.reader(aref_file)
@@ -431,8 +431,9 @@ class DataGenerator(object):
             }
             sequencing_experiments = self._create_experiments(
                 random.randint(self.min_seq_exps, self.max_seq_exps))
+            se = random.choice(SequencingExperiment.query.all())
             gf_list.append(GenomicFile(**kwargs,
-                           sequencing_experiments=sequencing_experiments))
+                           sequencing_experiment_id=se.kf_id))
         return gf_list
 
     def _create_experiments(self, total):
@@ -464,8 +465,10 @@ class DataGenerator(object):
                 'total_reads': random.randint(400, 1000),
                 'mean_read_length': random.randint(400, 1000)
             }
-
+            se = SequencingExperiment(**e_data)
+            db.session.add(se)
             e_list.append(SequencingExperiment(**e_data))
+        db.session.commit()
         return e_list
 
     def _create_workflows(self, total=None):
