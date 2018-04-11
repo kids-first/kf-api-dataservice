@@ -83,7 +83,6 @@ class SequencingExperimentTest(FlaskTestCase):
         body = {
             'external_id': 'se2',
             'experiment_strategy': 'WGS',
-            'center': 'Baylor',
             'library_name': 'a library',
             'library_strand': 'a strand',
             'is_paired_end': True,
@@ -161,7 +160,7 @@ class SequencingExperimentTest(FlaskTestCase):
             'external_id':external_id,
             'experiment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'experiment_strategy': 'WXS',
-            'center': 'Broad Institute',
+            'center': 'Baylor',
             'library_name': 'Test_library_name_1',
             'library_strand': 'Unstranded',
             'is_paired_end': False,

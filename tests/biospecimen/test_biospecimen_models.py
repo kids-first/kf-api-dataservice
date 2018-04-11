@@ -89,7 +89,7 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(p.biospecimens[0].external_sample_id,
                          s.external_sample_id)
 
-    def test_find_sampe(self):
+    def test_find_biospecimen(self):
         """
         test finding the biospecimen with biospecimen_id
         """
