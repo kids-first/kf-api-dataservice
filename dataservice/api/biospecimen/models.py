@@ -6,7 +6,6 @@ from dataservice.api.genomic_file.models import GenomicFile
 class Biospecimen(db.Model, Base):
     """
     Biospecimen entity.
-    :param _id: Unique id assigned by RDBMS
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_sample_id: Name given to sample by contributor
     :param external_aliquot_id: Name given to aliquot by contributor
@@ -73,6 +72,5 @@ class Biospecimen(db.Model, Base):
     genomic_files = db.relationship(GenomicFile,
                                     cascade="all, delete-orphan",
                                     backref=db.backref(
-                                        'genomic_files', lazy=True),
-                                    doc='kf_id of genomic '
-                                    'files this biospecimen was used in')
+                                        'biospecimen', lazy=True),
+                                    doc='genomic files this biospecimen')
