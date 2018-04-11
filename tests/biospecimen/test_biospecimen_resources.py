@@ -12,8 +12,8 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
-SAMPLES_URL = 'api.biospecimens'
-SAMPLES_LIST_URL = 'api.biospecimens_list'
+BIOSPECIMENS_URL = 'api.biospecimens'
+BIOSPECIMENS_LIST_URL = 'api.biospecimens_list'
 
 
 class BiospecimenTest(FlaskTestCase):
@@ -45,7 +45,7 @@ class BiospecimenTest(FlaskTestCase):
             'participant_id': kwargs.get('participant_id')
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_LIST_URL),
+        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
                                     data=json.dumps(kwargs),
                                     headers=self._api_headers())
 
@@ -74,7 +74,7 @@ class BiospecimenTest(FlaskTestCase):
             # missing required param participant_id
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_LIST_URL),
+        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -102,7 +102,7 @@ class BiospecimenTest(FlaskTestCase):
             'age_at_event_days': -5,
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_LIST_URL),
+        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -144,7 +144,7 @@ class BiospecimenTest(FlaskTestCase):
             'participant_id': id_service.kf_id_generator('PT')()
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_LIST_URL),
+        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(kwargs))
 
@@ -173,7 +173,7 @@ class BiospecimenTest(FlaskTestCase):
             'participant_id': s1['participant_id']
         }
         # Send post request
-        response = self.client.post(url_for(SAMPLES_LIST_URL),
+        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(s2))
         # Check status code
@@ -188,7 +188,7 @@ class BiospecimenTest(FlaskTestCase):
         # Create and save biospecimen to db
         kwargs = self._create_save_to_db()
         # Send get request
-        response = self.client.get(url_for(SAMPLES_URL,
+        response = self.client.get(url_for(BIOSPECIMENS_URL,
                                            kf_id=kwargs['kf_id']),
                                    headers=self._api_headers())
 
@@ -216,7 +216,7 @@ class BiospecimenTest(FlaskTestCase):
         """
         kwargs = self._create_save_to_db()
 
-        response = self.client.get(url_for(SAMPLES_LIST_URL),
+        response = self.client.get(url_for(BIOSPECIMENS_LIST_URL),
                                    headers=self._api_headers())
         self.assertEqual(response.status_code, 200)
         response = json.loads(response.data.decode("utf-8"))
@@ -235,7 +235,7 @@ class BiospecimenTest(FlaskTestCase):
             'tissue_type': 'saliva',
             'participant_id': kwargs['participant_id']
         }
-        response = self.client.patch(url_for(SAMPLES_URL,
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
                                              kf_id=kf_id),
                                      headers=self._api_headers(),
                                      data=json.dumps(body))
@@ -274,7 +274,7 @@ class BiospecimenTest(FlaskTestCase):
         body = {
             'participant_id': 'AAAA1111'
         }
-        response = self.client.patch(url_for(SAMPLES_URL,
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
                                              kf_id=kf_id),
                                      headers=self._api_headers(),
                                      data=json.dumps(body))
@@ -304,7 +304,7 @@ class BiospecimenTest(FlaskTestCase):
             'tissue_type': 'blood'
         }
         # Send put request
-        response = self.client.patch(url_for(SAMPLES_URL,
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
                                              kf_id=kwargs['kf_id']),
                                      headers=self._api_headers(),
                                      data=json.dumps(body))
@@ -323,7 +323,7 @@ class BiospecimenTest(FlaskTestCase):
         """
         kwargs = self._create_save_to_db()
         # Send get request
-        response = self.client.delete(url_for(SAMPLES_URL,
+        response = self.client.delete(url_for(BIOSPECIMENS_URL,
                                               kf_id=kwargs['kf_id']),
                                       headers=self._api_headers())
         # Check status code
@@ -340,7 +340,7 @@ class BiospecimenTest(FlaskTestCase):
         """
         kf_id = 'non-existent'
         # Send get request
-        response = self.client.delete(url_for(SAMPLES_URL,
+        response = self.client.delete(url_for(BIOSPECIMENS_URL,
                                               kf_id=kf_id),
                                       headers=self._api_headers())
         # Check status code
