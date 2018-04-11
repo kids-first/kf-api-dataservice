@@ -63,11 +63,12 @@ class ModelTest(FlaskTestCase):
         """
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
-
+        se = SequencingExperiment.query.all()[0]
         # Create new genomic_file
         p0 = Participant.query.filter_by(external_id='Fred').one()
         gf_new = GenomicFile(data_type='slide_image',
-                             file_name='slide_image1')
+                             file_name='slide_image1',
+                             sequencing_experiment_id=se.kf_id)
         (p0.biospecimens[0].genomic_files.append(gf_new))
         db.session.commit()
 
@@ -229,7 +230,7 @@ class ModelTest(FlaskTestCase):
                       genomic_files=genomic_files or [])
 
 
-    def _create_experiment(self, _id):
+    def _create_experiment(self, _id, genomic_files=None):
         """
         Create sequencing experiment
         """
@@ -238,7 +239,8 @@ class ModelTest(FlaskTestCase):
             'experiment_strategy': 'wgs',
             'center': 'broad',
             'is_paired_end': True,
-            'platform': 'platform'
+            'platform': 'platform',
+            'genomic_files': genomic_files or []
         }
         return SequencingExperiment(**data)
 
@@ -252,8 +254,7 @@ class ModelTest(FlaskTestCase):
             'data_type': data_type,
             'file_format': '.cram',
             'file_url': 's3://file_{}'.format(_id),
-            'md5sum': str(uuid.uuid4()),
-            'sequencing_experiments': sequencing_experiments or []
+            'md5sum': str(uuid.uuid4())
         }
         return GenomicFile(**data)
 
@@ -281,15 +282,14 @@ class ModelTest(FlaskTestCase):
         proband = [True, False]
         participants = []
         for i, _name in enumerate(names):
-            # SequencingExperiment
-            se = self._create_experiment('se_{}'.format(i))
+
             # Input GF
-            gf_in = self._create_genomic_file('gf_{}_in'.format(i),
-                                              sequencing_experiments=[se])
+            gf_in = self._create_genomic_file('gf_{}_in'.format(i))
             # Output GF
             gf_out = self._create_genomic_file('gf_{}_out'.format(i),
-                                               data_type='aligned read',
-                                               sequencing_experiments=[se])
+                                               data_type='aligned read')
+            # SequencingExperiment
+            se = self._create_experiment('se_{}'.format(i), [gf_in, gf_out])
             # Biospecimen
             s = self._create_biospecimen('s_{}'.format(i), [gf_in, gf_out])
             # Participants

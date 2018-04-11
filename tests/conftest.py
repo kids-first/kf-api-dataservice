@@ -149,13 +149,13 @@ def entities(client):
     phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
     biospecimen = Biospecimen(**inputs['/biospecimens'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
+    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'])
     gen_file = GenomicFile(**inputs['/genomic-files'],
-                           biospecimen_id=biospecimen.kf_id)
-    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'],
-                                   genomic_file_id=gen_file.kf_id)
+                           biospecimen_id=biospecimen.kf_id,
+                           sequencing_experiment_id=seq_exp.kf_id)
 
     biospecimen.genomic_files = [gen_file]
-    gen_file.sequencing_experiments = [seq_exp]
+    seq_exp.genomic_files = [gen_file]
     p.biospecimens = [biospecimen]
     p.diagnoses = [diagnosis]
     p.outcomes = [outcome]
@@ -189,7 +189,7 @@ def entities(client):
 
     inputs['/genomic-files']['biospecimen_id'] = biospecimen.kf_id
     # # Genomic_File and sequencing_experiment
-    inputs['/sequencing-experiments']['genomic_file_id'] = gen_file.kf_id
+    inputs['/genomic-files']['sequencing-experiment_id'] = seq_exp.kf_id
     # Study and study_files
     inputs['/study-files']['study_id'] = study.kf_id
 

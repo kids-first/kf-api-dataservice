@@ -7,6 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from tests.utils import FlaskTestCase
 
@@ -30,6 +31,7 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(Biospecimen.query.count(), 2)
 
+        se = SequencingExperiment.query.all()[0]
         # Create genomic genomic files for just one biospecimen
         biospecimen = Biospecimen.query.all()[0]
         kf_id = biospecimen.kf_id
@@ -44,7 +46,8 @@ class ModelTest(FlaskTestCase):
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
-                'biospecimen_id': biospecimen.kf_id
+                'biospecimen_id': biospecimen.kf_id,
+                'sequencing_experiment_id': se.kf_id
             }
             kwargs_dict[kwargs['md5sum']] = kwargs
             # Add genomic file to db session
@@ -172,8 +175,8 @@ class ModelTest(FlaskTestCase):
         """
         # Create and save genomic file dependent entities
         self._create_save_dependents()
-
-        # Create genomic genomic files
+        se = SequencingExperiment.query.all()[0]
+        # Create genomic files
         biospecimen = Biospecimen.query.all()[0]
         kwargs_dict = {}
         for i in range(2):
@@ -191,7 +194,8 @@ class ModelTest(FlaskTestCase):
             }
             kwargs_dict[kwargs['md5sum']] = kwargs
             # Add genomic file to list in biospecimen
-            biospecimen.genomic_files.append(GenomicFile(**kwargs))
+            biospecimen.genomic_files.append(GenomicFile(**kwargs,
+                                             sequencing_experiment_id=se.kf_id))
         db.session.commit()
 
         return biospecimen.kf_id, kwargs_dict
@@ -204,7 +208,8 @@ class ModelTest(FlaskTestCase):
         """
         # Create study
         study = Study(external_id='phs001')
-
+        # Create Sequencing_experiment
+        se = self._create_experiments()
         # Create participant
         p = Participant(external_id='p1',
                         biospecimens=self._create_biospecimens(),
@@ -216,5 +221,22 @@ class ModelTest(FlaskTestCase):
         """
         Create biospecimens
         """
-        return [Biospecimen(external_sample_id='s{}'.format(i), analyte_type='dna')
+        return [Biospecimen(external_sample_id='s{}'.format(i),
+                            analyte_type='dna')
                 for i in range(total)]
+
+    def _create_experiments(self, total=1):
+        """
+        Create sequencing experiments
+        """
+        data = {
+            'external_id': 'se1',
+            'experiment_strategy': 'wgs',
+            'center': 'broad',
+            'is_paired_end': True,
+            'platform': 'platform'
+        }
+        se = SequencingExperiment(**data)
+        db.session.add(se)
+        db.session.commit()
+        return se

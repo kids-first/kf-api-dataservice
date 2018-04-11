@@ -8,9 +8,6 @@ from dataservice.extensions import ma
 
 
 class SequencingExperimentSchema(BaseSchema):
-    genomic_file_id = field_for(SequencingExperiment, 'genomic_file_id',
-                                required=True,
-                                load_only=True)
 
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_experiments'

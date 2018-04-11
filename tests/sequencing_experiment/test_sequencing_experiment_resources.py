@@ -26,11 +26,9 @@ class SequencingExperimentTest(FlaskTestCase):
         Test create a new sequencing_experiment
         """
         kwargs = self._create_save_to_db()
-        genomic_file_id=kwargs.get('genomic_file_id')
 
         # Create sequencing_experiment data
         kwargs = self._make_seq_exp(external_id='se1')
-        kwargs['genomic_file_id'] = genomic_file_id
         # Send get request
         response = self.client.post(url_for(SEQUENCING_EXPERIMENTS_LIST_URL),
                                     data=json.dumps(kwargs),
@@ -43,8 +41,6 @@ class SequencingExperimentTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         sequencing_experiment = response['results']
         for k, v in kwargs.items():
-            if k is 'genomic_file_id':
-                continue
             if k is 'experiment_date':
                 self.assertEqual(parser.parse(sequencing_experiment[k]),
                                  parser.parse(v))
@@ -52,26 +48,6 @@ class SequencingExperimentTest(FlaskTestCase):
                 self.assertEqual(sequencing_experiment[k], v)
 
         self.assertEqual(2, SequencingExperiment.query.count())
-
-    def test_post_multiple(self):
-        # Create a sequencing_experiment with participant
-        se1 = self._create_save_to_db()
-        genomic_file_id = se1.get('genomic_file_id')
-        # Create another sequencing_experiment for the same participant
-        # Create sequencing_experiment data
-        se2 = self._make_seq_exp(external_id='se2')
-        se2['genomic_file_id'] = genomic_file_id
-        # Send post request
-        response = self.client.post(url_for(SEQUENCING_EXPERIMENTS_LIST_URL),
-                                    headers=self._api_headers(),
-                                    data=json.dumps(se2))
-        # Check status code
-        self.assertEqual(response.status_code, 201)
-        # Check database
-        self.assertEqual(2, SequencingExperiment.query.count())
-        sequencing_experiments = GenomicFile.query.all()[0].\
-                                  sequencing_experiments
-        self.assertEqual(2, len(sequencing_experiments))
 
     def test_get(self):
         """
@@ -90,8 +66,6 @@ class SequencingExperimentTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         sequencing_experiment = response['results']
         for k, v in kwargs.items():
-            if k == 'genomic_file_id':
-                continue
             if k is 'experiment_date':
                 self.assertEqual(
                         str(parser.parse(sequencing_experiment[k])), str(v))
@@ -166,32 +140,12 @@ class SequencingExperimentTest(FlaskTestCase):
     def _create_save_to_db(self):
         """
         Create and save sequencing_experiment
-
-        Requires creating a participant, and biospecimen
         """
-        # Create study
-        st = Study(external_id='phs001')
-        # Create biospecimen
-        sa = Biospecimen(external_sample_id='sa0', analyte_type='DNA')
-        # Create genomic_file
-        gf = GenomicFile(file_name='file_0')
 
         kwargs = self._make_seq_exp(external_id='se')
-
-        se = SequencingExperiment(**kwargs, genomic_file_id=gf.kf_id)
-
-        # Create and save participant, biospecimen, genomic_file,
-        # sequencing_experiment
-        gf.sequencing_experiments.append(se)
-        sa.genomic_files.append(gf)
-        pt = Participant(external_id='P0',
-                         biospecimens=[sa],
-                         is_proband=True)
-        st.participants.append(pt)
-        db.session.add(st)
+        se = SequencingExperiment(**kwargs)
+        db.session.add(se)
         db.session.commit()
-
-        kwargs['genomic_file_id'] = gf.kf_id
         kwargs['kf_id'] = se.kf_id
 
         return kwargs
