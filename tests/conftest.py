@@ -73,8 +73,8 @@ def entities(client):
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Baylor',
             'analyte_type': 'DNA',
-            'concentration': 200.0,
-            'volume': 13.99,
+            'concentration_mg_per_ml': 200.0,
+            'volume_ml': 13.99,
             'shipment_date': str(datetime.utcnow()),
             'uberon_id': 'test'
         },

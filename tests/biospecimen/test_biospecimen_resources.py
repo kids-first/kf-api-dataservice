@@ -39,8 +39,8 @@ class BiospecimenTest(FlaskTestCase):
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
+            'concentration_mg_per_ml': 100,
+            'volume_ml': 12.67,
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'participant_id': kwargs.get('participant_id')
         }
@@ -137,8 +137,8 @@ class BiospecimenTest(FlaskTestCase):
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
+            'concentration_mg_per_ml': 100,
+            'volume_ml': 12.67,
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
             # kf_id does not exist
             'participant_id': id_service.kf_id_generator('PT')()
@@ -168,8 +168,8 @@ class BiospecimenTest(FlaskTestCase):
             'external_sample_id': 's2',
             'tissue_type': 'abnormal',
             'analyte_type': 'DNA',
-            'concentration': 200,
-            'volume': 13.99,
+            'concentration_mg_per_ml': 200,
+            'volume_ml': 13.99,
             'participant_id': s1['participant_id']
         }
         # Send post request
@@ -376,8 +376,8 @@ class BiospecimenTest(FlaskTestCase):
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
-            'concentration': 100,
-            'volume': 12.67,
+            'concentration_mg_per_ml': 100,
+            'volume_ml': 12.67,
             'shipment_date': dt
         }
         d = Biospecimen(**kwargs)

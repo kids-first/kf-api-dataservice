@@ -13,10 +13,10 @@ class BiospecimenSchema(BaseSchema):
                                load_only=True)
     age_at_event_days = field_for(Biospecimen, 'age_at_event_days',
                                   validate=validate_age)
-    concentration = field_for(Biospecimen, 'concentration',
-                              validate=validate_positive_number)
-    volume = field_for(Biospecimen, 'volume',
-                       validate=validate_positive_number)
+    concentration_mg_per_ml = field_for(Biospecimen, 'concentration_mg_per_ml',
+                                        validate=validate_positive_number)
+    volume_ml = field_for(Biospecimen, 'volume_ml',
+                          validate=validate_positive_number)
 
     shipment_date = DateOrDatetime()
 

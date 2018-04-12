@@ -300,8 +300,8 @@ class ModelTest(FlaskTestCase):
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
-            'concentration': 100.0,
-            'volume': 12.67,
+            'concentration_mg_per_ml': 100.0,
+            'volume_ml': 12.67,
             'shipment_date': dt,
             'uberon_id':'UBERON:0000955'
         }
