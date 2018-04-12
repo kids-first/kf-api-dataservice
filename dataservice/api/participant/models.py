@@ -67,17 +67,17 @@ class Participant(db.Model, Base):
                        doc='The gender of the participant')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
-                                backref=db.backref('participants',
+                                backref=db.backref('participant',
                                                    lazy=True))
     samples = db.relationship(Sample, backref='participant',
                               cascade='all, delete-orphan')
     outcomes = db.relationship(Outcome,
                                cascade='all, delete-orphan',
-                               backref=db.backref('participants',
+                               backref=db.backref('participant',
                                                   lazy=True))
     phenotypes = db.relationship(Phenotype,
                                  cascade='all, delete-orphan',
-                                 backref=db.backref('participants',
+                                 backref=db.backref('participant',
                                                     lazy=True))
 
     study_id = db.Column(KfId(),
