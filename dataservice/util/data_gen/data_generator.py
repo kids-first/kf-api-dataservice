@@ -9,7 +9,7 @@ import os
 from dataservice import create_app
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
-from dataservice.api.participant.models import Participant
+from dataservice.api.participant.models import Participant, AliasGroup
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sample.models import Sample
@@ -46,7 +46,7 @@ class DataGenerator(object):
         """
         Provides the choices for filling participant entity
         """
-        self.max_participants = 50
+        self.max_participants = 10
         self.is_proband_list = [True, False]
         data_lim = ['GRU', 'HMB', 'DS', 'Other']
         data_lim_mod = ['IRB', 'PUB', 'COL', 'NPU', 'MDS', 'GSO']
@@ -229,6 +229,8 @@ class DataGenerator(object):
         """
         # Create participants
         self._create_participants_and_studies(self.max_participants)
+        # Create aliased participants
+        self._create_aliases(5)
         # Create workflows
         workflows = self._create_workflows(2)
         # Link workflows and genomic files
@@ -237,6 +239,16 @@ class DataGenerator(object):
         self._create_family_relationships()
         # Tear down
         self.teardown()
+
+    def _create_aliases(self, total):
+        for i in range(total):
+            id1 = random.randint(0, self.max_participants - 1)
+            p1 = Participant.query.filter_by(
+                external_id='participant_{}'.format(id1)).first()
+            p2 = Participant.query.filter_by(
+                external_id='participant_{}'.format(id1 + 1)).first()
+            p1.add_alias(p2)
+        db.session.commit()
 
     def _create_study_files(self, total=None):
         """
@@ -340,7 +352,7 @@ class DataGenerator(object):
                 random.randint(self.min_phenotypes, self.max_phenotypes))
             p = Participant(
                 external_id='participant_{}'.format(i),
-                family_id='family_{}'.format(total % (i + 1)),
+                # family_id='family_{}'.format(total % (i + 1)),
                 is_proband=random.choice(self.is_proband_list),
                 consent_type=random.choice(self.consent_type_list),
                 samples=samples,
