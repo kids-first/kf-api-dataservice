@@ -176,8 +176,8 @@ class Participant(db.Model, Base):
             # aka, change all participants' alias_group_id in the smaller group
             # to be the alias_group_id of the larger group
             for p in (db.session.query(Participant).
-                      filter(Participant.alias_group_id
-                             == smaller_alias_group.kf_id)):
+                      filter(Participant.alias_group_id ==
+                             smaller_alias_group.kf_id)):
                 p.alias_group = larger_alias_group
 
             # Delete old alias group
