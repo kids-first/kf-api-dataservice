@@ -1,17 +1,16 @@
 import json
 import pytest
-import random
 from dateutil import parser
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.participant.models import Participant
+from dataservice.api.family.models import Family
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.utils import iterate_pairwise
 from dataservice.api.study_file.models import StudyFile
@@ -26,18 +25,17 @@ class TestPagination:
     def participants(client):
 
         # Add a bunch of studies for pagination
-        studies = []
         for i in range(101):
             s = Study(external_id='Study_{}'.format(i))
-            studies.append(s)
             db.session.add(s)
         db.session.commit()
 
         # Add a bunch of study files
+        s0 = Study.query.filter_by(external_id='Study_0').one()
+        s1 = Study.query.filter_by(external_id='Study_1').one()
         for i in range(101):
-            s = random.choice(studies)
-            sf = StudyFile(file_name='blah', study_id=s.kf_id)
-            s.study_files.append(sf)
+            sf = StudyFile(file_name='blah', study_id=s0.kf_id)
+            db.session.add(sf)
         db.session.commit()
 
         # Add a bunch of investigators
@@ -46,9 +44,19 @@ class TestPagination:
             db.session.add(inv)
         db.session.commit()
 
+        # Add a bunch of families
+        families = []
+        for i in range(101):
+            families.append(Family(external_id='Family_{}'.format(i)))
+        db.session.add_all(families)
+        db.session.commit()
+
         participants = []
+        f0 = Family.query.filter_by(external_id='Family_0').one()
+        f1 = Family.query.filter_by(external_id='Family_1').one()
         for i in range(102):
-            s = random.choice(studies)
+            f = f0 if i < 50 else f1
+            s = s0 if i < 50 else s1
             data = {
                 'external_id': "test",
                 'is_proband': True,
@@ -57,7 +65,8 @@ class TestPagination:
                 'ethnicity': 'not hispanic',
                 'gender': 'male'
             }
-            p = Participant(**data, study_id=s.kf_id)
+
+            p = Participant(**data, study_id=s.kf_id, family_id=f.kf_id)
             samp = Biospecimen(analyte_type='an analyte')
             p.biospecimens = [samp]
             diag = Diagnosis()
@@ -82,43 +91,34 @@ class TestPagination:
         db.session.commit()
 
     @pytest.mark.parametrize('endpoint, expected_total', [
-        ('/studies', 102),
-        ('/investigators', 102),
-        ('/participants', 102),
-        ('/outcomes', 102),
-        ('/phenotypes', 102),
-        ('/diagnoses', 102),
-        ('/biospecimens', 102),
-        ('/family-relationships', 101),
-        ('/study-files', 101)
+        ('/participants', 50),
+        ('/study-files', 101),
+        ('/diagnoses', 50),
+        ('/outcomes', 50),
+        ('/phenotypes', 50),
+        ('/families', 1),
     ])
-    def test_study_filter_first_order_entities(self, client, participants,
-                                               endpoint):
+    def test_study_filter(self, client, participants,
+                          endpoint, expected_total):
         """
         Test pagination of resources with a study filter
 
         These resources are directly related to the study by foreign key
         """
-        rel = endpoint.strip('/').replace('-', '_')
-        s = Study.query.first()
-        n_entities = len(getattr(s, rel))
+        s = Study.query.filter_by(external_id='Study_0').one()
         endpoint = '{}?study_id={}'.format(endpoint, s.kf_id)
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
 
-        assert len(resp['results']) == min(n_entities, 10)
+        assert len(resp['results']) == min(expected_total, 10)
         assert resp['limit'] == 10
-        assert resp['total'] == n_entities
+        assert resp['total'] == expected_total
 
         ids_seen = []
         # Iterate through via the `next` link
         while 'next' in resp['_links']:
             # Check formatting of next link
             assert float(resp['_links']['next'].split('=')[-1])
-            # Check that all results have correct study link
-            for r in resp['results']:
-                study_id = r['_links']['study'].split('/')[-1]
-                assert study_id == s.kf_id
             # Stash all the ids on the page
             ids_seen.extend([r['kf_id'] for r in resp['results']])
             resp = client.get(resp['_links']['next'])
@@ -137,11 +137,9 @@ class TestPagination:
         ('/outcomes', 102),
         ('/phenotypes', 102),
         ('/diagnoses', 102),
-        ('/samples', 102),
-        ('/aliquots', 102),
-        ('/sequencing-experiments', 102),
         ('/family-relationships', 101),
-        ('/study-files', 101)
+        ('/study-files', 101),
+        ('/families', 101)
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
@@ -176,9 +174,9 @@ class TestPagination:
         ('/phenotypes'),
         ('/diagnoses'),
         ('/biospecimens'),
-        ('/sequencing-experiments'),
         ('/family-relationships'),
-        ('/study-files')
+        ('/study-files'),
+        ('/families')
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
@@ -205,9 +203,9 @@ class TestPagination:
         ('/phenotypes'),
         ('/diagnoses'),
         ('/biospecimens'),
-        ('/sequencing-experiments'),
         ('/family-relationships'),
-        ('/study-files')
+        ('/study-files'),
+        ('/families')
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -238,9 +236,9 @@ class TestPagination:
         ('/phenotypes'),
         ('/diagnoses'),
         ('/biospecimens'),
-        ('/sequencing-experiments'),
         ('/family-relationships'),
-        ('/study-files')
+        ('/study-files'),
+        ('/families')
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """
@@ -261,9 +259,9 @@ class TestPagination:
         ('/outcomes'),
         ('/diagnoses'),
         ('/biospecimens'),
-        ('/sequencing-experiments'),
         ('/family-relationships'),
-        ('/study-files')
+        ('/study-files'),
+        ('/families')
     ])
     def test_individual_links(self, client, participants, endpoint):
         """ Test that each individual result has properly formatted _links """
