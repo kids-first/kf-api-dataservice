@@ -5,8 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
-from dataservice.api.sample.models import Sample
-from dataservice.api.aliquot.models import Aliquot
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.workflow.models import (
@@ -46,8 +45,7 @@ class ModelTest(FlaskTestCase):
             is_input=True).count())
         # Workflow content checks
         for p in participants:
-            gfs = (p.samples[0].aliquots[0].sequencing_experiments[0].
-                   genomic_files)
+            gfs = (p.biospecimens[0].genomic_files)
             for gf in gfs:
                 gf_workflows = [wgf.workflow
                                 for wgf in gf.workflow_genomic_files]
@@ -65,13 +63,13 @@ class ModelTest(FlaskTestCase):
         """
         # Create and save workflows and dependents
         participants, workflows = self._create_and_save_workflows()
-
+        se = SequencingExperiment.query.all()[0]
         # Create new genomic_file
         p0 = Participant.query.filter_by(external_id='Fred').one()
         gf_new = GenomicFile(data_type='slide_image',
-                             file_name='slide_image1')
-        (p0.samples[0].aliquots[0].
-         sequencing_experiments[0].genomic_files.append(gf_new))
+                             file_name='slide_image1',
+                             sequencing_experiment_id=se.kf_id)
+        (p0.biospecimens[0].genomic_files.append(gf_new))
         db.session.commit()
 
         # Unlink workflow from a genomic file and link to a new one
@@ -119,8 +117,7 @@ class ModelTest(FlaskTestCase):
 
         # Delete genomic file
         p0 = Participant.query.filter_by(external_id='Fred').one()
-        gf = (p0.samples[0].aliquots[0].sequencing_experiments[0].
-              genomic_files[0])
+        gf = (p0.biospecimens[0].genomic_files[0])
         # Save id and related workflows
         kf_id = gf.kf_id
         gf_workflows = [wgf.workflow
@@ -133,9 +130,7 @@ class ModelTest(FlaskTestCase):
         # Genomic file deleted
         self.assertEqual(7, GenomicFile.query.count())
         self.assertEqual(14, WorkflowGenomicFile.query.count())
-        self.assertNotIn(gf, (p0.samples[0].aliquots[0].
-                              sequencing_experiments[0].
-                              genomic_files))
+        self.assertNotIn(gf, (p0.biospecimens[0].genomic_files))
         for w in gf_workflows:
             self.assertNotIn(gf, w.genomic_files)
 
@@ -227,19 +222,13 @@ class ModelTest(FlaskTestCase):
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
-    def _create_sample(self, _id, aliquots=None):
+    def _create_biospecimen(self, _id, genomic_files=None):
         """
-        Create sample with aliquots
+        Create biospecimen with genomic_files
         """
-        return Sample(external_id=_id, aliquots=aliquots or [])
+        return Biospecimen(external_sample_id=_id, analyte_type='dna',
+                      genomic_files=genomic_files or [])
 
-    def _create_aliquot(self, _id, experiments=None):
-        """
-        Create aliquot with sequencing experiments
-        """
-        return Aliquot(external_id=_id,
-                       analyte_type='dna',
-                       sequencing_experiments=experiments or [])
 
     def _create_experiment(self, _id, genomic_files=None):
         """
@@ -255,7 +244,8 @@ class ModelTest(FlaskTestCase):
         }
         return SequencingExperiment(**data)
 
-    def _create_genomic_file(self, _id, data_type='submitted aligned read'):
+    def _create_genomic_file(self, _id, data_type='submitted aligned read',
+                             sequencing_experiments=None):
         """
         Create genomic file
         """
@@ -292,6 +282,7 @@ class ModelTest(FlaskTestCase):
         proband = [True, False]
         participants = []
         for i, _name in enumerate(names):
+
             # Input GF
             gf_in = self._create_genomic_file('gf_{}_in'.format(i))
             # Output GF
@@ -299,14 +290,12 @@ class ModelTest(FlaskTestCase):
                                                data_type='aligned read')
             # SequencingExperiment
             se = self._create_experiment('se_{}'.format(i), [gf_in, gf_out])
-            # Aliquot
-            a = self._create_aliquot('al_{}'.format(i), [se])
-            # Sample
-            s = self._create_sample('s_{}'.format(i), [a])
+            # Biospecimen
+            s = self._create_biospecimen('s_{}'.format(i), [gf_in, gf_out])
             # Participants
             p = Participant(external_id=_name,
                             is_proband=random.choice(proband),
-                            samples=[s], study=study)
+                            biospecimens=[s], study=study)
             participants.append(p)
 
         return participants
@@ -328,8 +317,7 @@ class ModelTest(FlaskTestCase):
         # Add genomic files to workflows
         # Each participant has an input GF and output GF
         for p in participants:
-            gfs = (p.samples[0].aliquots[0].sequencing_experiments[0].
-                   genomic_files)
+            gfs = (p.biospecimens[0].genomic_files)
             # Add input and output genomic files to both workflows
             for w in workflows:
                 for gf in gfs:

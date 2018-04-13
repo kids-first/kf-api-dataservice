@@ -6,8 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
-from dataservice.api.sample.models import Sample
-from dataservice.api.aliquot.models import Aliquot
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from tests.utils import FlaskTestCase
@@ -30,13 +29,12 @@ class ModelTest(FlaskTestCase):
         self._create_save_dependents()
 
         self.assertEqual(Participant.query.count(), 1)
-        self.assertEqual(Sample.query.count(), 2)
-        self.assertEqual(Aliquot.query.count(), 4)
-        self.assertEqual(SequencingExperiment.query.count(), 4)
+        self.assertEqual(Biospecimen.query.count(), 2)
 
-        # Create genomic genomic files for just one experiment
-        experiment = SequencingExperiment.query.all()[0]
-        kf_id = experiment.kf_id
+        se = SequencingExperiment.query.all()[0]
+        # Create genomic genomic files for just one biospecimen
+        biospecimen = Biospecimen.query.all()[0]
+        kf_id = biospecimen.kf_id
         kwargs_dict = {}
         for i in range(2):
             kwargs = {
@@ -48,7 +46,8 @@ class ModelTest(FlaskTestCase):
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
-                'sequencing_experiment_id': experiment.kf_id
+                'biospecimen_id': biospecimen.kf_id,
+                'sequencing_experiment_id': se.kf_id
             }
             kwargs_dict[kwargs['md5sum']] = kwargs
             # Add genomic file to db session
@@ -56,9 +55,9 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         # Check database
-        experiment = SequencingExperiment.query.filter_by(
+        biospecimen = Biospecimen.query.filter_by(
             kf_id=kf_id).one()
-        self.assertEqual(len(experiment.genomic_files), 2)
+        self.assertEqual(len(biospecimen.genomic_files), 2)
 
         # Check all input field values with persisted field values
         # for each genomic file
@@ -67,19 +66,19 @@ class ModelTest(FlaskTestCase):
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
-    def test_create_via_experiment(self):
+    def test_create_via_biospecimen(self):
         """
         Test create genomic file
         """
         # Create and save genomic files and dependent entities
-        experiment_id, kwargs_dict = self._create_save_genomic_files()
+        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
         # Check database
-        experiment = SequencingExperiment.query.filter_by(
-            kf_id=experiment_id).one()
+        biospecimen = Biospecimen.query.filter_by(
+            kf_id=biospecimen_id).one()
 
         # Check number created files
-        self.assertEqual(len(experiment.genomic_files), 2)
+        self.assertEqual(len(biospecimen.genomic_files), 2)
 
         # Check all input field values with persisted field values
         # for each genomic file
@@ -93,7 +92,7 @@ class ModelTest(FlaskTestCase):
         Test update genomic file
         """
         # Create and save genomic files and dependent entities
-        experiment_id, kwargs_dict = self._create_save_genomic_files()
+        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
         # Update fields
         kwargs = kwargs_dict[list(kwargs_dict.keys())[0]]
@@ -114,37 +113,37 @@ class ModelTest(FlaskTestCase):
         Test delete existing genomic file
         """
         # Create and save genomic files and dependent entities
-        experiment_id, kwargs_dict = self._create_save_genomic_files()
+        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
-        # Get genomic files for experiment
-        experiment = SequencingExperiment.query.filter_by(
-            kf_id=experiment_id).one()
+        # Get genomic files for biospecimen
+        biospecimen = Biospecimen.query.filter_by(
+            kf_id=biospecimen_id).one()
 
         # Delete genomic files
-        for gf in experiment.genomic_files:
+        for gf in biospecimen.genomic_files:
             db.session.delete(gf)
         db.session.commit()
 
         # Check database
-        experiment = SequencingExperiment.query.filter_by(
-            kf_id=experiment_id).one()
-        self.assertEqual(len(experiment.genomic_files), 0)
+        biospecimen = Biospecimen.query.filter_by(
+            kf_id=biospecimen_id).one()
+        self.assertEqual(len(biospecimen.genomic_files), 0)
 
-    def test_delete_via_experiment(self):
+    def test_delete_via_biospecimen(self):
         """
         Test delete existing genomic file
 
-        Delete sequencing experiment to which genomic file belongs
+        Delete biospecimen to which genomic file belongs
         """
         # Create and save genomic files and dependent entities
-        experiment_id, kwargs_dict = self._create_save_genomic_files()
+        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
-        # Get genomic files for experiment
-        experiment = SequencingExperiment.query.filter_by(
-            kf_id=experiment_id).one()
+        # Get genomic files for biospecimen
+        biospecimen = Biospecimen.query.filter_by(
+            kf_id=biospecimen_id).one()
 
-        # Delete experiment
-        db.session.delete(experiment)
+        # Delete biospecimen
+        db.session.delete(biospecimen)
         db.session.commit()
 
         # Check database
@@ -155,7 +154,7 @@ class ModelTest(FlaskTestCase):
     def test_not_null_constraint(self):
         """
         Test that a genomic file cannot be created without required parameters
-        such as sequencing_experiment_id
+        such as biospecimen_id
         """
         # Create genomic file without foreign key_
         gf = GenomicFile()
@@ -164,10 +163,10 @@ class ModelTest(FlaskTestCase):
     def test_foreign_key_constraint(self):
         """
         Test that a genomic file cannot be created without an existing
-        sequencing experiment
+        biospecimen
         """
         # Create genomic file without foreign key_
-        gf = GenomicFile(**{'sequencing_experiment_id': ''})
+        gf = GenomicFile(**{'biospecimen_id': ''})
         self.assertRaises(IntegrityError, db.session.add(gf))
 
     def _create_save_genomic_files(self):
@@ -176,9 +175,9 @@ class ModelTest(FlaskTestCase):
         """
         # Create and save genomic file dependent entities
         self._create_save_dependents()
-
-        # Create genomic genomic files
-        experiment = SequencingExperiment.query.all()[0]
+        se = SequencingExperiment.query.all()[0]
+        # Create genomic files
+        biospecimen = Biospecimen.query.all()[0]
         kwargs_dict = {}
         for i in range(2):
             kwargs = {
@@ -194,43 +193,36 @@ class ModelTest(FlaskTestCase):
                 'reference_genome': 'Test01'
             }
             kwargs_dict[kwargs['md5sum']] = kwargs
-            # Add genomic file to list in experiment
-            experiment.genomic_files.append(GenomicFile(**kwargs))
+            # Add genomic file to list in biospecimen
+            biospecimen.genomic_files.append(GenomicFile(**kwargs,
+                                             sequencing_experiment_id=se.kf_id))
         db.session.commit()
 
-        return experiment.kf_id, kwargs_dict
+        return biospecimen.kf_id, kwargs_dict
 
     def _create_save_dependents(self):
         """
         Create and save all genomic file dependent entities to db
 
-        Dependent entities: participant, samples, aliquots,
-        sequencing_experiments
+        Dependent entities: participant, biospecimens
         """
         # Create study
         study = Study(external_id='phs001')
-
+        # Create Sequencing_experiment
+        se = self._create_experiments()
         # Create participant
-        p = Participant(external_id='p1', samples=self._create_samples(),
+        p = Participant(external_id='p1',
+                        biospecimens=self._create_biospecimens(),
                         is_proband=True, study=study)
         db.session.add(p)
         db.session.commit()
 
-    def _create_samples(self, total=2):
+    def _create_biospecimens(self, total=2):
         """
-        Create samples with aliquots
+        Create biospecimens
         """
-        return [Sample(external_id='s{}'.format(i),
-                       aliquots=self._create_aliquots())
-                for i in range(total)]
-
-    def _create_aliquots(self, total=2):
-        """
-        Create aliquots with sequencing experiments
-        """
-        return [Aliquot(external_id='a{}'.format(i),
-                        analyte_type='dna',
-                        sequencing_experiments=self._create_experiments())
+        return [Biospecimen(external_sample_id='s{}'.format(i),
+                            analyte_type='dna')
                 for i in range(total)]
 
     def _create_experiments(self, total=1):
@@ -244,4 +236,7 @@ class ModelTest(FlaskTestCase):
             'is_paired_end': True,
             'platform': 'platform'
         }
-        return [SequencingExperiment(**data) for i in range(total)]
+        se = SequencingExperiment(**data)
+        db.session.add(se)
+        db.session.commit()
+        return se

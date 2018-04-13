@@ -16,10 +16,8 @@ from dataservice.api.family_relationship import FamilyRelationshipAPI
 from dataservice.api.family_relationship import FamilyRelationshipListAPI
 from dataservice.api.diagnosis import DiagnosisAPI
 from dataservice.api.diagnosis import DiagnosisListAPI
-from dataservice.api.sample import SampleAPI
-from dataservice.api.sample import SampleListAPI
-from dataservice.api.aliquot import AliquotAPI
-from dataservice.api.aliquot import AliquotListAPI
+from dataservice.api.biospecimen import BiospecimenAPI
+from dataservice.api.biospecimen import BiospecimenListAPI
 from dataservice.api.outcome import OutcomeAPI
 from dataservice.api.outcome import OutcomeListAPI
 from dataservice.api.phenotype.resources import PhenotypeAPI

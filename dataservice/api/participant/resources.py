@@ -31,7 +31,7 @@ class ParticipantListAPI(CRUDView):
         """
         q = (Participant.query
                         .options(joinedload(Participant.diagnoses))
-                        .options(joinedload(Participant.samples))
+                        .options(joinedload(Participant.biospecimens))
                         .options(joinedload(Participant.phenotypes))
                         .options(joinedload(Participant.outcomes)))
 

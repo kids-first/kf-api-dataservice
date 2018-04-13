@@ -44,3 +44,5 @@ class GenomicFile(db.Model, Base):
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'),
                                          nullable=False)
+    biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
+                               nullable=False)

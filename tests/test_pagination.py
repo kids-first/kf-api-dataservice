@@ -9,8 +9,7 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
-from dataservice.api.sample.models import Sample
-from dataservice.api.aliquot.models import Aliquot
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.utils import iterate_pairwise
@@ -54,18 +53,8 @@ class TestPagination:
                 'gender': 'male'
             }
             p = Participant(**data, study_id=s.kf_id)
-            se_kwargs = {
-                'external_id': 'se1',
-                'experiment_strategy': 'WGS',
-                'center': 'Baylor',
-                'is_paired_end': True,
-                'platform': 'Illumina'
-            }
-            seq_exp = SequencingExperiment(**se_kwargs)
-            aliquot = Aliquot(analyte_type='an analyte',
-                              sequencing_experiments=[seq_exp])
-            samp = Sample(aliquots=[aliquot])
-            p.samples = [samp]
+            samp = Biospecimen(analyte_type='an analyte')
+            p.biospecimens = [samp]
             diag = Diagnosis()
             p.diagnoses = [diag]
             outcome = Outcome()
@@ -94,9 +83,7 @@ class TestPagination:
         ('/outcomes', 102),
         ('/phenotypes', 102),
         ('/diagnoses', 102),
-        ('/samples', 102),
-        ('/aliquots', 102),
-        ('/sequencing-experiments', 102),
+        ('/biospecimens', 102),
         ('/family-relationships', 101),
         ('/study-files',101)
     ])
@@ -132,9 +119,7 @@ class TestPagination:
         ('/outcomes'),
         ('/phenotypes'),
         ('/diagnoses'),
-        ('/samples'),
-        ('/aliquots'),
-        ('/sequencing-experiments'),
+        ('/biospecimens'),
         ('/family-relationships'),
         ('/study-files')
     ])
@@ -162,9 +147,7 @@ class TestPagination:
         ('/outcomes'),
         ('/phenotypes'),
         ('/diagnoses'),
-        ('/samples'),
-        ('/aliquots'),
-        ('/sequencing-experiments'),
+        ('/biospecimens'),
         ('/family-relationships'),
         ('/study-files')
     ])
@@ -196,9 +179,7 @@ class TestPagination:
         ('/outcomes'),
         ('/phenotypes'),
         ('/diagnoses'),
-        ('/samples'),
-        ('/aliquots'),
-        ('/sequencing-experiments'),
+        ('/biospecimens'),
         ('/family-relationships'),
         ('/study-files')
     ])
@@ -220,9 +201,7 @@ class TestPagination:
         ('/participants'),
         ('/outcomes'),
         ('/diagnoses'),
-        ('/samples'),
-        ('/aliquots'),
-        ('/sequencing-experiments'),
+        ('/biospecimens'),
         ('/family-relationships'),
         ('/study-files')
     ])
