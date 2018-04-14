@@ -11,6 +11,8 @@ from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.utils import iterate_pairwise
 from dataservice.api.study_file.models import StudyFile
@@ -69,6 +71,17 @@ class TestPagination:
 
             p = Participant(**data, study_id=s.kf_id, family_id=f.kf_id)
             samp = Biospecimen(analyte_type='an analyte')
+            se_kwargs = {
+                'external_id': 'se1',
+                'experiment_strategy': 'WGS',
+                'center': 'Baylor',
+                'is_paired_end': True,
+                'platform': 'Illumina'
+            }
+            seq_exp = SequencingExperiment(**se_kwargs)
+            gf = GenomicFile()
+            gf.biospecimen = samp
+            gf.sequencing_experiment = seq_exp
             p.biospecimens = [samp]
             diag = Diagnosis()
             p.diagnoses = [diag]
@@ -94,12 +107,13 @@ class TestPagination:
     @pytest.mark.parametrize('endpoint, expected_total', [
         ('/participants', 50),
         ('/study-files', 101),
+        ('/investigators', 1),
+        ('/biospecimens', 50),
         ('/diagnoses', 50),
         ('/outcomes', 50),
         ('/phenotypes', 50),
         ('/families', 1),
         ('/family-relationships', 50),
-        ('/investigators', 1),
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):
