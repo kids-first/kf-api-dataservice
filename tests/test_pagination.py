@@ -41,6 +41,7 @@ class TestPagination:
         # Add a bunch of investigators
         for _ in range(102):
             inv = Investigator(name='test')
+            inv.studies.extend([s0, s1])
             db.session.add(inv)
         db.session.commit()
 
@@ -97,6 +98,8 @@ class TestPagination:
         ('/outcomes', 50),
         ('/phenotypes', 50),
         ('/families', 1),
+        ('/family-relationships', 50),
+        ('/investigators', 1),
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):
