@@ -109,6 +109,7 @@ class TestPagination:
         ('/study-files', 101),
         ('/investigators', 1),
         ('/biospecimens', 50),
+        ('/sequencing-experiments', 50),
         ('/diagnoses', 50),
         ('/outcomes', 50),
         ('/phenotypes', 50),
