@@ -11,6 +11,7 @@ from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.utils import iterate_pairwise
 from dataservice.api.study_file.models import StudyFile
@@ -52,8 +53,24 @@ class TestPagination:
                 'ethnicity': 'not hispanic',
                 'gender': 'male'
             }
+            seq_data = {
+                'external_id': 'Seq_0',
+                'experiment_strategy': 'WXS',
+                'library_name': 'Test_library_name_1',
+                'library_strand': 'Unstranded',
+                'is_paired_end': False,
+                'platform': 'Test_platform_name_1'
+            }
             p = Participant(**data, study_id=s.kf_id)
-            samp = Biospecimen(analyte_type='an analyte')
+            seq_exp = SequencingExperiment(**seq_data)
+            db.session.add(seq_exp)
+            db.session.commit()
+            seq_cen = SequencingCenter(name='Baylor',
+                                       sequencing_experiment_id=seq_exp.kf_id)
+            db.session.add(seq_cen)
+            db.session.commit()
+            samp = Biospecimen(analyte_type='an analyte',
+                               sequencing_center_id=seq_cen.kf_id)
             p.biospecimens = [samp]
             diag = Diagnosis()
             p.diagnoses = [diag]

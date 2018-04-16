@@ -11,6 +11,7 @@ from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.genomic_file.models import GenomicFile
 
 from tests.utils import FlaskTestCase
@@ -261,8 +262,6 @@ class ModelTest(FlaskTestCase):
         """
         # Create study
         study = Study(external_id='phs001')
-        # Create Sequencing_experiment
-        se = self._create_experiments()
         # Create participant
         p = Participant(external_id='p1',
                         biospecimens=self._create_biospecimens(),
@@ -274,8 +273,16 @@ class ModelTest(FlaskTestCase):
         """
         Create biospecimens
         """
+        # Create Sequencing_experiment
+        se = self._create_experiments()
+        # Create Sequencing_center
+        sc = SequencingCenter(name='Baylor',
+                              sequencing_experiment_id=se.kf_id)
+        db.session.add(sc)
+        db.session.commit()
         return [Biospecimen(external_sample_id='s{}'.format(i),
-                            analyte_type='dna')
+                            analyte_type='dna',
+                            sequencing_center_id=sc.kf_id)
                 for i in range(total)]
 
     def _create_experiments(self, total=1):
@@ -285,7 +292,6 @@ class ModelTest(FlaskTestCase):
         data = {
             'external_id': 'se1',
             'experiment_strategy': 'wgs',
-            'center': 'broad',
             'is_paired_end': True,
             'platform': 'platform'
         }

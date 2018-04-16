@@ -153,14 +153,12 @@ class SequencingExperimentTest(FlaskTestCase):
         '''
         Convenience method to create a sequencing experiment with a
         given source name
-        .replace(tzinfo=tz.tzutc())
         '''
         dt = datetime.now()
         seq_experiment_data = {
             'external_id':external_id,
             'experiment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'experiment_strategy': 'WXS',
-            'center': 'Baylor',
             'library_name': 'Test_library_name_1',
             'library_strand': 'Unstranded',
             'is_paired_end': False,

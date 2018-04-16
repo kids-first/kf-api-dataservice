@@ -137,7 +137,6 @@ class ModelTest(FlaskTestCase):
             'external_id':external_id,
             'experiment_date': dt,
             'experiment_strategy': 'WXS',
-            'center': 'Broad Institute',
             'library_name': 'Test_library_name_1',
             'library_strand': 'Unstranded',
             'is_paired_end': False,

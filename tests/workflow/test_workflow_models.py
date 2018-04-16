@@ -7,6 +7,7 @@ from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.workflow.models import (
     Workflow,
@@ -254,12 +255,19 @@ class ModelTest(FlaskTestCase):
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
-    def _create_biospecimen(self, _id, genomic_files=None):
+    def _create_biospecimen(self, _id, genomic_files=None,
+                            sequencing_center_id=None,
+                            participant_id=None):
         """
         Create biospecimen with genomic_files
         """
-        return Biospecimen(external_sample_id=_id, analyte_type='dna',
-                      genomic_files=genomic_files or [])
+        bs = Biospecimen(external_sample_id=_id, analyte_type='dna',
+                         genomic_files=genomic_files or [],
+                         sequencing_center_id=sequencing_center_id,
+                         participant_id=participant_id)
+        db.session.add(bs)
+        db.session.commit()
+        return bs
 
 
     def _create_experiment(self, _id, genomic_files=None):
@@ -269,15 +277,17 @@ class ModelTest(FlaskTestCase):
         data = {
             'external_id': _id,
             'experiment_strategy': 'wgs',
-            'center': 'broad',
             'is_paired_end': True,
             'platform': 'platform',
             'genomic_files': genomic_files or []
         }
-        return SequencingExperiment(**data)
+        se = SequencingExperiment(**data)
+        db.session.add(se)
+        db.session.commit()
+        return se
 
     def _create_genomic_file(self, _id, data_type='submitted aligned read',
-                             sequencing_experiments=None):
+                             sequencing_experiment_id=None, biospec_id=None):
         """
         Create genomic file
         """
@@ -287,6 +297,10 @@ class ModelTest(FlaskTestCase):
             'file_format': '.cram',
             'urls': ['s3://file_{}'.format(_id)],
             'hashes': {'md5': str(uuid.uuid4())}
+            'file_url': 's3://file_{}'.format(_id),
+            'md5sum': str(uuid.uuid4()),
+            'biospecimen_id': biospec_id,
+            'sequencing_experiment_id': sequencing_experiment_id
         }
         return GenomicFile(**data)
 
@@ -314,20 +328,35 @@ class ModelTest(FlaskTestCase):
         proband = [True, False]
         participants = []
         for i, _name in enumerate(names):
-
-            # Input GF
-            gf_in = self._create_genomic_file('gf_{}_in'.format(i))
-            # Output GF
-            gf_out = self._create_genomic_file('gf_{}_out'.format(i),
-                                               data_type='aligned read')
-            # SequencingExperiment
-            se = self._create_experiment('se_{}'.format(i), [gf_in, gf_out])
-            # Biospecimen
-            s = self._create_biospecimen('s_{}'.format(i), [gf_in, gf_out])
             # Participants
             p = Participant(external_id=_name,
                             is_proband=random.choice(proband),
-                            biospecimens=[s], study=study)
+                            study=study)
+            db.session.add(p)
+            db.session.commit()
+            # SequencingExperiment
+            se = self._create_experiment('se_{}'.format(i))
+            # Sequencing center
+            sc = SequencingCenter(name='Baylor',
+                                  sequencing_experiment_id=se.kf_id)
+            db.session.add(sc)
+            db.session.commit()
+            # Biospecimen
+            s = self._create_biospecimen('s_{}'.format(i),
+                                         sequencing_center_id=sc.kf_id,
+                                         participant_id=p.kf_id)
+            # Input GF
+            gf_in = self._create_genomic_file('gf_{}_in'.format(i),
+                                              biospec_id=s.kf_id,
+                                              sequencing_experiment_id=se.kf_id)
+            # Output GF
+            gf_out = self._create_genomic_file('gf_{}_out'.format(i),
+                                               data_type='aligned read',
+                                               biospec_id=s.kf_id,
+                                               sequencing_experiment_id=\
+                                                                    se.kf_id)
+            s.genomic_files = [gf_in, gf_out]
+            p.biospecimens=[s]
             participants.append(p)
 
         return participants
