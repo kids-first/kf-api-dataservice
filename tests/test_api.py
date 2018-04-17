@@ -34,7 +34,8 @@ class TestAPI:
         ('/families', 'GET', 200),
         ('/families/123', 'GET', 404),
         ('/family-relationships', 'GET', 200),
-        ('/family-relationship/123', 'GET', 404)
+        ('/family-relationship/123', 'GET', 404),
+        ('/genomic-files', 'GET', 200)
     ])
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
@@ -95,7 +96,10 @@ class TestAPI:
         ('/family-relationships/123', 'PATCH',
          'could not find family_relationship `123`'),
         ('/family-relationships/123', 'DELETE',
-         'could not find family_relationship `123`')
+         'could not find family_relationship `123`'),
+        ('/genomic-files', 'GET', 'success'),
+        ('/genomic-files/123', 'PATCH', 'could not find genomic_file `123`'),
+        ('/genomic-files/123', 'DELETE', 'could not find genomic_file `123`')
     ])
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -119,7 +123,10 @@ class TestAPI:
         ('/family-relationships', 'GET'),
         ('/study-files', 'GET'),
         ('/families', 'GET'),
-        ('/family-relationships', 'GET')
+        ('/family-relationships', 'GET'),
+        ('/studies', 'GET'),
+        ('/phenotypes', 'GET'),
+        ('/genomic-files', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -130,6 +137,23 @@ class TestAPI:
         assert type(body['_status']['message']) is str
         assert 'code' in body['_status']
         assert type(body['_status']['code']) is int
+
+    @pytest.mark.parametrize('endpoint', [
+        ('/participants'),
+        ('/diagnoses'),
+        ('/genomic-files')
+    ])
+    def test_links(self, client, entities, endpoint):
+        """ Test the existance and formatting of _links """
+        resp = client.get(endpoint,
+                          headers={'Content-Type': 'application/json'})
+        body = json.loads(resp.data.decode('utf-8'))
+
+        assert '_links' in body
+        # If paginated results
+        if isinstance(body['results'], list):
+            for res in body['results']:
+                assert '_links' in res
 
     @pytest.mark.parametrize('endpoint, method, fields', [
         ('/studies', 'POST', ['created_at', 'modified_at']),
@@ -152,7 +176,9 @@ class TestAPI:
         ('/biospecimens', 'PATCH', ['created_at', 'modified_at']),
         ('/sequencing-experiments', 'POST', ['created_at', 'modified_at']),
         ('/sequencing-experiments', 'PATCH', ['created_at', 'modified_at']),
-        ('/family-relationships', 'PATCH', ['created_at', 'modified_at'])
+        ('/family-relationships', 'PATCH', ['created_at', 'modified_at']),
+        ('/genomic-files', 'POST', ['created_at', 'modified_at']),
+        ('/genomic-files', 'PATCH', ['created_at', 'modified_at'])
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
@@ -202,7 +228,12 @@ class TestAPI:
                                           '/family-relationships',
                                           '/study-files',
                                           '/families',
-                                          '/family-relationships'])
+                                          '/family-relationships',
+                                          '/studies',
+                                          '/investigators',
+                                          '/outcomes',
+                                          '/phenotypes',
+                                          '/genomic-files'])
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]

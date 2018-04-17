@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 import pytest
+import uuid
 
 from dataservice import create_app
 from dataservice.extensions import db
@@ -18,12 +19,15 @@ from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.study_file.models import StudyFile
 
 
+pytest_plugins = ['tests.mocks']
+
+
 @pytest.yield_fixture(scope='session')
 def app():
     yield create_app('testing')
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.yield_fixture(scope='function')
 def client(app):
     app_context = app.app_context()
     app_context.push()
@@ -34,13 +38,13 @@ def client(app):
     db.drop_all()
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.yield_fixture(scope='function')
 def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
 
 
 @pytest.fixture
-def entities(client):
+def entities(client, indexd):
     """
     Create mock entities
     """
@@ -48,8 +52,25 @@ def entities(client):
         '/investigators': {
             'name': 'submitter'
         },
+        '/genomic-files': {
+            'file_name': 'hg38.fq',
+            'data_type': 'reads',
+            'file_format': 'fastq',
+            'size': 1000,
+            'urls': ['s3://bucket/key'],
+            'hashes': {'md5': str(uuid.uuid4())},
+            'controlled_access': False
+        },
         '/studies': {
             'external_id': 'phs001'
+        },
+        '/sequencing-experiment': {
+            'external_id': 'WGS-01',
+            'instrument_model': 'HiSeq',
+            'experiment_strategy': 'WGS',
+            'platform': 'illumina',
+            'center': 'WashU',
+            'is_paired_end': True
         },
         '/participants': {
             'external_id': 'p0',
@@ -119,9 +140,6 @@ def entities(client):
         },
         '/study-files':{
             'file_name': 'test_file_name 1'
-        },
-        '/genomic-files':{
-            'file_name':'test_genomic_file_name 1'
         }
     }
 
@@ -174,7 +192,7 @@ def entities(client):
     study.participants.append(p)
     db.session.add(study)
     db.session.add(p)
-
+    db.session.add(seq_exp)
     db.session.commit()
 
     # Add foreign keys
@@ -188,10 +206,10 @@ def entities(client):
         inputs[e]['participant_id'] = p.kf_id
 
     inputs['/genomic-files']['biospecimen_id'] = biospecimen.kf_id
-    # # Genomic_File and sequencing_experiment
-    inputs['/genomic-files']['sequencing-experiment_id'] = seq_exp.kf_id
     # Study and study_files
     inputs['/study-files']['study_id'] = study.kf_id
+    # Genomic File and Sequencing Experiment
+    inputs['/genomic-files']['sequencing_experiment_id'] = seq_exp.kf_id
 
     # Add kf_ids
     inputs['kf_ids'] = {}

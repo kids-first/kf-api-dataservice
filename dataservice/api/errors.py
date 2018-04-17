@@ -1,4 +1,5 @@
 import re
+from flask import current_app
 from dataservice.api.common.schemas import ErrorSchema
 from dataservice.extensions import db
 
@@ -13,6 +14,7 @@ UNIQUE_RE = re.compile('^.*"(?P<key>.*)_key"\n' +
 
 def http_error(e):
     """ Handles all HTTPExceptions """
+    db.session.rollback()
     return ErrorSchema().jsonify(e), e.code
 
 
@@ -24,6 +26,7 @@ def integrity_error(e):
     """
     db.session.rollback()
     error = e.orig.pgerror
+    current_app.logger.debug(error)
 
     message = 'error saving changes'
 
