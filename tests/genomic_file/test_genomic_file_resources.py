@@ -106,6 +106,7 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
 
     assert resp['_status']['code'] == 200
     assert resp['total'] == GenomicFile.query.count()
+    assert GenomicFile.query.count() == 0
     # It's expected that all genomic files are removed and none are returned
     # since indexd says everything is deleted
     assert len(resp['results']) == 0

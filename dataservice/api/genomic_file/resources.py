@@ -34,13 +34,30 @@ class GenomicFileListAPI(CRUDView):
         # Get a page of the data from the model first
         q = GenomicFile.query
         refresh = True
-        while refresh:
+
+        pager = Pagination(q, after, limit)
+        keep = []
+        refresh = True
+        next_after = None
+        # Continue updating the page until we get a page with no deleted files
+        while (pager.total > 0 and refresh):
             refresh = False
-            pager = Pagination(q, after, limit)
+            # Move the cursor ahead to the last valid file
+            next_after = keep[-1].created_at if len(keep) > 0 else after
+            # Number of results needed to fulfill the original limit
+            remain = limit - len(keep)
+            pager = Pagination(q, next_after, remain)
+
             for gf in pager.items:
                 merged = gf.merge_indexd()
-                if merged is None:
+                if merged is not None:
+                    keep.append(gf)
+                else:
                     refresh = True
+
+        # Replace original page's items with new list of valid files
+        pager.items = keep
+        pager.after = next_after if next_after else after
 
         return (GenomicFileSchema(many=True)
                 .jsonify(pager))
