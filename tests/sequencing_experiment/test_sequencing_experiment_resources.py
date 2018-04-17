@@ -7,6 +7,7 @@ from dateutil import parser, tz
 from dataservice.extensions import db
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
@@ -29,6 +30,8 @@ class SequencingExperimentTest(FlaskTestCase):
 
         # Create sequencing_experiment data
         kwargs = self._make_seq_exp(external_id='se1')
+        sc = SequencingCenter.query.first()
+        kwargs['sequencing_center_id'] = sc.kf_id
         # Send get request
         response = self.client.post(url_for(SEQUENCING_EXPERIMENTS_LIST_URL),
                                     data=json.dumps(kwargs),
@@ -41,6 +44,8 @@ class SequencingExperimentTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         sequencing_experiment = response['results']
         for k, v in kwargs.items():
+            if k is 'sequencing_center_id':
+                continue
             if k is 'experiment_date':
                 self.assertEqual(parser.parse(sequencing_experiment[k]),
                                  parser.parse(v))
@@ -66,6 +71,8 @@ class SequencingExperimentTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         sequencing_experiment = response['results']
         for k, v in kwargs.items():
+            if k is 'sequencing_center_id':
+                continue
             if k is 'experiment_date':
                 self.assertEqual(
                         str(parser.parse(sequencing_experiment[k])), str(v))
@@ -140,12 +147,15 @@ class SequencingExperimentTest(FlaskTestCase):
         """
         Create and save sequencing_experiment
         """
-
+        sc = SequencingCenter(name="Baylor")
         kwargs = self._make_seq_exp(external_id='se')
-        se = SequencingExperiment(**kwargs)
-        db.session.add(se)
+        se = SequencingExperiment(**kwargs,
+                                  sequencing_center_id=sc.kf_id)
+        sc.sequencing_experiments.extend([se])
+        db.session.add(sc)
         db.session.commit()
         kwargs['kf_id'] = se.kf_id
+        kwargs['sequencing_center_id'] = sc.kf_id
 
         return kwargs
 

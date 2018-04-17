@@ -21,16 +21,10 @@ class ModelTest(FlaskTestCase):
 
     def create_seqexp_seqcen(self):
         """
-        create a sequencing experiment and sequencial center save to db
+        create sequencial center save to db
         returns sequencing_center kf_id
         """
-        se_id = "Test_SequencingExperiment_0"
-        seq_experiment_data = self._make_seq_exp(external_id=se_id)
-        se = SequencingExperiment(
-            **seq_experiment_data)
-        db.session.add(se)
-        db.session.commit()
-        sc = SequencingCenter(name="Baylor", sequencing_experiment_id=se.kf_id)
+        sc = SequencingCenter(name="Baylor")
         db.session.add(sc)
         db.session.commit()
         ids = {'sequencing_center_id': sc.kf_id}
@@ -47,6 +41,7 @@ class ModelTest(FlaskTestCase):
         sc = SequencingCenter.query.one()
 
         self.assertEqual(sc.name, "Baylor")
+        self.assertEqual(sc.kf_id, ids['sequencing_center_id'])
         self.assertGreater(sc.created_at, dt)
         self.assertGreater(sc.modified_at, dt)
         self.assertIs(type(uuid.UUID(sc.uuid)), uuid.UUID)
@@ -84,18 +79,7 @@ class ModelTest(FlaskTestCase):
 
     def test_not_null_constraint(self):
         """
-        Test sequencing_center cannot be created with out sequencing experiment
-        """
-        # Create sequencing_center without sequencing experiment kf_id
-        sc = SequencingCenter(name='Baylor',sequencing_experiment_id='')
-
-        # Add sequencing_center to db
-        self.assertRaises(IntegrityError, db.session.add(sc))
-
-    def test_foreign_key_constraint(self):
-        """
-        Test sequencing_center cannot be created with out
-        sequencing center
+        Test sequencing_center can be created with out sequencing experiment
         """
         # Create sequencing_center without sequencing experiment kf_id
         sc = SequencingCenter(name='Baylor')
@@ -103,25 +87,13 @@ class ModelTest(FlaskTestCase):
         # Add sequencing_center to db
         self.assertRaises(IntegrityError, db.session.add(sc))
 
-    def _make_seq_exp(self, external_id=None):
-        '''
-        Convenience method to create a sequencing experiment
-        with a given source name
-        '''
-        dt = datetime.now()
-        seq_experiment_data = {
-            'external_id':external_id,
-            'experiment_date': dt,
-            'experiment_strategy': 'WXS',
-            'library_name': 'Test_library_name_1',
-            'library_strand': 'Unstranded',
-            'is_paired_end': False,
-            'platform': 'Test_platform_name_1',
-            'instrument_model': '454 GS FLX Titanium',
-            'max_insert_size': 600,
-            'mean_insert_size': 500,
-            'mean_depth': 40,
-            'total_reads': 800,
-            'mean_read_length': 200
-        }
-        return seq_experiment_data
+    def test_foreign_key_constraint(self):
+        """
+        Test sequencing_center can be created with out
+        sequencing experiment
+        """
+        # Create sequencing_center without sequencing experiment kf_id
+        sc = SequencingCenter(name='Baylor')
+
+        # Add sequencing_center to db
+        self.assertRaises(IntegrityError, db.session.add(sc))

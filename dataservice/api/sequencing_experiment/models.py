@@ -1,7 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.sequencing_center.models import SequencingCenter
 
 
 class SequencingExperiment(db.Model, Base):
@@ -35,8 +34,6 @@ class SequencingExperiment(db.Model, Base):
     experiment_strategy = db.Column(db.Text(), nullable=False,
                                     doc='Text term that represents the'
                                     ' Library strategy')
-    # center = db.Column(db.Text(), nullable=False,
-    #                    doc='Text term that represents the sequencing center')
     library_name = db.Column(db.Text(),
                              doc='Text term that represents the name of the'
                              ' library')
@@ -68,8 +65,7 @@ class SequencingExperiment(db.Model, Base):
                                     backref=db.backref(
                                         'sequencing_experiment',
                                         lazy=True))
-    sequencing_centers = db.relationship(SequencingCenter,
-                                         cascade="all, delete-orphan",
-                                         backref=db.backref(
-                                            'sequencing_experiment',
-                                            lazy=True))
+    sequencing_center_id = db.Column(KfId(),
+                                     db.ForeignKey('sequencing_center.kf_id'),
+                                     nullable=False,
+                                     doc='The kf_id of the sequencing center')

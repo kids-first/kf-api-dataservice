@@ -1,6 +1,7 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 
 class SequencingCenter(db.Model, Base):
@@ -13,16 +14,11 @@ class SequencingCenter(db.Model, Base):
     __prefix__ = 'SC'
     name = db.Column(db.Text(), nullable=False,
                      doc='Name given to sequencing center by contributor')
-    sequencing_experiment_id = db.Column(
-                                         KfId(),
-                                         db.ForeignKey(
-                                                       'sequencing'
-                                                       '_experiment.kf_id'),
-                                         nullable=False,
-                                         doc='The kf_id of the sequencing'
-                                         ' experiment')
+    sequencing_experiments = db.relationship(SequencingExperiment,
+                                             backref=db.backref(
+                                               'sequencing_center',
+                                               lazy=True))
     biospecimens = db.relationship(Biospecimen,
-                                   cascade="all, delete-orphan",
                                    backref=db.backref(
                                         'sequencing_center',
                                         lazy=True))

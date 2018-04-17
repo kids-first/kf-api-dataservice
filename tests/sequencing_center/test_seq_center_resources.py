@@ -22,14 +22,9 @@ class SequencingCenterTest(FlaskTestCase):
         """
         Test create a new sequencing_center
         """
-        seq_data = self._make_seq_exp(external_id='se')
-        se = SequencingExperiment(**seq_data)
-        db.session.add(se)
-        db.session.commit()
         # Create sequencing_center data
         kwargs ={
-                'name': "Baylor",
-                'sequencing_experiment_id': se.kf_id
+                'name': "Baylor"
         }
         # Send get request
         response = self.client.post(url_for(SEQUENCING_CENTERS_LIST_URL),
@@ -125,26 +120,19 @@ class SequencingCenterTest(FlaskTestCase):
         """
         Create and save sequencing_center
         """
-
-        seq_data = self._make_seq_exp(external_id='se')
-        se = SequencingExperiment(**seq_data)
-        db.session.add(se)
-        db.session.commit()
-        kwargs ={
-                'name': "Baylor",
-                'sequencing_experiment_id': se.kf_id
-        }
-        sc = SequencingCenter(**kwargs)
+        sc = SequencingCenter(name="Baylor")
         db.session.add(sc)
         db.session.commit()
-        kwargs['kf_id'] = sc.kf_id
+        kwargs = {
+            'name': sc.name,
+            'kf_id': sc.kf_id
+            }
         return kwargs
 
     def _make_seq_exp(self, external_id=None):
         '''
         Convenience method to create a sequencing experiment with a
         given source name
-        .replace(tzinfo=tz.tzutc())
         '''
         dt = datetime.now()
         seq_experiment_data = {

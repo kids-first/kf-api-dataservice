@@ -171,9 +171,10 @@ def entities(client, indexd):
     outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
     phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
-    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'])
-    seq_center = SequencingCenter(**inputs['/sequencing-centers'],
-                                  sequencing_experiment_id=seq_exp.kf_id)
+    seq_center = SequencingCenter(**inputs['/sequencing-centers'])
+    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'],
+                                   sequencing_center_id=seq_center.kf_id)
+
     biospecimen = Biospecimen(**inputs['/biospecimens'],
                               participant_id=p.kf_id,
                               sequencing_center_id=seq_center.kf_id)
@@ -183,7 +184,7 @@ def entities(client, indexd):
 
     biospecimen.genomic_files = [gen_file]
     seq_exp.genomic_files = [gen_file]
-    seq_exp.sequencing_centers = [seq_center]
+    seq_center.sequencing_experiments = [seq_exp]
     seq_center.biospecimens = [biospecimen]
     p.biospecimens = [biospecimen]
     p.diagnoses = [diagnosis]
@@ -222,7 +223,7 @@ def entities(client, indexd):
     # Genomic File and Sequencing Experiment
     inputs['/genomic-files']['sequencing_experiment_id'] = seq_exp.kf_id
     # Sequencing_experiment and sequencing_center
-    inputs['/sequencing-centers']['sequencing_experiment_id'] = seq_exp.kf_id
+    inputs['/sequencing-experiments']['sequencing_center_id'] = seq_center.kf_id
     # Biospecimen and sequencing_center
     inputs['/biospecimens']['sequencing_center_id'] = seq_center.kf_id
 

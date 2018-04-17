@@ -270,7 +270,8 @@ class ModelTest(FlaskTestCase):
         return bs
 
 
-    def _create_experiment(self, _id, genomic_files=None):
+    def _create_experiment(self, _id, genomic_files=None,
+                           sequencing_center_id=None):
         """
         Create sequencing experiment
         """
@@ -279,7 +280,8 @@ class ModelTest(FlaskTestCase):
             'experiment_strategy': 'wgs',
             'is_paired_end': True,
             'platform': 'platform',
-            'genomic_files': genomic_files or []
+            'genomic_files': genomic_files or [],
+            'sequencing_center_id': sequencing_center_id
         }
         se = SequencingExperiment(**data)
         db.session.add(se)
@@ -334,13 +336,13 @@ class ModelTest(FlaskTestCase):
                             study=study)
             db.session.add(p)
             db.session.commit()
-            # SequencingExperiment
-            se = self._create_experiment('se_{}'.format(i))
             # Sequencing center
-            sc = SequencingCenter(name='Baylor',
-                                  sequencing_experiment_id=se.kf_id)
+            sc = SequencingCenter(name='Baylor')
             db.session.add(sc)
             db.session.commit()
+            # SequencingExperiment
+            se = self._create_experiment('se_{}'.format(i),
+                                         sequencing_center_id=sc.kf_id)    
             # Biospecimen
             s = self._create_biospecimen('s_{}'.format(i),
                                          sequencing_center_id=sc.kf_id,

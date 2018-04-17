@@ -367,17 +367,15 @@ class BiospecimenTest(FlaskTestCase):
         db.session.add(study)
         db.session.commit()
 
-        # Create SequencingExperiment
+        sc = SequencingCenter(name="Baylor")
+        db.session.add(sc)
+        db.session.commit()
         se = SequencingExperiment(external_id="Test_seq_ex_o",
                                   experiment_strategy="WGS",
                                   is_paired_end="True",
-                                  platform="Test_platform")
+                                  platform="Test_platform",
+                                  sequencing_center_id=sc.kf_id)
         db.session.add(se)
-        db.session.commit()
-        # Create SequencingCenter
-        sc = SequencingCenter(name="Baylor",
-                              sequencing_experiment_id=se.kf_id)
-        db.session.add(sc)
         db.session.commit()
 
         # Create biospecimen

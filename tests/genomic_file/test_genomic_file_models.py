@@ -273,19 +273,18 @@ class ModelTest(FlaskTestCase):
         """
         Create biospecimens
         """
-        # Create Sequencing_experiment
-        se = self._create_experiments()
         # Create Sequencing_center
-        sc = SequencingCenter(name='Baylor',
-                              sequencing_experiment_id=se.kf_id)
+        sc = SequencingCenter(name='Baylor')
         db.session.add(sc)
         db.session.commit()
+        # Create Sequencing_experiment
+        se = self._create_experiments(sequencing_center_id=sc.kf_id)
         return [Biospecimen(external_sample_id='s{}'.format(i),
                             analyte_type='dna',
                             sequencing_center_id=sc.kf_id)
                 for i in range(total)]
 
-    def _create_experiments(self, total=1):
+    def _create_experiments(self, total=1, sequencing_center_id=None):
         """
         Create sequencing experiments
         """
@@ -293,7 +292,8 @@ class ModelTest(FlaskTestCase):
             'external_id': 'se1',
             'experiment_strategy': 'wgs',
             'is_paired_end': True,
-            'platform': 'platform'
+            'platform': 'platform',
+            'sequencing_center_id': sequencing_center_id
         }
         se = SequencingExperiment(**data)
         db.session.add(se)

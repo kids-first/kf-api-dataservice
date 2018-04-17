@@ -51,8 +51,6 @@ class Biospecimen(db.Model, Base):
                                  doc='Disease present in the biospecimen')
     shipment_origin = db.Column(db.Text(),
                                 doc='The original site of the aliquot')
-    # shipment_destination = db.Column(db.Text(),
-    #                                  doc='The site recieving the aliquot')
     analyte_type = db.Column(db.Text(), nullable=False,
                              doc='The molecular description of the aliquot')
     concentration_mg_per_ml = db.Column(db.Float(),

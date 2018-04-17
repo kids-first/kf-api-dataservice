@@ -7,6 +7,7 @@ from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.utils import FlaskTestCase
 
@@ -29,11 +30,13 @@ class ModelTest(FlaskTestCase):
         returns participant_id, biospecimen_id, and
         sequencing_experiment_id
         """
+        sc = SequencingCenter(name="Baylor")
         se_id = "Test_SequencingExperiment_0"
         seq_experiment_data = self._make_seq_exp(external_id=se_id)
         se = SequencingExperiment(
-            **seq_experiment_data)
-        db.session.add(se)
+            **seq_experiment_data, sequencing_center_id=sc.kf_id)
+        sc.sequencing_experiments.extend([se])
+        db.session.add(sc)
         db.session.commit()
         ids = {'sequencing_experiment_id': se_id}
         return ids
@@ -43,12 +46,14 @@ class ModelTest(FlaskTestCase):
         Test creation of sequencing_exeriment
         """
         dt = datetime.now()
+        sc = SequencingCenter(name="Baylor")
         # creating sequencing experiment
         se_id = 'Test_SequencingExperiment_0'
         seq_experiment_data = self._make_seq_exp(external_id=se_id)
         e = SequencingExperiment(
-            **seq_experiment_data)
-        db.session.add(e)
+            **seq_experiment_data, sequencing_center_id=sc.kf_id)
+        sc.sequencing_experiments.extend([e])
+        db.session.add(sc)
         db.session.commit()
 
         self.assertEqual(SequencingExperiment.query.count(), 1)
@@ -113,7 +118,7 @@ class ModelTest(FlaskTestCase):
 
     def test_foreign_key_constraint(self):
         """
-        Test sequencing_experiment can be created with out genomic_file,
+        Test sequencing_experiment cannot be created with out genomic_file,
         biospecimen or participant
         """
         dt = datetime.now()
@@ -122,10 +127,8 @@ class ModelTest(FlaskTestCase):
         seq_experiment_data = self._make_seq_exp(external_id=se_id)
 
         e = SequencingExperiment(**seq_experiment_data)
-        db.session.add(e)
-        db.session.commit()
         # Check for database
-        self.assertEqual(1, SequencingExperiment.query.count())
+        self.assertRaises(IntegrityError, db.session.add(e))
 
     def _make_seq_exp(self, external_id=None):
         '''

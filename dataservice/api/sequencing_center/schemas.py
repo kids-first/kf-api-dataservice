@@ -6,11 +6,6 @@ from dataservice.extensions import ma
 
 
 class SequencingCenterSchema(BaseSchema):
-    sequencing_experiment_id = field_for(SequencingCenter,
-                                         'sequencing_experiment_id',
-                                         required=True,
-                                         load_only=True)
-
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_centers'
         collection_url = 'api.sequencing_centers_list'
