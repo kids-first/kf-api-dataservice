@@ -6,7 +6,6 @@ import uuid
 from dataservice import create_app
 from dataservice.extensions import db
 from dataservice.api.investigator.models import Investigator
-from dataservice.api.aliquot.models import Aliquot
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family.models import Family
@@ -141,9 +140,6 @@ def entities(client, indexd):
         },
         '/study-files':{
             'file_name': 'test_file_name 1'
-        },
-        '/genomic-files':{
-            'file_name':'test_genomic_file_name 1'
         }
     }
 
@@ -210,8 +206,6 @@ def entities(client, indexd):
         inputs[e]['participant_id'] = p.kf_id
 
     inputs['/genomic-files']['biospecimen_id'] = biospecimen.kf_id
-    # # Genomic_File and sequencing_experiment
-    inputs['/genomic-files']['sequencing-experiment_id'] = seq_exp.kf_id
     # Study and study_files
     inputs['/study-files']['study_id'] = study.kf_id
     # Genomic File and Sequencing Experiment
@@ -222,7 +216,6 @@ def entities(client, indexd):
     inputs['kf_ids'].update({'/studies': study.kf_id})
     inputs['kf_ids'].update({'/study-files': sf.kf_id})
     inputs['kf_ids'].update({'/investigators': investigator.kf_id})
-    inputs['kf_ids'].update({'/genomic-files': genomic_file.kf_id})
     inputs['kf_ids'].update({'/participants': p.kf_id})
     inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
     inputs['kf_ids'].update({'/phenotypes': phenotype.kf_id})

@@ -9,6 +9,7 @@ from flask import url_for
 from dataservice.extensions import db
 from dataservice.extensions.flask_indexd import RecordNotFound
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 
 
@@ -23,6 +24,7 @@ def genomic_files(client, entities):
         'file_name': 'hg38.bam',
         'data_type': 'aligned reads',
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
+        'biospecimen_id': Biospecimen.query.first().kf_id,
         'file_format': 'bam'
     }
     gfs = [GenomicFile(**props) for _ in range(102)]
@@ -59,6 +61,7 @@ def test_new_indexd_error(client, entities):
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'sequencing_experiment_id': 'SE_AAAAAAAA',
+        'biospecimen_id': Biospecimen.query.first().kf_id,
         'controlled_access': False
     }
     init_count = GenomicFile.query.count()
@@ -243,7 +246,8 @@ def _new_genomic_file(client):
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
-        'controlled_access': False
+        'biospecimen_id': Biospecimen.query.first().kf_id,
+        'controlled_access': False,
     }
     response = client.post(url_for(GENOMICFILE_LIST_URL),
                                 headers={'Content-Type': 'application/json'},

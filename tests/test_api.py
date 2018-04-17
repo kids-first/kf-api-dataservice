@@ -141,7 +141,6 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
         ('/diagnoses'),
-        ('/samples'),
         ('/genomic-files')
     ])
     def test_links(self, client, entities, endpoint):
@@ -194,8 +193,6 @@ class TestAPI:
             endpoint = '{}/{}'.format(endpoint, kf_id)
         resp = call_func(endpoint, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
-        if 'genomic-files' not in endpoint:
-            return
         for field in fields:
             assert (field not in body['results']
                     or body['results'][field] != 'test')
@@ -236,7 +233,6 @@ class TestAPI:
                                           '/investigators',
                                           '/outcomes',
                                           '/phenotypes',
-                                          '/aliquots',
                                           '/genomic-files'])
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """

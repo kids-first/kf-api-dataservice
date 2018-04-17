@@ -88,8 +88,8 @@ class ModelTest(FlaskTestCase):
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
-    @patch('dataservice.api.genomic_file.models.requests')
-    def test_create_via_biospecimen(self):
+    @patch('dataservice.extensions.flask_indexd.requests')
+    def test_create_via_biospecimen(self, mock):
         """
         Test create genomic file
         """
@@ -170,8 +170,8 @@ class ModelTest(FlaskTestCase):
             kf_id=biospecimen_id).one()
         self.assertEqual(len(biospecimen.genomic_files), 0)
 
-    @patch('dataservice.api.genomic_file.models.requests')
-    def test_delete_via_biospecimen(self):
+    @patch('dataservice.extensions.flask_indexd.requests')
+    def test_delete_via_biospecimen(self, mock):
         """
         Test delete existing genomic file
 
@@ -188,9 +188,6 @@ class ModelTest(FlaskTestCase):
 
         # Delete biospecimen
         db.session.delete(biospecimen)
-
-        # Delete experiment
-        db.session.delete(experiment)
         db.session.commit()
 
         # Check database
@@ -246,10 +243,12 @@ class ModelTest(FlaskTestCase):
                 'reference_genome': 'Test01',
                 'hashes': {'md5': uuid.uuid4()}
             }
-            kwargs_dict[kwargs['md5sum']] = kwargs
             # Add genomic file to list in biospecimen
-            biospecimen.genomic_files.append(GenomicFile(**kwargs,
-                                             sequencing_experiment_id=se.kf_id))
+            gf = GenomicFile(**kwargs, sequencing_experiment_id=se.kf_id)
+            biospecimen.genomic_files.append(gf)
+            db.session.flush()
+            kwargs['kf_id'] = gf.kf_id
+            kwargs_dict[gf.kf_id] = kwargs
         db.session.commit()
 
         return biospecimen.kf_id, kwargs_dict

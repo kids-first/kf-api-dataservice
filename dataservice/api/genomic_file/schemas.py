@@ -16,6 +16,11 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
                                          required=True,
                                          load_only=True)
 
+    biospecimen_id = field_for(GenomicFile,
+                               'biospecimen_id',
+                               required=True,
+                               load_only=True)
+
     latest_did = field_for(GenomicFile,
                            'latest_did',
                            required=False,
