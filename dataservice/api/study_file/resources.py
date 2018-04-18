@@ -1,5 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
+from sqlalchemy.orm import load_only
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
@@ -28,12 +29,12 @@ class StudyFileListAPI(CRUDView):
             resource:
               StudyFile
         """
-        q = StudyFile.query
+        q = StudyFile.query.options(load_only('kf_id'))
 
         # Filter by study
         study_id = request.args.get('study_id')
         if study_id:
-            q = q.filter_by(study_id=study_id)
+            q = (q.filter_by(study_id=study_id))
 
         return (StudyFileSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

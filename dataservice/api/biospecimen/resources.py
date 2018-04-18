@@ -1,6 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
-from sqlalchemy.orm import Load
+from sqlalchemy.orm import Load, load_only
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
@@ -30,7 +30,7 @@ class BiospecimenListAPI(CRUDView):
             resource:
               Biospecimen
         """
-        q = Biospecimen.query
+        q = Biospecimen.query.options(load_only('kf_id'))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
