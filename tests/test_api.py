@@ -186,7 +186,7 @@ class TestAPI:
         ('/sequencing-experiments', 'PATCH', ['created_at', 'modified_at']),
         ('/family-relationships', 'PATCH', ['created_at', 'modified_at']),
         ('/genomic-files', 'POST', ['created_at', 'modified_at']),
-        ('/genomic-files', 'PATCH', ['created_at', 'modified_at'])
+        ('/genomic-files', 'PATCH', ['created_at', 'modified_at']),
         ('/sequencing-centers', 'POST', ['created_at', 'modified_at']),
         ('/sequencing-centers', 'PATCH', ['created_at', 'modified_at'])
     ])

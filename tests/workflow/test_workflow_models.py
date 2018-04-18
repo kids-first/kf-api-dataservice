@@ -298,9 +298,7 @@ class ModelTest(FlaskTestCase):
             'data_type': data_type,
             'file_format': '.cram',
             'urls': ['s3://file_{}'.format(_id)],
-            'hashes': {'md5': str(uuid.uuid4())}
-            'file_url': 's3://file_{}'.format(_id),
-            'md5sum': str(uuid.uuid4()),
+            'hashes': {'md5': str(uuid.uuid4())},
             'biospecimen_id': biospec_id,
             'sequencing_experiment_id': sequencing_experiment_id
         }
@@ -342,7 +340,7 @@ class ModelTest(FlaskTestCase):
             db.session.commit()
             # SequencingExperiment
             se = self._create_experiment('se_{}'.format(i),
-                                         sequencing_center_id=sc.kf_id)    
+                                         sequencing_center_id=sc.kf_id)
             # Biospecimen
             s = self._create_biospecimen('s_{}'.format(i),
                                          sequencing_center_id=sc.kf_id,
