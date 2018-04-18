@@ -159,6 +159,36 @@ class TestPagination:
 
         assert len(ids_seen) == resp['total']
 
+    @pytest.mark.parametrize('study_id', ['blah', 'ST_00000000', 50])
+    @pytest.mark.parametrize('endpoint', [
+        ('/participants'),
+        ('/study-files'),
+        ('/investigators'),
+        ('/biospecimens'),
+        ('/sequencing-experiments'),
+        ('/diagnoses'),
+        ('/outcomes'),
+        ('/phenotypes'),
+        ('/families'),
+        ('/family-relationships'),
+        ('/genomic-files')
+    ])
+    def test_non_exist_study_filter(self, client, participants,
+                                    endpoint, study_id):
+        """
+        Test pagination of resources with a study filter that doesn't exist or
+        is invalid
+
+        Should return no results
+        """
+        endpoint = '{}?study_id={}'.format(endpoint, study_id)
+        resp = client.get(endpoint)
+        resp = json.loads(resp.data.decode('utf-8'))
+
+        assert len(resp['results']) == 0
+        assert resp['limit'] == 10
+        assert resp['total'] == 0
+
     @pytest.mark.parametrize('endpoint, expected_total', [
         ('/studies', 101),
         ('/investigators', 102),
