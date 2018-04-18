@@ -25,10 +25,9 @@ class ModelTest(FlaskTestCase):
 
     def create_seqexp(self):
         """
-        create a participant, biospecimen, genomic_file and
+        create sequencing_center and
         sequencing experiment save the above entities to db
-        returns participant_id, biospecimen_id, and
-        sequencing_experiment_id
+        returns sequencing_experiment_id
         """
         sc = SequencingCenter(name="Baylor")
         se_id = "Test_SequencingExperiment_0"
@@ -46,8 +45,9 @@ class ModelTest(FlaskTestCase):
         Test creation of sequencing_exeriment
         """
         dt = datetime.now()
+        # Create sequencing center
         sc = SequencingCenter(name="Baylor")
-        # creating sequencing experiment
+        # Create sequencing experiment
         se_id = 'Test_SequencingExperiment_0'
         seq_experiment_data = self._make_seq_exp(external_id=se_id)
         e = SequencingExperiment(
@@ -104,8 +104,7 @@ class ModelTest(FlaskTestCase):
 
     def test_not_null_constraint(self):
         """
-        Test sequencing_experiment cannot be created with out genomic_file,
-        biospecimen or participant
+        Test sequencing_experiment cannot be created with out sequencing_center
         """
         dt = datetime.now()
         # Create sequencialexperiment without genomic_file kf_id
@@ -118,8 +117,8 @@ class ModelTest(FlaskTestCase):
 
     def test_foreign_key_constraint(self):
         """
-        Test sequencing_experiment cannot be created with out genomic_file,
-        biospecimen or participant
+        Test sequencing_experiment cannot be created with out
+        sequencing_center
         """
         dt = datetime.now()
         # Create sequencialexperiment

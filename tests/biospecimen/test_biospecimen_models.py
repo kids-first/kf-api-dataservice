@@ -27,18 +27,10 @@ class ModelTest(FlaskTestCase):
         aliquot_id = "Test_aliquot_0"
         data = self._make_biospecimen(external_sample_id=sample_id,
                                       external_aliquot_id=aliquot_id)
-        sc = SequencingCenter(name="Baylor")
-        db.session.add(sc)
-        db.session.commit()
-        se = SequencingExperiment(external_id="Test_seq_ex_o",
-                                  experiment_strategy="WGS",
-                                  is_paired_end="True",
-                                  platform="Test_platform",
-                                  sequencing_center_id=sc.kf_id)
-        db.session.add(se)
-        db.session.commit()
-
-        biospecimen_0 = Biospecimen(**data, sequencing_center_id=sc.kf_id)
+        ids = self.create_seqexp()
+        biospecimen_0 = Biospecimen(**data,
+                                    sequencing_center_id=\
+                                    ids['sequencing_center_id'])
         participant_0 = Participant(
             external_id=participant_id,
             is_proband=True,
@@ -72,33 +64,20 @@ class ModelTest(FlaskTestCase):
         aliquot_id = "Test_Aliquot_0"
         data = self._make_biospecimen(external_sample_id=sample_id,
                                       external_aliquot_id=aliquot_id)
-        sc = SequencingCenter(name="Baylor")
-        db.session.add(sc)
-        db.session.commit()
-        se = SequencingExperiment(external_id="Test_seq_ex_o",
-                                  experiment_strategy="WGS",
-                                  is_paired_end="True",
-                                  platform="Test_platform",
-                                  sequencing_center_id=sc.kf_id)
-        db.session.add(se)
-        db.session.commit()
-
+        ids = self.create_seqexp()
         s = Biospecimen(**data, participant_id=p.kf_id,
-                        sequencing_center_id=sc.kf_id)
+                        sequencing_center_id=ids['sequencing_center_id'])
         db.session.add(s)
         db.session.commit()
 
         self.assertEqual(Biospecimen.query.count(), 1)
-        new_biospecimen = Biospecimen.query.first()
-        self.assertGreater(new_biospecimen.created_at, dt)
-        self.assertGreater(new_biospecimen.modified_at, dt)
-        self.assertIs(type(uuid.UUID(new_biospecimen.uuid)), uuid.UUID)
-        self.assertEqual(new_biospecimen.external_sample_id,
-                         "Test_Sample_0")
-        self.assertEqual(new_biospecimen.tissue_type, "Normal")
-        self.assertEqual(new_biospecimen.composition, "Test_comp_0")
-        self.assertEqual(new_biospecimen.participant_id, p.kf_id)
-
+        bs = Biospecimen.query.one()
+        for key, value in data.items():
+            self.assertEqual(value, getattr(bs, key))
+        self.assertGreater(bs.created_at, dt)
+        self.assertGreater(bs.modified_at, dt)
+        self.assertIs(type(uuid.UUID(bs.uuid)), uuid.UUID)
+        
     def test_biospecimen_participant_relation(self):
         """
         create biospecimen via participant
@@ -237,19 +216,9 @@ class ModelTest(FlaskTestCase):
         data = self._make_biospecimen(external_sample_id='Test_Sample_1',
                                       external_aliquot_id='Test_Aliquot_id')
 
-        sc = SequencingCenter(name="Baylor")
-        db.session.add(sc)
-        db.session.commit()
-        se = SequencingExperiment(external_id="Test_seq_ex_o",
-                                  experiment_strategy="WGS",
-                                  is_paired_end="True",
-                                  platform="Test_platform",
-                                  sequencing_center_id=sc.kf_id)
-        db.session.add(se)
-        db.session.commit()
-
+        ids = self.create_seqexp()
         s = Biospecimen(**data, participant_id=p.kf_id,
-                        sequencing_center_id=sc.kf_id)
+                        sequencing_center_id=ids['sequencing_center_id'])
 
         db.session.add(s)
         db.session.commit()
@@ -278,18 +247,9 @@ class ModelTest(FlaskTestCase):
         data = self._make_biospecimen(external_sample_id='Test_Sample_1',
                                       external_aliquot_id='Test_Aliquot_1')
 
-        sc = SequencingCenter(name="Baylor")
-        db.session.add(sc)
-        db.session.commit()
-        se = SequencingExperiment(external_id="Test_seq_ex_o",
-                                  experiment_strategy="WGS",
-                                  is_paired_end="True",
-                                  platform="Test_platform",
-                                  sequencing_center_id=sc.kf_id)
-        db.session.add(se)
-        db.session.commit()
+        ids = self.create_seqexp()
         s = Biospecimen(**data, participant_id=p.kf_id,
-                        sequencing_center_id=sc.kf_id)
+                        sequencing_center_id=ids['sequencing_center_id'])
 
         db.session.add(s)
         db.session.commit()
@@ -324,19 +284,9 @@ class ModelTest(FlaskTestCase):
         # adding another biospecimen to participant
         data = self._make_biospecimen(external_sample_id='Test_Sample_1',
                                       external_aliquot_id='Test_Aliquot_1')
-        sc = SequencingCenter(name="Baylor")
-        db.session.add(sc)
-        db.session.commit()
-        se = SequencingExperiment(external_id="Test_seq_ex_o",
-                                  experiment_strategy="WGS",
-                                  is_paired_end="True",
-                                  platform="Test_platform",
-                                  sequencing_center_id=sc.kf_id)
-        db.session.add(se)
-        db.session.commit()
-
+        ids = self.create_seqexp()
         s = Biospecimen(**data, participant_id=p.kf_id,
-                        sequencing_center_id=sc.kf_id)
+                        sequencing_center_id=ids['sequencing_center_id'])
         db.session.add(s)
         db.session.commit()
 
@@ -367,3 +317,24 @@ class ModelTest(FlaskTestCase):
             'uberon_id':'UBERON:0000955'
         }
         return body
+
+    def create_seqexp(self):
+        """
+        create sequencing_center and
+        sequencing experiment save the above entities to db
+        returns sequencing_experiment_id
+        """
+        sc = SequencingCenter(name="Baylor")
+        se = SequencingExperiment(external_id="Test_seq_ex_o",
+                                  experiment_strategy="WGS",
+                                  is_paired_end="True",
+                                  platform="Test_platform",
+                                  sequencing_center_id=sc.kf_id)
+        sc.sequencing_experiments.extend([se])
+        db.session.add(sc)
+        db.session.commit()
+        ids = {
+                'sequencing_experiment_id': se.kf_id,
+                'sequencing_center_id':sc.kf_id
+                }
+        return ids
