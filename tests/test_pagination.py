@@ -1,6 +1,7 @@
 import json
 import pytest
 from dateutil import parser
+import uuid
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
@@ -17,6 +18,8 @@ from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.utils import iterate_pairwise
 from dataservice.api.study_file.models import StudyFile
 
+pytest_plugins = ['tests.mocks']
+
 
 class TestPagination:
     """
@@ -24,7 +27,7 @@ class TestPagination:
     """
 
     @pytest.fixture(scope='function')
-    def participants(client):
+    def participants(client, indexd):
 
         # Add a bunch of studies for pagination
         for i in range(101):
@@ -70,7 +73,7 @@ class TestPagination:
             }
 
             p = Participant(**data, study_id=s.kf_id, family_id=f.kf_id)
-            samp = Biospecimen(analyte_type='an analyte')
+            bsp = Biospecimen(analyte_type='an analyte')
             se_kwargs = {
                 'external_id': 'se1',
                 'experiment_strategy': 'WGS',
@@ -79,10 +82,19 @@ class TestPagination:
                 'platform': 'Illumina'
             }
             seq_exp = SequencingExperiment(**se_kwargs)
-            gf = GenomicFile()
-            gf.biospecimen = samp
+            gf_kwargs = {
+                'file_name': 'hg38.fq',
+                'data_type': 'reads',
+                'file_format': 'fastq',
+                'size': 1000,
+                'urls': ['s3://bucket/key'],
+                'hashes': {'md5': str(uuid.uuid4())},
+                'controlled_access': False
+            }
+            gf = GenomicFile(**gf_kwargs)
+            gf.biospecimen = bsp
             gf.sequencing_experiment = seq_exp
-            p.biospecimens = [samp]
+            p.biospecimens = [bsp]
             diag = Diagnosis()
             p.diagnoses = [diag]
             outcome = Outcome()
@@ -115,13 +127,12 @@ class TestPagination:
         ('/phenotypes', 50),
         ('/families', 1),
         ('/family-relationships', 50),
+        ('/genomic-files', 50)
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):
         """
         Test pagination of resources with a study filter
-
-        These resources are directly related to the study by foreign key
         """
         s = Study.query.filter_by(external_id='Study_0').one()
         endpoint = '{}?study_id={}'.format(endpoint, s.kf_id)
