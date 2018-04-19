@@ -38,8 +38,7 @@ class FamilyListAPI(CRUDView):
             q = (q.options(joinedload(Family.participants).load_only('kf_id'))
                  .join(Family.participants)
                  .filter(Participant.study_id == study_id)
-                 .distinct(Family.kf_id)
-                 .order_by(Family.kf_id))
+                 .group_by(Family.kf_id))
 
         return (FamilySchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
