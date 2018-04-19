@@ -30,14 +30,13 @@ class OutcomeListAPI(CRUDView):
             resource:
               Outcome
         """
-        q = Outcome.query.options(load_only('kf_id'))
+        q = Outcome.query
 
         # Filter by study
         from dataservice.api.participant.models import Participant
         study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(Participant.outcomes)
-                 .options(Load(Participant).load_only('kf_id', 'study_id'))
                  .filter(Participant.study_id == study_id))
 
         return (OutcomeSchema(many=True)

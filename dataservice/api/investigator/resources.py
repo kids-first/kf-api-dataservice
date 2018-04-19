@@ -1,6 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
-from sqlalchemy.orm import Load, load_only
+from sqlalchemy.orm import joinedload
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
@@ -29,14 +29,14 @@ class InvestigatorListAPI(CRUDView):
             resource:
               Investigator
         """
-        q = Investigator.query.options(load_only('kf_id'))
+        q = Investigator.query
 
         # Filter by study
         from dataservice.api.study.models import Study
         study_id = request.args.get('study_id')
         if study_id:
-            q = (q.join(Investigator.studies)
-                 .options(Load(Study).load_only('kf_id'))
+            q = (q.options(joinedload(Investigator.studies).load_only('kf_id'))
+                 .join(Investigator.studies)
                  .filter(Study.kf_id == study_id))
 
         return (InvestigatorSchema(many=True)
