@@ -30,10 +30,19 @@ class ParticipantListAPI(CRUDView):
               Participant
         """
         q = (Participant.query
-                        .options(joinedload(Participant.diagnoses))
-                        .options(joinedload(Participant.biospecimens))
-                        .options(joinedload(Participant.phenotypes))
-                        .options(joinedload(Participant.outcomes)))
+                        .options(joinedload(Participant.diagnoses)
+                                 .load_only('kf_id'))
+                        .options(joinedload(Participant.biospecimens)
+                                 .load_only('kf_id'))
+                        .options(joinedload(Participant.phenotypes)
+                                 .load_only('kf_id'))
+                        .options(joinedload(Participant.outcomes)
+                                 .load_only('kf_id')))
+
+        # Filter by study
+        study_id = request.args.get('study_id')
+        if study_id:
+            q = q.filter_by(study_id=study_id)
 
         return (ParticipantSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

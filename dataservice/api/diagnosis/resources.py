@@ -31,6 +31,13 @@ class DiagnosisListAPI(CRUDView):
         """
         q = Diagnosis.query
 
+        # Filter by study
+        from dataservice.api.participant.models import Participant
+        study_id = request.args.get('study_id')
+        if study_id:
+            q = (q.join(Participant.diagnoses)
+                 .filter(Participant.study_id == study_id))
+
         return (DiagnosisSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
 
