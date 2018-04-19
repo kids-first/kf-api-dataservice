@@ -1,6 +1,8 @@
 import json
 import pytest
 from dateutil import parser
+from pprint import pprint
+from urllib import parse
 import uuid
 
 from dataservice.extensions import db
@@ -147,13 +149,15 @@ class TestPagination:
         # Iterate through via the `next` link
         while 'next' in resp['_links']:
             # Check formatting of next link
-            assert float(resp['_links']['next'].split('=')[-1])
+            # assert float(resp['_links']['next'].split('=')[-1])
+            self._check_link(resp['_links']['next'], {'study_id': s.kf_id})
             # Stash all the ids on the page
             ids_seen.extend([r['kf_id'] for r in resp['results']])
             resp = client.get(resp['_links']['next'])
             resp = json.loads(resp.data.decode('utf-8'))
             # Check formatting of the self link
-            assert float(resp['_links']['self'].split('=')[-1])
+            # assert float(resp['_links']['self'].split('=')[-1])
+            self._check_link(resp['_links']['self'], {'study_id': s.kf_id})
 
         ids_seen.extend([r['kf_id'] for r in resp['results']])
 
@@ -339,3 +343,12 @@ class TestPagination:
             assert isinstance(response['results'], dict)
             assert result['kf_id'] == response['results']['kf_id']
             assert 'collection' in result['_links']
+
+    def _check_link(self, link_str, params):
+        res = parse.urlsplit(link_str)
+        q_params = parse.parse_qs(res.query)
+        assert 'after' in q_params
+        assert 'study_id' in q_params
+        assert float(q_params.get('after')[0])
+        for k, v in params.items():
+            assert q_params.get(k)[0] == v

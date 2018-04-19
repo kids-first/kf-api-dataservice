@@ -61,7 +61,8 @@ class BaseSchema(ma.ModelSchema):
                                      study_id=request.args.get('study_id'))
             if p.has_next:
                 _links['next'] = url_for(self.Meta.collection_url,
-                                         after=p.next_num)
+                                         after=p.next_num,
+                                         study_id=request.args.get('study_id'))
             resp['total'] = int(p.total)
             resp['limit'] = int(p.limit)
         else:
