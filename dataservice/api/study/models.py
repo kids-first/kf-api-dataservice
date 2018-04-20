@@ -16,6 +16,7 @@ class Study(db.Model, Base):
     :param external_id: dbGaP accession number
     :param version: dbGaP version
     :param name: Name or title of study
+    :short_name: Short name for study
     :param attribution: Link to attribution prose provided by dbGaP
     :param release_status: Release status of the study
     """
@@ -32,6 +33,8 @@ class Study(db.Model, Base):
                         doc='dbGaP version')
     name = db.Column(db.Text(),
                      doc='Name or title of study')
+    short_name = db.Column(db.Text(),
+                           doc='Short name for study')
     attribution = db.Column(db.Text(),
                             doc='Link to attribution prose provided by dbGaP')
     release_status = db.Column(db.Text(),
