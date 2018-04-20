@@ -29,14 +29,15 @@ class InvestigatorListAPI(CRUDView):
             resource:
               Investigator
         """
-        q = Investigator.query
+        q = Investigator.query.options(
+            joinedload(Investigator.studies)
+            .load_only('kf_id'))
 
         # Filter by study
         from dataservice.api.study.models import Study
         study_id = request.args.get('study_id')
         if study_id:
-            q = (q.options(joinedload(Investigator.studies).load_only('kf_id'))
-                 .join(Investigator.studies)
+            q = (q.join(Investigator.studies)
                  .filter(Study.kf_id == study_id))
 
         return (InvestigatorSchema(many=True)

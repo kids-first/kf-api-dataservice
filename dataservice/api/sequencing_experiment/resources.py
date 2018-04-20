@@ -32,7 +32,9 @@ class SequencingExperimentListAPI(CRUDView):
             resource:
               SequencingExperiment
         """
-        q = SequencingExperiment.query
+        q = SequencingExperiment.query.options(
+            joinedload(SequencingExperiment.genomic_files)
+            .load_only('kf_id'))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
@@ -41,9 +43,7 @@ class SequencingExperimentListAPI(CRUDView):
 
         study_id = request.args.get('study_id')
         if study_id:
-            q = (q.options(joinedload(SequencingExperiment.genomic_files)
-                           .load_only('kf_id'))
-                 .join(SequencingExperiment.genomic_files)
+            q = (q.join(SequencingExperiment.genomic_files)
                  .join(GenomicFile.biospecimen)
                  .join(Biospecimen.participant)
                  .filter(Participant.study_id == study_id))
