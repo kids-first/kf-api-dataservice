@@ -29,14 +29,14 @@ class FamilyListAPI(CRUDView):
             resource:
               Family
         """
-        q = Family.query
+        q = Family.query.options(joinedload(Family.participants)
+                                 .load_only('kf_id'))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
         study_id = request.args.get('study_id')
         if study_id:
-            q = (q.options(joinedload(Family.participants).load_only('kf_id'))
-                 .join(Family.participants)
+            q = (q.join(Family.participants)
                  .filter(Participant.study_id == study_id)
                  .group_by(Family.kf_id))
 

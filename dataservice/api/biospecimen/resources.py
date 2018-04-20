@@ -30,15 +30,14 @@ class BiospecimenListAPI(CRUDView):
             resource:
               Biospecimen
         """
-        q = Biospecimen.query
+        q = Biospecimen.query.options(joinedload(Biospecimen.genomic_files)
+                                      .load_only('kf_id'))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
         study_id = request.args.get('study_id')
         if study_id:
-            q = (q.options(joinedload(Biospecimen.genomic_files)
-                           .load_only('kf_id'))
-                 .join(Participant.biospecimens)
+            q = (q.join(Participant.biospecimens)
                  .filter(Participant.study_id == study_id))
 
         return (BiospecimenSchema(many=True)

@@ -10,7 +10,7 @@ from dataservice.api.common.views import CRUDView
 
 class StudyFileListAPI(CRUDView):
     """
-    Study API
+    Study File API
     """
     endpoint = 'study_files_list'
     rule = '/study-files'
@@ -66,7 +66,7 @@ class StudyFileAPI(CRUDView):
     """
     endpoint = 'study_files'
     rule = '/study-files/<string:kf_id>'
-    schemas = {'Study': StudyFileSchema}
+    schemas = {'StudyFile': StudyFileSchema}
 
     def get(self, kf_id):
         """
