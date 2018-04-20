@@ -31,6 +31,13 @@ class PhenotypeListAPI(CRUDView):
         """
         q = Phenotype.query
 
+        # Filter by study
+        from dataservice.api.participant.models import Participant
+        study_id = request.args.get('study_id')
+        if study_id:
+            q = (q.join(Participant.phenotypes)
+                 .filter(Participant.study_id == study_id))
+
         return (PhenotypeSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
 

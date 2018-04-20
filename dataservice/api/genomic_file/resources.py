@@ -33,7 +33,15 @@ class GenomicFileListAPI(CRUDView):
         """
         # Get a page of the data from the model first
         q = GenomicFile.query
-        refresh = True
+
+        # Filter by study
+        from dataservice.api.participant.models import Participant
+        from dataservice.api.biospecimen.models import Biospecimen
+        study_id = request.args.get('study_id')
+        if study_id:
+            q = (q.join(GenomicFile.biospecimen)
+                 .join(Biospecimen.participant)
+                 .filter(Participant.study_id == study_id))
 
         pager = Pagination(q, after, limit)
         keep = []

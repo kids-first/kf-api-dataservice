@@ -29,7 +29,9 @@ def paginated(f):
         if after is None:
             after = datetime.fromtimestamp(0)
 
-        return f(*args, **kwargs, after=after, limit=limit)
+        return f(*args, **kwargs,
+                 after=after,
+                 limit=limit)
 
     return paginated_wrapper
 
@@ -67,7 +69,7 @@ class Pagination(object):
         so that the current timestamp will be included in the range
         """
         if len(self.items) > 0:
-            return self._to_timestamp(self.items[0].created_at) - 1/100000
+            return self._to_timestamp(self.items[0].created_at) - 1 / 100000
         return self._to_timestamp(datetime.utcnow())
 
     @property

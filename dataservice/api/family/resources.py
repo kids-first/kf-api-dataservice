@@ -1,5 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
+from sqlalchemy.orm import joinedload
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
@@ -29,6 +30,15 @@ class FamilyListAPI(CRUDView):
               Family
         """
         q = Family.query
+
+        # Filter by study
+        from dataservice.api.participant.models import Participant
+        study_id = request.args.get('study_id')
+        if study_id:
+            q = (q.options(joinedload(Family.participants).load_only('kf_id'))
+                 .join(Family.participants)
+                 .filter(Participant.study_id == study_id)
+                 .group_by(Family.kf_id))
 
         return (FamilySchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

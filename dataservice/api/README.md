@@ -83,6 +83,14 @@ to paginate. Specific dates may also be used. For example:
 ```
 Will list all participants created after December 1st, 2017.
 
+Most pagninated resource endpoints also accept the `study_id` query parameter so that
+results may be filtered by study. For example:
+
+```
+"/participants?after=01-12-2017&study_id=SD_7AWKP3JN"
+```
+
+Will return participants created after December 1st, 2017 and which belong to the study identified by the Kids First ID: SD_7AWKP3JN.
 
 An example of the envelope wrapping a paginated response:
 ```json

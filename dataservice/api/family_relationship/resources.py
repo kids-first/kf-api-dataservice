@@ -33,6 +33,13 @@ class FamilyRelationshipListAPI(CRUDView):
         """
         q = FamilyRelationship.query
 
+        # Filter by study
+        from dataservice.api.participant.models import Participant
+        study_id = request.args.get('study_id')
+        if study_id:
+            q = (q.join(FamilyRelationship.participant)
+                 .filter(Participant.study_id == study_id))
+
         return (FamilyRelationshipSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
 

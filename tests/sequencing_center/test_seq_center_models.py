@@ -29,6 +29,18 @@ class ModelTest(FlaskTestCase):
             sc = SequencingCenter(name="Baylor")
             db.session.add(sc)
             db.session.commit()
+        seq_data = {
+         'external_id': 'Seq_0',
+         'experiment_strategy': 'WXS',
+         'library_name': 'Test_library_name_1',
+         'library_strand': 'Unstranded',
+         'is_paired_end': False,
+         'platform': 'Test_platform_name_1'
+         }
+        seq_exp = SequencingExperiment(**seq_data,
+                                       sequencing_center_id=sc.kf_id)
+        db.session.add(seq_exp)
+        db.session.commit()
         ids = {'sequencing_center_id': sc.kf_id}
         return ids
 
@@ -40,6 +52,7 @@ class ModelTest(FlaskTestCase):
         ids = self.create_seqexp_seqcen()
 
         self.assertEqual(SequencingCenter.query.count(), 1)
+        self.assertEqual(SequencingExperiment.query.count(), 1)
         sc = SequencingCenter.query.one()
 
         self.assertEqual(sc.name, "Baylor")
@@ -65,7 +78,7 @@ class ModelTest(FlaskTestCase):
 
     def test_delete_sequencing_center(self):
         """
-        Test Deleting sequencing_center
+        Test deleting sequencing_center with existing sequencing_experiment
         """
         ids = self.create_seqexp_seqcen()
 
@@ -73,11 +86,7 @@ class ModelTest(FlaskTestCase):
         e = SequencingCenter.query.one_or_none()
 
         # Delete sequencing_center
-        db.session.delete(e)
-        db.session.commit()
-
-        e = SequencingCenter.query.one_or_none()
-        self.assertIs(e, None)
+        self.assertRaises(IntegrityError, db.session.delete(e))
 
     def test_not_null_constraint(self):
         """
