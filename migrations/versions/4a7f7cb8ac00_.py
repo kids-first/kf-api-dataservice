@@ -2,9 +2,9 @@
 Add sequencing_center entity to model
 Remove center from sequencing_experiment and shipment_destination from biospecimen
 
-Revision ID: bd4d1ffd50df
-Revises: e3ee14b87b2e
-Create Date: 2018-04-17 14:24:32.030735
+Revision ID: 4a7f7cb8ac00
+Revises: 243980a97e4c
+Create Date: 2018-04-19 10:42:46.065593
 
 """
 from alembic import op
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'bd4d1ffd50df'
-down_revision = 'e3ee14b87b2e'
+revision = '4a7f7cb8ac00'
+down_revision = '243980a97e4c'
 branch_labels = None
 depends_on = None
 
@@ -27,6 +27,7 @@ def upgrade():
     sa.Column('name', sa.Text(), nullable=False),
     sa.Column('kf_id', dataservice.api.common.model.KfId(length=11), nullable=False),
     sa.PrimaryKeyConstraint('kf_id'),
+    sa.UniqueConstraint('name'),
     sa.UniqueConstraint('uuid')
     )
     op.add_column('biospecimen', sa.Column('sequencing_center_id', dataservice.api.common.model.KfId(length=11), nullable=False))
