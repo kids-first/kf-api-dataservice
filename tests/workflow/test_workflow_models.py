@@ -335,9 +335,11 @@ class ModelTest(FlaskTestCase):
             db.session.add(p)
             db.session.commit()
             # Sequencing center
-            sc = SequencingCenter(name='Baylor')
-            db.session.add(sc)
-            db.session.commit()
+            sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
+            if sc is None:
+                sc = SequencingCenter(name="Baylor")
+                db.session.add(sc)
+                db.session.commit()
             # SequencingExperiment
             se = self._create_experiment('se_{}'.format(i),
                                          sequencing_center_id=sc.kf_id)

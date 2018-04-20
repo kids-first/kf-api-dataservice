@@ -12,7 +12,7 @@ class SequencingCenter(db.Model, Base):
     """
     __tablename__ = 'sequencing_center'
     __prefix__ = 'SC'
-    name = db.Column(db.Text(), nullable=False,
+    name = db.Column(db.Text(), nullable=False, unique=True,
                      doc='Name given to sequencing center by contributor')
     sequencing_experiments = db.relationship(SequencingExperiment,
                                              backref=db.backref(

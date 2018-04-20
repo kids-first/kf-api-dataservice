@@ -102,7 +102,7 @@ class SequencingCenterTest(FlaskTestCase):
 
     def test_delete(self):
         """
-        Test delete an existing sequencing_experiment
+        Test delete an existing sequencing_center
         """
         kwargs = self._create_save_to_db()
         # Send get request
@@ -120,9 +120,11 @@ class SequencingCenterTest(FlaskTestCase):
         """
         Create and save sequencing_center
         """
-        sc = SequencingCenter(name="Baylor")
-        db.session.add(sc)
-        db.session.commit()
+        sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
+        if sc is None:
+            sc = SequencingCenter(name="Baylor")
+            db.session.add(sc)
+            db.session.commit()
         kwargs = {
             'name': sc.name,
             'kf_id': sc.kf_id

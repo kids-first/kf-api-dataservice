@@ -24,9 +24,11 @@ class ModelTest(FlaskTestCase):
         create sequencial center save to db
         returns sequencing_center kf_id
         """
-        sc = SequencingCenter(name="Baylor")
-        db.session.add(sc)
-        db.session.commit()
+        sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
+        if sc is None:
+            sc = SequencingCenter(name="Baylor")
+            db.session.add(sc)
+            db.session.commit()
         ids = {'sequencing_center_id': sc.kf_id}
         return ids
 
@@ -87,10 +89,9 @@ class ModelTest(FlaskTestCase):
         # Add sequencing_center to db
         self.assertRaises(IntegrityError, db.session.add(sc))
 
-    def test_foreign_key_constraint(self):
+    def test_unique_constraint(self):
         """
-        Test sequencing_center can be created with out
-        sequencing experiment
+        Test name field sequencing_center can not take duplicate name
         """
         # Create sequencing_center without sequencing experiment kf_id
         sc = SequencingCenter(name='Baylor')

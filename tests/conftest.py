@@ -171,7 +171,13 @@ def entities(client, indexd):
     outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
     phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
-    seq_center = SequencingCenter(**inputs['/sequencing-centers'])
+    seq_center = SequencingCenter.query.\
+                filter_by(name=inputs['/sequencing-centers']['name'])\
+                .one_or_none()
+    if seq_center is None:
+        seq_center = SequencingCenter(**inputs['/sequencing-centers'])
+        db.session.add(seq_center)
+        db.session.commit()
     seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'],
                                    sequencing_center_id=seq_center.kf_id)
 

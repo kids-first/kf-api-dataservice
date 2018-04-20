@@ -62,9 +62,12 @@ class TestPagination:
                 'platform': 'Test_platform_name_1'
             }
             p = Participant(**data, study_id=s.kf_id)
-            seq_cen = SequencingCenter(name='Baylor')
-            db.session.add(seq_cen)
-            db.session.commit()
+            seq_cen = SequencingCenter.query.filter_by(name="Baylor")\
+                                            .one_or_none()
+            if seq_cen is None:
+                seq_cen = SequencingCenter(name="Baylor")
+                db.session.add(seq_cen)
+                db.session.commit()
             seq_exp = SequencingExperiment(**seq_data,
                                            sequencing_center_id=seq_cen.kf_id)
             db.session.add(seq_exp)

@@ -77,7 +77,7 @@ class ModelTest(FlaskTestCase):
         self.assertGreater(bs.created_at, dt)
         self.assertGreater(bs.modified_at, dt)
         self.assertIs(type(uuid.UUID(bs.uuid)), uuid.UUID)
-        
+
     def test_biospecimen_participant_relation(self):
         """
         create biospecimen via participant
@@ -324,7 +324,9 @@ class ModelTest(FlaskTestCase):
         sequencing experiment save the above entities to db
         returns sequencing_experiment_id
         """
-        sc = SequencingCenter(name="Baylor")
+        sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
+        if sc is None:
+            sc = SequencingCenter(name="Baylor")
         se = SequencingExperiment(external_id="Test_seq_ex_o",
                                   experiment_strategy="WGS",
                                   is_paired_end="True",

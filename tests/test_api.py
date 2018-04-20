@@ -187,8 +187,6 @@ class TestAPI:
         ('/family-relationships', 'PATCH', ['created_at', 'modified_at']),
         ('/genomic-files', 'POST', ['created_at', 'modified_at']),
         ('/genomic-files', 'PATCH', ['created_at', 'modified_at']),
-        ('/sequencing-centers', 'POST', ['created_at', 'modified_at']),
-        ('/sequencing-centers', 'PATCH', ['created_at', 'modified_at'])
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """

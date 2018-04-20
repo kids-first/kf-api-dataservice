@@ -367,9 +367,11 @@ class BiospecimenTest(FlaskTestCase):
         db.session.add(study)
         db.session.commit()
 
-        sc = SequencingCenter(name="Baylor")
-        db.session.add(sc)
-        db.session.commit()
+        sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
+        if sc is None:
+            sc = SequencingCenter(name="Baylor")
+            db.session.add(sc)
+            db.session.commit()
         se = SequencingExperiment(external_id="Test_seq_ex_o",
                                   experiment_strategy="WGS",
                                   is_paired_end="True",
