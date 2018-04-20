@@ -33,10 +33,34 @@ class StudyFileListAPI(CRUDView):
         # Filter by study
         study_id = request.args.get('study_id')
         if study_id:
-            q = (q.filter_by(study_id=study_id))
+            q = q.filter(StudyFile.study_id == study_id)
+
+        pager = Pagination(q, after, limit)
+        keep = []
+        refresh = True
+        next_after = None
+        # Continue updating the page until we get a page with no deleted files
+        while (pager.total > 0 and refresh):
+            refresh = False
+            # Move the cursor ahead to the last valid file
+            next_after = keep[-1].created_at if len(keep) > 0 else after
+            # Number of results needed to fulfill the original limit
+            remain = limit - len(keep)
+            pager = Pagination(q, next_after, remain)
+
+            for st in pager.items:
+                merged = st.merge_indexd()
+                if merged is not None:
+                    keep.append(st)
+                else:
+                    refresh = True
+
+        # Replace original page's items with new list of valid files
+        pager.items = keep
+        pager.after = next_after if next_after else after
 
         return (StudyFileSchema(many=True)
-                .jsonify(Pagination(q, after, limit)))
+                .jsonify(pager))
 
     def post(self):
         """
@@ -56,7 +80,7 @@ class StudyFileListAPI(CRUDView):
         db.session.add(st)
         db.session.commit()
         return StudyFileSchema(
-            201, 'study_file{} created'.format(st.kf_id)
+            201, 'study_file {} created'.format(st.kf_id)
         ).jsonify(st), 201
 
 
@@ -83,7 +107,14 @@ class StudyFileAPI(CRUDView):
         if st is None:
             abort(404, 'could not find {} `{}`'
                   .format('study_file', kf_id))
-        return StudyFileSchema().jsonify(st)
+
+        # Merge will return None if the document wasnt found in indexd
+        merge = st.merge_indexd()
+        if merge is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('study_file', kf_id))
+
+        return StudyFileSchema(many=False).jsonify(st)
 
     def patch(self, kf_id):
         """
@@ -101,6 +132,16 @@ class StudyFileAPI(CRUDView):
         if st is None:
             abort(404, 'could not find {} `{}`'
                   .format('study_file', kf_id))
+
+        # Fetch fields from indexd first
+        merge = st.merge_indexd()
+        if merge is None:
+            abort(404, 'could not find {} `{}`'
+                  .format('study_file', kf_id))
+
+        # Deserialization will require this field and won't merge automatically
+        if 'study_id' not in body:
+            body['study_id'] = st.study_id
 
         try:
             st = (StudyFileSchema(strict=True).load(body, instance=st,

@@ -138,7 +138,12 @@ def entities(client, indexd):
             'participant_to_relative_relation': 'mother'
         },
         '/study-files':{
-            'file_name': 'test_file_name 1'
+            'file_name': 'test_file_name 1',
+            'data_type': 'clinical',
+            'file_format': 'csv',
+            'size': 1000,
+            'urls': ['s3://bucket/key'],
+            'hashes': {'md5': str(uuid.uuid4())}
         },
         '/genomic-files':{
             'file_name': 'test_genomic_file_name 1'

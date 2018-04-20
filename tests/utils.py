@@ -2,6 +2,7 @@ import unittest
 from dataservice import create_app
 from dataservice.extensions import db
 
+from tests.mocks import MockIndexd
 from unittest.mock import patch, Mock
 
 class FlaskTestCase(unittest.TestCase):
@@ -24,3 +25,19 @@ class FlaskTestCase(unittest.TestCase):
           "Accept": "application/json",
           "Content-Type": "application/json"
         }
+
+
+class IndexdTestCase(FlaskTestCase):
+    """ Mocks out indexd for unittest style testing """
+
+    def setUp(self):
+        super(IndexdTestCase, self).setUp()
+        self.indexd_patch = patch('dataservice.extensions.flask_indexd.requests')
+        indexd_mock = MockIndexd()
+        self.indexd = self.indexd_patch.start()
+        self.indexd.Session().get.side_effect = indexd_mock.get
+        self.indexd.Session().post.side_effect = indexd_mock.post
+
+    def tearDown(self):
+        super(IndexdTestCase, self).tearDown()
+        self.indexd_patch.stop()
