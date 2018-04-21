@@ -1,6 +1,8 @@
 from datetime import datetime
 import uuid
-import random
+
+from sqlalchemy.exc import IntegrityError
+from unittest.mock import patch
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
@@ -9,8 +11,8 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.utils import FlaskTestCase
+from tests.mocks import MockIndexd, MockResp
 
-from sqlalchemy.exc import IntegrityError
 
 MAX_SIZE_MB = 5000
 MIN_SIZE_MB = 1000
@@ -116,7 +118,6 @@ class ModelTest(FlaskTestCase):
         Test sequencing_experiment can be created with out genomic_file,
         biospecimen or participant
         """
-        dt = datetime.now()
         # Create sequencialexperiment
         se_id = 'Test_SequencingExperiment_0'
         seq_experiment_data = self._make_seq_exp(external_id=se_id)
@@ -127,6 +128,75 @@ class ModelTest(FlaskTestCase):
         # Check for database
         self.assertEqual(1, SequencingExperiment.query.count())
 
+    @patch('dataservice.extensions.flask_indexd.requests')
+    def test_delete_orphans(self, mock):
+        """
+        Test that orphaned seq exps are deleted
+        Orphans are seq exp with 0 genomic_files
+        """
+        # Create entities
+        indexd = MockIndexd()
+        mock.Session().post = indexd.post
+        self._create_entities()
+
+        # Delete genomic files from seq exp 1
+        se1 = SequencingExperiment.query.filter_by(external_id='se1').one()
+        se2 = SequencingExperiment.query.filter_by(external_id='se2').one()
+        for gf in se1.genomic_files:
+            db.session.delete(gf)
+        db.session.commit()
+
+        # Check that orphan was deleted and other seq exp was unaffected
+        self.assertEqual(1, SequencingExperiment.query.count())
+        self.assertEqual(se2, SequencingExperiment.query.first())
+        self.assertEqual(len(se2.genomic_files),
+                         len(SequencingExperiment.query.first().genomic_files))
+
+        # Check that the seq exp still exists when it has at least one gf
+        db.session.delete(se2.genomic_files[0])
+        db.session.commit()
+        self.assertEqual(1, SequencingExperiment.query.count())
+        self.assertEqual(se2, SequencingExperiment.query.first())
+
+    def _create_entities(self):
+        # Create study
+        study = Study(external_id='phs001')
+
+        # Create sequencing experiments
+        se1 = SequencingExperiment(**self._make_seq_exp('se1'))
+        se2 = SequencingExperiment(**self._make_seq_exp('se2'))
+
+        # Create genomic files
+        gfs = []
+        for i in range(4):
+            kwargs = {
+                'file_name': 'file_{}'.format(i),
+                'data_type': 'submitted aligned read',
+                'file_format': '.cram',
+                'urls': ['s3://file_{}'.format(i)],
+                'hashes': {'md5': str(uuid.uuid4())},
+                'controlled_access': True,
+                'is_harmonized': True,
+                'reference_genome': 'Test01'
+            }
+            gf = GenomicFile(**kwargs)
+            if i % 2:
+                se1.genomic_files.append(gf)
+            else:
+                se2.genomic_files.append(gf)
+            gfs.append(gf)
+
+        # Create biospecimen
+        bs = Biospecimen(external_sample_id='bio1', analyte_type='dna',
+                         genomic_files=gfs)
+
+        # Create participant
+        p = Participant(external_id='p1',
+                        biospecimens=[bs],
+                        is_proband=True, study=study)
+        db.session.add(p)
+        db.session.commit()
+
     def _make_seq_exp(self, external_id=None):
         '''
         Convenience method to create a sequencing experiment
@@ -134,7 +204,7 @@ class ModelTest(FlaskTestCase):
         '''
         dt = datetime.now()
         seq_experiment_data = {
-            'external_id':external_id,
+            'external_id': external_id,
             'experiment_date': dt,
             'experiment_strategy': 'WXS',
             'center': 'Broad Institute',
