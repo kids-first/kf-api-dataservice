@@ -10,9 +10,10 @@ RUN apk update && apk add py3-psycopg2 musl-dev \
  && pip install --upgrade pip \
  && pip install virtualenv
 
-RUN         pip install -r /app/requirements.txt
 ADD         . /app
-RUN         python /app/setup.py install
+RUN         virtualenv -p python3 venv && \
+            pip install -r /app/requirements.txt && \
+            python /app/setup.py install
 
 EXPOSE      80
 ENV         FLASK_APP "manage.py"
