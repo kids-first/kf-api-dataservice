@@ -129,7 +129,7 @@ def entities(client, indexd):
             'age_at_event_days': 120,
         },
         '/phenotypes': {
-            'phenotype': 'test phenotype 1',
+            'source_text_phenotype': 'test phenotype 1',
             'hpo_id': 'HP:0000118',
             'snomed_id': '38033009',
             'age_at_event_days': 120

@@ -33,7 +33,7 @@ class PhenotypeTest(FlaskTestCase):
 
         # Create phenotype data
         kwargs = {
-            'phenotype': 'Hand tremor',
+            'source_text_phenotype': 'Hand tremor',
             'age_at_event_days': 365,
             'hpo_id': 'HP:0002378',
             'observed': 'positive',
@@ -49,7 +49,8 @@ class PhenotypeTest(FlaskTestCase):
         # Check response content
         response = json.loads(response.data.decode('utf-8'))
         phenotype = response['results']
-        self.assertEqual(kwargs['phenotype'], phenotype['phenotype'])
+        self.assertEqual(kwargs['source_text_phenotype'],
+                         phenotype['source_text_phenotype'])
         self.assertEqual(kwargs['age_at_event_days'],
                          phenotype['age_at_event_days'])
         self.assertEqual(kwargs['hpo_id'],
@@ -61,7 +62,7 @@ class PhenotypeTest(FlaskTestCase):
         ph1 = self._create_save_to_db()
         # Create another phenotype for the same participant
         ph2 = {
-            'phenotype': 'Tall stature',
+            'source_text_phenotype': 'Tall stature',
             'hpo_id': 'HP:0000098',
             'snomed_id': '38033009',
             'observed': 'positive',
@@ -97,7 +98,8 @@ class PhenotypeTest(FlaskTestCase):
         self.assertEqual(phenotype['kf_id'], kwargs['kf_id'])
         self.assertEqual(participant_id,
                          kwargs['participant_id'])
-        self.assertEqual(phenotype['phenotype'], kwargs['phenotype'])
+        self.assertEqual(phenotype['source_text_phenotype'],
+                         kwargs['source_text_phenotype'])
         self.assertEqual(kwargs['hpo_id'],
                          phenotype['hpo_id'])
         self.assertEqual(kwargs['observed'], phenotype['observed'])
@@ -126,7 +128,7 @@ class PhenotypeTest(FlaskTestCase):
 
         # Send patch request
         body = {
-            'phenotype': 'Tall stature',
+            'source_text_phenotype': 'Tall stature',
             'hpo_id': 'HP:0002378',
             'participant_id': kwargs['participant_id']
         }
@@ -142,7 +144,8 @@ class PhenotypeTest(FlaskTestCase):
         self.assertEqual(kwargs['kf_id'], phenotype['kf_id'])
 
         # Fields that should be updated w values
-        self.assertEqual(body['phenotype'], phenotype['phenotype'])
+        self.assertEqual(body['source_text_phenotype'],
+                         phenotype['source_text_phenotype'])
         self.assertEqual(body['hpo_id'],
                          phenotype['hpo_id'])
 
@@ -177,7 +180,7 @@ class PhenotypeTest(FlaskTestCase):
 
         # Create phenotype
         kwargs = {
-            'phenotype': 'Hand Tremor',
+            'source_text_phenotype': 'Hand Tremor',
             'hpo_id': 'HP:0002378',
             'snomed_id': '38033009',
             'observed': 'positive',
