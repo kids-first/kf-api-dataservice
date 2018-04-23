@@ -1,5 +1,7 @@
+from sqlalchemy import event
+
 from dataservice.extensions import db
-from dataservice.api.common.model import Base, KfId
+from dataservice.api.common.model import Base
 from dataservice.api.genomic_file.models import GenomicFile
 
 
@@ -68,3 +70,10 @@ class SequencingExperiment(db.Model, Base):
                                     backref=db.backref(
                                         'sequencing_experiment',
                                         lazy=True))
+
+
+@event.listens_for(GenomicFile, 'after_delete')
+def delete_orphans(mapper, connection, state):
+    q = (db.session.query(SequencingExperiment)
+         .filter(~SequencingExperiment.genomic_files.any()))
+    q.delete(synchronize_session='fetch')

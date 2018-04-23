@@ -16,9 +16,9 @@ class FamilyModelTest(FlaskTestCase):
         """
         s = Study(external_id='phs001')
         p1 = Participant(external_id="CASE01",
-                        is_proband=False, consent_type="GRU-IRB")
+                         is_proband=False, consent_type="GRU-IRB")
         p2 = Participant(external_id="CASE02",
-                        is_proband=False, consent_type="GRU-IRB")
+                         is_proband=False, consent_type="GRU-IRB")
         s.participants.extend([p1, p2])
 
         f = Family(external_id=external_id)
@@ -54,6 +54,32 @@ class FamilyModelTest(FlaskTestCase):
 
         self.assertEqual(Participant.query.count(), 2)
         self.assertEqual(Family.query.count(), 0)
+
+    def test_delete_family_orphan(self):
+        """
+        Test that a family is deleted when all related participants
+        are deleted
+        """
+        f1 = self._make_family('FAM01')
+        f2 = self._make_family('FAM02')
+
+        # Make an orphan family - no participants
+        fam = Family.query.filter_by(external_id="FAM01").one()
+        for p in fam.participants:
+            db.session.delete(p)
+        db.session.commit()
+
+        # Check that the fam01 was deleted but fam02 was not affected
+        self.assertEqual(Participant.query.count(), len(f2.participants))
+        self.assertEqual(Family.query.count(), 1)
+        self.assertEqual(f2, Family.query.filter_by(external_id='FAM02').one())
+
+        # Check that family still exists when it has at least 1 participant
+        fam = Family.query.filter_by(external_id="FAM02").one()
+        db.session.delete(fam.participants[0])
+        db.session.commit()
+        self.assertEqual(Participant.query.count(), 1)
+        self.assertEqual(Family.query.count(), 1)
 
     def test_no_multi_family(self):
         """
