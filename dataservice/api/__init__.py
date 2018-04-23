@@ -20,8 +20,8 @@ from dataservice.api.biospecimen import BiospecimenAPI
 from dataservice.api.biospecimen import BiospecimenListAPI
 from dataservice.api.outcome import OutcomeAPI
 from dataservice.api.outcome import OutcomeListAPI
-from dataservice.api.phenotype.resources import PhenotypeAPI
-from dataservice.api.phenotype.resources import PhenotypeListAPI
+from dataservice.api.phenotype import PhenotypeAPI
+from dataservice.api.phenotype import PhenotypeListAPI
 from dataservice.api.sequencing_center import SequencingCenterAPI
 from dataservice.api.sequencing_center import SequencingCenterListAPI
 from dataservice.api.sequencing_experiment import SequencingExperimentAPI

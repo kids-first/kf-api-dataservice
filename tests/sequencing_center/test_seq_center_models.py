@@ -9,10 +9,6 @@ from tests.utils import FlaskTestCase
 
 from sqlalchemy.exc import IntegrityError
 
-MAX_SIZE_MB = 5000
-MIN_SIZE_MB = 1000
-MB_TO_BYTES = 1000000000
-
 
 class ModelTest(FlaskTestCase):
     """
@@ -84,26 +80,32 @@ class ModelTest(FlaskTestCase):
 
         # get sequencing_center
         e = SequencingCenter.query.one_or_none()
-
+        db.session.delete(e)
         # Delete sequencing_center
-        self.assertRaises(IntegrityError, db.session.delete(e))
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_not_null_constraint(self):
         """
-        Test sequencing_center can be created with out sequencing experiment
+        Test sequencing_center can be created with out name
         """
-        # Create sequencing_center without sequencing experiment kf_id
-        sc = SequencingCenter(name='Baylor')
+        # Create sequencing_center without name
+        sc = SequencingCenter()
 
         # Add sequencing_center to db
-        self.assertRaises(IntegrityError, db.session.add(sc))
+        db.session.add(sc)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_unique_constraint(self):
         """
         Test name field sequencing_center can not take duplicate name
         """
-        # Create sequencing_center without sequencing experiment kf_id
+        ids = self.create_seqexp_seqcen()
+        # Create sequencing_center with same value in name
         sc = SequencingCenter(name='Baylor')
 
         # Add sequencing_center to db
-        self.assertRaises(IntegrityError, db.session.add(sc))
+        db.session.add(sc)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()

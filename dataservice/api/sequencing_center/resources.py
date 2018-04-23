@@ -1,6 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
-from sqlalchemy.orm import Load
+from sqlalchemy.orm import joinedload
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
@@ -32,7 +32,11 @@ class SequencingCenterListAPI(CRUDView):
             resource:
               SequencingCenter
         """
-        q = SequencingCenter.query
+        q = (SequencingCenter.query
+             .options(joinedload(SequencingCenter.biospecimens)
+                      .load_only('kf_id'))
+             .options(joinedload(SequencingCenter.sequencing_experiments).
+                      load_only('kf_id')))
         # Filter by study
         from dataservice.api.participant.models import Participant
         from dataservice.api.biospecimen.models import Biospecimen

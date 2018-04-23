@@ -269,7 +269,10 @@ class TestAPI:
         ('/participants', 'phenotypes'),
         ('/studies', 'study_files'),
         ('/families', 'participants'),
-        ('/sequencing-centers', 'biospecimens')
+        ('/sequencing-centers', 'biospecimens'),
+        ('/biospecimens', 'genomic_files'),
+        ('/sequencing-centers', 'sequencing_experiments'),
+        ('/sequencing-experiments', 'genomic_files')
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
@@ -327,7 +330,9 @@ class TestAPI:
                              [('/biospecimens', 'analyte_type'),
                               ('/family-relationships', 'participant_id'),
                               ('/family-relationships', 'relative_id'),
-                              ('/study-files', 'study_id')])
+                              ('/study-files', 'study_id'),
+                              ('/sequencing-centers', 'name'),
+                              ])
 
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
