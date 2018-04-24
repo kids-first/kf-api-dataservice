@@ -51,6 +51,24 @@ class StudyTest(FlaskTestCase):
         study = resp['results']
         self.assertEqual(kf_id, study['kf_id'])
 
+    def test_get_study_no_investigator(self):
+        """
+        Test that the investigator link is set to null
+        if the study doesnt have an investigator
+        """
+        resp = self._make_study(include_nullables=False)
+        resp = json.loads(resp.data.decode("utf-8"))
+        kf_id = resp['results']['kf_id']
+
+        response = self.client.get(url_for(STUDY_URL,
+                                           kf_id=kf_id),
+                                   headers=self._api_headers())
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue('investigator' in resp['_links'])
+        self.assertIs(None, resp['_links']['investigator'])
+
     def test_patch_study(self):
         """
         Test updating an existing study

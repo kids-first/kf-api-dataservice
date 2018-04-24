@@ -139,7 +139,7 @@ class TestAPI:
         assert type(body['_status']['code']) is int
 
     @pytest.mark.parametrize('endpoint, parents', [
-        # ('/studies', ['investigator']),
+        ('/studies', ['investigator']),
         ('/study-files', ['study']),
         ('/investigators', []),
         ('/participants', ['study', 'family']),
@@ -147,8 +147,8 @@ class TestAPI:
         ('/outcomes', ['participant']),
         ('/diagnoses', ['participant']),
         ('/biospecimens', ['participant']),
-        ('/sequencing-experiments', []),
-        ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
+        ('/sequencing-experiments', [])
+        # ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
