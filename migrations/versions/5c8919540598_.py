@@ -1,4 +1,6 @@
-"""empty message
+"""
+Add short_name to study
+Rename phenotype to source_text_phenotype
 
 Revision ID: 5c8919540598
 Revises: 243980a97e4c
