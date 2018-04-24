@@ -2,7 +2,9 @@ import json
 
 from flask import url_for
 
+from dataservice.extensions import db
 from dataservice.api.study.models import Study
+from dataservice.api.investigator.models import Investigator
 from tests.utils import FlaskTestCase
 
 STUDY_URL = 'api.studies'
@@ -65,9 +67,9 @@ class StudyTest(FlaskTestCase):
             'release_status': 'published'
         }
         response = self.client.patch(url_for(STUDY_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(Study.query.get(kf_id).external_id,
@@ -97,9 +99,9 @@ class StudyTest(FlaskTestCase):
             'version': '2.0'
         }
         response = self.client.patch(url_for(STUDY_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(Study.query.get(kf_id).version, '2.0')
@@ -135,15 +137,22 @@ class StudyTest(FlaskTestCase):
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 404)
 
-    def _make_study(self, external_id='TEST-0001'):
+    def _make_study(self, external_id='TEST-0001', include_nullables=True):
         """
         Convenience method to create a study with a given source name
         """
+        inv = Investigator(name='donald duck')
+        db.session.add(inv)
+        db.session.flush()
+
         body = {
             'external_id': external_id,
             'version': '1.0',
             'release_status': 'pending'
         }
+        if include_nullables:
+            body.update({'investigator_id': inv.kf_id})
+
         response = self.client.post(url_for(STUDY_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
