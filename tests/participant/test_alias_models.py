@@ -215,3 +215,38 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(4, Participant.query.count())
         for p in Participant.query.all():
             self.assertEqual(0, len(p.aliases))
+
+    def test_delete_orphans(self):
+        """
+        Test that orphaned alias groups are deleted
+        Orphans are alias groups with 0 particpants
+        """
+        # Create alias group
+        data = self._create_save_to_db()
+
+        # Create another alias group
+        study = Study.query.first()
+        p6 = Participant(external_id='p6', is_proband=True,
+                         study_id=study.kf_id)
+        p7 = Participant(external_id='p7', is_proband=True,
+                         study_id=study.kf_id)
+        p6.add_alias(p7)
+        db.session.add_all([p6, p7])
+        db.session.commit()
+        self.assertEqual(2, AliasGroup.query.count())
+
+        # Make orphan
+        groups = AliasGroup.query.all()
+        for p in groups[0].participants:
+            db.session.delete(p)
+        db.session.commit()
+
+        # Check that the orphan was deleted and other ag was unaffected
+        self.assertEqual(1, AliasGroup.query.count())
+        self.assertEqual(len(groups[1].participants),
+                         len(AliasGroup.query.first().participants))
+
+        # Check that ag w at least 1 particpant does not get deleted
+        db.session.delete(groups[1].participants[0])
+        db.session.commit()
+        self.assertEqual(1, AliasGroup.query.count())

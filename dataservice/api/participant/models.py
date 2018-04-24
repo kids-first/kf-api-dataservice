@@ -1,6 +1,6 @@
 from itertools import chain
 
-from sqlalchemy import and_
+from sqlalchemy import and_, event
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
@@ -200,3 +200,10 @@ class Participant(db.Model, Base):
 
     def __repr__(self):
         return '<Participant {}>'.format(self.kf_id)
+
+
+@event.listens_for(Participant, 'after_delete')
+def delete_orphans(mapper, connection, state):
+    q = (db.session.query(AliasGroup)
+         .filter(~AliasGroup.participants.any()))
+    q.delete(synchronize_session='fetch')
