@@ -42,6 +42,7 @@ class BiospecimenTest(FlaskTestCase):
             'concentration_mg_per_ml': 100,
             'volume_ml': 12.67,
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
+            'spatial_descriptor': 'left side',
             'participant_id': kwargs.get('participant_id')
         }
         # Send post request
@@ -378,7 +379,8 @@ class BiospecimenTest(FlaskTestCase):
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
             'volume_ml': 12.67,
-            'shipment_date': dt
+            'shipment_date': dt,
+            'spatial_descriptor': 'left side'
         }
         d = Biospecimen(**kwargs)
 

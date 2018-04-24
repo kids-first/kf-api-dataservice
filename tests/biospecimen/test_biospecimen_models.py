@@ -303,6 +303,7 @@ class ModelTest(FlaskTestCase):
             'concentration_mg_per_ml': 100.0,
             'volume_ml': 12.67,
             'shipment_date': dt,
-            'uberon_id':'UBERON:0000955'
+            'uberon_id':'UBERON:0000955',
+            'spatial_descriptor': 'left side'
         }
         return body

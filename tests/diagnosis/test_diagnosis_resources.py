@@ -36,6 +36,7 @@ class DiagnosisTest(FlaskTestCase):
             'mondo_id': 'DOID:8469',
             'icd_id': 'J10.01',
             'uberon_id':'UBERON:0000955',
+            'spatial_descriptor': 'left side',
             'participant_id': kwargs.get('participant_id')
         }
         # Send get request
@@ -68,6 +69,7 @@ class DiagnosisTest(FlaskTestCase):
             'mondo_id': 'DOID:8469',
             'icd_id': 'J10.01',
             'uberon_id':'UBERON:0000955',
+            'spatial_descriptor': 'left side',
             'participant_id': d1['participant_id']
         }
         # Send post request
@@ -197,7 +199,8 @@ class DiagnosisTest(FlaskTestCase):
             'age_at_event_days': 365,
             'mondo_id': 'DOID:8469',
             'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955'
+            'uberon_id':'UBERON:0000955',
+            'spatial_descriptor': 'left side'
         }
         d = Diagnosis(**kwargs)
 

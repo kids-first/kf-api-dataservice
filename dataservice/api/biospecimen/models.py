@@ -30,6 +30,8 @@ class Biospecimen(db.Model, Base):
     :param shipment_date: The date item was shipped in YYYY-MM-DD format
     :param uberon_id: The ID of the term from Uber-anatomy ontology
      which represents harmonized anatomical ontologies
+    :param spatial_descriptor: Ontology term that harmonizes the spatial
+     concepts from Biological Spatial Ontology
     """
     __tablename__ = 'biospecimen'
     __prefix__ = 'BS'
@@ -65,6 +67,10 @@ class Biospecimen(db.Model, Base):
     uberon_id = db.Column(db.Text(),
                           doc='The ID of the term from Uber-anatomy ontology'
                           'which represents harmonized anatomical ontologies')
+    spatial_descriptor = db.Column(db.Text(),
+                                   doc='Ontology term that harmonizes the'
+                                   'spatial concepts from Biological Spatial'
+                                   ' Ontology')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                nullable=False,

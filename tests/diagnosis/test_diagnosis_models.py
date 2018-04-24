@@ -121,7 +121,8 @@ class ModelTest(FlaskTestCase):
             'source_text_tumor_location': 'Brain',
             'mondo_id': 'DOID:8469',
             'uberon_id':'UBERON:0000955',
-            'icd_id': 'J10.01'
+            'icd_id': 'J10.01',
+            'spatial_descriptor': 'left side'
         }
         if participant_id:
             kwargs['participant_id'] = participant_id

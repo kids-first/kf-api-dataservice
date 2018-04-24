@@ -97,7 +97,8 @@ def entities(client, indexd):
             'concentration_mg_per_ml': 200.0,
             'volume_ml': 13.99,
             'shipment_date': str(datetime.utcnow()),
-            'uberon_id': 'test'
+            'uberon_id': 'test',
+            'spatial_descriptor': 'left side'
         },
         '/sequencing-experiments': {
             'external_id': 'se1',
@@ -121,7 +122,8 @@ def entities(client, indexd):
             'age_at_event_days': 365,
             'mondo_id': 'DOID:8469',
             'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955'
+            'uberon_id':'UBERON:0000955',
+            'spatial_descriptor': 'left side'
         },
         '/outcomes': {
             'vital_status': 'Alive',

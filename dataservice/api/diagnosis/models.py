@@ -20,8 +20,12 @@ class Diagnosis(db.Model, Base):
      which represents a harmonized diagnosis
     :param icd_id: The ID of the term from the International Classification
      of Diseases which represents a harmonized diagnosis
+    :param uberon_id: The ID of the term from Uber-anatomy ontology
+     which represents harmonized anatomical ontologies
     :param ncit_id: The ID term from the National Cancer Institute Thesaurus
-    which represents a harmonized diagnosis
+     which represents a harmonized diagnosis
+    :param spatial_descriptor: Ontology term that harmonizes the spatial
+     concepts from Biological Spatial Ontology
     """
     __tablename__ = 'diagnosis'
     __prefix__ = 'DG'
@@ -51,6 +55,10 @@ class Diagnosis(db.Model, Base):
     ncit_id = db.Column(db.Text(),
                         doc='The ID term from the National Cancer Institute'
                         'Thesaurus which represents a harmonized diagnosis')
+    spatial_descriptor = db.Column(db.Text(),
+                                   doc='Ontology term that harmonizes the'
+                                   'spatial concepts from Biological Spatial'
+                                   ' Ontology')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
