@@ -15,6 +15,8 @@ class TestAPI:
         ('/status', 'GET', 200),
         ('/sequencing-experiments', 'GET', 200),
         ('/sequencing-experiments/123', 'GET', 404),
+        ('/sequencing-centers', 'GET', 200),
+        ('/sequencing-centers/123', 'GET', 404),
         ('/biospecimens', 'GET', 200),
         ('/biospecimens/123', 'GET', 404),
         ('/diagnoses', 'GET', 200),
@@ -87,6 +89,13 @@ class TestAPI:
          'could not find sequencing_experiment `123`'),
         ('/sequencing-experiments/123', 'DELETE',
          'could not find sequencing_experiment `123`'),
+         ('/sequencing-centers', 'GET', 'success'),
+         ('/sequencing-centers/123', 'GET',
+          'could not find sequencing_center `123`'),
+         ('/sequencing-centers/123', 'PATCH',
+          'could not find sequencing_center `123`'),
+         ('/sequencing-centers/123', 'DELETE',
+          'could not find sequencing_center `123`'),
         ('/families/123', 'GET', 'could not find family `123`'),
         ('/families/123', 'PATCH', 'could not find family `123`'),
         ('/families/123', 'DELETE', 'could not find family `123`'),
@@ -124,9 +133,8 @@ class TestAPI:
         ('/study-files', 'GET'),
         ('/families', 'GET'),
         ('/family-relationships', 'GET'),
-        ('/studies', 'GET'),
-        ('/phenotypes', 'GET'),
-        ('/genomic-files', 'GET')
+        ('/genomic-files', 'GET'),
+        ('/sequencing-centers', 'GET')
     ])
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
@@ -178,7 +186,7 @@ class TestAPI:
         ('/sequencing-experiments', 'PATCH', ['created_at', 'modified_at']),
         ('/family-relationships', 'PATCH', ['created_at', 'modified_at']),
         ('/genomic-files', 'POST', ['created_at', 'modified_at']),
-        ('/genomic-files', 'PATCH', ['created_at', 'modified_at'])
+        ('/genomic-files', 'PATCH', ['created_at', 'modified_at']),
     ])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
@@ -206,6 +214,7 @@ class TestAPI:
                                           '/diagnoses',
                                           '/biospecimens',
                                           '/sequencing-experiments',
+                                          '/sequencing-centers',
                                           '/family-relationships',
                                           '/study-files',
                                           '/families',
@@ -225,6 +234,7 @@ class TestAPI:
                                           '/diagnoses',
                                           '/biospecimens',
                                           '/sequencing-experiments',
+                                          '/sequencing-centers',
                                           '/family-relationships',
                                           '/study-files',
                                           '/families',
@@ -259,6 +269,10 @@ class TestAPI:
         ('/participants', 'phenotypes'),
         ('/studies', 'study_files'),
         ('/families', 'participants'),
+        ('/sequencing-centers', 'biospecimens'),
+        ('/biospecimens', 'genomic_files'),
+        ('/sequencing-centers', 'sequencing_experiments'),
+        ('/sequencing-experiments', 'genomic_files')
     ])
     def test_relations(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
@@ -316,7 +330,9 @@ class TestAPI:
                              [('/biospecimens', 'analyte_type'),
                               ('/family-relationships', 'participant_id'),
                               ('/family-relationships', 'relative_id'),
-                              ('/study-files', 'study_id')])
+                              ('/study-files', 'study_id'),
+                              ('/sequencing-centers', 'name'),
+                              ])
 
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):

@@ -19,6 +19,8 @@ class BiospecimenSchema(BaseSchema):
                           validate=validate_positive_number)
 
     shipment_date = DateOrDatetime()
+    sequencing_center_id = field_for(Biospecimen, 'sequencing_center_id',
+                                     required=True, load_only=True)
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen

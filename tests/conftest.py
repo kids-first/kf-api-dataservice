@@ -16,6 +16,7 @@ from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.study_file.models import StudyFile
 
 
@@ -92,7 +93,6 @@ def entities(client, indexd):
             'age_at_event_days': 365,
             'tumor_descriptor': 'tumor',
             'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Baylor',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 200.0,
             'volume_ml': 13.99,
@@ -103,7 +103,6 @@ def entities(client, indexd):
             'external_id': 'se1',
             'experiment_date': str(datetime.utcnow()),
             'experiment_strategy': 'WGS',
-            'center': 'Baylor',
             'library_name': 'a library',
             'library_strand': 'a strand',
             'is_paired_end': True,
@@ -140,6 +139,12 @@ def entities(client, indexd):
         },
         '/study-files':{
             'file_name': 'test_file_name 1'
+        },
+        '/genomic-files':{
+            'file_name': 'test_genomic_file_name 1'
+        },
+        '/sequencing-centers':{
+            'name': 'Baylor'
         }
     }
 
@@ -165,15 +170,28 @@ def entities(client, indexd):
     # Add entities to participant
     outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
     phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
-    biospecimen = Biospecimen(**inputs['/biospecimens'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
-    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'])
+    seq_center = SequencingCenter.query.\
+                filter_by(name=inputs['/sequencing-centers']['name'])\
+                .one_or_none()
+    if seq_center is None:
+        seq_center = SequencingCenter(**inputs['/sequencing-centers'])
+        db.session.add(seq_center)
+        db.session.commit()
+    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'],
+                                   sequencing_center_id=seq_center.kf_id)
+
+    biospecimen = Biospecimen(**inputs['/biospecimens'],
+                              participant_id=p.kf_id,
+                              sequencing_center_id=seq_center.kf_id)
     gen_file = GenomicFile(**inputs['/genomic-files'],
                            biospecimen_id=biospecimen.kf_id,
                            sequencing_experiment_id=seq_exp.kf_id)
 
     biospecimen.genomic_files = [gen_file]
     seq_exp.genomic_files = [gen_file]
+    seq_center.sequencing_experiments = [seq_exp]
+    seq_center.biospecimens = [biospecimen]
     p.biospecimens = [biospecimen]
     p.diagnoses = [diagnosis]
     p.outcomes = [outcome]
@@ -210,6 +228,10 @@ def entities(client, indexd):
     inputs['/study-files']['study_id'] = study.kf_id
     # Genomic File and Sequencing Experiment
     inputs['/genomic-files']['sequencing_experiment_id'] = seq_exp.kf_id
+    # Sequencing_experiment and sequencing_center
+    inputs['/sequencing-experiments']['sequencing_center_id'] = seq_center.kf_id
+    # Biospecimen and sequencing_center
+    inputs['/biospecimens']['sequencing_center_id'] = seq_center.kf_id
 
     # Add kf_ids
     inputs['kf_ids'] = {}
@@ -225,5 +247,6 @@ def entities(client, indexd):
     inputs['kf_ids'].update({'/family-relationships': fr.kf_id})
     inputs['kf_ids'].update({'/families': family.kf_id})
     inputs['kf_ids'].update({'/genomic-files': gen_file.kf_id})
+    inputs['kf_ids'].update({'/sequencing-centers': seq_center.kf_id})
 
     return inputs
