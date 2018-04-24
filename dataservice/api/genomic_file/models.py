@@ -21,12 +21,14 @@ class GenomicFile(db.Model, Base, IndexdFile):
     :param controlled_access: Whether or not the file is controlled access
     :param is_harmonized: Whether or not the file is harmonized
     :param reference_genome: Original reference genome of the
-     unharmonized genomic files
+           unharmonized genomic files
     :param latest_did: UUID for the latest version of the file in indexd
     :param urls: Locations of file
     :param hashes: A dict keyed by hash type containing hashes of the file
     :param _metadata: A dict with any additional information
     :param controlled_access: whether or not the file is controlled access
+    :param availability: Indicates whether a file is available for immediate
+           download, or is in cold storage
     """
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
@@ -40,6 +42,9 @@ class GenomicFile(db.Model, Base, IndexdFile):
     controlled_access = db.Column(db.Boolean(), doc='Whether or not the file'
                                   'is controlled access')
     latest_did = db.Column(UUID(), nullable=False)
+    availability = db.Column(db.Text(), doc='Indicates whether a file is '
+                             'available for immediate download, or is in '
+                             'cold storage')
     sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'),

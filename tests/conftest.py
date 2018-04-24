@@ -59,7 +59,8 @@ def entities(client, indexd):
             'size': 1000,
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())},
-            'controlled_access': False
+            'controlled_access': False,
+            'availability': 'availble for download'
         },
         '/studies': {
             'external_id': 'phs001'

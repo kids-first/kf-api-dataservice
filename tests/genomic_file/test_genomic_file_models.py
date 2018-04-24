@@ -56,6 +56,7 @@ class ModelTest(FlaskTestCase):
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
+                'availability': 'availble for download',
                 'biospecimen_id': biospecimen.kf_id,
                 'sequencing_experiment_id': se.kf_id
             }
@@ -241,7 +242,8 @@ class ModelTest(FlaskTestCase):
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
-                'hashes': {'md5': uuid.uuid4()}
+                'hashes': {'md5': uuid.uuid4()},
+                'availability': 'availble for download'
             }
             # Add genomic file to list in biospecimen
             gf = GenomicFile(**kwargs, sequencing_experiment_id=se.kf_id)

@@ -119,7 +119,7 @@ def test_get_one(client, entities):
     Test that genomic files are returned in a paginated list with all
     info loaded from indexd
     """
-    
+
     gf = GenomicFile.query.first()
     gf.merge_indexd()
 
@@ -246,6 +246,7 @@ def _new_genomic_file(client):
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
+        'availability': 'availble for download',
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'biospecimen_id': Biospecimen.query.first().kf_id,
         'controlled_access': False,
