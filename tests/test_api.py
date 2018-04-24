@@ -271,31 +271,29 @@ class TestAPI:
         assert 'could not {} '.format(action) in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']
 
-    @pytest.mark.parametrize('resource,field', [
-        ('/participants', 'diagnoses'),
-        ('/participants', 'biospecimens'),
-        ('/participants', 'outcomes'),
-        ('/participants', 'phenotypes'),
-        ('/studies', 'study_files'),
-        ('/studies', 'participants'),
-        ('/investigators', 'studies')
-        # ('/families', 'participants'),
-        # TODO biospecimen, genomic_file
-        # TODO sequencing_experiment, genomic_file
+    @pytest.mark.parametrize('resource,fields', [
+        ('/participants', ['diagnoses',
+                           'phenotypes', 'outcomes', 'biospecimens']),
+        ('/biospecimens', ['genomic_files']),
+        ('/sequencing-experiments', ['genomic_files']),
+        ('/studies', ['study_files', 'participants']),
+        ('/investigators', ['studies']),
+        ('/families', ['participants'])
     ])
-    def test_child_links(self, client, entities, resource, field):
+    def test_child_links(self, client, entities, resource, fields):
         """ Checks that references to other resources have correct ID """
         kf_id = entities.get('kf_ids').get(resource)
         resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
 
-        assert field in body
-        if type(body[field]) is list:
-            assert all([type(f) is str for f in body[field]])
-            assert all([len(f) == 11 for f in body[field]])
-        else:
-            assert type(body[field]) is str
-            assert len(body[field]) == 11
+        for field in fields:
+            assert field in body
+            if type(body[field]) is list:
+                assert all([type(f) is str for f in body[field]])
+                assert all([len(f) == 11 for f in body[field]])
+            else:
+                assert type(body[field]) is str
+                assert len(body[field]) == 11
 
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint, field, value',
