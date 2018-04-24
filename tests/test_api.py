@@ -147,8 +147,8 @@ class TestAPI:
         ('/outcomes', ['participant']),
         ('/diagnoses', ['participant']),
         ('/biospecimens', ['participant']),
-        ('/sequencing-experiments', [])
-        # ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
+        ('/sequencing-experiments', []),
+        ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
