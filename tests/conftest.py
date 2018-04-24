@@ -50,9 +50,11 @@ def entities(client, indexd):
     """
     inputs = {
         '/investigators': {
+            'external_id': 'inv001',
             'name': 'submitter'
         },
         '/genomic-files': {
+            'external_id': 'genfile001',
             'file_name': 'hg38.fq',
             'data_type': 'reads',
             'file_format': 'fastq',
@@ -129,11 +131,13 @@ def entities(client, indexd):
             'spatial_descriptor': 'left side'
         },
         '/outcomes': {
+            'external_id': 'out001',
             'vital_status': 'Alive',
             'disease_related': 'False',
             'age_at_event_days': 120,
         },
         '/phenotypes': {
+            'external_id': 'phe001',
             'source_text_phenotype': 'test phenotype 1',
             'hpo_id': 'HP:0000118',
             'snomed_id': '38033009',
@@ -141,9 +145,11 @@ def entities(client, indexd):
         },
 
         '/family-relationships': {
+            'external_id': 'famrel001',
             'participant_to_relative_relation': 'mother'
         },
         '/study-files':{
+            'external_id': 'studfile001',
             'file_name': 'test_file_name 1'
         }
     }

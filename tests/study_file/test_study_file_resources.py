@@ -114,6 +114,7 @@ class StudyFileTest(FlaskTestCase):
         db.session.add(study)
         db.session.commit()
         body = {
+            'external_id':'test_study_file_0',
             'file_name': file_name,
             'study_id': study.kf_id
         }

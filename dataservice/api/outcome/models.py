@@ -9,6 +9,7 @@ class Outcome(db.Model, Base):
     :param kf_id: Unique id given by the Kid's First DCC
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
+    :param external_id: Name given to outcome by contributor
     :param vital_status: Vital status of the participant
     :param disease_related: true if Dead and cause of death was disease related
     , false if Dead and cause of death was disease related, Not Reported
@@ -18,6 +19,8 @@ class Outcome(db.Model, Base):
     __tablename__ = 'outcome'
     __prefix__ = 'OC'
 
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
     vital_status = db.Column(db.Text(),
                              doc='The vital status reported')
     disease_related = db.Column(db.Text())

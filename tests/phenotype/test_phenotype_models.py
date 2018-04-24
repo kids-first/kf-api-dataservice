@@ -31,6 +31,7 @@ class ModelTest(FlaskTestCase):
 
         # Create phenotypes
         data = {
+            'external_id': 'test_phenotype_0',
             'source_text_phenotype': 'test phenotype 1',
             'hpo_id': 'HP:0000118',
             'snomed_id': '38033009',
@@ -178,8 +179,10 @@ class ModelTest(FlaskTestCase):
 
         # Create two phenotypes
         pheno = ['test phenotype 1', 'test phenotype 2']
-        ph1 = Phenotype(source_text_phenotype=pheno[0])
-        ph2 = Phenotype(source_text_phenotype=pheno[1])
+        ph1 = Phenotype(source_text_phenotype=pheno[0],
+                        external_id='test_phenotype_0')
+        ph2 = Phenotype(source_text_phenotype=pheno[1],
+                        external_id='test_phenotype_0')
         p = Participant(external_id='p1', is_proband=True,
                         study=study)
 

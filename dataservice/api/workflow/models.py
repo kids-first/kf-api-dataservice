@@ -12,6 +12,7 @@ class Workflow(db.Model, Base):
     :param kf_id: Unique id given by the Kid's First DCC
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
+    :param external_id: Name given to workflow by contributor
     :param task_id: Id of executed task
     :param name: Name of workflow
     :param version: Version of workflow
@@ -20,6 +21,8 @@ class Workflow(db.Model, Base):
     __tablename__ = 'workflow'
     __prefix__ = 'WF'
 
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
     task_id = db.Column(db.Text())
     name = db.Column(db.Text())
     github_commit_url = db.Column(db.Text())

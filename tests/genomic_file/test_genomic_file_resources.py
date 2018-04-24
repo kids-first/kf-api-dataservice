@@ -21,6 +21,7 @@ GENOMICFILE_LIST_URL = 'api.genomic_files_list'
 def genomic_files(client, entities):
 
     props = {
+        'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
         'data_type': 'aligned reads',
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
@@ -54,6 +55,7 @@ def test_new_indexd_error(client, entities):
     """
 
     body = {
+        'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
         'size': 123,
         'data_type': 'aligned reads',
@@ -240,6 +242,7 @@ def test_delete_error(client, indexd, entities):
 def _new_genomic_file(client):
     """ Creates a genomic file """
     body = {
+        'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
         'size': 123,
         'data_type': 'aligned reads',

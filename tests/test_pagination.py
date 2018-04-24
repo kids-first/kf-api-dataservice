@@ -85,6 +85,7 @@ class TestPagination:
             }
             seq_exp = SequencingExperiment(**se_kwargs)
             gf_kwargs = {
+                'external_id': 'genfile001',
                 'file_name': 'hg38.fq',
                 'data_type': 'reads',
                 'file_format': 'fastq',

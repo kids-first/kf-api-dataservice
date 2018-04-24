@@ -8,6 +8,7 @@ class Phenotype(db.Model, Base):
     :param kf_id: Unique id given by the Kid's First DCC
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
+    :param external_id: Name given to phenotype by contributor
     :param source_text_phenotype: Name given to Phenotype by contributor
     :param hpo_id: The ID of the term from the Human Phenotype Ontology
      which represents a harmonized phenotype
@@ -20,6 +21,8 @@ class Phenotype(db.Model, Base):
     __tablename__ = 'phenotype'
     __prefix__ = 'PH'
 
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
     source_text_phenotype = db.Column(db.Text(),
                                       doc='Name given to Phenotype by '
                                       'contributor')

@@ -30,6 +30,7 @@ class ModelTest(FlaskTestCase):
 
         # Create outcomes
         data = {
+            'external_id': 'test_0',
             'vital_status': 'Alive',
             'disease_related': False,
             'age_at_event_days': 120,

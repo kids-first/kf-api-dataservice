@@ -15,6 +15,7 @@ class GenomicFile(db.Model, Base, IndexdFile):
     :param uuid: The baseid assigned to the file by indexd
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
+    :param external_id: Name given to genomic_file by contributor
     :param file_name: Name of file
     :param data_type: Type of genomic file (i.e. aligned reads)
     :param file_format: Format of file
@@ -33,6 +34,8 @@ class GenomicFile(db.Model, Base, IndexdFile):
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
 
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
     data_type = db.Column(db.Text(), doc='Type of genomic file')
     file_format = db.Column(db.Text(), doc='Size of file in bytes')
     is_harmonized = db.Column(db.Boolean(), doc='Whether or not the file'

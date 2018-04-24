@@ -48,6 +48,7 @@ class ModelTest(FlaskTestCase):
         kwargs_dict = {}
         for i in range(2):
             kwargs = {
+                'external_id': 'genomic_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
                 'data_type': 'submitted aligned read',
                 'file_format': '.cram',
@@ -233,6 +234,7 @@ class ModelTest(FlaskTestCase):
         kwargs_dict = {}
         for i in range(2):
             kwargs = {
+                'external_id': 'genomic_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
                 'size': (random.randint(MIN_SIZE_MB, MAX_SIZE_MB) *
                               MB_TO_BYTES),

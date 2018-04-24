@@ -2,7 +2,7 @@ import json
 
 from flask import url_for
 
-from dataservice.api.investigator.models import Investigator 
+from dataservice.api.investigator.models import Investigator
 from tests.utils import FlaskTestCase
 
 INVESTIGATOR_URL = 'api.investigators'
@@ -107,6 +107,7 @@ class InvestigatorTest(FlaskTestCase):
         Convenience method to create a investigator with a given name
         """
         body = {
+            'external_id': 'test_0',
             'name': name
         }
         response = self.client.post(url_for(INVESTIGATOR_LIST_URL),

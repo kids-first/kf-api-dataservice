@@ -346,7 +346,9 @@ class TestAPI:
                               ('/family-relationships', 'relative_id'),
                               ('/study-files', 'study_id'),
                               ('/diagnoses', 'participant_id'),
-                              ('/biospecimens', 'participant_id')])
+                              ('/biospecimens', 'participant_id'),
+                              ('/genomic-files', 'biospecimen_id'),
+                              ('/genomic-files', 'sequencing_experiment_id')])
 
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
