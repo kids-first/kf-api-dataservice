@@ -2,7 +2,7 @@ from flask import abort, request
 from marshmallow import ValidationError
 
 from dataservice.extensions import db
-from dataservice.api.common.pagination import paginated, Pagination
+from dataservice.api.common.pagination import paginated, indexd_pagination
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.study_file.schemas import StudyFileSchema
 from dataservice.api.common.views import CRUDView
@@ -35,29 +35,7 @@ class StudyFileListAPI(CRUDView):
         if study_id:
             q = q.filter(StudyFile.study_id == study_id)
 
-        pager = Pagination(q, after, limit)
-        keep = []
-        refresh = True
-        next_after = None
-        # Continue updating the page until we get a page with no deleted files
-        while (pager.total > 0 and refresh):
-            refresh = False
-            # Move the cursor ahead to the last valid file
-            next_after = keep[-1].created_at if len(keep) > 0 else after
-            # Number of results needed to fulfill the original limit
-            remain = limit - len(keep)
-            pager = Pagination(q, next_after, remain)
-
-            for st in pager.items:
-                merged = st.merge_indexd()
-                if merged is not None:
-                    keep.append(st)
-                else:
-                    refresh = True
-
-        # Replace original page's items with new list of valid files
-        pager.items = keep
-        pager.after = next_after if next_after else after
+        pager = indexd_pagination(q, after, limit)
 
         return (StudyFileSchema(many=True)
                 .jsonify(pager))
