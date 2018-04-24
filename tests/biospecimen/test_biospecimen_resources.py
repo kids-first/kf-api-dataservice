@@ -31,11 +31,11 @@ class BiospecimenTest(FlaskTestCase):
         kwargs = {
             'external_sample_id': 's1',
             'external_aliquot_id': 'a1',
-            'tissue_type': 'Normal',
+            'source_text_tissue_type': 'Normal',
             'composition': 'composition1',
-            'anatomical_site': 'Brain',
+            'source_text_anatomical_site': 'Brain',
             'age_at_event_days': 365,
-            'tumor_descriptor': 'Metastatic',
+            'source_text_tumor_descriptor': 'Metastatic',
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
@@ -43,6 +43,8 @@ class BiospecimenTest(FlaskTestCase):
             'volume_ml': 12.67,
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'spatial_descriptor': 'left side',
+            'ncit_id_tissue_type': 'Test',
+            'ncit_id_anatomical_site': 'C12439',
             'participant_id': kwargs.get('participant_id')
         }
         # Send post request
@@ -65,109 +67,13 @@ class BiospecimenTest(FlaskTestCase):
                 self.assertEqual(biospecimen.get(k), v)
         self.assertEqual(2, Biospecimen.query.count())
 
-    def test_post_missing_req_params(self):
-        """
-        Test create biospecimen that is missing required parameters in body
-        """
-        # Create biospecimen data
-        kwargs = {
-            'external_sample_id': 's1'
-            # missing required param participant_id
-        }
-        # Send post request
-        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
-                                    headers=self._api_headers(),
-                                    data=json.dumps(kwargs))
-
-        # Check status code
-        self.assertEqual(response.status_code, 400)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not create biospecimen'
-        self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Biospecimen.query.first()
-        self.assertIs(d, None)
-
-    def test_post_invalid_age(self):
-        """
-        Test create biospecimen with bad input data
-
-        Invalid age
-        """
-        # Create biospecimen data
-        kwargs = {
-            'external_sample_id': 's1',
-            # should be a positive integer
-            'age_at_event_days': -5,
-        }
-        # Send post request
-        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
-                                    headers=self._api_headers(),
-                                    data=json.dumps(kwargs))
-
-        # Check status code
-        self.assertEqual(response.status_code, 400)
-
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not create biospecimen'
-        self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Biospecimen.query.first()
-        self.assertIs(d, None)
-
-    def test_post_bad_input(self):
-        """
-        Test create biospecimen with bad input data
-
-        Participant with participant_id does not exist in db
-        """
-        dt = datetime.now()
-        # Create biospecimen data
-        kwargs = {
-            'external_sample_id': 's1',
-            'external_aliquot_id': 'a1',
-            'tissue_type': 'Normal',
-            'composition': 'composition1',
-            'anatomical_site': 'Brain',
-            'age_at_event_days': 365,
-            'tumor_descriptor': 'Metastatic',
-            'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
-            'analyte_type': 'DNA',
-            'concentration_mg_per_ml': 100,
-            'volume_ml': 12.67,
-            'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
-            # kf_id does not exist
-            'participant_id': id_service.kf_id_generator('PT')()
-        }
-        # Send post request
-        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
-                                    headers=self._api_headers(),
-                                    data=json.dumps(kwargs))
-
-        # Check status code
-        self.assertEqual(response.status_code, 400)
-
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = '"{}" does not exist'.format(kwargs['participant_id'])
-        self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Biospecimen.query.first()
-        self.assertIs(d, None)
-
     def test_post_multiple(self):
         # Create a biospecimen with participant
         s1 = self._create_save_to_db()
         # Create another biospecimen for the same participant
         s2 = {
             'external_sample_id': 's2',
-            'tissue_type': 'abnormal',
+            'source_text_tissue_type': 'abnormal',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 200,
             'volume_ml': 13.99,
@@ -233,7 +139,7 @@ class BiospecimenTest(FlaskTestCase):
 
         # Update existing biospecimen
         body = {
-            'tissue_type': 'saliva',
+            'source_text_tissue_type': 'saliva',
             'participant_id': kwargs['participant_id']
         }
         response = self.client.patch(url_for(BIOSPECIMENS_URL,
@@ -302,7 +208,7 @@ class BiospecimenTest(FlaskTestCase):
         kf_id = kwargs.get('kf_id')
         # Create diagnosis data
         body = {
-            'tissue_type': 'blood'
+            'source_text_tissue_type': 'blood'
         }
         # Send put request
         response = self.client.patch(url_for(BIOSPECIMENS_URL,
@@ -369,18 +275,20 @@ class BiospecimenTest(FlaskTestCase):
         kwargs = {
             'external_sample_id': 's1',
             'external_aliquot_id': 'a1',
-            'tissue_type': 'Normal',
+            'source_text_tissue_type': 'Normal',
             'composition': 'composition1',
-            'anatomical_site': 'Brain',
+            'source_text_anatomical_site': 'Brain',
             'age_at_event_days': 365,
-            'tumor_descriptor': 'Metastatic',
+            'source_text_tumor_descriptor': 'Metastatic',
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
             'volume_ml': 12.67,
             'shipment_date': dt,
-            'spatial_descriptor': 'left side'
+            'spatial_descriptor': 'left side',
+            'ncit_id_tissue_type': 'Test',
+            'ncit_id_anatomical_site': 'C12439'
         }
         d = Biospecimen(**kwargs)
 

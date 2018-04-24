@@ -38,7 +38,7 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
         return participant_id, sample_id, aliquot_id
 
-    def test_create_biospecimen(self):
+    def test_create_and_find_biospecimen(self):
         """
         Test creation of biospecimen
         """
@@ -59,20 +59,18 @@ class ModelTest(FlaskTestCase):
         aliquot_id = "Test_Aliquot_0"
         data = self._make_biospecimen(external_sample_id=sample_id,
                                       external_aliquot_id=aliquot_id)
-        s = Biospecimen(**data, participant_id=p.kf_id)
+        data['participant_id'] = p.kf_id
+        s = Biospecimen(**data)
         db.session.add(s)
         db.session.commit()
 
         self.assertEqual(Biospecimen.query.count(), 1)
-        new_biospecimen = Biospecimen.query.first()
-        self.assertGreater(new_biospecimen.created_at, dt)
-        self.assertGreater(new_biospecimen.modified_at, dt)
-        self.assertIs(type(uuid.UUID(new_biospecimen.uuid)), uuid.UUID)
-        self.assertEqual(new_biospecimen.external_sample_id,
-                         "Test_Sample_0")
-        self.assertEqual(new_biospecimen.tissue_type, "Normal")
-        self.assertEqual(new_biospecimen.composition, "Test_comp_0")
-        self.assertEqual(new_biospecimen.participant_id, p.kf_id)
+        bs = Biospecimen.query.first()
+        for key, value in data.items():
+            self.assertEqual(value, getattr(bs, key))
+        self.assertGreater(bs.created_at, dt)
+        self.assertGreater(bs.modified_at, dt)
+        self.assertIs(type(uuid.UUID(bs.uuid)), uuid.UUID)
 
     def test_biospecimen_participant_relation(self):
         """
@@ -89,21 +87,6 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(p.biospecimens[0].external_sample_id,
                          s.external_sample_id)
 
-    def test_find_biospecimen(self):
-        """
-        test finding the biospecimen with biospecimen_id
-        """
-        (participant_id,
-        sample_id,
-        aliquot_id) = self.create_participant_biospecimen()
-        # Get Biospecimen
-        s = Biospecimen.query.filter_by(external_sample_id=sample_id).\
-            one_or_none()
-        self.assertEqual(s.external_sample_id, "Test_Sample_0")
-        self.assertEqual(s.tissue_type, "Normal")
-        self.assertEqual(s.composition, "Test_comp_0")
-        self.assertEqual(s.external_sample_id, sample_id)
-
     def test_update_biospecimen(self):
         """
         Test Updating biospecimen
@@ -115,11 +98,11 @@ class ModelTest(FlaskTestCase):
         s = Biospecimen.query.filter_by(external_sample_id=sample_id).\
             one_or_none()
 
-        s.tissue_type = "Tumor"
+        s.source_text_tissue_type = "Tumor"
         # get biospecimen
         s = Biospecimen.query.filter_by(external_sample_id=sample_id).\
            one_or_none()
-        self.assertEqual(s.tissue_type, 'Tumor')
+        self.assertEqual(s.source_text_tissue_type, 'Tumor')
         self.assertEqual(s.external_sample_id, sample_id)
 
     def test_delete_biospecimen(self):
@@ -250,11 +233,11 @@ class ModelTest(FlaskTestCase):
            one_or_none()
 
         # update one of the biospecimen attribute
-        s.tissue_type = 'Tumor'
+        s.source_text_tissue_type = 'Tumor'
 
         s = Biospecimen.query.filter_by(external_sample_id='Test_Sample_1').\
             one_or_none()
-        self.assertEqual(s.tissue_type, 'Tumor')
+        self.assertEqual(s.source_text_tissue_type, 'Tumor')
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(p[0].biospecimens[1].external_sample_id,
                          'Test_Sample_1')
@@ -292,11 +275,11 @@ class ModelTest(FlaskTestCase):
         body = {
             'external_sample_id': external_sample_id,
             'external_aliquot_id': external_aliquot_id,
-            'tissue_type': 'Normal',
+            'source_text_tissue_type': 'Normal',
             'composition': 'Test_comp_0',
-            'anatomical_site': 'Brain',
+            'source_text_anatomical_site': 'Brain',
             'age_at_event_days': 456,
-            'tumor_descriptor': 'Metastatic',
+            'source_text_tumor_descriptor': 'Metastatic',
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
@@ -304,6 +287,8 @@ class ModelTest(FlaskTestCase):
             'volume_ml': 12.67,
             'shipment_date': dt,
             'uberon_id':'UBERON:0000955',
-            'spatial_descriptor': 'left side'
+            'spatial_descriptor': 'left side',
+            'ncit_id_tissue_type': 'Test',
+            'ncit_id_anatomical_site': 'C12439'
         }
         return body

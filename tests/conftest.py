@@ -86,11 +86,11 @@ def entities(client, indexd):
         '/biospecimens': {
             'external_sample_id': 's0',
             'external_aliquot_id': 'a0',
-            'tissue_type': 'tissue',
+            'source_text_tissue_type': 'tissue',
             'composition': 'comp',
-            'anatomical_site': 'site',
+            'source_text_anatomical_site': 'site',
             'age_at_event_days': 365,
-            'tumor_descriptor': 'tumor',
+            'source_text_tumor_descriptor': 'tumor',
             'shipment_origin': 'CORIELL',
             'shipment_destination': 'Baylor',
             'analyte_type': 'DNA',
@@ -98,7 +98,9 @@ def entities(client, indexd):
             'volume_ml': 13.99,
             'shipment_date': str(datetime.utcnow()),
             'uberon_id': 'test',
-            'spatial_descriptor': 'left side'
+            'spatial_descriptor': 'left side',
+            'ncit_id_tissue_type': 'Test',
+            'ncit_id_anatomical_site': 'C12439'
         },
         '/sequencing-experiments': {
             'external_id': 'se1',
