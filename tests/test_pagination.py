@@ -49,7 +49,20 @@ class TestPagination:
         mock.Session().get.side_effect = indexd_mock.get
         mock.Session().post.side_effect = indexd_mock.post
 
+        mod = 'dataservice.api.study.models.requests'
+        mock_bs = patch(mod)
+        mock_bs = mock_bs.start()
+        
+        mock_resp_get = MagicMock()
+        mock_resp_get.status_code = 200
+        mock_resp_post = MagicMock()
+        mock_resp_post.status_code = 201
+
+        mock_bs.Session().get.side_effect = mock_resp_get
+        mock_bs.Session().post.side_effect = mock_resp_post
+
         yield app.test_client()
+        mock_bs.stop()
         mock.stop()
 
         # Need to make sure we close all connections so pg won't lock tables

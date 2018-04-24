@@ -1,3 +1,6 @@
+import requests
+from sqlalchemy import event
+from flask import current_app
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.participant.models import Participant
@@ -51,3 +54,13 @@ class Study(db.Model, Base):
 
     def __repr__(self):
         return '<Study {}>'.format(self.kf_id)
+
+
+@event.listens_for(Study, 'after_insert', propagate=True)
+def register_indexd(mapper, connection, target):
+    """
+    Invokes the new bucket service to create a bucket in s3 for this study
+    """
+    url = current_app.config['BUCKET_SERVICE_URL']
+    if url is not None:
+        resp = requests.post(url+'/buckets', json={'study_id': target.kf_id})

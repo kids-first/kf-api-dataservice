@@ -25,6 +25,8 @@ class Config:
     INDEXD_USER = os.environ.get('INDEXD_USER', 'test')
     INDEXD_PASS = os.environ.get('INDEXD_PASS', 'test')
 
+    BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', None)
+
     @staticmethod
     def init_app(app):
         pass
@@ -44,6 +46,7 @@ class TestingConfig(Config):
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     INDEXD_URL = os.environ.get('INDEXD_URL', '')
+    BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', '')
 
 
 class ProductionConfig(Config):

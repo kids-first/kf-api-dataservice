@@ -23,6 +23,8 @@ from dataservice.api.cavatica_task.models import (
     CavaticaTask,
     CavaticaTaskGenomicFile
 )
+from unittest.mock import MagicMock, patch
+
 
 ENDPOINTS = [
     '/studies',
@@ -61,7 +63,22 @@ def client(app):
     app_context = app.app_context()
     app_context.push()
     db.create_all()
+
+    mod = 'dataservice.api.study.models.requests'
+    mock_bs = patch(mod)
+    mock_bs = mock_bs.start()
+    
+    mock_resp_get = MagicMock()
+    mock_resp_get.status_code = 200
+    mock_resp_post = MagicMock()
+    mock_resp_post.status_code = 201
+
+    mock_bs.Session().get.side_effect = mock_resp_get
+    mock_bs.Session().post.side_effect = mock_resp_post
+
     yield app.test_client()
+
+    mock_bs.stop()
     # Need to make sure we close all connections so pg won't lock tables
     db.session.close()
     db.drop_all()
