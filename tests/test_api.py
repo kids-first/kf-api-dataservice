@@ -138,22 +138,41 @@ class TestAPI:
         assert 'code' in body['_status']
         assert type(body['_status']['code']) is int
 
-    @pytest.mark.parametrize('endpoint', [
-        ('/participants'),
-        ('/diagnoses'),
-        ('/genomic-files')
+    @pytest.mark.parametrize('endpoint, parents', [
+        # ('/studies', ['investigator']),
+        ('/study-files', ['study']),
+        ('/investigators', []),
+        ('/participants', ['study', 'family']),
+        ('/phenotypes', ['participant']),
+        ('/outcomes', ['participant']),
+        ('/diagnoses', ['participant']),
+        ('/biospecimens', ['participant']),
+        ('/sequencing-experiments', []),
+        ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
     ])
-    def test_links(self, client, entities, endpoint):
+    def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
         resp = client.get(endpoint,
                           headers={'Content-Type': 'application/json'})
         body = json.loads(resp.data.decode('utf-8'))
 
         assert '_links' in body
+
         # If paginated results
         if isinstance(body['results'], list):
             for res in body['results']:
                 assert '_links' in res
+                # Parent entities are in links
+                for p in parents:
+                    assert p in res['_links']
+                # All links are formatted properly
+                for key, link in res['_links'].items():
+                    if key == 'collection':
+                        continue
+                    if link:
+                        assert len(link.split('/')[-1]) == 11
+                    else:
+                        assert link is None
 
     @pytest.mark.parametrize('endpoint, method, fields', [
         ('/studies', 'POST', ['created_at', 'modified_at']),
@@ -258,9 +277,13 @@ class TestAPI:
         ('/participants', 'outcomes'),
         ('/participants', 'phenotypes'),
         ('/studies', 'study_files'),
-        ('/families', 'participants'),
+        ('/studies', 'participants'),
+        ('/investigators', 'studies')
+        # ('/families', 'participants'),
+        # TODO biospecimen, genomic_file
+        # TODO sequencing_experiment, genomic_file
     ])
-    def test_relations(self, client, entities, resource, field):
+    def test_child_links(self, client, entities, resource, field):
         """ Checks that references to other resources have correct ID """
         kf_id = entities.get('kf_ids').get(resource)
         resp = client.get(resource + '/' + kf_id)
@@ -317,7 +340,6 @@ class TestAPI:
                               ('/family-relationships', 'participant_id'),
                               ('/family-relationships', 'relative_id'),
                               ('/study-files', 'study_id')])
-
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
         """ Tests missing required parameters """
@@ -343,7 +365,6 @@ class TestAPI:
                               ('/family-relationships', 'participant_id'),
                               ('/family-relationships', 'relative_id'),
                               ('/study-files', 'study_id')])
-
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key
