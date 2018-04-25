@@ -16,6 +16,7 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.utils import iterate_pairwise
 from dataservice.api.study_file.models import StudyFile
@@ -73,32 +74,7 @@ class TestPagination:
                 'ethnicity': 'not hispanic',
                 'gender': 'male'
             }
-
             p = Participant(**data, study_id=s.kf_id, family_id=f.kf_id)
-            bsp = Biospecimen(analyte_type='an analyte')
-            se_kwargs = {
-                'external_id': 'se1',
-                'experiment_strategy': 'WGS',
-                'center': 'Baylor',
-                'is_paired_end': True,
-                'platform': 'Illumina'
-            }
-            seq_exp = SequencingExperiment(**se_kwargs)
-            gf_kwargs = {
-                'external_id': 'genfile001',
-                'file_name': 'hg38.fq',
-                'data_type': 'reads',
-                'file_format': 'fastq',
-                'size': 1000,
-                'urls': ['s3://bucket/key'],
-                'hashes': {'md5': str(uuid.uuid4())},
-                'controlled_access': False,
-                'availability': 'availble for download'
-            }
-            gf = GenomicFile(**gf_kwargs)
-            gf.biospecimen = bsp
-            gf.sequencing_experiment = seq_exp
-            p.biospecimens = [bsp]
             diag = Diagnosis()
             p.diagnoses = [diag]
             outcome = Outcome()
@@ -107,8 +83,47 @@ class TestPagination:
             p.phenotypes = [phen]
             participants.append(p)
             db.session.add(p)
-        db.session.commit()
+            db.session.commit()
 
+            seq_data = {
+             'external_id': 'Seq_0',
+             'experiment_strategy': 'WXS',
+             'library_name': 'Test_library_name_1',
+             'library_strand': 'Unstranded',
+             'is_paired_end': False,
+             'platform': 'Test_platform_name_1'
+             }
+            gf_kwargs = {
+                    'file_name': 'hg38.fq',
+                    'data_type': 'reads',
+                    'file_format': 'fastq',
+                    'size': 1000,
+                    'urls': ['s3://bucket/key'],
+                    'hashes': {'md5': str(uuid.uuid4())},
+                    'controlled_access': False
+             }
+            seq_cen = SequencingCenter.query.filter_by(name="Baylor")\
+                                                .one_or_none()
+            if seq_cen is None:
+                seq_cen = SequencingCenter(name="Baylor")
+                db.session.add(seq_cen)
+                db.session.commit()
+            seq_exp = SequencingExperiment(**seq_data,
+                                           sequencing_center_id=seq_cen.kf_id)
+            db.session.add(seq_exp)
+            db.session.commit()
+            samp = Biospecimen(analyte_type='an analyte',
+                               sequencing_center_id=seq_cen.kf_id,
+                               participant_id=p.kf_id)
+            db.session.add(samp)
+            db.session.commit()
+            p.biospecimens = [samp]
+
+            gf = GenomicFile(**gf_kwargs,
+                             biospecimen_id=samp.kf_id,
+                             sequencing_experiment_id=seq_exp.kf_id)
+            db.session.add(gf)
+            db.session.commit()
         # Family relationships
         for participant, relative in iterate_pairwise(participants):
             gender = participant.gender
@@ -131,7 +146,8 @@ class TestPagination:
         ('/phenotypes', 50),
         ('/families', 1),
         ('/family-relationships', 50),
-        ('/genomic-files', 50)
+        ('/genomic-files', 50),
+        ('/sequencing-centers', 1),
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):
@@ -142,28 +158,30 @@ class TestPagination:
         endpoint = '{}?study_id={}'.format(endpoint, s.kf_id)
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
-
         assert len(resp['results']) == min(expected_total, 10)
         assert resp['limit'] == 10
-        assert resp['total'] == expected_total
+        if '/sequencing-centers' in endpoint:
+            assert resp['total'] == 50
+        else:
+            assert resp['total'] == expected_total
 
         ids_seen = []
         # Iterate through via the `next` link
         while 'next' in resp['_links']:
             # Check formatting of next link
-            # assert float(resp['_links']['next'].split('=')[-1])
             self._check_link(resp['_links']['next'], {'study_id': s.kf_id})
             # Stash all the ids on the page
             ids_seen.extend([r['kf_id'] for r in resp['results']])
             resp = client.get(resp['_links']['next'])
             resp = json.loads(resp.data.decode('utf-8'))
             # Check formatting of the self link
-            # assert float(resp['_links']['self'].split('=')[-1])
             self._check_link(resp['_links']['self'], {'study_id': s.kf_id})
 
         ids_seen.extend([r['kf_id'] for r in resp['results']])
-
-        assert len(ids_seen) == resp['total']
+        if '/sequencing-centers' in endpoint:
+            assert len(ids_seen) == expected_total
+        else:
+            assert len(ids_seen) == resp['total']
 
     @pytest.mark.parametrize('study_id', ['blah', 'ST_00000000', 50])
     @pytest.mark.parametrize('endpoint', [
@@ -177,7 +195,8 @@ class TestPagination:
         ('/phenotypes'),
         ('/families'),
         ('/family-relationships'),
-        ('/genomic-files')
+        ('/genomic-files'),
+        ('/sequencing-centers')
     ])
     def test_non_exist_study_filter(self, client, participants,
                                     endpoint, study_id):
@@ -204,14 +223,15 @@ class TestPagination:
         ('/diagnoses', 102),
         ('/family-relationships', 101),
         ('/study-files', 101),
-        ('/families', 101)
+        ('/families', 101),
+        ('/sequencing-centers', 1)
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
 
-        assert len(resp['results']) == 10
+        assert len(resp['results']) == min(expected_total, 10)
         assert resp['limit'] == 10
         assert resp['total'] == expected_total
 
@@ -228,8 +248,10 @@ class TestPagination:
             assert float(resp['_links']['self'].split('=')[-1])
 
         ids_seen.extend([r['kf_id'] for r in resp['results']])
-
-        assert len(ids_seen) == resp['total']
+        if '/sequencing-centers' in endpoint:
+            assert len(ids_seen) == expected_total
+        else:
+            assert len(ids_seen) == resp['total']
 
     @pytest.mark.parametrize('endpoint', [
         ('/studies'),
@@ -241,23 +263,33 @@ class TestPagination:
         ('/biospecimens'),
         ('/family-relationships'),
         ('/study-files'),
-        ('/families')
+        ('/families'),
+        ('/sequencing-centers')
     ])
     def test_limit(self, client, participants, endpoint):
         # Check that limit param operates correctly
         response = client.get(endpoint + '?limit=5')
         response = json.loads(response.data.decode('utf-8'))
-        assert len(response['results']) == 5
+        if '/sequencing-centers' in endpoint:
+            assert len(response['results']) == 1
+        else:
+            assert len(response['results']) == 5
         assert response['limit'] == 5
 
         response = client.get(endpoint + '?limit=200')
         response = json.loads(response.data.decode('utf-8'))
-        assert len(response['results']) == 100
+        if '/sequencing-centers' in endpoint:
+            assert len(response['results']) == 1
+        else:
+            assert len(response['results']) == 100
 
         # Check unexpected limit param uses default
         response = client.get(endpoint + '?limit=dog')
         response = json.loads(response.data.decode('utf-8'))
-        assert len(response['results']) == 10
+        if '/sequencing-centers' in endpoint:
+            assert len(response['results']) == 1
+        else:
+            assert len(response['results']) == 10
         assert response['limit'] == 10
 
     @pytest.mark.parametrize('endpoint', [
@@ -270,7 +302,8 @@ class TestPagination:
         ('/biospecimens'),
         ('/family-relationships'),
         ('/study-files'),
-        ('/families')
+        ('/families'),
+        ('/sequencing-centers')
     ])
     def test_after(self, client, participants, endpoint):
         """ Test `after` offeset paramater """
@@ -303,7 +336,7 @@ class TestPagination:
         ('/biospecimens'),
         ('/family-relationships'),
         ('/study-files'),
-        ('/families')
+        ('/families'),
     ])
     def test_self(self, client, participants, endpoint):
         """ Test that the self link gives the same page """

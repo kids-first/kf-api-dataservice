@@ -19,7 +19,6 @@ class Biospecimen(db.Model, Base):
     :param source_text_tumor_descriptor: The kind of disease present in the
            tumor specimen as related to a specific timepoint
     :param shipment_origin : The origin of the shipment
-    :param shipment_destination: The destination of the shipment
     :param analyte_type: Text term that represents the kind of molecular
            specimen analyte
     :param concentration_mg_per_ml: The concentration of an analyte or aliquot
@@ -60,8 +59,6 @@ class Biospecimen(db.Model, Base):
                                              'biospecimen')
     shipment_origin = db.Column(db.Text(),
                                 doc='The original site of the aliquot')
-    shipment_destination = db.Column(db.Text(),
-                                     doc='The site recieving the aliquot')
     analyte_type = db.Column(db.Text(), nullable=False,
                              doc='The molecular description of the aliquot')
     concentration_mg_per_ml = db.Column(db.Float(),
@@ -90,6 +87,10 @@ class Biospecimen(db.Model, Base):
                                db.ForeignKey('participant.kf_id'),
                                nullable=False,
                                doc='The kf_id of the biospecimen\'s donor')
+    sequencing_center_id = db.Column(KfId(),
+                                     db.ForeignKey('sequencing_center.kf_id'),
+                                     nullable=False,
+                                     doc='The kf_id of the sequencing center')
     genomic_files = db.relationship(GenomicFile,
                                     cascade="all, delete-orphan",
                                     backref=db.backref(

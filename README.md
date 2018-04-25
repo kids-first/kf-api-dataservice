@@ -1,11 +1,15 @@
+<p align="center">
+  <img src="docs/dataservice.png" alt="Data Service">
+</p>
+<p align="center">
+  <a herf="https://github.com/kids-first/kf-api-dataservice/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-api-dataservice.svg?style=for-the-badge"></a>
+  <a href="http://kf-api-dataservice-qa.kids-first.io/"><img src="https://img.shields.io/readthedocs/pip.svg?style=for-the-badge"></a>
+  <a href="https://circleci.com/gh/kids-first/kf-api-dataservice/13?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link"><img src="https://img.shields.io/circleci/project/kids-first/kf-api-dataservice.svg?style=for-the-badge"></a>
+  <a href="https://app.codacy.com/app/kids-first/kf-api-dataservice/dashboard"><img src="https://img.shields.io/codacy/grade/534528baa6d544ca9c2e2fbaad8d3a29.svg?style=for-the-badge"></a>
+</p>
+
 Kids First Data Service
 =======================
-![Data Service](docs/dataservice.png)
-
-[![license](https://img.shields.io/github/license/kids-first/kf-api-dataservice.svg?style=for-the-badge)](https://github.com/kids-first/kf-api-dataservice/blob/master/LICENSE)
-[![Docs](https://img.shields.io/readthedocs/pip.svg?style=for-the-badge)](http://kf-api-dataservice-qa.kids-first.io/)
-[![CircleCI](https://img.shields.io/circleci/project/kids-first/kf-api-dataservice.svg?style=for-the-badge)](https://circleci.com/gh/kids-first/kf-api-dataservice/13?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link)
-[![Codacy grade](https://img.shields.io/codacy/grade/534528baa6d544ca9c2e2fbaad8d3a29.svg?style=for-the-badge)](https://app.codacy.com/app/kids-first/kf-api-dataservice/dashboard)
 
 The Kids First Data Service provides a REST API to the Kids First data.
 

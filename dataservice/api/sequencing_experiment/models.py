@@ -1,3 +1,5 @@
+from sqlalchemy import event
+
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
@@ -10,7 +12,6 @@ class SequencingExperiment(db.Model, Base):
     :param external_id: Name given to sequencing experiment by contributor
     :param experiment_date : Date of the sequencing experiment conducted
     :param experiment_strategy: Text term that represents the library strategy
-    :param center: Text term that represents the sequencing center
     :param library_name: Text term that represents the name of the library
     :param library_strand: Text term that represents the library stranded-ness
     :param is_paired_end: Boolean term specifies whether reads have paired end
@@ -35,8 +36,6 @@ class SequencingExperiment(db.Model, Base):
     experiment_strategy = db.Column(db.Text(), nullable=False,
                                     doc='Text term that represents the'
                                     ' Library strategy')
-    center = db.Column(db.Text(), nullable=False,
-                       doc='Text term that represents the sequencing center')
     library_name = db.Column(db.Text(),
                              doc='Text term that represents the name of the'
                              ' library')
@@ -68,3 +67,14 @@ class SequencingExperiment(db.Model, Base):
                                     backref=db.backref(
                                         'sequencing_experiment',
                                         lazy=True))
+    sequencing_center_id = db.Column(KfId(),
+                                     db.ForeignKey('sequencing_center.kf_id'),
+                                     nullable=False,
+                                     doc='The kf_id of the sequencing center')
+
+
+@event.listens_for(GenomicFile, 'after_delete')
+def delete_orphans(mapper, connection, state):
+    q = (db.session.query(SequencingExperiment)
+         .filter(~SequencingExperiment.genomic_files.any()))
+    q.delete(synchronize_session='fetch')
