@@ -4,7 +4,6 @@ import pytest
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
-from unittest.mock import patch
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
@@ -14,7 +13,7 @@ from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.genomic_file.models import GenomicFile
 
-from tests.utils import FlaskTestCase
+from tests.utils import IndexdTestCase
 from tests.mocks import MockIndexd, MockResp
 
 
@@ -23,18 +22,15 @@ MIN_SIZE_MB = 1000
 MB_TO_BYTES = 1000000000
 
 
-class ModelTest(FlaskTestCase):
+class ModelTest(IndexdTestCase):
     """
     Test GenomicFile database model
     """
 
-    @patch('dataservice.extensions.flask_indexd.requests')
-    def test_create_and_find(self, mock):
+    def test_create_and_find(self):
         """
         Test create genomic file
         """
-        indexd = MockIndexd()
-        mock.Session().post = indexd.post
         # Create genomic file dependent entities
         self._create_save_dependents()
 
@@ -77,6 +73,7 @@ class ModelTest(FlaskTestCase):
 
         # Check all input field values with persisted field values
         # for each genomic file
+        self.indexd.Session().get.side_effect = None
         for kf_id, kwargs in kwargs_dict.items():
             # Mock out the response from indexd for the file
             mock_file = {
@@ -84,20 +81,17 @@ class ModelTest(FlaskTestCase):
                 'urls': kwargs['urls'],
                 'hashes': kwargs['hashes']
             }
-            mock.Session().get.return_value = MockResp(resp=mock_file)
+            self.indexd.Session().get.return_value = MockResp(resp=mock_file)
 
             gf = GenomicFile.query.get(kf_id)
             gf.merge_indexd()
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
-    @patch('dataservice.extensions.flask_indexd.requests')
-    def test_create_via_biospecimen(self, mock):
+    def test_create_via_biospecimen(self):
         """
         Test create genomic file
         """
-        indexd = MockIndexd()
-        mock.Session().post = indexd.post
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -110,6 +104,7 @@ class ModelTest(FlaskTestCase):
 
         # Check all input field values with persisted field values
         # for each genomic file
+        self.indexd.Session().get.side_effect = None
         for kf_id, kwargs in kwargs_dict.items():
             # Mock out the response from indexd for the file
             mock_file = {
@@ -118,20 +113,17 @@ class ModelTest(FlaskTestCase):
                 'hashes': kwargs['hashes'],
                 'size': kwargs['size']
             }
-            mock.Session().get.return_value = MockResp(resp=mock_file)
+            self.indexd.Session().get.return_value = MockResp(resp=mock_file)
             gf = GenomicFile.query.get(kf_id)
             gf.merge_indexd()
 
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
-    @patch('dataservice.extensions.flask_indexd.requests')
-    def test_update(self, mock):
+    def test_update(self):
         """
         Test update genomic file
         """
-        indexd = MockIndexd()
-        mock.Session().post = indexd.post
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -149,13 +141,10 @@ class ModelTest(FlaskTestCase):
         [self.assertEqual(getattr(gf, k), v)
          for k, v in kwargs.items()]
 
-    @patch('dataservice.extensions.flask_indexd.requests')
-    def test_delete(self, mock):
+    def test_delete(self):
         """
         Test delete existing genomic file
         """
-        indexd = MockIndexd()
-        mock.Session().post = indexd.post
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -173,15 +162,12 @@ class ModelTest(FlaskTestCase):
             kf_id=biospecimen_id).one()
         self.assertEqual(len(biospecimen.genomic_files), 0)
 
-    @patch('dataservice.extensions.flask_indexd.requests')
-    def test_delete_via_biospecimen(self, mock):
+    def test_delete_via_biospecimen(self):
         """
         Test delete existing genomic file
 
         Delete biospecimen to which genomic file belongs
         """
-        indexd = MockIndexd()
-        mock.Session().post = indexd.post
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()
 
@@ -201,7 +187,7 @@ class ModelTest(FlaskTestCase):
             assert gf is None
 
         # Check that indexd was called successfully
-        assert mock.Session().delete.call_count == 2
+        assert self.indexd.Session().delete.call_count == 2
 
     ## TODO Check that file is not deleted if deletion on indexd fails
 

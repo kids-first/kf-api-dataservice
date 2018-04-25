@@ -89,13 +89,13 @@ class TestAPI:
          'could not find sequencing_experiment `123`'),
         ('/sequencing-experiments/123', 'DELETE',
          'could not find sequencing_experiment `123`'),
-         ('/sequencing-centers', 'GET', 'success'),
-         ('/sequencing-centers/123', 'GET',
-          'could not find sequencing_center `123`'),
-         ('/sequencing-centers/123', 'PATCH',
-          'could not find sequencing_center `123`'),
-         ('/sequencing-centers/123', 'DELETE',
-          'could not find sequencing_center `123`'),
+        ('/sequencing-centers', 'GET', 'success'),
+        ('/sequencing-centers/123', 'GET',
+         'could not find sequencing_center `123`'),
+        ('/sequencing-centers/123', 'PATCH',
+         'could not find sequencing_center `123`'),
+        ('/sequencing-centers/123', 'DELETE',
+         'could not find sequencing_center `123`'),
         ('/families/123', 'GET', 'could not find family `123`'),
         ('/families/123', 'PATCH', 'could not find family `123`'),
         ('/families/123', 'DELETE', 'could not find family `123`'),
@@ -146,22 +146,41 @@ class TestAPI:
         assert 'code' in body['_status']
         assert type(body['_status']['code']) is int
 
-    @pytest.mark.parametrize('endpoint', [
-        ('/participants'),
-        ('/diagnoses'),
-        ('/genomic-files')
+    @pytest.mark.parametrize('endpoint, parents', [
+        ('/studies', ['investigator']),
+        ('/study-files', ['study']),
+        ('/investigators', []),
+        ('/participants', ['study', 'family']),
+        ('/phenotypes', ['participant']),
+        ('/outcomes', ['participant']),
+        ('/diagnoses', ['participant']),
+        ('/biospecimens', ['participant', 'sequencing_center']),
+        ('/sequencing-experiments', ['sequencing_center']),
+        ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
     ])
-    def test_links(self, client, entities, endpoint):
+    def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
         resp = client.get(endpoint,
                           headers={'Content-Type': 'application/json'})
         body = json.loads(resp.data.decode('utf-8'))
 
         assert '_links' in body
+
         # If paginated results
         if isinstance(body['results'], list):
             for res in body['results']:
                 assert '_links' in res
+                # Parent entities are in links
+                for p in parents:
+                    assert p in res['_links']
+                # All links are formatted properly
+                for key, link in res['_links'].items():
+                    if key == 'collection':
+                        continue
+                    if link:
+                        assert len(link.split('/')[-1]) == 11
+                    else:
+                        assert link is None
 
     @pytest.mark.parametrize('endpoint, method, fields', [
         ('/studies', 'POST', ['created_at', 'modified_at']),
@@ -262,38 +281,38 @@ class TestAPI:
         assert 'could not {} '.format(action) in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']
 
-    @pytest.mark.parametrize('resource,field', [
-        ('/participants', 'diagnoses'),
-        ('/participants', 'biospecimens'),
-        ('/participants', 'outcomes'),
-        ('/participants', 'phenotypes'),
-        ('/studies', 'study_files'),
-        ('/families', 'participants'),
-        ('/sequencing-centers', 'biospecimens'),
-        ('/biospecimens', 'genomic_files'),
-        ('/sequencing-centers', 'sequencing_experiments'),
-        ('/sequencing-experiments', 'genomic_files')
+    @pytest.mark.parametrize('resource,fields', [
+        ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
+        ('/participants', ['diagnoses',
+                           'phenotypes', 'outcomes', 'biospecimens']),
+        ('/biospecimens', ['genomic_files']),
+        ('/sequencing-experiments', ['genomic_files']),
+        ('/studies', ['study_files', 'participants']),
+        ('/investigators', ['studies']),
+        ('/families', ['participants'])
     ])
-    def test_relations(self, client, entities, resource, field):
+    def test_child_links(self, client, entities, resource, fields):
         """ Checks that references to other resources have correct ID """
         kf_id = entities.get('kf_ids').get(resource)
         resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
 
-        assert field in body
-        if type(body[field]) is list:
-            assert all([type(f) is str for f in body[field]])
-            assert all([len(f) == 11 for f in body[field]])
-        else:
-            assert type(body[field]) is str
-            assert len(body[field]) == 11
+        for field in fields:
+            assert field in body
+            if type(body[field]) is list:
+                assert all([type(f) is str for f in body[field]])
+                assert all([len(f) == 11 for f in body[field]])
+            else:
+                assert type(body[field]) is str
+                assert len(body[field]) == 11
 
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint, field, value',
                              [('/biospecimens', 'shipment_date', 12000),
                               ('/biospecimens', 'shipment_date', '12000'),
                               ('/biospecimens', 'shipment_date', 'hai der'),
-                              ('/biospecimens', 'concentration_mg_per_ml', -12),
+                              ('/biospecimens', 'concentration_mg_per_ml',
+                               -12),
                               ('/biospecimens', 'volume_ml', -12),
                               ('/outcomes', 'age_at_event_days', -12),
                               ('/phenotypes', 'age_at_event_days', -12),
@@ -335,7 +354,6 @@ class TestAPI:
                               ('/diagnoses', 'participant_id'),
                               ('/sequencing-centers', 'name'),
                               ])
-
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
         """ Tests missing required parameters """

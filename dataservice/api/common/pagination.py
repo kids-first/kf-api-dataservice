@@ -86,3 +86,43 @@ class Pagination(object):
     def _to_timestamp(self, dt):
         """ Converts a datetime object to milliseconds since epoch """
         return dt.timestamp()
+
+
+def indexd_pagination(q, after, limit):
+    """
+    Special logic to paginate through indexd objects.
+    Whenever an indexd object is encountered that has been deleted in indexd,
+    the file is then deleted in the dataservice, thus making it necesarry to
+    re-fetch new files to return the desired amount of objects per page
+
+    :param q: The base query to perform
+    :param after: The earliest datetime to return objects from
+    :param limit: The maximum number of objects to return in a page
+
+    :returns: A Pagination object
+    """
+    pager = Pagination(q, after, limit)
+    keep = []
+    refresh = True
+    next_after = None
+    # Continue updating the page until we get a page with no deleted files
+    while (pager.total > 0 and refresh):
+        refresh = False
+        # Move the cursor ahead to the last valid file
+        next_after = keep[-1].created_at if len(keep) > 0 else after
+        # Number of results needed to fulfill the original limit
+        remain = limit - len(keep)
+        pager = Pagination(q, next_after, remain)
+
+        for st in pager.items:
+            merged = st.merge_indexd()
+            if merged is not None:
+                keep.append(st)
+            else:
+                refresh = True
+
+    # Replace original page's items with new list of valid files
+    pager.items = keep
+    pager.after = next_after if next_after else after
+
+    return pager

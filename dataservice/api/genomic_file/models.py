@@ -44,7 +44,6 @@ class GenomicFile(db.Model, Base, IndexdFile):
                                  ' the unharmonized genomic files')
     controlled_access = db.Column(db.Boolean(), doc='Whether or not the file'
                                   'is controlled access')
-    latest_did = db.Column(UUID(), nullable=False)
     availability = db.Column(db.Text(), doc='Indicates whether a file is '
                              'available for immediate download, or is in '
                              'cold storage')
@@ -54,12 +53,3 @@ class GenomicFile(db.Model, Base, IndexdFile):
                                          nullable=False)
     biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
                                nullable=False)
-
-    # Fields used by indexd, but not tracked in the database
-    file_name = ''
-    urls = []
-    rev = None
-    hashes = {}
-    # The metadata property is already used by sqlalchemy
-    _metadata = {}
-    size = None

@@ -149,7 +149,12 @@ def entities(client, indexd):
         },
         '/study-files':{
             'external_id': 'studfile001',
-            'file_name': 'test_file_name 1'
+            'file_name': 'test_file_name 1',
+            'data_type': 'clinical',
+            'file_format': 'csv',
+            'size': 1000,
+            'urls': ['s3://bucket/key'],
+            'hashes': {'md5': str(uuid.uuid4())}
         },
         '/sequencing-centers':{
             'external_id': 'SC001',
