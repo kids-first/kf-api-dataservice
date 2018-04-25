@@ -16,6 +16,7 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.workflow.models import (
     Workflow,
@@ -35,6 +36,7 @@ class DataGenerator(object):
         self.setup(config_name)
         self._participant_choices()
         self._diagnoses_choices()
+        self._sequencing_center_choices()
         self._biospecimen_choices()
         self._experiment_choices()
         self._genomic_files_choices()
@@ -97,13 +99,17 @@ class DataGenerator(object):
         self.analyte_type_list = []
         for line in reader:
             self.analyte_type_list.append(line[0])
+        self.shipment_origin_list = ['CORIELL']
 
-        self.shipment_destination_list = [
+    def _sequencing_center_choices(self):
+        """
+        Provides the choices for filling Sequencing Center entity
+        """
+        self.name_list = [
             'Baylor College of Medicine',
             'Washington University',
             'HudsonAlpha',
             'Broad Institute']
-        self.shipment_origin_list = ['CORIELL']
 
     def _experiment_choices(self):
         """
@@ -334,6 +340,8 @@ class DataGenerator(object):
         """
         # Studies
         studies = self._create_studies_investigators()
+        #
+        seq_centers = self._create_sequencing_centers()
         # Participants
         for i in range(total):
             diagnoses = self._create_diagnoses(
@@ -388,8 +396,6 @@ class DataGenerator(object):
                 'tumor_descriptor': random.choice(self.tumor_descriptor_list),
                 'external_aliquot_id': 'aliquot_{}'.format(i),
                 'shipment_origin': random.choice(self.shipment_origin_list),
-                'shipment_destination':
-                    random.choice(self.shipment_destination_list),
                 'analyte_type': random.choice(self.analyte_type_list),
                 'concentration_mg_per_ml': (random.randint(700, 4000)) / 10,
                 'volume_ml': (random.randint(200, 400)) / 10,
@@ -401,9 +407,10 @@ class DataGenerator(object):
             genomic_files = self._create_genomic_files(
                 random.randint(self.min_gen_files,
                                self.max_gen_files))
+            sc = random.choice(SequencingCenter.query.all())
             b = Biospecimen(
-                **biospecimen_data, genomic_files=genomic_files
-                )
+                **biospecimen_data, genomic_files=genomic_files,
+                sequencing_center_id=sc.kf_id)
             s_list.append(b)
         return s_list
 
@@ -428,8 +435,6 @@ class DataGenerator(object):
                     self.controlled_access_list),
                 'hashes': {'md5': str(uuid.uuid4()).replace('-', '')}
             }
-            sequencing_experiments = self._create_experiments(
-                random.randint(self.min_seq_exps, self.max_seq_exps))
             se = random.choice(SequencingExperiment.query.all())
             gf_list.append(GenomicFile(**kwargs,
                            sequencing_experiment_id=se.kf_id))
@@ -452,7 +457,6 @@ class DataGenerator(object):
                 relativedelta.relativedelta(days=random.randint(1, 30)),
                 'experiment_strategy':
                 random.choice(self.experiment_strategy_list),
-                'center': 'Broad Institute',
                 'library_name': 'Test_library_name_{}'.format(i),
                 'library_strand': random.choice(self.library_strand_list),
                 'is_paired_end': random.choice(self.is_paired_end_list),
@@ -464,10 +468,13 @@ class DataGenerator(object):
                 'total_reads': random.randint(400, 1000),
                 'mean_read_length': random.randint(400, 1000)
             }
-            se = SequencingExperiment(**e_data)
-            db.session.add(se)
-            e_list.append(SequencingExperiment(**e_data))
-        db.session.commit()
+            genomic_files = self._create_genomic_files(
+                random.randint(self.min_gen_files,
+                               self.max_gen_files))
+            se = SequencingExperiment(**e_data,
+                                      genomic_files=genomic_files)
+            e_list.append(SequencingExperiment(**e_data,
+                          genomic_files=genomic_files))
         return e_list
 
     def _create_workflows(self, total=None):
@@ -567,3 +574,18 @@ class DataGenerator(object):
             }
             phen_list.append(Phenotype(**phen))
         return phen_list
+
+    def _create_sequencing_centers(self):
+        """
+        Create sequencing center
+        """
+        sc = {
+          'name': random.choice(self.name_list)
+          }
+        sequencing_experiments = self._create_experiments(
+            random.randint(self.min_seq_exps, self.max_seq_exps))
+        sc = SequencingCenter(**sc,
+                              sequencing_experiments=sequencing_experiments)
+        db.session.add(sc)
+        db.session.commit()
+        return SequencingCenter(**sc)

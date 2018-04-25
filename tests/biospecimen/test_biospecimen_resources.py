@@ -10,6 +10,8 @@ from dataservice.api.common import id_service
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
 from tests.utils import FlaskTestCase
 
 BIOSPECIMENS_URL = 'api.biospecimens'
@@ -37,14 +39,15 @@ class BiospecimenTest(FlaskTestCase):
             'age_at_event_days': 365,
             'tumor_descriptor': 'Metastatic',
             'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
             'volume_ml': 12.67,
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
-            'participant_id': kwargs.get('participant_id')
+            'participant_id': kwargs.get('participant_id'),
+            'sequencing_center_id': kwargs.get('sequencing_center_id')
         }
         # Send post request
+        print(kwargs)
         response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
                                     data=json.dumps(kwargs),
                                     headers=self._api_headers())
@@ -56,7 +59,7 @@ class BiospecimenTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         biospecimen = response['results']
         for k, v in kwargs.items():
-            if k is 'participant_id':
+            if k is 'participant_id' or k is 'sequencing_center_id':
                 continue
             if k is 'shipment_date':
                 self.assertEqual(parser.parse(biospecimen[k]), parser.parse(v))
@@ -124,6 +127,7 @@ class BiospecimenTest(FlaskTestCase):
 
         Participant with participant_id does not exist in db
         """
+        s1 = self._create_save_to_db()
         dt = datetime.now()
         # Create biospecimen data
         kwargs = {
@@ -135,11 +139,11 @@ class BiospecimenTest(FlaskTestCase):
             'age_at_event_days': 365,
             'tumor_descriptor': 'Metastatic',
             'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
             'volume_ml': 12.67,
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
+            'sequencing_center_id': s1['sequencing_center_id'],
             # kf_id does not exist
             'participant_id': id_service.kf_id_generator('PT')()
         }
@@ -157,8 +161,7 @@ class BiospecimenTest(FlaskTestCase):
         message = '"{}" does not exist'.format(kwargs['participant_id'])
         self.assertIn(message, response['_status']['message'])
         # Check field values
-        d = Biospecimen.query.first()
-        self.assertIs(d, None)
+        self.assertEqual(1, Biospecimen.query.count())
 
     def test_post_multiple(self):
         # Create a biospecimen with participant
@@ -170,7 +173,8 @@ class BiospecimenTest(FlaskTestCase):
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 200,
             'volume_ml': 13.99,
-            'participant_id': s1['participant_id']
+            'participant_id': s1['participant_id'],
+            'sequencing_center_id': s1['sequencing_center_id']
         }
         # Send post request
         response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
@@ -200,9 +204,8 @@ class BiospecimenTest(FlaskTestCase):
         participant_link = response['_links']['participant']
         participant_id = urlparse(participant_link).path.split('/')[-1]
         for k, v in kwargs.items():
-            if k == 'participant_id':
-                self.assertEqual(participant_id,
-                                         kwargs['participant_id'])
+            if k == 'participant_id' or k == 'sequencing_center_id':
+                continue
             else:
                 if isinstance(v, datetime):
                     d = v.replace(tzinfo=tz.tzutc())
@@ -364,6 +367,19 @@ class BiospecimenTest(FlaskTestCase):
         db.session.add(study)
         db.session.commit()
 
+        sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
+        if sc is None:
+            sc = SequencingCenter(name="Baylor")
+            db.session.add(sc)
+            db.session.commit()
+        se = SequencingExperiment(external_id="Test_seq_ex_o",
+                                  experiment_strategy="WGS",
+                                  is_paired_end="True",
+                                  platform="Test_platform",
+                                  sequencing_center_id=sc.kf_id)
+        db.session.add(se)
+        db.session.commit()
+
         # Create biospecimen
         kwargs = {
             'external_sample_id': 's1',
@@ -374,11 +390,11 @@ class BiospecimenTest(FlaskTestCase):
             'age_at_event_days': 365,
             'tumor_descriptor': 'Metastatic',
             'shipment_origin': 'CORIELL',
-            'shipment_destination': 'Broad Institute',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
             'volume_ml': 12.67,
-            'shipment_date': dt
+            'shipment_date': dt,
+            'sequencing_center_id':sc.kf_id
         }
         d = Biospecimen(**kwargs)
 

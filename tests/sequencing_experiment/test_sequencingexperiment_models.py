@@ -9,6 +9,7 @@ from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.utils import FlaskTestCase
 from tests.mocks import MockIndexd, MockResp
@@ -26,16 +27,17 @@ class ModelTest(FlaskTestCase):
 
     def create_seqexp(self):
         """
-        create a participant, biospecimen, genomic_file and
+        create sequencing_center and
         sequencing experiment save the above entities to db
-        returns participant_id, biospecimen_id, and
-        sequencing_experiment_id
+        returns sequencing_experiment_id
         """
+        sc = SequencingCenter(name="Baylor")
         se_id = "Test_SequencingExperiment_0"
         seq_experiment_data = self._make_seq_exp(external_id=se_id)
         se = SequencingExperiment(
-            **seq_experiment_data)
-        db.session.add(se)
+            **seq_experiment_data, sequencing_center_id=sc.kf_id)
+        sc.sequencing_experiments.extend([se])
+        db.session.add(sc)
         db.session.commit()
         ids = {'sequencing_experiment_id': se_id}
         return ids
@@ -45,12 +47,15 @@ class ModelTest(FlaskTestCase):
         Test creation of sequencing_exeriment
         """
         dt = datetime.now()
-        # creating sequencing experiment
+        # Create sequencing center
+        sc = SequencingCenter(name="Baylor")
+        # Create sequencing experiment
         se_id = 'Test_SequencingExperiment_0'
         seq_experiment_data = self._make_seq_exp(external_id=se_id)
         e = SequencingExperiment(
-            **seq_experiment_data)
-        db.session.add(e)
+            **seq_experiment_data, sequencing_center_id=sc.kf_id)
+        sc.sequencing_experiments.extend([e])
+        db.session.add(sc)
         db.session.commit()
 
         self.assertEqual(SequencingExperiment.query.count(), 1)
@@ -101,8 +106,7 @@ class ModelTest(FlaskTestCase):
 
     def test_not_null_constraint(self):
         """
-        Test sequencing_experiment cannot be created with out genomic_file,
-        biospecimen or participant
+        Test sequencing_experiment cannot be created with out sequencing_center
         """
         dt = datetime.now()
         # Create sequencialexperiment without genomic_file kf_id
@@ -115,18 +119,16 @@ class ModelTest(FlaskTestCase):
 
     def test_foreign_key_constraint(self):
         """
-        Test sequencing_experiment can be created with out genomic_file,
-        biospecimen or participant
+        Test sequencing_experiment cannot be created with out
+        sequencing_center
         """
         # Create sequencialexperiment
         se_id = 'Test_SequencingExperiment_0'
         seq_experiment_data = self._make_seq_exp(external_id=se_id)
 
         e = SequencingExperiment(**seq_experiment_data)
-        db.session.add(e)
-        db.session.commit()
         # Check for database
-        self.assertEqual(1, SequencingExperiment.query.count())
+        self.assertRaises(IntegrityError, db.session.add(e))
 
     @patch('dataservice.extensions.flask_indexd.requests')
     def test_delete_orphans(self, mock):
@@ -162,10 +164,27 @@ class ModelTest(FlaskTestCase):
         # Create study
         study = Study(external_id='phs001')
 
-        # Create sequencing experiments
-        se1 = SequencingExperiment(**self._make_seq_exp('se1'))
-        se2 = SequencingExperiment(**self._make_seq_exp('se2'))
+        # Create participant
+        p = Participant(external_id='p1',
+                        is_proband=True, study=study)
 
+        # Create sequencing_center
+        sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
+        if sc is None:
+            sc = SequencingCenter(name="Baylor")
+            db.session.add(sc)
+            db.session.commit()
+
+        # Create sequencing experiments
+        se1 = SequencingExperiment(**self._make_seq_exp('se1'),
+                                   sequencing_center_id=sc.kf_id)
+        se2 = SequencingExperiment(**self._make_seq_exp('se2'),
+                                   sequencing_center_id=sc.kf_id)
+
+        # Create biospecimen
+        bs = Biospecimen(external_sample_id='bio1', analyte_type='dna',
+                         participant_id=p.kf_id,
+                         sequencing_center_id=sc.kf_id)
         # Create genomic files
         gfs = []
         for i in range(4):
@@ -179,21 +198,15 @@ class ModelTest(FlaskTestCase):
                 'is_harmonized': True,
                 'reference_genome': 'Test01'
             }
-            gf = GenomicFile(**kwargs)
+            gf = GenomicFile(**kwargs, biospecimen_id=bs.kf_id,
+                             sequencing_experiment_id=se1.kf_id)
             if i % 2:
                 se1.genomic_files.append(gf)
             else:
                 se2.genomic_files.append(gf)
             gfs.append(gf)
-
-        # Create biospecimen
-        bs = Biospecimen(external_sample_id='bio1', analyte_type='dna',
-                         genomic_files=gfs)
-
-        # Create participant
-        p = Participant(external_id='p1',
-                        biospecimens=[bs],
-                        is_proband=True, study=study)
+        bs.genomic_files = gfs
+        p.biospecimens = [bs]
         db.session.add(p)
         db.session.commit()
 
@@ -207,7 +220,6 @@ class ModelTest(FlaskTestCase):
             'external_id': external_id,
             'experiment_date': dt,
             'experiment_strategy': 'WXS',
-            'center': 'Broad Institute',
             'library_name': 'Test_library_name_1',
             'library_strand': 'Unstranded',
             'is_paired_end': False,
