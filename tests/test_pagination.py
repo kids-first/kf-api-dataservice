@@ -36,7 +36,6 @@ class TestPagination:
         for i in range(101):
             s = Study(external_id='Study_{}'.format(i))
             db.session.add(s)
-        db.session.commit()
 
         # Add a bunch of study files
         s0 = Study.query.filter_by(external_id='Study_0').one()
@@ -44,25 +43,24 @@ class TestPagination:
         for i in range(101):
             sf = StudyFile(file_name='blah', study_id=s0.kf_id)
             db.session.add(sf)
-        db.session.commit()
 
         # Add a bunch of investigators
         for _ in range(102):
             inv = Investigator(name='test')
             inv.studies.extend([s0, s1])
             db.session.add(inv)
-        db.session.commit()
 
         # Add a bunch of families
         families = []
         for i in range(101):
             families.append(Family(external_id='Family_{}'.format(i)))
         db.session.add_all(families)
-        db.session.commit()
+        db.session.flush()
 
         participants = []
         f0 = Family.query.filter_by(external_id='Family_0').one()
         f1 = Family.query.filter_by(external_id='Family_1').one()
+        seq_cen = None
         for i in range(102):
             f = f0 if i < 50 else f1
             s = s0 if i < 50 else s1
@@ -83,47 +81,43 @@ class TestPagination:
             p.phenotypes = [phen]
             participants.append(p)
             db.session.add(p)
-            db.session.commit()
+            db.session.flush()
 
             seq_data = {
-             'external_id': 'Seq_0',
-             'experiment_strategy': 'WXS',
-             'library_name': 'Test_library_name_1',
-             'library_strand': 'Unstranded',
-             'is_paired_end': False,
-             'platform': 'Test_platform_name_1'
-             }
+                'external_id': 'Seq_0',
+                'experiment_strategy': 'WXS',
+                'library_name': 'Test_library_name_1',
+                'library_strand': 'Unstranded',
+                'is_paired_end': False,
+                'platform': 'Test_platform_name_1'
+            }
             gf_kwargs = {
-                    'file_name': 'hg38.fq',
-                    'data_type': 'reads',
-                    'file_format': 'fastq',
-                    'size': 1000,
-                    'urls': ['s3://bucket/key'],
-                    'hashes': {'md5': str(uuid.uuid4())},
-                    'controlled_access': False
-             }
-            seq_cen = SequencingCenter.query.filter_by(name="Baylor")\
-                                                .one_or_none()
+                'file_name': 'hg38.fq',
+                'data_type': 'reads',
+                'file_format': 'fastq',
+                'size': 1000,
+                'urls': ['s3://bucket/key'],
+                'hashes': {'md5': str(uuid.uuid4())},
+                'controlled_access': False
+            }
             if seq_cen is None:
                 seq_cen = SequencingCenter(name="Baylor")
                 db.session.add(seq_cen)
-                db.session.commit()
+                db.session.flush()
             seq_exp = SequencingExperiment(**seq_data,
                                            sequencing_center_id=seq_cen.kf_id)
             db.session.add(seq_exp)
-            db.session.commit()
             samp = Biospecimen(analyte_type='an analyte',
                                sequencing_center_id=seq_cen.kf_id,
-                               participant_id=p.kf_id)
+                               participant=p)
             db.session.add(samp)
-            db.session.commit()
             p.biospecimens = [samp]
 
             gf = GenomicFile(**gf_kwargs,
                              biospecimen_id=samp.kf_id,
                              sequencing_experiment_id=seq_exp.kf_id)
             db.session.add(gf)
-            db.session.commit()
+
         # Family relationships
         for participant, relative in iterate_pairwise(participants):
             gender = participant.gender
