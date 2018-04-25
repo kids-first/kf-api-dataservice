@@ -154,8 +154,8 @@ class TestAPI:
         ('/phenotypes', ['participant']),
         ('/outcomes', ['participant']),
         ('/diagnoses', ['participant']),
-        ('/biospecimens', ['participant']),
-        ('/sequencing-experiments', []),
+        ('/biospecimens', ['participant', 'sequencing_center']),
+        ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
@@ -282,7 +282,7 @@ class TestAPI:
         assert 'Unknown field' in body['_status']['message']
 
     @pytest.mark.parametrize('resource,fields', [
-        ('/sequencing-centers', ['sequencing_experiments']),
+        ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
         ('/participants', ['diagnoses',
                            'phenotypes', 'outcomes', 'biospecimens']),
         ('/biospecimens', ['genomic_files']),
