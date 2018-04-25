@@ -126,7 +126,7 @@ def entities(client, indexd):
             'age_at_event_days': 365,
             'mondo_id_diagnosis': 'DOID:8469',
             'icd_id_diagnosis': 'J10.01',
-            'uberon_id_tumor_location':'UBERON:0000955',
+            'uberon_id_tumor_location': 'UBERON:0000955',
             'spatial_descriptor': 'left side'
         },
         '/outcomes': {
@@ -147,7 +147,7 @@ def entities(client, indexd):
             'external_id': 'famrel001',
             'participant_to_relative_relation': 'mother'
         },
-        '/study-files':{
+        '/study-files': {
             'external_id': 'studfile001',
             'file_name': 'test_file_name 1',
             'data_type': 'clinical',
@@ -156,7 +156,7 @@ def entities(client, indexd):
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())}
         },
-        '/sequencing-centers':{
+        '/sequencing-centers': {
             'external_id': 'SC001',
             'name': 'Baylor'
         }
@@ -186,8 +186,8 @@ def entities(client, indexd):
     phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
     diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
     seq_center = SequencingCenter.query.\
-                filter_by(name=inputs['/sequencing-centers']['name'])\
-                .one_or_none()
+        filter_by(name=inputs['/sequencing-centers']['name'])\
+        .one_or_none()
     if seq_center is None:
         seq_center = SequencingCenter(**inputs['/sequencing-centers'])
         db.session.add(seq_center)
