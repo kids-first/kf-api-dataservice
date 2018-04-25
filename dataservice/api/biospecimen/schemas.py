@@ -30,5 +30,7 @@ class BiospecimenSchema(BaseSchema):
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
-        'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
+        'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
+        'sequencing_center': ma.URLFor('api.sequencing_centers',
+                                       kf_id='<sequencing_center_id>')
     })
