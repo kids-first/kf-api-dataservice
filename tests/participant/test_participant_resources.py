@@ -91,19 +91,7 @@ class ParticipantTest(FlaskTestCase):
         """
         Test that there is no family link if the participant doesnt have one
         """
-        s = Study(external_id='phs001')
-        db.session.add(s)
-        db.session.commit()
-
-        body = {
-            'external_id': 'p01',
-            'is_proband': True,
-            'consent_type': 'GRU-IRB',
-            'study_id': s.kf_id
-        }
-        resp = self.client.post(url_for(PARTICIPANT_LIST_URL),
-                                headers=self._api_headers(),
-                                data=json.dumps(body))
+        resp = self._make_participant(include_nullables=False)
         resp = json.loads(resp.data.decode("utf-8"))
         kf_id = resp['results']['kf_id']
 
@@ -113,7 +101,8 @@ class ParticipantTest(FlaskTestCase):
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 200)
 
-        self.assertTrue('family' not in resp['_links'])
+        self.assertTrue('family' in resp['_links'])
+        self.assertIs(None, resp['_links']['family'])
 
     def test_get_all_participants(self):
         """
@@ -231,7 +220,8 @@ class ParticipantTest(FlaskTestCase):
         resp = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 404)
 
-    def _make_participant(self, external_id="TEST-0001"):
+    def _make_participant(self, external_id="TEST-0001",
+                          include_nullables=True):
         """
         Convenience method to create a participant with a given source name
         """
@@ -243,7 +233,6 @@ class ParticipantTest(FlaskTestCase):
 
         body = {
             'external_id': external_id,
-            'family_id': fam.kf_id,
             'is_proband': True,
             'consent_type': 'GRU-IRB',
             'race': 'asian',
@@ -251,6 +240,9 @@ class ParticipantTest(FlaskTestCase):
             'gender': 'female',
             'study_id': s.kf_id
         }
+        if include_nullables:
+            body.update({'family_id': fam.kf_id})
+
         response = self.client.post(url_for(PARTICIPANT_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))

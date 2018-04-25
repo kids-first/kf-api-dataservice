@@ -28,5 +28,9 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
-        'collection': ma.URLFor(Meta.collection_url)
+        'collection': ma.URLFor(Meta.collection_url),
+        'biospecimen': ma.URLFor('api.biospecimens',
+                                 kf_id='<biospecimen_id>'),
+        'sequencing_experiment': ma.URLFor('api.sequencing_experiments',
+                                           kf_id='<sequencing_experiment_id>')
     }, description='Resource links and pagination')
