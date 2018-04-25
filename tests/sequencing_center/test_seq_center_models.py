@@ -22,7 +22,7 @@ class ModelTest(FlaskTestCase):
         """
         sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
         if sc is None:
-            sc = SequencingCenter(name="Baylor")
+            sc = SequencingCenter(external_id='SC_0',name="Baylor")
             db.session.add(sc)
             db.session.commit()
         seq_data = {
@@ -90,7 +90,7 @@ class ModelTest(FlaskTestCase):
         Test sequencing_center can be created with out name
         """
         # Create sequencing_center without name
-        sc = SequencingCenter()
+        sc = SequencingCenter(external_id='SC_0')
 
         # Add sequencing_center to db
         db.session.add(sc)
@@ -103,7 +103,7 @@ class ModelTest(FlaskTestCase):
         """
         ids = self.create_seqexp_seqcen()
         # Create sequencing_center with same value in name
-        sc = SequencingCenter(name='Baylor')
+        sc = SequencingCenter(external_id='SC_0',name='Baylor')
 
         # Add sequencing_center to db
         db.session.add(sc)

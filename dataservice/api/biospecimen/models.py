@@ -27,8 +27,8 @@ class Biospecimen(db.Model, Base):
     :param volume_ml: The volume in microliters (ml) of the aliquots derived
            from the analyte(s) shipped for sequencing and characterization
     :param shipment_date: The date item was shipped in YYYY-MM-DD format
-    :param uberon_id: The ID of the term from Uber-anatomy ontology
-           which represents harmonized anatomical ontologies
+    :param uberon_id_anatomical_site: The ID of the term from Uber-anatomy
+           ontology which represents harmonized anatomical ontologies
     :param ncit_id_tissue_type: The ID term from the National Cancer Institute
            Thesaurus which represents a harmonized tissue_type
     :param ncit_id_anatomical_site: The ID term from the National Cancer
@@ -67,9 +67,11 @@ class Biospecimen(db.Model, Base):
                           doc='The volume of the aliquot')
     shipment_date = db.Column(db.DateTime(),
                               doc='The date the aliquot was shipped')
-    uberon_id = db.Column(db.Text(),
-                          doc='The ID of the term from Uber-anatomy ontology'
-                          'which represents harmonized anatomical ontologies')
+    uberon_id_anatomical_site = db.Column(db.Text(),
+                                          doc='The ID of the term from '
+                                          'Uber-anatomy ontology which '
+                                          'represents harmonized anatomical'
+                                          ' ontologies')
     ncit_id_tissue_type = db.Column(db.Text(),
                                     doc='The ID term from the National Cancer'
                                     'Institute Thesaurus which represents a '

@@ -94,6 +94,7 @@ class TestPagination:
              'platform': 'Test_platform_name_1'
              }
             gf_kwargs = {
+                    'external_id': 'gf_0',
                     'file_name': 'hg38.fq',
                     'data_type': 'reads',
                     'file_format': 'fastq',
@@ -105,7 +106,7 @@ class TestPagination:
             seq_cen = SequencingCenter.query.filter_by(name="Baylor")\
                                                 .one_or_none()
             if seq_cen is None:
-                seq_cen = SequencingCenter(name="Baylor")
+                seq_cen = SequencingCenter(external_id='SC_0', name="Baylor")
                 db.session.add(seq_cen)
                 db.session.commit()
             seq_exp = SequencingExperiment(**seq_data,

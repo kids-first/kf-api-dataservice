@@ -119,9 +119,9 @@ class ModelTest(FlaskTestCase):
             'age_at_event_days': 365,
             'diagnosis_category': 'cancer',
             'source_text_tumor_location': 'Brain',
-            'mondo_id': 'DOID:8469',
-            'uberon_id':'UBERON:0000955',
-            'icd_id': 'J10.01',
+            'mondo_id_diagnosis': 'DOID:8469',
+            'uberon_id_tumor_location':'UBERON:0000955',
+            'icd_id_diagnosis': 'J10.01',
             'spatial_descriptor': 'left side'
         }
         if participant_id:

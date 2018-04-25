@@ -300,7 +300,7 @@ class ModelTest(FlaskTestCase):
             'concentration_mg_per_ml': 100.0,
             'volume_ml': 12.67,
             'shipment_date': dt,
-            'uberon_id':'UBERON:0000955',
+            'uberon_id_anatomical_site': 'UBERON:0000955',
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',
             'ncit_id_anatomical_site': 'C12439'

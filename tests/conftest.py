@@ -100,7 +100,7 @@ def entities(client, indexd):
             'concentration_mg_per_ml': 200.0,
             'volume_ml': 13.99,
             'shipment_date': str(datetime.utcnow()),
-            'uberon_id': 'test',
+            'uberon_id_anatomical_site': 'test',
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',
             'ncit_id_anatomical_site': 'C12439'
@@ -124,9 +124,9 @@ def entities(client, indexd):
             'external_id': 'd0',
             'source_text_diagnosis': 'diag',
             'age_at_event_days': 365,
-            'mondo_id': 'DOID:8469',
-            'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955',
+            'mondo_id_diagnosis': 'DOID:8469',
+            'icd_id_diagnosis': 'J10.01',
+            'uberon_id_tumor_location':'UBERON:0000955',
             'spatial_descriptor': 'left side'
         },
         '/outcomes': {
@@ -138,8 +138,8 @@ def entities(client, indexd):
         '/phenotypes': {
             'external_id': 'phe001',
             'source_text_phenotype': 'test phenotype 1',
-            'hpo_id': 'HP:0000118',
-            'snomed_id': '38033009',
+            'hpo_id_phenotype': 'HP:0000118',
+            'snomed_id_phenotype': '38033009',
             'age_at_event_days': 120
         },
 
@@ -151,10 +151,8 @@ def entities(client, indexd):
             'external_id': 'studfile001',
             'file_name': 'test_file_name 1'
         },
-        '/genomic-files':{
-            'file_name': 'test_genomic_file_name 1'
-        },
         '/sequencing-centers':{
+            'external_id': 'SC001',
             'name': 'Baylor'
         }
     }

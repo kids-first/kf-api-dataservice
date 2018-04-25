@@ -15,10 +15,11 @@ class ModelTest(FlaskTestCase):
     Test Phenotype database model
     """
 
-    def test_create(self):
+    def test_create_and_find(self):
         """
         Test create phenotype
         """
+        dt = datetime.now()
         # Create Study
         study = Study(external_id='phs001')
 
@@ -28,34 +29,30 @@ class ModelTest(FlaskTestCase):
                         study=study)
         db.session.add(p)
         db.session.commit()
-
+        kwarg_dict = {}
         # Create phenotypes
-        data = {
-            'external_id': 'test_phenotype_0',
-            'source_text_phenotype': 'test phenotype 1',
-            'hpo_id': 'HP:0000118',
-            'snomed_id': '38033009',
-            'age_at_event_days': 120,
-            'participant_id': p.kf_id
-        }
-        dt = datetime.now()
-        ph1 = Phenotype(**data)
-        db.session.add(ph1)
-        data['source_text_phenotype'] = 'phenotype_2'
-        data['hpo_id'] = 'HP:0040064'
-        ph2 = Phenotype(**data)
-        db.session.add(ph2)
+        for i in range(2):
+            data = {
+                'external_id': 'test_phenotype_{}'.format(i),
+                'source_text_phenotype': 'test phenotype_{}'.format(i),
+                'hpo_id_phenotype': 'HP:0000118',
+                'snomed_id_phenotype': '38033009',
+                'age_at_event_days': 120,
+                'participant_id': p.kf_id
+                }
+            ph = Phenotype(**data)
+            kwarg_dict[ph.external_id] = data
+            db.session.add(ph)
         db.session.commit()
 
         self.assertEqual(Phenotype.query.count(), 2)
-        new_phenotype = Phenotype.query.all()[1]
-        self.assertGreater(new_phenotype.created_at, dt)
-        self.assertGreater(new_phenotype.modified_at, dt)
-        self.assertIs(type(uuid.UUID(new_phenotype.uuid)), uuid.UUID)
-
-        self.assertEqual(new_phenotype.source_text_phenotype,
-                         data['source_text_phenotype'])
-        self.assertEqual(new_phenotype.hpo_id, 'HP:0040064')
+        for k, kwargs in kwarg_dict.items():
+            ph = Phenotype.query.filter_by(external_id=k).one()
+            for key, value in kwargs.items():
+                self.assertEqual(value, getattr(ph, key))
+            self.assertGreater(ph.created_at, dt)
+            self.assertGreater(ph.modified_at, dt)
+            self.assertIs(type(uuid.UUID(ph.uuid)), uuid.UUID)
 
     def test_create_via_participant(self):
         """
@@ -74,17 +71,6 @@ class ModelTest(FlaskTestCase):
         p = Participant.query.first()
         for ph in Phenotype.query.all():
             self.assertEqual(ph.participant_id, p.kf_id)
-
-    def test_find_phenotype(self):
-        """
-        Test find one phenotype
-        """
-        phenotypes, p, pheno = self._create_phenotypes()
-
-        # Find phenotype
-        ph = Phenotype.query.\
-            filter_by(source_text_phenotype=pheno[0]).one_or_none()
-        self.assertEqual(ph.source_text_phenotype, pheno[0])
 
     def test_update_phenotype(self):
         """

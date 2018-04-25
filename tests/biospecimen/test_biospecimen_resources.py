@@ -304,6 +304,7 @@ class BiospecimenTest(FlaskTestCase):
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',
             'ncit_id_anatomical_site': 'C12439',
+            'uberon_id_anatomical_site': 'UBERON:0000955',
             'sequencing_center_id':sc.kf_id
         }
         d = Biospecimen(**kwargs)
