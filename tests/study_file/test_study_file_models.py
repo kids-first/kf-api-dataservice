@@ -1,12 +1,13 @@
+import pytest
 from sqlalchemy.exc import IntegrityError
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.study_file.models import StudyFile
-from tests.utils import FlaskTestCase
+from tests.utils import IndexdTestCase
 
 
-class ModelTest(FlaskTestCase):
+class ModelTest(IndexdTestCase):
     """
     Test StudyFile database model
     """

@@ -39,19 +39,9 @@ class GenomicFile(db.Model, Base, IndexdFile):
                                  ' the unharmonized genomic files')
     controlled_access = db.Column(db.Boolean(), doc='Whether or not the file'
                                   'is controlled access')
-    latest_did = db.Column(UUID(), nullable=False)
     sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'),
                                          nullable=False)
     biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
                                nullable=False)
-
-    # Fields used by indexd, but not tracked in the database
-    file_name = ''
-    urls = []
-    rev = None
-    hashes = {}
-    # The metadata property is already used by sqlalchemy
-    _metadata = {}
-    size = None
