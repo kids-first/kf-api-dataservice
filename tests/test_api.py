@@ -326,7 +326,8 @@ class TestAPI:
                                'mean_read_length', -12),
                               ('/sequencing-experiments', 'total_reads', -12),
                               ('/sequencing-experiments',
-                               'experiment_date', 'hai der')])
+                               'experiment_date', 'hai der'),
+                              ('/diagnoses', 'age_at_event_days', -5)])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]
@@ -350,6 +351,7 @@ class TestAPI:
                               ('/family-relationships', 'participant_id'),
                               ('/family-relationships', 'relative_id'),
                               ('/study-files', 'study_id'),
+                              ('/diagnoses', 'participant_id'),
                               ('/sequencing-centers', 'name'),
                               ])
     def test_missing_required_params(self, client, entities, endpoint,
@@ -376,7 +378,12 @@ class TestAPI:
                               ('/phenotypes', 'participant_id'),
                               ('/family-relationships', 'participant_id'),
                               ('/family-relationships', 'relative_id'),
-                              ('/study-files', 'study_id')])
+                              ('/study-files', 'study_id'),
+                              ('/diagnoses', 'participant_id'),
+                              ('/biospecimens', 'participant_id'),
+                              ('/genomic-files', 'biospecimen_id'),
+                              ('/genomic-files', 'sequencing_experiment_id')])
+
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key

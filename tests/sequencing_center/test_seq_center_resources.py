@@ -24,6 +24,7 @@ class SequencingCenterTest(FlaskTestCase):
         """
         # Create sequencing_center data
         kwargs ={
+                'external_id': 'SC_0',
                 'name': "Baylor"
         }
         # Send get request

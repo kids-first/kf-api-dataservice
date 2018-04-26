@@ -309,6 +309,7 @@ class ModelTest(FlaskTestCase):
         Create workflow
         """
         data = {
+            'external_id': 'test_workflow_0',
             'task_id': 'task_{}'.format(_name),
             'name': _name,
             'github_commit_url': WORKFLOW_COMMIT_URL

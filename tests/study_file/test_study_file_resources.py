@@ -120,7 +120,7 @@ def test_get_one(client, entities):
     Test that study files are returned in a paginated list with all
     info loaded from indexd
     """
-    
+
     st = StudyFile.query.first()
     st.merge_indexd()
 

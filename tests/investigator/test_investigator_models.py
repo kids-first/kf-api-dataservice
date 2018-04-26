@@ -105,8 +105,9 @@ class ModelTest(FlaskTestCase):
 
     def create_investigator(self):
         # Create investigator
-        investigator = Investigator(name='Adam', institution='CHOP')
-                        
+        investigator = Investigator(name='Adam', institution='CHOP',
+                                    external_id='Invest_1')
+
         # Create studies
         studies = []
         for i in range(2):

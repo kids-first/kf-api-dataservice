@@ -23,6 +23,7 @@ class FamilyRelationship(db.Model, Base):
     :param kf_id: Primary key given by the Kid's First DCC
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
+    :param external_id: Name given to family_relationship by contributor
     :param participant_id: Kids first id of the first Participant in the
     relationship
     :param relative_id: Kids first id of the second Participant (or relative)
@@ -37,7 +38,8 @@ class FamilyRelationship(db.Model, Base):
     __table_args__ = (db.UniqueConstraint('participant_id', 'relative_id',
                                           'participant_to_relative_relation',
                                           'relative_to_participant_relation'),)
-
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
     participant_id = db.Column(
         KfId(),
         db.ForeignKey('participant.kf_id'),

@@ -29,13 +29,14 @@ class DiagnosisTest(FlaskTestCase):
         # Create diagnosis data
         kwargs = {
             'external_id': 'd1',
-            'diagnosis': 'flu',
+            'source_text_diagnosis': 'flu',
             'age_at_event_days': 365,
             'diagnosis_category': 'cancer',
-            'tumor_location': 'Brain',
-            'mondo_id': 'DOID:8469',
-            'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955',
+            'source_text_tumor_location': 'Brain',
+            'mondo_id_diagnosis': 'DOID:8469',
+            'icd_id_diagnosis': 'J10.01',
+            'uberon_id_tumor_location':'UBERON:0000955',
+            'spatial_descriptor': 'left side',
             'participant_id': kwargs.get('participant_id')
         }
         # Send get request
@@ -56,121 +57,19 @@ class DiagnosisTest(FlaskTestCase):
             self.assertEqual(diagnosis[k], getattr(dg, k))
         self.assertEqual(2, Diagnosis.query.count())
 
-    def test_post_missing_req_params(self):
-        """
-        Test create diagnosis that is missing required parameters in body
-        """
-        # Create diagnosis data
-        kwargs = {
-            'external_id': 'd1',
-            'diagnosis': 'flu',
-            'age_at_event_days': 365,
-            'diagnosis_category': 'cancer',
-            'tumor_location': 'Brain',
-            'mondo_id': 'DOID:8469',
-            'uberon_id':'UBERON:0000955',
-            'icd_id': 'J10.01'
-            # missing required param participant_id
-        }
-        # Send post request
-        response = self.client.post(url_for(DIAGNOSES_LIST_URL),
-                                    headers=self._api_headers(),
-                                    data=json.dumps(kwargs))
-
-        # Check status code
-        self.assertEqual(response.status_code, 400)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not create diagnosis'
-        self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Diagnosis.query.first()
-        self.assertIs(d, None)
-
-    def test_post_invalid_age(self):
-        """
-        Test create diagnosis with bad input data
-
-        Participant with participant_id does not exist in db
-        """
-        # Create diagnosis data
-        kwargs = {
-            'external_id': 'd1',
-            'diagnosis': 'flu',
-            'diagnosis_category': 'cancer',
-            'tumor_location': 'Brain',
-            # should be a positive integer
-            'age_at_event_days': -5,
-            'mondo_id': 'DOID:8469',
-            'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955'
-        }
-        # Send post request
-        response = self.client.post(url_for(DIAGNOSES_LIST_URL),
-                                    headers=self._api_headers(),
-                                    data=json.dumps(kwargs))
-
-        # Check status code
-        self.assertEqual(response.status_code, 400)
-
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'could not create diagnosis'
-        self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Diagnosis.query.first()
-        self.assertIs(d, None)
-
-    def test_post_bad_input(self):
-        """
-        Test create diagnosis with bad input data
-
-        Participant with participant_id does not exist in db
-        """
-        # Create diagnosis data
-        kwargs = {
-            'external_id': 'd1',
-            'diagnosis': 'flu',
-            'age_at_event_days': 365,
-            'diagnosis_category': 'cancer',
-            'tumor_location': 'Brain',
-            'mondo_id': 'DOID:8469',
-            'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955',
-            # kf_id does not exist
-            'participant_id': id_service.kf_id_generator('PT')()
-        }
-        # Send post request
-        response = self.client.post(url_for(DIAGNOSES_LIST_URL),
-                                    headers=self._api_headers(),
-                                    data=json.dumps(kwargs))
-
-        # Check status code
-        self.assertEqual(response.status_code, 400)
-
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = '"{}" does not exist'.format(kwargs['participant_id'])
-        self.assertIn(message, response['_status']['message'])
-        # Check field values
-        d = Diagnosis.query.first()
-        self.assertIs(d, None)
-
     def test_post_multiple(self):
         # Create a diagnosis with participant
         d1 = self._create_save_to_db()
         # Create another diagnosis for the same participant
         d2 = {
             'external_id': 'd2',
-            'diagnosis': 'cold',
+            'source_text_diagnosis': 'cold',
             'diagnosis_category': 'cancer',
-            'tumor_location': 'Brain',
-            'mondo_id': 'DOID:8469',
-            'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955',
+            'source_text_tumor_location': 'Brain',
+            'mondo_id_diagnosis': 'DOID:8469',
+            'icd_id_diagnosis': 'J10.01',
+            'uberon_id_tumor_location':'UBERON:0000955',
+            'spatial_descriptor': 'left side',
             'participant_id': d1['participant_id']
         }
         # Send post request
@@ -229,7 +128,7 @@ class DiagnosisTest(FlaskTestCase):
 
         # Update existing diagnosis
         body = {
-            'diagnosis': 'hangry',
+            'source_text_diagnosis': 'hangry',
             'diagnosis_category': 'birth defect',
             'participant_id': kwargs['participant_id']
         }
@@ -263,58 +162,6 @@ class DiagnosisTest(FlaskTestCase):
 
         self.assertEqual(1, Diagnosis.query.count())
 
-    def test_patch_bad_input(self):
-        """
-        Test updating an existing participant with invalid input
-        """
-        kwargs = self._create_save_to_db()
-        kf_id = kwargs.get('kf_id')
-        body = {
-            'participant_id': 'AAAA1111'
-        }
-        response = self.client.patch(url_for(DIAGNOSES_URL,
-                                             kf_id=kf_id),
-                                     headers=self._api_headers(),
-                                     data=json.dumps(body))
-        # Check status code
-        self.assertEqual(response.status_code, 400)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check error message
-        message = 'participant "AAAA1111" does not exist'
-        self.assertIn(message, response['_status']['message'])
-        # Check that properties are unchanged
-        dg = Diagnosis.query.first()
-        for k, v in kwargs.items():
-            if k == 'participant_id':
-                continue
-            self.assertEqual(v, getattr(dg, k))
-
-    def test_patch_missing_req_params(self):
-        """
-        Test create diagnosis that is missing required parameters in body
-        """
-        # Create and save diagnosis to db
-        kwargs = self._create_save_to_db()
-        kf_id = kwargs.get('kf_id')
-        # Create diagnosis data
-        body = {
-            'diagnosis': 'hangry and flu'
-        }
-        # Send put request
-        response = self.client.patch(url_for(DIAGNOSES_URL,
-                                             kf_id=kwargs['kf_id']),
-                                     headers=self._api_headers(),
-                                     data=json.dumps(body))
-        # Check status code
-        self.assertEqual(response.status_code, 200)
-        # Check response body
-        response = json.loads(response.data.decode("utf-8"))
-        # Check field values
-        dg = Diagnosis.query.get(kf_id)
-        for k, v in body.items():
-            self.assertEqual(v, getattr(dg, k))
-
     def test_delete(self):
         """
         Test delete an existing diagnosis
@@ -346,13 +193,14 @@ class DiagnosisTest(FlaskTestCase):
         # Create diagnosis
         kwargs = {
             'external_id': 'd1',
-            'diagnosis': 'flu',
+            'source_text_diagnosis': 'flu',
             'diagnosis_category': 'cancer',
-            'tumor_location': 'Brain',
+            'source_text_tumor_location': 'Brain',
             'age_at_event_days': 365,
-            'mondo_id': 'DOID:8469',
-            'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955'
+            'mondo_id_diagnosis': 'DOID:8469',
+            'icd_id_diagnosis': 'J10.01',
+            'uberon_id_tumor_location':'UBERON:0000955',
+            'spatial_descriptor': 'left side'
         }
         d = Diagnosis(**kwargs)
 

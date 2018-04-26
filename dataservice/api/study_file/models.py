@@ -10,7 +10,8 @@ class StudyFile(db.Model, Base, IndexdFile):
     :param uuid: The baseid assigned to the file by indexd
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
-    :param file_name: File name of study
+    :param external_id: Name given to study_file by contributor
+    :param file_name: Name of the study file
     :param latest_did: UUID for the latest version of the file in indexd
     :param urls: Locations of file
     :param hashes: A dict keyed by hash type containing hashes of the file
@@ -20,6 +21,8 @@ class StudyFile(db.Model, Base, IndexdFile):
     __tablename__ = 'study_file'
     __prefix__ = 'SF'
 
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
     study_id = db.Column(KfId(),
                          db.ForeignKey('study.kf_id'),
                          nullable=False)

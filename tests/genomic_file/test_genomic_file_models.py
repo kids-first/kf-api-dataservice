@@ -45,6 +45,7 @@ class ModelTest(IndexdTestCase):
         kwargs_dict = {}
         for i in range(2):
             kwargs = {
+                'external_id': 'genomic_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
                 'data_type': 'submitted aligned read',
                 'file_format': '.cram',
@@ -53,6 +54,7 @@ class ModelTest(IndexdTestCase):
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
+                'availability': 'availble for download',
                 'biospecimen_id': biospecimen.kf_id,
                 'sequencing_experiment_id': se.kf_id
             }
@@ -219,6 +221,7 @@ class ModelTest(IndexdTestCase):
         kwargs_dict = {}
         for i in range(2):
             kwargs = {
+                'external_id': 'genomic_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
                 'size': (random.randint(MIN_SIZE_MB, MAX_SIZE_MB) *
                               MB_TO_BYTES),
@@ -228,7 +231,8 @@ class ModelTest(IndexdTestCase):
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
-                'hashes': {'md5': uuid.uuid4()}
+                'hashes': {'md5': uuid.uuid4()},
+                'availability': 'availble for download'
             }
             # Add genomic file to list in biospecimen
             gf = GenomicFile(**kwargs, sequencing_experiment_id=se.kf_id)

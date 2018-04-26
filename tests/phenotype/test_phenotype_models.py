@@ -15,10 +15,11 @@ class ModelTest(FlaskTestCase):
     Test Phenotype database model
     """
 
-    def test_create(self):
+    def test_create_and_find(self):
         """
         Test create phenotype
         """
+        dt = datetime.now()
         # Create Study
         study = Study(external_id='phs001')
 
@@ -28,32 +29,30 @@ class ModelTest(FlaskTestCase):
                         study=study)
         db.session.add(p)
         db.session.commit()
-
+        kwarg_dict = {}
         # Create phenotypes
-        data = {
-            'phenotype': 'test phenotype 1',
-            'hpo_id': 'HP:0000118',
-            'snomed_id': '38033009',
-            'age_at_event_days': 120,
-            'participant_id': p.kf_id
-        }
-        dt = datetime.now()
-        ph1 = Phenotype(**data)
-        db.session.add(ph1)
-        data['phenotype'] = 'phenotype_2'
-        data['hpo_id'] = 'HP:0040064'
-        ph2 = Phenotype(**data)
-        db.session.add(ph2)
+        for i in range(2):
+            data = {
+                'external_id': 'test_phenotype_{}'.format(i),
+                'source_text_phenotype': 'test phenotype_{}'.format(i),
+                'hpo_id_phenotype': 'HP:0000118',
+                'snomed_id_phenotype': '38033009',
+                'age_at_event_days': 120,
+                'participant_id': p.kf_id
+                }
+            ph = Phenotype(**data)
+            kwarg_dict[ph.external_id] = data
+            db.session.add(ph)
         db.session.commit()
 
         self.assertEqual(Phenotype.query.count(), 2)
-        new_phenotype = Phenotype.query.all()[1]
-        self.assertGreater(new_phenotype.created_at, dt)
-        self.assertGreater(new_phenotype.modified_at, dt)
-        self.assertIs(type(uuid.UUID(new_phenotype.uuid)), uuid.UUID)
-
-        self.assertEqual(new_phenotype.phenotype, data['phenotype'])
-        self.assertEqual(new_phenotype.hpo_id, 'HP:0040064')
+        for k, kwargs in kwarg_dict.items():
+            ph = Phenotype.query.filter_by(external_id=k).one()
+            for key, value in kwargs.items():
+                self.assertEqual(value, getattr(ph, key))
+            self.assertGreater(ph.created_at, dt)
+            self.assertGreater(ph.modified_at, dt)
+            self.assertIs(type(uuid.UUID(ph.uuid)), uuid.UUID)
 
     def test_create_via_participant(self):
         """
@@ -66,23 +65,12 @@ class ModelTest(FlaskTestCase):
 
         # Check Particpant has the phenotypes
         for p in Participant.query.first().phenotypes:
-            self.assertIn(p.phenotype, pheno)
+            self.assertIn(p.source_text_phenotype, pheno)
 
         # Phenotypes have the participant
         p = Participant.query.first()
         for ph in Phenotype.query.all():
             self.assertEqual(ph.participant_id, p.kf_id)
-
-    def test_find_phenotype(self):
-        """
-        Test find one phenotype
-        """
-        phenotypes, p, pheno = self._create_phenotypes()
-
-        # Find phenotype
-        ph = Phenotype.query.\
-            filter_by(phenotype=pheno[0]).one_or_none()
-        self.assertEqual(ph.phenotype, pheno[0])
 
     def test_update_phenotype(self):
         """
@@ -91,13 +79,15 @@ class ModelTest(FlaskTestCase):
         phenotypes, p, pheno = self._create_phenotypes()
 
         # Update and save
-        phe = Phenotype.query.filter_by(phenotype=pheno[0]).one_or_none()
+        phe = Phenotype.query.filter_by(source_text_phenotype=pheno[0]).\
+              one_or_none()
         phen = 'test phenotype 3'
-        phe.phenotype = phen
+        phe.source_text_phenotype = phen
         db.session.commit()
 
         # Check updated values
-        phe = Phenotype.query.filter_by(phenotype=phen).one_or_none()
+        phe = Phenotype.query.filter_by(source_text_phenotype=phen).\
+           one_or_none()
         self.assertIsNot(phe, None)
 
     def test_delete_phenotype(self):
@@ -107,11 +97,13 @@ class ModelTest(FlaskTestCase):
         phenotypes, p, pheno = self._create_phenotypes()
 
         # Choose one and delete it
-        ph = Phenotype.query.filter_by(phenotype=pheno[0]).one_or_none()
+        ph = Phenotype.query.filter_by(source_text_phenotype=pheno[0]).\
+           one_or_none()
         db.session.delete(ph)
         db.session.commit()
 
-        ph = Phenotype.query.filter_by(phenotype=pheno[0]).one_or_none()
+        ph = Phenotype.query.filter_by(source_text_phenotype=pheno[0]).\
+           one_or_none()
         self.assertIs(ph, None)
         phenotypes = [_ph for _ph in p.phenotypes]
         self.assertNotIn(ph, phenotypes)
@@ -127,8 +119,10 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         # Check that phenotypes have been deleted
-        ph1 = Phenotype.query.filter_by(phenotype=pheno[0]).one_or_none()
-        ph2 = Phenotype.query.filter_by(phenotype=pheno[1]).one_or_none()
+        ph1 = Phenotype.query.filter_by(source_text_phenotype=pheno[0]).\
+           one_or_none()
+        ph2 = Phenotype.query.filter_by(source_text_phenotype=pheno[1]).\
+           one_or_none()
         self.assertIs(ph1, None)
         self.assertIs(ph2, None)
 
@@ -139,7 +133,7 @@ class ModelTest(FlaskTestCase):
         """
         # Create phenotype
         data = {
-            'phenotype': 'phenotype_1',
+            'source_text_phenotype': 'phenotype_1',
             # non-existent required param: participant_id
         }
         d = Phenotype(**data)
@@ -154,7 +148,7 @@ class ModelTest(FlaskTestCase):
         """
         # Create phenotype
         data = {
-            'phenotype': 'phenotype_1',
+            'source_text_phenotype': 'phenotype_1',
             'participant_id': ''  # empty blank foreign key
         }
         d = Phenotype(**data)
@@ -171,8 +165,10 @@ class ModelTest(FlaskTestCase):
 
         # Create two phenotypes
         pheno = ['test phenotype 1', 'test phenotype 2']
-        ph1 = Phenotype(phenotype=pheno[0])
-        ph2 = Phenotype(phenotype=pheno[1])
+        ph1 = Phenotype(source_text_phenotype=pheno[0],
+                        external_id='test_phenotype_0')
+        ph2 = Phenotype(source_text_phenotype=pheno[1],
+                        external_id='test_phenotype_0')
         p = Participant(external_id='p1', is_proband=True,
                         study=study)
 

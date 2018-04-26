@@ -129,11 +129,12 @@ class ModelTest(IndexdTestCase):
             'version': 'v1'
         }
         study = Study(**data)
-        
+
         # Create study_files
         study_files = []
         for i in range(3):
             kwargs = {
+                'external_id':'test_study_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
                 'study_id':study.kf_id
             }

@@ -33,6 +33,7 @@ class OutcomeTest(FlaskTestCase):
 
         # Create outcome data
         kwargs = {
+            'external_id': 'test_0',
             'vital_status': 'Alive',
             'disease_related': None,
             'age_at_event_days': 365,
@@ -59,6 +60,7 @@ class OutcomeTest(FlaskTestCase):
         oc1 = self._create_save_to_db()
         # Create another outcome for the same participant
         oc2 = {
+            'external_id': 'test_1',
             'vital_status': 'Dead',
             'disease_related': 'True',
             'age_at_event_days': 369,
@@ -135,7 +137,7 @@ class OutcomeTest(FlaskTestCase):
         response = json.loads(response.data.decode('utf-8'))
         outcome = response['results']
         self.assertEqual(kwargs['kf_id'], outcome['kf_id'])
-        
+
         # Fields that should be updated w values
         self.assertEqual(body['vital_status'],
                          outcome['vital_status'])
@@ -171,6 +173,7 @@ class OutcomeTest(FlaskTestCase):
 
         # Create outcome
         kwargs = {
+            'external_id': 'test_0',
             'vital_status': 'Alive',
             'disease_related': 'False',
             'age_at_event_days': 365

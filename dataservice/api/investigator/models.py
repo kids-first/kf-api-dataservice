@@ -10,12 +10,15 @@ class Investigator(db.Model, Base):
     :param kf_id: Unique id given by the Kid's First DCC
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
+    :param external_id: Name given to investigator by contributor
     :param name: Name of the investigator
     :param institution: institution of the investigator
     """
     __tablename__ = 'investigator'
     __prefix__ = 'IG'
 
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
     name = db.Column(db.Text(),
                      doc='The name of the investigator')
     institution = db.Column(db.Text(),

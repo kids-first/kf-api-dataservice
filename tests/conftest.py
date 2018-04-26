@@ -51,16 +51,19 @@ def entities(client, indexd):
     """
     inputs = {
         '/investigators': {
+            'external_id': 'inv001',
             'name': 'submitter'
         },
         '/genomic-files': {
+            'external_id': 'genfile001',
             'file_name': 'hg38.fq',
             'data_type': 'reads',
             'file_format': 'fastq',
             'size': 1000,
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())},
-            'controlled_access': False
+            'controlled_access': False,
+            'availability': 'availble for download'
         },
         '/studies': {
             'external_id': 'phs001'
@@ -87,17 +90,20 @@ def entities(client, indexd):
         '/biospecimens': {
             'external_sample_id': 's0',
             'external_aliquot_id': 'a0',
-            'tissue_type': 'tissue',
+            'source_text_tissue_type': 'tissue',
             'composition': 'comp',
-            'anatomical_site': 'site',
+            'source_text_anatomical_site': 'site',
             'age_at_event_days': 365,
-            'tumor_descriptor': 'tumor',
+            'source_text_tumor_descriptor': 'tumor',
             'shipment_origin': 'CORIELL',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 200.0,
             'volume_ml': 13.99,
             'shipment_date': str(datetime.utcnow()),
-            'uberon_id': 'test'
+            'uberon_id_anatomical_site': 'test',
+            'spatial_descriptor': 'left side',
+            'ncit_id_tissue_type': 'Test',
+            'ncit_id_anatomical_site': 'C12439'
         },
         '/sequencing-experiments': {
             'external_id': 'se1',
@@ -116,28 +122,33 @@ def entities(client, indexd):
         },
         '/diagnoses': {
             'external_id': 'd0',
-            'diagnosis': 'diag',
+            'source_text_diagnosis': 'diag',
             'age_at_event_days': 365,
-            'mondo_id': 'DOID:8469',
-            'icd_id': 'J10.01',
-            'uberon_id':'UBERON:0000955'
+            'mondo_id_diagnosis': 'DOID:8469',
+            'icd_id_diagnosis': 'J10.01',
+            'uberon_id_tumor_location':'UBERON:0000955',
+            'spatial_descriptor': 'left side'
         },
         '/outcomes': {
+            'external_id': 'out001',
             'vital_status': 'Alive',
             'disease_related': 'False',
             'age_at_event_days': 120,
         },
         '/phenotypes': {
-            'phenotype': 'test phenotype 1',
-            'hpo_id': 'HP:0000118',
-            'snomed_id': '38033009',
+            'external_id': 'phe001',
+            'source_text_phenotype': 'test phenotype 1',
+            'hpo_id_phenotype': 'HP:0000118',
+            'snomed_id_phenotype': '38033009',
             'age_at_event_days': 120
         },
 
         '/family-relationships': {
+            'external_id': 'famrel001',
             'participant_to_relative_relation': 'mother'
         },
         '/study-files':{
+            'external_id': 'studfile001',
             'file_name': 'test_file_name 1',
             'data_type': 'clinical',
             'file_format': 'csv',
@@ -145,10 +156,8 @@ def entities(client, indexd):
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())}
         },
-        '/genomic-files':{
-            'file_name': 'test_genomic_file_name 1'
-        },
         '/sequencing-centers':{
+            'external_id': 'SC001',
             'name': 'Baylor'
         }
     }
