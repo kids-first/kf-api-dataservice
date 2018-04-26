@@ -38,8 +38,11 @@ class ModelTest(FlaskTestCase):
         db.session.add(s)
         db.session.commit()
         assert self.bucket_service.post.call_count == 1
+        
+        headers = {'Authorization': 'Bearer test123'}
         self.bucket_service.post.assert_called_with('/buckets',
-                                                    json={'study_id': s.kf_id})
+                                                    json={'study_id': s.kf_id},
+                                                    headers=headers)
 
     def test_update(self):
         """

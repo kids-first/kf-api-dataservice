@@ -26,6 +26,7 @@ class Config:
     INDEXD_PASS = os.environ.get('INDEXD_PASS', 'test')
 
     BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', None)
+    BUCKET_SERVICE_TOKEN = os.environ.get('BUCKET_SERVICE_TOKEN', None)
 
     @staticmethod
     def init_app(app):
@@ -47,6 +48,7 @@ class TestingConfig(Config):
 
     INDEXD_URL = os.environ.get('INDEXD_URL', '')
     BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', '')
+    BUCKET_SERVICE_TOKEN = 'test123'
 
 
 class ProductionConfig(Config):
@@ -60,11 +62,13 @@ class ProductionConfig(Config):
         # Path for secrets in vault
         pg_secret = os.environ.get('DB_SECRET', 'secret/postgres')
         indexd_secret = os.environ.get('INDEXD_SECRET', 'secret/indexd')
+        bucket_secret = os.environ.get('BUCKET_SECRET', 'secret/bucket')
         # Retrieve secrets
         client = hvac.Client(url=vault_url)
         client.auth_iam(vault_role)
         pg_secrets = client.read(pg_secret)
         indexd_secrets = client.read(indexd_secret)
+        bucket_secrets = client.read(bucket_secret)
         client.logout()
 
         # Construct postgres connection string
@@ -82,6 +86,8 @@ class ProductionConfig(Config):
         # Extract indexd auth
         app.config['INDEXD_USER'] = indexd_secrets['data']['user']
         app.config['INDEXD_PASS'] = indexd_secrets['data']['password']
+
+        app.config['BUCKET_SERVICE_TOKEN'] = bucket_secrets['data']['token']
 
 
 class UnixConfig(ProductionConfig):

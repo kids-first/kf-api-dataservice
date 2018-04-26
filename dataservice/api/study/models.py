@@ -57,10 +57,19 @@ class Study(db.Model, Base):
 
 
 @event.listens_for(Study, 'after_insert', propagate=True)
-def register_indexd(mapper, connection, target):
+def make_bucket(mapper, connection, target):
     """
-    Invokes the new bucket service to create a bucket in s3 for this study
+    Invokes the new bucket service to create a bucket in s3 for this study.
+    Only creates a new bucket on insertion of a study.
+    Will not attempt to remove the bucket on deletion to prevent any unwanted
+    data loss.
     """
     url = current_app.config['BUCKET_SERVICE_URL']
     if url is not None:
-        resp = requests.post(url+'/buckets', json={'study_id': target.kf_id})
+        header = {}
+        token = current_app.config['BUCKET_SERVICE_TOKEN']
+        if token:
+            header['Authorization'] = 'Bearer {}'.format(token)
+        resp = requests.post(url+'/buckets',
+                             json={'study_id': target.kf_id},
+                             headers=header)
