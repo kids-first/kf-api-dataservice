@@ -1,4 +1,3 @@
-from sqlalchemy.dialects.postgresql import UUID
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, IndexdFile, KfId
 
