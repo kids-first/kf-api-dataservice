@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy.exc import IntegrityError
 
 from dataservice.extensions import db
@@ -37,7 +36,8 @@ class ModelTest(IndexdTestCase):
 
         # Add new study_file to study
         sf_new = StudyFile(file_name='file_3',
-                            study_id=study.kf_id)
+                           study_id=study.kf_id,
+                           availability='available for download')
         db.session.add(sf_new)
         db.session.commit()
 
@@ -134,9 +134,10 @@ class ModelTest(IndexdTestCase):
         study_files = []
         for i in range(3):
             kwargs = {
-                'external_id':'test_study_file_{}'.format(i),
+                'external_id': 'test_study_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
-                'study_id':study.kf_id
+                'availability': 'available for download',
+                'study_id': study.kf_id
             }
             study_files.append(StudyFile(**kwargs))
         # Add study_files to study

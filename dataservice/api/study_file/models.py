@@ -16,7 +16,8 @@ class StudyFile(db.Model, Base, IndexdFile):
     :param urls: Locations of file
     :param hashes: A dict keyed by hash type containing hashes of the file
     :param _metadata: A dict with any additional information
-    :param controlled_access: whether or not the file is controlled access
+    :param availability: Indicates whether a file is available for immediate
+           download, or is in cold storage
     """
     __tablename__ = 'study_file'
     __prefix__ = 'SF'
@@ -26,6 +27,9 @@ class StudyFile(db.Model, Base, IndexdFile):
     study_id = db.Column(KfId(),
                          db.ForeignKey('study.kf_id'),
                          nullable=False)
+    availability = db.Column(db.Text(), doc='Indicates whether a file is '
+                             'available for immediate download, or is in '
+                             'cold storage')
     data_type = db.Column(db.Text(), doc='Type of data')
     file_format = db.Column(db.Text(), doc='Format of the file')
 

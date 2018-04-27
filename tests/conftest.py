@@ -152,6 +152,7 @@ def entities(client, indexd):
             'file_name': 'test_file_name 1',
             'data_type': 'clinical',
             'file_format': 'csv',
+            'availability': 'available for download',
             'size': 1000,
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())}
@@ -243,7 +244,8 @@ def entities(client, indexd):
     # Genomic File and Sequencing Experiment
     inputs['/genomic-files']['sequencing_experiment_id'] = seq_exp.kf_id
     # Sequencing_experiment and sequencing_center
-    inputs['/sequencing-experiments']['sequencing_center_id'] = seq_center.kf_id
+    inputs['/sequencing-experiments']['sequencing_center_id'] =\
+        seq_center.kf_id
     # Biospecimen and sequencing_center
     inputs['/biospecimens']['sequencing_center_id'] = seq_center.kf_id
 
