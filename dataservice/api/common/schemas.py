@@ -80,11 +80,11 @@ class BaseSchema(ma.ModelSchema):
 
 
 class IndexdFileSchema(Schema):
-    urls = ma.List(ma.Str())
+    urls = ma.List(ma.Str(), required=True)
     file_name = ma.Str()
-    hashes = ma.Dict()
+    hashes = ma.Dict(required=True)
     metadata = ma.Dict(attribute='_metadata')
-    size = ma.Int()
+    size = ma.Int(required=True)
 
 
 class ErrorSchema(Schema):

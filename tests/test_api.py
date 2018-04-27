@@ -347,13 +347,20 @@ class TestAPI:
 
     @pytest.mark.parametrize('method', ['POST'])
     @pytest.mark.parametrize('endpoint, field',
-                             [('/biospecimens', 'analyte_type'),
-                              ('/family-relationships', 'participant_id'),
-                              ('/family-relationships', 'relative_id'),
-                              ('/study-files', 'study_id'),
-                              ('/diagnoses', 'participant_id'),
-                              ('/sequencing-centers', 'name'),
-                              ])
+                             [
+                                 ('/biospecimens', 'analyte_type'),
+                                 ('/family-relationships', 'participant_id'),
+                                 ('/family-relationships', 'relative_id'),
+                                 ('/study-files', 'study_id'),
+                                 ('/study-files', 'urls'),
+                                 ('/study-files', 'hashes'),
+                                 ('/study-files', 'size'),
+                                 ('/genomic-files', 'urls'),
+                                 ('/genomic-files', 'hashes'),
+                                 ('/genomic-files', 'size'),
+                                 ('/diagnoses', 'participant_id'),
+                                 ('/sequencing-centers', 'name')
+                             ])
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
         """ Tests missing required parameters """
@@ -383,7 +390,6 @@ class TestAPI:
                               ('/biospecimens', 'participant_id'),
                               ('/genomic-files', 'biospecimen_id'),
                               ('/genomic-files', 'sequencing_experiment_id')])
-
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key
