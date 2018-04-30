@@ -48,23 +48,24 @@ class CRUDView(MethodView):
                 continue
 
             for name, schema in c.schemas.items():
+                # Entity response schemas
                 spec.definition(name, schema=schema)
                 ResponseSchema = response_generator(schema)
                 spec.definition(name + 'Response', schema=ResponseSchema)
 
-                name_snake_case = to_snake_case(name)
-                ErrorResponseSchema = error_response_generator(
-                    name_snake_case, 404)
-                spec.definition(name + 'NotFoundErrorResponse',
-                                schema=ErrorResponseSchema)
-                ErrorResponseSchema = error_response_generator(
-                    name_snake_case, 400)
-                spec.definition(name + 'ClientErrorResponse',
-                                schema=ErrorResponseSchema)
+                # Pagination schemas
                 if c.__name__.endswith('ListAPI'):
                     url = c.rule
                     PaginatedSchema = paginated_generator(url, schema)
                     spec.definition(name + 'Paginated', schema=PaginatedSchema)
+
+        # Error response schemas
+        not_found_schema_cls = error_response_generator(404)
+        spec.definition('NotFoundErrorResponse',
+                        schema=not_found_schema_cls)
+        client_error_schema_cls = error_response_generator(400)
+        spec.definition('ClientErrorResponse',
+                        schema=client_error_schema_cls)
 
     @staticmethod
     def register_views(app):
