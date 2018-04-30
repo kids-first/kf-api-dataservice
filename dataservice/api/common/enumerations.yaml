@@ -1,0 +1,165 @@
+## ------------ NOTES ----------- ##
+# 'Unknown' - contributor specified this in source data
+# 'Not Reported' - should be used as the default if no value is specified in
+# the column or if this column doesn't exist in source data
+
+## --------- Questions --------- ##
+# How should values be cased - lower case, proper/title case?
+# What should default value be if Not Reported in source data?
+
+study:
+    release_status:
+        choices:
+            - Pending # Not sure about the choices here
+        default: Pending
+
+study_file:
+    availability:
+        choices:
+            - Immediate Download
+            - Cold Storage
+        default: Immediate Download
+
+participant:
+    gender:
+        choices:
+            - Male
+            - Female
+            - Unknown
+            - Not Reported
+        default: Not Reported
+    race:
+        choices:
+          - White
+          - American Indian or Alaska Native
+          - Black or African American
+          - Asian
+          - Native Hawaiian or Other Pacific Islander
+          - Other
+          - Unknown
+          - Not Reported
+        default: Not Reported
+    ethnicity:
+        choices:
+            - Hispanic or Latino
+            - Not Hispanic or Latino
+            - Unknown
+            - Not Reported
+        default: Not Reported
+
+diagnosis:
+    diagnosis_category:
+        choices:
+            - Structural Birth Defect
+            - Cancer
+            - Other
+            - Unknown
+        default: Other
+
+phenotype:
+    observed:
+        choices:
+            - Positive
+            - Negative
+            - Unknown
+        default: Unknown
+
+outcome:
+    vital_status:
+        choices:
+            - Alive
+            - Dead
+            - Unknown
+            - Not Reported
+        default: Not Reported
+    disease_related:
+        choices:
+            - Yes
+            - No
+            - Unknown
+            - Not Reported
+        default: Not Reported
+
+biospecimen:
+    analyte_type:
+        choices:
+            - DNA
+            - RNA
+            - Unknown
+            - Not Reported
+        default: Not Reported
+
+genomic_file:
+    data_type:
+        choices:
+            - Submitted Aligned Reads
+            - Submitted Aligned Reads Index
+            - Simple Nucleotide Variation
+            - Other
+        default: Other
+    file_format:
+        choices:
+            - ???
+        default: ???
+    availability:
+        choices:
+            - Immediate Download
+            - Cold Storage
+        default: Immediate Download
+
+sequencing_experiment:
+    experiment_strategy:
+        choices:
+            - WGS
+            - WXS
+            - RNA-Seq
+            - ChIP-Seq
+            - miRNA-Seq
+            - Bisulfite-Seq
+            - Validation
+            - Amplicon
+            - Targeted Sequencing
+            - Other
+            - Not Reported
+        default: Not Reported
+    platform:
+        choices:
+            - Illumina
+            - SOLiD
+            - LS454
+            - Ion Torrent
+            - Complete Genomics
+            - PacBio
+            - Other
+            - Not Reported
+        default: Not Reported
+    instrument_model:
+        choices:
+            - 454 GS FLX Titanium
+            - AB SOLiD 4
+            - AB SOLiD 2
+            - AB SOLiD 3
+            - Complete Genomics
+            - Illumina HiSeq X Ten
+            - Illumina HiSeq X Five
+            - Illumina Genome Analyzer II
+            - Illumina Genome Analyzer IIx
+            - Illumina HiSeq 2000
+            - Illumina HiSeq 2500
+            - Illumina HiSeq 4000
+            - Illumina MiSeq
+            - Illumina NextSeq
+            - Ion Torrent PGM
+            - Ion Torrent Proton
+            - PacBio RS
+            - Other
+            - Not Reported
+        default: Not Reported
+    library_strand:
+        choices:
+            - Unstranded
+            - First_Stranded
+            - Second_Stranded
+            - Unknown
+            - Not Reported
+        default: Not Reported
