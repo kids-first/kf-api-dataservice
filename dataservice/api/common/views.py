@@ -9,7 +9,6 @@ from dataservice.api.common.schemas import (
     paginated_generator,
     error_response_generator
 )
-from dataservice.utils import to_snake_case
 
 
 class CRUDView(MethodView):
@@ -29,7 +28,7 @@ class CRUDView(MethodView):
     endpoint = None
     rule = '/'
     temp_env = jinja2.Environment(
-            loader=jinja2.PackageLoader('dataservice.api', 'templates')
+        loader=jinja2.PackageLoader('dataservice.api', 'templates')
     )
 
     def __init__(self, *args, **kwargs):

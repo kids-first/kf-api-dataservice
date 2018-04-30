@@ -15,4 +15,4 @@ responses:
   400:
     description: {{ resource }} not created
     schema:
-      $ref: '#/definitions/{{ resource }}ClientErrorResponse'
+      $ref: '#/definitions/ClientErrorResponse'

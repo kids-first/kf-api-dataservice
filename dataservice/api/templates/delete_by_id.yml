@@ -15,4 +15,4 @@ responses:
   404:
     description: {{ resource }} not found
     schema:
-      $ref: '#/definitions/{{ resource }}NotFoundErrorResponse'
+      $ref: '#/definitions/NotFoundErrorResponse'
