@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
+import re
 import subprocess
 from flask import Flask
+from alembic.config import Config
+from alembic import command
 
 from dataservice import commands
 from dataservice.utils import _get_version
@@ -154,3 +157,12 @@ def prefetch_status(app):
 
     app.config['GIT_TAGS'] = [] if tags[0] == '' else tags
     app.config['PKG_VERSION'] = _get_version()
+
+    info = (subprocess.check_output(
+            ['alembic', '-c', 'migrations/alembic.ini', 'show', 'head'])
+            .decode('utf-8'))
+    v = re.search(r'^\s*(\d+\.\d+\.\d+)', info, re.MULTILINE)
+    m = re.search(r'^\s*Revision ID: ([a-z0-9]{12})$', info, re.MULTILINE)
+    if m:
+        app.config['MODEL_VERSION'] = v.group(1)
+        app.config['MIGRATION'] = m.group(1)

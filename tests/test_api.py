@@ -339,6 +339,11 @@ class TestAPI:
         assert 'tags' in status
         assert type(status['tags']) is list
         assert 'Dataservice' in status['message']
+        assert 'migration' in status
+        assert len(status['migration']) == 12
+        assert 'datamodel' in status
+        assert status['datamodel'].count('.') == 2
+        assert status['datamodel'].replace('.', '').isdigit()
 
     def test_versions(self, client):
         """ Test that versions are aligned accross package, docs, and api """

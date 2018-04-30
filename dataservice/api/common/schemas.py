@@ -149,6 +149,10 @@ class StatusSchema(Schema):
     tags = fields.List(
         fields.String(description='Any tags associated with the version',
                       example=['rc', 'beta']))
+    datamodel = fields.Str(description='The datamodel version',
+                           example='1.0.0')
+    migration = fields.Str(description='The datamodel revision',
+                           example='cdefcd75e417')
 
     @post_dump(pass_many=False)
     def wrap_envelope(self, data):
