@@ -152,7 +152,8 @@ class ParticipantTest(FlaskTestCase):
             self.assertEqual(v, getattr(p, k))
         # Content - Check remaining fields are unchanged
         unchanged_keys = (set(participant.keys()) -
-                          set(body.keys()))
+                          set(body.keys()) -
+                          {'modified_at'})
         for k in unchanged_keys:
             val = getattr(p, k)
             if isinstance(val, datetime):
