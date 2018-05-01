@@ -129,28 +129,6 @@ sequencing_experiment:
             - Other
             - Not Reported
         default: Not Reported
-    instrument_model:
-        choices:
-            - 454 GS FLX Titanium
-            - AB SOLiD 4
-            - AB SOLiD 2
-            - AB SOLiD 3
-            - Complete Genomics
-            - Illumina HiSeq X Ten
-            - Illumina HiSeq X Five
-            - Illumina Genome Analyzer II
-            - Illumina Genome Analyzer IIx
-            - Illumina HiSeq 2000
-            - Illumina HiSeq 2500
-            - Illumina HiSeq 4000
-            - Illumina MiSeq
-            - Illumina NextSeq
-            - Ion Torrent PGM
-            - Ion Torrent Proton
-            - PacBio RS
-            - Other
-            - Not Reported
-        default: Not Reported
     library_strand:
         choices:
             - Unstranded
