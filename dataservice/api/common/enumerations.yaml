@@ -97,10 +97,6 @@ genomic_file:
             - Simple Nucleotide Variation
             - Other
         default: Other
-    file_format:
-        choices:
-            - ???
-        default: ???
     availability:
         choices:
             - Immediate Download
