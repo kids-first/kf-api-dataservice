@@ -96,12 +96,6 @@ sequencing_experiment:
             - WGS
             - WXS
             - RNA-Seq
-            - ChIP-Seq
-            - miRNA-Seq
-            - Bisulfite-Seq
-            - Validation
-            - Amplicon
-            - Targeted Sequencing
             - Other
     platform:
         choices:
