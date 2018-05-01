@@ -5,40 +5,38 @@ import pytest
 from dataservice.api.common import id_service
 
 
+ENDPOINTS = [
+    '/studies',
+    '/investigators',
+    '/participants',
+    '/outcomes',
+    '/phenotypes',
+    '/diagnoses',
+    '/biospecimens',
+    '/sequencing-experiments',
+    '/sequencing-centers',
+    '/family-relationships',
+    '/study-files',
+    '/families',
+    '/family-relationships',
+    '/studies',
+    '/investigators',
+    '/outcomes',
+    '/phenotypes',
+    '/genomic-files'
+]
+
+
 class TestAPI:
     """
     General API tests such as reponse code checks, envelope formatting checks,
     and header checks
     """
 
-    @pytest.mark.parametrize('endpoint,method,status_code', [
-        ('/status', 'GET', 200),
-        ('/sequencing-experiments', 'GET', 200),
-        ('/sequencing-experiments/123', 'GET', 404),
-        ('/sequencing-centers', 'GET', 200),
-        ('/sequencing-centers/123', 'GET', 404),
-        ('/biospecimens', 'GET', 200),
-        ('/biospecimens/123', 'GET', 404),
-        ('/diagnoses', 'GET', 200),
-        ('/diagnoses/123', 'GET', 404),
-        ('/phenotypes', 'GET', 200),
-        ('/phenotypes/123', 'GET', 404),
-        ('/participants', 'GET', 200),
-        ('/persons', 'GET', 404),
-        ('/participants/123', 'GET', 404),
-        ('/studies', 'GET', 200),
-        ('/studies/123', 'GET', 404),
-        ('/study-files', 'GET', 200),
-        ('/study-files/123', 'GET', 404),
-        ('/investigators', 'GET', 200),
-        ('/outcomes', 'GET', 200),
-        ('/outcomes/123', 'GET', 404),
-        ('/families', 'GET', 200),
-        ('/families/123', 'GET', 404),
-        ('/family-relationships', 'GET', 200),
-        ('/family-relationship/123', 'GET', 404),
-        ('/genomic-files', 'GET', 200)
-    ])
+    @pytest.mark.parametrize('endpoint,method,status_code', 
+        [(ept, 'GET', 200) for ept in ENDPOINTS] +
+        [(ept+'/123', 'GET', 404) for ept in ENDPOINTS]
+    )
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
         call_func = getattr(client, method.lower())
@@ -47,69 +45,14 @@ class TestAPI:
         resp = resp.data.decode('utf-8')
         assert json.loads(resp)['_status']['code'] == status_code
 
-    @pytest.mark.parametrize('endpoint,method,status_message', [
-        ('/status', 'GET', 'Welcome to'),
-        ('/persons', 'GET', 'not found'),
-        ('/studies', 'GET', 'success'),
-        ('/studies/123', 'GET', 'could not find study `123`'),
-        ('/studies/123', 'PATCH', 'could not find study `123`'),
-        ('/studies/123', 'DELETE', 'could not find study `123`'),
-        ('/study-files', 'GET', 'success'),
-        ('/study-files/123', 'GET', 'could not find study_file `123`'),
-        ('/study-files/123', 'PATCH', 'could not find study_file `123`'),
-        ('/study-files/123', 'DELETE', 'could not find study_file `123`'),
-        ('/investigators', 'GET', 'success'),
-        ('/investigators/123', 'GET', 'could not find investigator `123`'),
-        ('/investigators/123', 'PATCH', 'could not find investigator `123`'),
-        ('/investigators/123', 'DELETE', 'could not find investigator `123`'),
-        ('/participants', 'GET', 'success'),
-        ('/participants/123', 'GET', 'could not find participant `123`'),
-        ('/participants/123', 'PATCH', 'could not find participant `123`'),
-        ('/participants/123', 'DELETE', 'could not find participant `123`'),
-        ('/outcomes', 'GET', 'success'),
-        ('/outcomes/123', 'GET', 'could not find outcome `123`'),
-        ('/outcomes/123', 'PATCH', 'could not find outcome `123`'),
-        ('/outcomes/123', 'DELETE', 'could not find outcome `123`'),
-        ('/phenotypes', 'GET', 'success'),
-        ('/phenotypes/123', 'GET', 'could not find phenotype `123`'),
-        ('/phenotypes/123', 'PATCH', 'could not find phenotype `123`'),
-        ('/phenotypes/123', 'DELETE', 'could not find phenotype `123`'),
-        ('/diagnoses', 'GET', 'success'),
-        ('/diagnoses/123', 'GET', 'could not find diagnosis `123`'),
-        ('/diagnoses/123', 'PATCH', 'could not find diagnosis `123`'),
-        ('/diagnoses/123', 'DELETE', 'could not find diagnosis `123`'),
-        ('/biospecimens', 'GET', 'success'),
-        ('/biospecimens/123', 'GET', 'could not find biospecimen `123`'),
-        ('/biospecimens/123', 'PATCH', 'could not find biospecimen `123`'),
-        ('/biospecimens/123', 'DELETE', 'could not find biospecimen `123`'),
-        ('/sequencing-experiments', 'GET', 'success'),
-        ('/sequencing-experiments/123', 'GET',
-         'could not find sequencing_experiment `123`'),
-        ('/sequencing-experiments/123', 'PATCH',
-         'could not find sequencing_experiment `123`'),
-        ('/sequencing-experiments/123', 'DELETE',
-         'could not find sequencing_experiment `123`'),
-        ('/sequencing-centers', 'GET', 'success'),
-        ('/sequencing-centers/123', 'GET',
-         'could not find sequencing_center `123`'),
-        ('/sequencing-centers/123', 'PATCH',
-         'could not find sequencing_center `123`'),
-        ('/sequencing-centers/123', 'DELETE',
-         'could not find sequencing_center `123`'),
-        ('/families/123', 'GET', 'could not find family `123`'),
-        ('/families/123', 'PATCH', 'could not find family `123`'),
-        ('/families/123', 'DELETE', 'could not find family `123`'),
-        ('/family-relationships', 'GET', 'success'),
-        ('/family-relationships/123', 'GET',
-         'could not find family_relationship `123`'),
-        ('/family-relationships/123', 'PATCH',
-         'could not find family_relationship `123`'),
-        ('/family-relationships/123', 'DELETE',
-         'could not find family_relationship `123`'),
-        ('/genomic-files', 'GET', 'success'),
-        ('/genomic-files/123', 'PATCH', 'could not find genomic_file `123`'),
-        ('/genomic-files/123', 'DELETE', 'could not find genomic_file `123`')
-    ])
+    @pytest.mark.parametrize('endpoint,method,status_message',
+        [('/status', 'GET', 'Welcome to'),
+        ('/persons', 'GET', 'The requested URL was not found')] +
+        [(ept, 'GET', 'success') for ept in ENDPOINTS] +
+        [(ept+'/123', 'GET', 'could not find') for ept in ENDPOINTS] +
+        [(ept+'/123', 'PATCH', 'could not find') for ept in ENDPOINTS] +
+        [(ept+'/123', 'DELETE', 'could not find') for ept in ENDPOINTS]
+    )
     def test_status_messages(self, client, endpoint, method, status_message):
         """
         Test endpoint response messages by checking if the message
@@ -118,24 +61,11 @@ class TestAPI:
         call_func = getattr(client, method.lower())
         resp = call_func(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
-        assert status_message in resp['_status']['message']
+        assert resp['_status']['message'].startswith(status_message)
 
-    @pytest.mark.parametrize('endpoint,method', [
-        ('/studies', 'GET'),
-        ('/investigators', 'GET'),
-        ('/participants', 'GET'),
-        ('/outcomes', 'GET'),
-        ('/phenotypes', 'GET'),
-        ('/diagnoses', 'GET'),
-        ('/biospecimens', 'GET'),
-        ('/sequencing-experiments', 'GET'),
-        ('/family-relationships', 'GET'),
-        ('/study-files', 'GET'),
-        ('/families', 'GET'),
-        ('/family-relationships', 'GET'),
-        ('/genomic-files', 'GET'),
-        ('/sequencing-centers', 'GET')
-    ])
+    @pytest.mark.parametrize('endpoint,method',
+        [(ept, 'GET') for ept in ENDPOINTS]
+    )
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
         call_func = getattr(client, method.lower())
@@ -182,31 +112,9 @@ class TestAPI:
                     else:
                         assert link is None
 
-    @pytest.mark.parametrize('endpoint, method, fields', [
-        ('/studies', 'POST', ['created_at', 'modified_at']),
-        ('/studies', 'PATCH', ['created_at', 'modified_at']),
-        ('/study-files', 'POST', ['created_at', 'modified_at']),
-        ('/study-files', 'PATCH', ['created_at', 'modified_at']),
-        ('/investigators', 'POST', ['created_at', 'modified_at']),
-        ('/investigators', 'PATCH', ['created_at', 'modified_at']),
-        ('/participants', 'POST', ['created_at', 'modified_at']),
-        ('/participants', 'PATCH', ['created_at', 'modified_at']),
-        ('/outcomes', 'POST', ['created_at', 'modified_at']),
-        ('/outcomes', 'PATCH', ['created_at', 'modified_at']),
-        ('/phenotypes', 'POST', ['created_at', 'modified_at']),
-        ('/phenotypes', 'PATCH', ['created_at', 'modified_at']),
-        ('/diagnoses', 'POST', ['created_at', 'modified_at']),
-        ('/diagnoses', 'PATCH', ['created_at', 'modified_at']),
-        ('/families', 'POST', ['created_at', 'modified_at']),
-        ('/families', 'PATCH', ['created_at', 'modified_at']),
-        ('/biospecimens', 'POST', ['created_at', 'modified_at']),
-        ('/biospecimens', 'PATCH', ['created_at', 'modified_at']),
-        ('/sequencing-experiments', 'POST', ['created_at', 'modified_at']),
-        ('/sequencing-experiments', 'PATCH', ['created_at', 'modified_at']),
-        ('/family-relationships', 'PATCH', ['created_at', 'modified_at']),
-        ('/genomic-files', 'POST', ['created_at', 'modified_at']),
-        ('/genomic-files', 'PATCH', ['created_at', 'modified_at']),
-    ])
+    @pytest.mark.parametrize('endpoint', ENDPOINTS) 
+    @pytest.mark.parametrize('method', ['POST', 'PATCH']) 
+    @pytest.mark.parametrize('fields', [['created_at', 'modified_at']]) 
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
         inputs = entities[endpoint]
@@ -220,24 +128,16 @@ class TestAPI:
             endpoint = '{}/{}'.format(endpoint, kf_id)
         resp = call_func(endpoint, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
+        if 'results' not in body:
+            assert ('error saving' in body['_status']['message'] or
+                    'already exists' in body['_status']['message'])
+            return
         for field in fields:
             assert (field not in body['results']
                     or body['results'][field] != 'test')
 
     @pytest.mark.parametrize('field', ['uuid'])
-    @pytest.mark.parametrize('endpoint', ['/studies',
-                                          '/investigators',
-                                          '/participants',
-                                          '/outcomes',
-                                          '/phenotypes',
-                                          '/diagnoses',
-                                          '/biospecimens',
-                                          '/sequencing-experiments',
-                                          '/sequencing-centers',
-                                          '/family-relationships',
-                                          '/study-files',
-                                          '/families',
-                                          '/family-relationships'])
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
     def test_excluded_field(self, client, entities, field, endpoint):
         """ Test that certain fields are excluded from serialization """
         body = json.loads(client.get(endpoint).data.decode('utf-8'))
@@ -245,24 +145,7 @@ class TestAPI:
             assert field not in res
 
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
-    @pytest.mark.parametrize('endpoint', ['/studies',
-                                          '/investigators',
-                                          '/participants',
-                                          '/outcomes',
-                                          '/phenotypes',
-                                          '/diagnoses',
-                                          '/biospecimens',
-                                          '/sequencing-experiments',
-                                          '/sequencing-centers',
-                                          '/family-relationships',
-                                          '/study-files',
-                                          '/families',
-                                          '/family-relationships',
-                                          '/studies',
-                                          '/investigators',
-                                          '/outcomes',
-                                          '/phenotypes',
-                                          '/genomic-files'])
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
         inputs = entities[endpoint]
