@@ -1,4 +1,5 @@
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 import uuid
 
 from dataservice.extensions import db
@@ -36,6 +37,28 @@ class ModelTest(FlaskTestCase):
         Get participant by kids first id
         """
         return Participant.query.filter_by(kf_id=kf_id).one_or_none()
+
+    def test_modified_at(self):
+        """
+        Test that modified_at is updated when model is updated
+        """
+        s = Study(external_id='phs001')
+        p = Participant(study=s, external_id='test01', is_proband=True)
+        db.session.add(p)
+        db.session.commit()
+
+        diff = (p.modified_at - p.created_at)
+        assert diff < timedelta(seconds=0.01)
+
+        time.sleep(0.5)
+
+        p.external_id = 'test02'
+        db.session.add(s)
+        db.session.commit()
+
+        diff = (p.modified_at - p.created_at)
+        assert diff > timedelta(seconds=0.50)
+
 
     def test_create_participant(self):
         """
