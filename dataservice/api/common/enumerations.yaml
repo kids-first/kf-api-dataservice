@@ -132,8 +132,8 @@ sequencing_experiment:
     library_strand:
         choices:
             - Unstranded
-            - First_Stranded
-            - Second_Stranded
+            - First Stranded
+            - Second Stranded
             - Unknown
             - Not Reported
         default: Not Reported
