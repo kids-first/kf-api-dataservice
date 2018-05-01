@@ -85,7 +85,7 @@ biospecimen:
         choices:
             - DNA
             - RNA
-            - Unknown
+            - Other
             - Not Reported
         default: Not Reported
 
