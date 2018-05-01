@@ -1,33 +1,40 @@
-## ------------ NOTES ----------- ##
-# 'Unknown' - contributor specified this in source data
-# 'Not Reported' - should be used as the default if no value is specified in
-# the column or if this column doesn't exist in source data
 
-## --------- Questions --------- ##
-# How should values be cased - lower case, proper/title case?
-# What should default value be if Not Reported in source data?
+common:
+    # The value was not reported, either to the original data source or to the
+    # DRC, could potentially mean that follow up could occur to gather the
+    # value if it's meaningful
+    - Not Reported
+
+    # In the current context the value isn't applicable
+    # (e.g. tumor location for a structural birth defect
+    - Not Applicable
+
+    # The value cannot be collected due to privacy, consent, etc other issues,
+    # follow up cannot occur
+    - Not Allowed To Collect
+
+    # Follow up was tried but the value isn't available
+    - Not Available
+
+    # Contributor explicitly reported that the value is unknown
+    - Reported Unknown
 
 study:
     release_status:
         choices:
             - Pending # Not sure about the choices here
-        default: Pending
 
 study_file:
     availability:
         choices:
             - Immediate Download
             - Cold Storage
-        default: Immediate Download
 
 participant:
     gender:
         choices:
             - Male
             - Female
-            - Unknown
-            - Not Reported
-        default: Not Reported
     race:
         choices:
           - White
@@ -36,16 +43,10 @@ participant:
           - Asian
           - Native Hawaiian or Other Pacific Islander
           - Other
-          - Unknown
-          - Not Reported
-        default: Not Reported
     ethnicity:
         choices:
             - Hispanic or Latino
             - Not Hispanic or Latino
-            - Unknown
-            - Not Reported
-        default: Not Reported
 
 diagnosis:
     diagnosis_category:
@@ -53,32 +54,22 @@ diagnosis:
             - Structural Birth Defect
             - Cancer
             - Other
-            - Unknown
-        default: Other
 
 phenotype:
     observed:
         choices:
             - Positive
             - Negative
-            - Unknown
-        default: Unknown
 
 outcome:
     vital_status:
         choices:
             - Alive
             - Dead
-            - Unknown
-            - Not Reported
-        default: Not Reported
     disease_related:
         choices:
             - Yes
             - No
-            - Unknown
-            - Not Reported
-        default: Not Reported
 
 biospecimen:
     analyte_type:
@@ -86,8 +77,6 @@ biospecimen:
             - DNA
             - RNA
             - Other
-            - Not Reported
-        default: Not Reported
 
 genomic_file:
     data_type:
@@ -96,12 +85,10 @@ genomic_file:
             - Submitted Aligned Reads Index
             - Simple Nucleotide Variation
             - Other
-        default: Other
     availability:
         choices:
             - Immediate Download
             - Cold Storage
-        default: Immediate Download
 
 sequencing_experiment:
     experiment_strategy:
@@ -116,8 +103,6 @@ sequencing_experiment:
             - Amplicon
             - Targeted Sequencing
             - Other
-            - Not Reported
-        default: Not Reported
     platform:
         choices:
             - Illumina
@@ -127,13 +112,8 @@ sequencing_experiment:
             - Complete Genomics
             - PacBio
             - Other
-            - Not Reported
-        default: Not Reported
     library_strand:
         choices:
             - Unstranded
             - First Stranded
             - Second Stranded
-            - Unknown
-            - Not Reported
-        default: Not Reported
