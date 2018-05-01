@@ -13,7 +13,6 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
 
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',
-                                         required=True,
                                          load_only=True)
 
     biospecimen_id = field_for(GenomicFile,

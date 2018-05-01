@@ -45,7 +45,6 @@ class TestPagination:
         mock.Session().post.side_effect = indexd_mock.post
 
         yield app.test_client()
-        
         mock.stop()
 
         # Need to make sure we close all connections so pg won't lock tables
