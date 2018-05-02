@@ -21,93 +21,78 @@ common:
 
 study:
     release_status:
-        choices:
-            - Pending # Not sure about the choices here
+        - Pending # Not sure about the choices here
 
 study_file:
     availability:
-        choices:
-            - Immediate Download
-            - Cold Storage
+        - Immediate Download
+        - Cold Storage
 
 participant:
     gender:
-        choices:
-            - Male
-            - Female
+        - Male
+        - Female
     race:
-        choices:
-          - White
-          - American Indian or Alaska Native
-          - Black or African American
-          - Asian
-          - Native Hawaiian or Other Pacific Islander
-          - Other
+      - White
+      - American Indian or Alaska Native
+      - Black or African American
+      - Asian
+      - Native Hawaiian or Other Pacific Islander
+      - Other
     ethnicity:
-        choices:
-            - Hispanic or Latino
-            - Not Hispanic or Latino
+        - Hispanic or Latino
+        - Not Hispanic or Latino
 
 diagnosis:
     diagnosis_category:
-        choices:
-            - Structural Birth Defect
-            - Cancer
-            - Other
+        - Structural Birth Defect
+        - Cancer
+        - Other
 
 phenotype:
     observed:
-        choices:
-            - Positive
-            - Negative
+        - Positive
+        - Negative
 
 outcome:
     vital_status:
-        choices:
-            - Alive
-            - Dead
+        - Alive
+        - Dead
     disease_related:
-        choices:
-            - Yes
-            - No
+        - Yes
+        - No
 
 biospecimen:
     analyte_type:
-        choices:
-            - DNA
-            - RNA
-            - Other
+        - DNA
+        - RNA
+        - Other
 
 genomic_file:
     data_type:
-        choices:
-            - Submitted Aligned Reads
-            - Submitted Aligned Reads Index
-            - Simple Nucleotide Variation
-            - Other
+        - Submitted Aligned Reads
+        - Submitted Aligned Reads Index
+        - Simple Nucleotide Variation
+        - Other
     availability:
-        choices:
-            - Immediate Download
-            - Cold Storage
+        - Immediate Download
+        - Cold Storage
 
 sequencing_experiment:
     experiment_strategy:
-        choices:
-            - WGS
-            - WXS
-            - RNA-Seq
-            - Other
+        - WGS
+        - WXS
+        - RNA-Seq
+        - Other
     platform:
-        choices:
-            - Illumina
-            - SOLiD
-            - LS454
-            - Ion Torrent
-            - Complete Genomics
-            - PacBio
-            - Other
+        - Illumina
+        - SOLiD
+        - LS454
+        - Ion Torrent
+        - Complete Genomics
+        - PacBio
+        - Other
     library_strand:
-        choices:
-            - Unstranded
-            - First Stranded
-            - Second Stranded
+        - Unstranded
+        - First Stranded
+        - Second Stranded
