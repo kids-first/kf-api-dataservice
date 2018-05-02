@@ -22,11 +22,10 @@ class CavaticaTask(db.Model, Base):
                                  'by Cavatica')
     name = db.Column(db.Text(), doc='Name given to Cavatica task by user')
 
-    # cavatica_app_id = db.Column(KfId(),
-    #                             db.ForeignKey('cavatica_app.kf_id'),
-    #                             nullable=False,
-    #                             doc='Id for the Cavatica app to which this '
-    #                             'task belongs')
+    cavatica_app_id = db.Column(KfId(),
+                                db.ForeignKey('cavatica_app.kf_id'),
+                                doc='Id for the Cavatica app to which this '
+                                'task belongs')
 
     genomic_files = association_proxy(
         'cavatica_task_genomic_files', 'genomic_file',

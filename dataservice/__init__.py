@@ -21,6 +21,7 @@ from dataservice.api.cavatica_task.models import (
     CavaticaTask,
     CavaticaTaskGenomicFile
 )
+from dataservice.api.cavatica_app.models import CavaticaApp
 from dataservice.api.study_file.models import StudyFile
 from config import config
 
