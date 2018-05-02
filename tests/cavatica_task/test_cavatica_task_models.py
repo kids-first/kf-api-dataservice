@@ -18,10 +18,6 @@ from tests.utils import FlaskTestCase
 from unittest.mock import patch
 from tests.mocks import MockIndexd
 
-# WORKFLOW_COMMIT_URL = (
-#     'https://github.com/kids-first/kf-alignment-cavatica_task/'
-#     'commit/0d7f93dff6463446b0ed43dc2883f60c28e6f1f4')
-
 
 @patch('dataservice.extensions.flask_indexd.requests')
 class ModelTest(FlaskTestCase):
@@ -379,9 +375,9 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         # Create cavatica_task
-        w1 = self._create_cavatica_task('kf-alignment1')
-        w2 = self._create_cavatica_task('kf-alignment2')
-        cavatica_tasks = [w1, w2]
+        ct1 = self._create_cavatica_task('kf-alignment1')
+        ct2 = self._create_cavatica_task('kf-alignment2')
+        cavatica_tasks = [ct1, ct2]
 
         # Add genomic files to cavatica_tasks
         # Each participant has an input GF and output GF
