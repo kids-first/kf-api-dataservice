@@ -89,7 +89,7 @@ class ModelTest(FlaskTestCase):
         Create cavatica_task
         """
         data = {
-            'cavatica_task_id': _name,
+            'external_cavatica_task_id': _name,
             'name': _name,
         }
         if genomic_files:
@@ -163,7 +163,7 @@ class ModelTest(FlaskTestCase):
         cavatica_tasks = [ct1, ct2]
 
         data = {
-            'cavatica_app_id': 'app1',
+            'external_cavatica_app_id': 'app1',
             'name': 'ImAwsammmmm',
             'revision': 1,
             'github_commit_url': CAVATICA_APP_COMMIT_URL,

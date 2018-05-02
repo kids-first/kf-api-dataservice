@@ -18,8 +18,9 @@ class CavaticaTask(db.Model, Base):
     __tablename__ = 'cavatica_task'
     __prefix__ = 'CT'
 
-    cavatica_task_id = db.Column(db.Text(), doc='Id assigned to Cavatica task'
-                                 'by Cavatica')
+    external_cavatica_task_id = db.Column(db.Text(),
+                                          doc='Id assigned to Cavatica task'
+                                          'by Cavatica')
     name = db.Column(db.Text(), doc='Name given to Cavatica task by user')
 
     cavatica_app_id = db.Column(KfId(),

@@ -310,7 +310,7 @@ class ModelTest(FlaskTestCase):
         Create cavatica_task
         """
         data = {
-            'cavatica_task_id': 'task_{}'.format(_name),
+            'external_cavatica_task_id': 'task_{}'.format(_name),
             'name': _name,
         }
         if genomic_files:

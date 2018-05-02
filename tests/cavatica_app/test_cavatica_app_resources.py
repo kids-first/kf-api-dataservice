@@ -133,7 +133,7 @@ class CavaticaAppTest(FlaskTestCase):
         body = {
             'name': name,
             'revision': 0,
-            'cavatica_app_id': name + '_id',
+            'external_cavatica_app_id': name + '_id',
             'github_commit_url': url
         }
         response = self.client.post(url_for(CAVATICA_APP_LIST_URL),
