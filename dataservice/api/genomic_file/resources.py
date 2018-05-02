@@ -1,5 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
+from sqlalchemy.orm import joinedload
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, indexd_pagination
@@ -32,7 +33,9 @@ class GenomicFileListAPI(CRUDView):
               GenomicFile
         """
         # Get a page of the data from the model first
-        q = GenomicFile.query
+        q = GenomicFile.query.options(joinedload(
+            GenomicFile.cavatica_task_genomic_files)
+            .load_only('kf_id'))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
