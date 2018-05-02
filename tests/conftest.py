@@ -18,7 +18,31 @@ from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.study_file.models import StudyFile
+from dataservice.api.cavatica_app.models import CavaticaApp
+from dataservice.api.cavatica_task.models import CavaticaTask
 
+ENDPOINTS = [
+    '/studies',
+    '/investigators',
+    '/participants',
+    '/outcomes',
+    '/phenotypes',
+    '/diagnoses',
+    '/biospecimens',
+    '/sequencing-experiments',
+    '/sequencing-centers',
+    '/family-relationships',
+    '/study-files',
+    '/families',
+    '/family-relationships',
+    '/studies',
+    '/investigators',
+    '/outcomes',
+    '/phenotypes',
+    '/genomic-files',
+    '/cavatica-tasks',
+    '/cavatica-apps'
+]
 
 pytest_plugins = ['tests.mocks']
 
@@ -53,6 +77,16 @@ def entities(client, indexd):
         '/investigators': {
             'external_id': 'inv001',
             'name': 'submitter'
+        },
+        '/cavatica-apps': {
+            'external_cavatica_app_id': 'app1',
+            'name': 'MyApp',
+            'revision': 1,
+            'github_commit_url': 'www.github.com'
+        },
+        '/cavatica-tasks': {
+            'external_cavatica_task_id': 'app1',
+            'name': 'MyTask'
         },
         '/genomic-files': {
             'external_id': 'genfile001',
@@ -203,7 +237,10 @@ def entities(client, indexd):
     gen_file = GenomicFile(**inputs['/genomic-files'],
                            biospecimen_id=biospecimen.kf_id,
                            sequencing_experiment_id=seq_exp.kf_id)
-
+    ca = CavaticaApp(**inputs['/cavatica-apps'])
+    ct = CavaticaTask(**inputs['/cavatica-tasks'],
+                      cavatica_app=ca)
+    ct.genomic_files.append(gen_file)
     biospecimen.genomic_files = [gen_file]
     seq_exp.genomic_files = [gen_file]
     seq_center.sequencing_experiments = [seq_exp]
@@ -249,6 +286,8 @@ def entities(client, indexd):
         seq_center.kf_id
     # Biospecimen and sequencing_center
     inputs['/biospecimens']['sequencing_center_id'] = seq_center.kf_id
+    # Cavatica task and Cavatica app
+    inputs['/cavatica-tasks']['cavatica_app_id'] = ca.kf_id
 
     # Add kf_ids
     inputs['kf_ids'] = {}
@@ -264,6 +303,8 @@ def entities(client, indexd):
     inputs['kf_ids'].update({'/family-relationships': fr.kf_id})
     inputs['kf_ids'].update({'/families': family.kf_id})
     inputs['kf_ids'].update({'/genomic-files': gen_file.kf_id})
+    inputs['kf_ids'].update({'/cavatica-apps': ca.kf_id})
+    inputs['kf_ids'].update({'/cavatica-tasks': ct.kf_id})
     inputs['kf_ids'].update({'/sequencing-centers': seq_center.kf_id})
 
     return inputs
