@@ -16,6 +16,10 @@ from dataservice.api.cavatica_app import CavaticaAppAPI
 from dataservice.api.cavatica_app import CavaticaAppListAPI
 from dataservice.api.cavatica_task import CavaticaTaskAPI
 from dataservice.api.cavatica_task import CavaticaTaskListAPI
+from dataservice.api.cavatica_task_genomic_file import (
+    CavaticaTaskGenomicFileAPI,
+    CavaticaTaskGenomicFileListAPI
+)
 from dataservice.api.family_relationship import FamilyRelationshipAPI
 from dataservice.api.family_relationship import FamilyRelationshipListAPI
 from dataservice.api.diagnosis import DiagnosisAPI
