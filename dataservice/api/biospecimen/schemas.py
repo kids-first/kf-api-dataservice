@@ -18,7 +18,8 @@ class BiospecimenSchema(BaseSchema):
     volume_ml = field_for(Biospecimen, 'volume_ml',
                           validate=validate_positive_number)
 
-    shipment_date = DateOrDatetime()
+    shipment_date = DateOrDatetime(allow_none=True)
+
     sequencing_center_id = field_for(Biospecimen, 'sequencing_center_id',
                                      required=True, load_only=True)
 
