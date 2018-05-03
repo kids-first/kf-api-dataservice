@@ -1,8 +1,12 @@
 from marshmallow_sqlalchemy import field_for
 
-from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_experiment.models import (
+    SequencingExperiment,
+    ExperimentStrategyEnum,
+    PlatformEnum,
+    LibraryStrandEnum)
 from dataservice.api.common.schemas import BaseSchema
-from dataservice.api.common.custom_fields import DateOrDatetime
+from dataservice.api.common.custom_fields import DateOrDatetime, EnumColumn
 from dataservice.api.common.validation import validate_positive_number
 from dataservice.extensions import ma
 
@@ -12,6 +16,10 @@ class SequencingExperimentSchema(BaseSchema):
                                      'sequencing_center_id',
                                      required=True,
                                      load_only=True)
+    experiment_strategy = EnumColumn(
+        enum=[s.value for s in ExperimentStrategyEnum])
+    platform = EnumColumn(enum=[s.value for s in PlatformEnum])
+    library_strand = EnumColumn(enum=[s.value for s in LibraryStrandEnum])
 
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_experiments'

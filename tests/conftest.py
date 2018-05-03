@@ -110,7 +110,7 @@ def entities(client, indexd):
             'experiment_date': str(datetime.utcnow()),
             'experiment_strategy': 'WGS',
             'library_name': 'a library',
-            'library_strand': 'a strand',
+            'library_strand': 'Unstranded',
             'is_paired_end': True,
             'platform': 'Illumina',
             'instrument_model': 'HiSeqX',

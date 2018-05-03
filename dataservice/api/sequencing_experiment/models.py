@@ -3,6 +3,7 @@ from sqlalchemy import event
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
+from enum import Enum
 
 
 class SequencingExperiment(db.Model, Base):
@@ -78,3 +79,51 @@ def delete_orphans(mapper, connection, state):
     q = (db.session.query(SequencingExperiment)
          .filter(~SequencingExperiment.genomic_files.any()))
     q.delete(synchronize_session='fetch')
+
+
+class ExperimentStrategyEnum(Enum):
+
+    """
+     Enum class for experimental_strategy field with possible choices
+    """
+    WGS = "WGS"
+    WXS = "WXS"
+    RNA_Seq = "RNA-Seq"
+    Other = "Other"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"
+
+
+class PlatformEnum(Enum):
+
+    """
+     Enum class for platform field with possible choices
+    """
+    Illumina = "Illumina"
+    SOLiD = "SOLiD"
+    LS454 = "LS454"
+    Ion_Torrent = "Ion Torrent"
+    Complete_Genomics = "Complete Genomics"
+    PacBio = "PacBio"
+    Other = "Other"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"
+
+
+class LibraryStrandEnum(Enum):
+
+    """
+     Enum class for library_strand field with possible choices
+    """
+    Unstranded = "Unstranded"
+    First_Stranded = "First Stranded"
+    Second_Stranded = "Second Stranded"
+    Other = "Other"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"
