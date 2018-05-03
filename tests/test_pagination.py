@@ -4,7 +4,6 @@ from dateutil import parser
 from urllib import parse
 import uuid
 
-from dataservice import create_app
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.investigator.models import Investigator
@@ -183,6 +182,7 @@ class TestPagination:
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 1),
         ('/cavatica-tasks', 50),
+        ('/cavatica-task-genomic-files', 50)
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):
@@ -233,7 +233,8 @@ class TestPagination:
         ('/genomic-files'),
         ('/sequencing-centers'),
         ('/cavatica-tasks'),
-        ('/cavatica-apps')
+        ('/cavatica-apps'),
+        ('/cavatica-task-genomic-files')
     ])
     def test_non_exist_study_filter(self, client, participants,
                                     endpoint, study_id):
@@ -263,7 +264,8 @@ class TestPagination:
         ('/families', 101),
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 101),
-        ('/cavatica-tasks', 102)
+        ('/cavatica-tasks', 102),
+        ('/cavatica-task-genomic-files', 102)
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """

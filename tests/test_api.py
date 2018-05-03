@@ -80,6 +80,7 @@ class TestAPI:
         ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['biospecimen', 'sequencing_experiment']),
         ('/cavatica-tasks', ['cavatica_app']),
+        ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
@@ -186,14 +187,17 @@ class TestAPI:
         ('/studies', ['study_files', 'participants']),
         ('/investigators', ['studies']),
         ('/families', ['participants']),
-        ('/cavatica-apps', ['cavatica_tasks'])
+        ('/cavatica-apps', ['cavatica_tasks']),
+        ('/cavatica-tasks', ['cavatica_task_genomic_files']),
+        ('/genomic-files', ['cavatica_task_genomic_files'])
     ])
     def test_child_links(self, client, entities, resource, fields):
         """ Checks that references to other resources have correct ID """
+        from pprint import pprint
         kf_id = entities.get('kf_ids').get(resource)
         resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
-
+        pprint(body)
         for field in fields:
             assert field in body
             if type(body[field]) is list:
@@ -226,6 +230,8 @@ class TestAPI:
                                'experiment_date', 'hai der'),
                               ('/cavatica-apps', 'revision', -5),
                               ('/cavatica-apps', 'revision', 'hai der'),
+                              ('/cavatica-task-genomic-files',
+                               'is_input', 'hai der'),
                               ('/diagnoses', 'age_at_event_days', -5)])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
@@ -289,7 +295,12 @@ class TestAPI:
                               ('/biospecimens', 'participant_id'),
                               ('/genomic-files', 'biospecimen_id'),
                               ('/genomic-files', 'sequencing_experiment_id'),
-                              ('/cavatica-tasks', 'cavatica_app_id')])
+                              ('/cavatica-tasks', 'cavatica_app_id'),
+                              ('/cavatica-task-genomic-files',
+                               'cavatica_task_id'),
+                              ('/cavatica-task-genomic-files',
+                               'genomic_file_id')
+                              ])
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key
