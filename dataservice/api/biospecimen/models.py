@@ -1,6 +1,7 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
+from enum import Enum
 
 
 class Biospecimen(db.Model, Base):
@@ -98,3 +99,17 @@ class Biospecimen(db.Model, Base):
                                     backref=db.backref(
                                         'biospecimen', lazy=True),
                                     doc='genomic files this biospecimen')
+
+
+class AnalyteTypeEnum(Enum):
+
+    """
+    Enum class for analyte_type field with possible choices
+   """
+    DNA = "DNA"
+    RNA = "RNA"
+    Other = "Other"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"

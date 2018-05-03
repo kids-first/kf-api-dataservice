@@ -29,8 +29,8 @@ class ModelTest(FlaskTestCase):
                                       external_aliquot_id=aliquot_id)
         ids = self.create_seqexp()
         biospecimen_0 = Biospecimen(**data,
-                                    sequencing_center_id=\
-                                    ids['sequencing_center_id'])
+                                    sequencing_center_id=ids
+                                    ['sequencing_center_id'])
         participant_0 = Participant(
             external_id=participant_id,
             is_proband=True,
@@ -84,8 +84,8 @@ class ModelTest(FlaskTestCase):
         create biospecimen via participant
         """
         (participant_id,
-        sample_id,
-        aliquot_id) = self.create_participant_biospecimen()
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
         s = Biospecimen.query.filter_by(external_sample_id=sample_id).\
             one_or_none()
         p = Participant.query.filter_by(
@@ -99,8 +99,8 @@ class ModelTest(FlaskTestCase):
         Test Updating biospecimen
         """
         (participant_id,
-        sample_id,
-        aliquot_id) = self.create_participant_biospecimen()
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
         # Get Biospecimen
         s = Biospecimen.query.filter_by(external_sample_id=sample_id).\
             one_or_none()
@@ -108,7 +108,7 @@ class ModelTest(FlaskTestCase):
         s.source_text_tissue_type = "Tumor"
         # get biospecimen
         s = Biospecimen.query.filter_by(external_sample_id=sample_id).\
-           one_or_none()
+            one_or_none()
         self.assertEqual(s.source_text_tissue_type, 'Tumor')
         self.assertEqual(s.external_sample_id, sample_id)
 
@@ -117,8 +117,8 @@ class ModelTest(FlaskTestCase):
         Test Deleting Biospecimen
         """
         (participant_id,
-        sample_id,
-        aliquot_id) = self.create_participant_biospecimen()
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
         # Get Biospecimen
         s = Biospecimen.query.filter_by(external_sample_id=sample_id).\
             one_or_none()
@@ -140,8 +140,8 @@ class ModelTest(FlaskTestCase):
         """
 
         (participant_id,
-        sample_id,
-        aliquot_id) = self.create_participant_biospecimen()
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
 
         # Delete Participant
         p = Participant.query.first()
@@ -193,8 +193,8 @@ class ModelTest(FlaskTestCase):
         """
         # create a participant with a biospecimen
         (participant_id,
-        sample_id,
-        aliquot_id) = self.create_participant_biospecimen()
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
 
@@ -223,8 +223,8 @@ class ModelTest(FlaskTestCase):
         """
         # create a participant with a biospecimen
         (participant_id,
-        sample_id,
-        aliquot_id) = self.create_participant_biospecimen()
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
         # Get Participant
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
@@ -243,7 +243,7 @@ class ModelTest(FlaskTestCase):
         # Get Biospecimen and Person with multiple Entries
         p = Participant.query.filter_by(external_id=participant_id).all()
         s = Biospecimen.query.filter_by(external_sample_id='Test_Sample_1').\
-           one_or_none()
+            one_or_none()
 
         # update one of the biospecimen attribute
         s.source_text_tissue_type = 'Tumor'
@@ -262,8 +262,8 @@ class ModelTest(FlaskTestCase):
         """
         # create a participant with a biospecimen
         (participant_id,
-        sample_id,
-        aliquot_id) = self.create_participant_biospecimen()
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
         p = Participant.query.filter_by(
             external_id=participant_id).one_or_none()
 
@@ -325,7 +325,7 @@ class ModelTest(FlaskTestCase):
         db.session.add(sc)
         db.session.commit()
         ids = {
-                'sequencing_experiment_id': se.kf_id,
-                'sequencing_center_id':sc.kf_id
-                }
+            'sequencing_experiment_id': se.kf_id,
+            'sequencing_center_id': sc.kf_id
+        }
         return ids
