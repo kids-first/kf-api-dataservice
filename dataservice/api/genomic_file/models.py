@@ -1,5 +1,8 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, IndexdFile, KfId
+from dataservice.api.cavatica_task.models import (
+    CavaticaTaskGenomicFile
+)
 
 
 class GenomicFile(db.Model, Base, IndexdFile):
@@ -51,3 +54,7 @@ class GenomicFile(db.Model, Base, IndexdFile):
                                          'sequencing_experiment.kf_id'))
     biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
                                nullable=True)
+
+    cavatica_task_genomic_files = db.relationship(CavaticaTaskGenomicFile,
+                                                  backref='genomic_file',
+                                                  cascade='all, delete-orphan')

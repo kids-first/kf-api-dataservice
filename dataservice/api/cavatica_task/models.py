@@ -2,7 +2,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
-from dataservice.api.genomic_file.models import GenomicFile
 
 
 class CavaticaTask(db.Model, Base):
@@ -34,6 +33,10 @@ class CavaticaTask(db.Model, Base):
         CavaticaTaskGenomicFile(genomic_file=genomic_file,
                                 is_input=genomic_file.is_harmonized))
 
+    cavatica_task_genomic_files = db.relationship('CavaticaTaskGenomicFile',
+                                                  backref='cavatica_task',
+                                                  cascade='all, delete-orphan')
+
 
 class CavaticaTaskGenomicFile(db.Model, Base):
     """
@@ -60,13 +63,3 @@ class CavaticaTaskGenomicFile(db.Model, Base):
                                  db.ForeignKey('cavatica_task.kf_id'),
                                  nullable=False)
     is_input = db.Column(db.Boolean(), nullable=False, default=True)
-
-    genomic_file = db.relationship(
-        GenomicFile,
-        backref=db.backref('cavatica_task_genomic_files',
-                           cascade='all, delete-orphan'))
-
-    cavatica_task = db.relationship(
-        CavaticaTask,
-        backref=db.backref('cavatica_task_genomic_files',
-                           cascade='all, delete-orphan'))
