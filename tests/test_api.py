@@ -222,7 +222,11 @@ class TestAPI:
                                'american indian'),
                               ('/biospecimens', 'analyte_type', 'test'),
                               ('/biospecimens', 'analyte_type', ''),
-                              ('/diagnoses', 'diagnosis_categoty', 'canc')])
+                              ('/diagnoses', 'diagnosis_categoty', 'canc'),
+                              ('/genomic-files', 'availability',
+                               'availble for download'),
+                              ('/genomic-files', 'data_type',
+                               'aligned read')])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]

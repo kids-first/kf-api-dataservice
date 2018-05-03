@@ -1,8 +1,10 @@
 from marshmallow_sqlalchemy import field_for
 
-from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.genomic_file.models import (GenomicFile, DataTypeEnum,
+                                                 AvailabilityEnum)
 from dataservice.api.common.schemas import BaseSchema, IndexdFileSchema
 from dataservice.extensions import ma
+from dataservice.api.common.custom_fields import EnumColumn
 
 
 class GenomicFileSchema(BaseSchema, IndexdFileSchema):
@@ -10,7 +12,10 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         model = GenomicFile
         resource_url = 'api.genomic_files'
         collection_url = 'api.genomic_files_list'
-
+    data_type = EnumColumn(
+        enum=[s.value for s in DataTypeEnum])
+    availability = EnumColumn(
+        enum=[s.value for s in AvailabilityEnum])
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',
                                          required=True,

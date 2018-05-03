@@ -57,13 +57,13 @@ def entities(client, indexd):
         '/genomic-files': {
             'external_id': 'genfile001',
             'file_name': 'hg38.fq',
-            'data_type': 'reads',
+            'data_type': 'Submitted Aligned Reads',
             'file_format': 'fastq',
             'size': 1000,
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())},
             'controlled_access': False,
-            'availability': 'availble for download'
+            'availability': 'Immediate Download'
         },
         '/studies': {
             'external_id': 'phs001'

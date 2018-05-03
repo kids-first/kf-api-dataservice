@@ -47,14 +47,14 @@ class ModelTest(IndexdTestCase):
             kwargs = {
                 'external_id': 'genomic_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
-                'data_type': 'submitted aligned read',
+                'data_type': 'submitted aligned reads',
                 'file_format': '.cram',
                 'urls': ['s3://file_{}'.format(i)],
                 'hashes': {'md5': str(uuid.uuid4())},
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
-                'availability': 'availble for download',
+                'availability': 'Immediate Download',
                 'biospecimen_id': biospecimen.kf_id,
                 'sequencing_experiment_id': se.kf_id
             }
@@ -130,7 +130,7 @@ class ModelTest(IndexdTestCase):
         # Update fields
         kwargs = kwargs_dict[list(kwargs_dict.keys())[0]]
         kwargs['file_name'] = 'updated file name'
-        kwargs['data_type'] = 'updated data type'
+        kwargs['data_type'] = 'Simple Nucleotide Variation'
         gf = GenomicFile.query.get(kwargs['kf_id'])
         [setattr(gf, k, v)
          for k, v in kwargs.items()]
@@ -189,7 +189,7 @@ class ModelTest(IndexdTestCase):
         # Check that indexd was called successfully
         assert self.indexd.Session().delete.call_count == 2
 
-    ## TODO Check that file is not deleted if deletion on indexd fails
+    # TODO Check that file is not deleted if deletion on indexd fails
 
     def test_not_null_constraint(self):
         """
@@ -224,15 +224,15 @@ class ModelTest(IndexdTestCase):
                 'external_id': 'genomic_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
                 'size': (random.randint(MIN_SIZE_MB, MAX_SIZE_MB) *
-                              MB_TO_BYTES),
-                'data_type': 'submitted aligned read',
+                         MB_TO_BYTES),
+                'data_type': 'submitted aligned reads',
                 'file_format': '.cram',
                 'urls': ['s3://file_{}'.format(i)],
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
                 'hashes': {'md5': uuid.uuid4()},
-                'availability': 'availble for download'
+                'availability': 'Immediate Download'
             }
             # Add genomic file to list in biospecimen
             gf = GenomicFile(**kwargs, sequencing_experiment_id=se.kf_id)

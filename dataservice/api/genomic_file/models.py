@@ -1,5 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, IndexdFile, KfId
+from enum import Enum
 
 
 class GenomicFile(db.Model, Base, IndexdFile):
@@ -52,3 +53,31 @@ class GenomicFile(db.Model, Base, IndexdFile):
                                          nullable=False)
     biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
                                nullable=False)
+
+
+class DataTypeEnum(Enum):
+
+    """
+     Enum class for data_type field with possible choices
+    """
+    Submitted_Aligned_Reads = "Submitted Aligned Reads"
+    Submitted_Aligned_Reads_Index = "Submitted Aligned Reads Index"
+    Simple_Nucleotide_Variation = "Simple Nucleotide Variation"
+    Other = "Other"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"
+
+
+class AvailabilityEnum(Enum):
+
+    """
+     Enum class for availability field with possible choices
+    """
+    Immediate_Download = "Immediate Download"
+    Cold_Storage = "Cold Storage"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"
