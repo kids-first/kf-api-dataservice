@@ -65,7 +65,9 @@ class SequencingCenterListAPI(CRUDView):
 
         # Deserialize
         try:
-            se = SequencingCenterSchema(strict=True).load(body).data
+            se = SequencingCenterSchema(strict=True).load(
+                body, session=db.session
+            ).data
         # Request body not valid
         except ValidationError as e:
             abort(400, 'could not create sequencing_center: {}'
