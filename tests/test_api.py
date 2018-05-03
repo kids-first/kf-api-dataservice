@@ -229,6 +229,7 @@ class TestAPI:
                                'aligned read'),
                               ('/outcomes', 'vital_status', 'test'),
                               ('/biospecimens', 'disease_related', 'test'),
+                              ('/phenotypes', 'observed', 'test')
                               ])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """

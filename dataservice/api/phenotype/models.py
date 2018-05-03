@@ -1,5 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
+from enum import Enum
 
 
 class Phenotype(db.Model, Base):
@@ -43,3 +44,16 @@ class Phenotype(db.Model, Base):
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                nullable=False)
+
+
+class ObservedEnum(Enum):
+
+    """
+     Enum class for observed field with possible choices
+    """
+    Positive = "Positive"
+    Negative = "Negative"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"

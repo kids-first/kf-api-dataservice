@@ -33,7 +33,7 @@ class PhenotypeTest(FlaskTestCase):
 
         # Create phenotype data
         kwargs = {
-            'external_id':'test_phenotype_0',
+            'external_id': 'test_phenotype_0',
             'source_text_phenotype': 'Hand tremor',
             'age_at_event_days': 365,
             'hpo_id_phenotype': 'HP:0002378',
@@ -61,7 +61,7 @@ class PhenotypeTest(FlaskTestCase):
         ph1 = self._create_save_to_db()
         # Create another phenotype for the same participant
         ph2 = {
-            'external_id':'test_phenotype_1',
+            'external_id': 'test_phenotype_1',
             'source_text_phenotype': 'Tall stature',
             'hpo_id_phenotype': 'HP:0000098',
             'snomed_id_phenotype': '38033009',
@@ -126,9 +126,9 @@ class PhenotypeTest(FlaskTestCase):
             'participant_id': kwargs['participant_id']
         }
         response = self.client.patch(url_for(PHENOTYPES_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+                                             kf_id=kwargs['kf_id']),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         # Check status code
         self.assertEqual(response.status_code, 200)
         # Check field values got updated
@@ -159,7 +159,6 @@ class PhenotypeTest(FlaskTestCase):
         p = Phenotype.query.first()
         self.assertIs(p, None)
 
-
     def _create_save_to_db(self):
         """
         Create and save phenotype
@@ -173,7 +172,7 @@ class PhenotypeTest(FlaskTestCase):
 
         # Create phenotype
         kwargs = {
-            'external_id':'test_phenotype_0',
+            'external_id': 'test_phenotype_0',
             'source_text_phenotype': 'Hand Tremor',
             'hpo_id_phenotype': 'HP:0002378',
             'snomed_id_phenotype': '38033009',
