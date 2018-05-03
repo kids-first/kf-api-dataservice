@@ -37,8 +37,8 @@ class GenomicFile(db.Model, Base, IndexdFile):
                             doc='external id used by contributor')
     data_type = db.Column(db.Text(), doc='Type of genomic file')
     file_format = db.Column(db.Text(), doc='Size of file in bytes')
-    is_harmonized = db.Column(db.Boolean(), doc='Whether or not the file'
-                              ' is harmonized')
+    is_harmonized = db.Column(db.Boolean(), default=False,
+                              doc='Whether or not the file is harmonized')
     reference_genome = db.Column(db.Text(), doc='Original reference genome of'
                                  ' the unharmonized genomic files')
     controlled_access = db.Column(db.Boolean(), doc='Whether or not the file'

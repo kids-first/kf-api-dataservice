@@ -31,7 +31,8 @@ class CavaticaTask(db.Model, Base):
     genomic_files = association_proxy(
         'cavatica_task_genomic_files', 'genomic_file',
         creator=lambda genomic_file:
-        CavaticaTaskGenomicFile(genomic_file=genomic_file))
+        CavaticaTaskGenomicFile(genomic_file=genomic_file,
+                                is_input=genomic_file.is_harmonized))
 
 
 class CavaticaTaskGenomicFile(db.Model, Base):
@@ -58,7 +59,7 @@ class CavaticaTaskGenomicFile(db.Model, Base):
     cavatica_task_id = db.Column(KfId(),
                                  db.ForeignKey('cavatica_task.kf_id'),
                                  nullable=False)
-    is_input = db.Column(db.Boolean(), nullable=False, default=False)
+    is_input = db.Column(db.Boolean(), nullable=False, default=True)
 
     genomic_file = db.relationship(
         GenomicFile,
