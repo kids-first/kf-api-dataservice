@@ -6,7 +6,7 @@ class TestErrors:
     """ Test general error handling """
 
     @pytest.mark.parametrize('endpoint', ['/diagnoses', '/outcomes'
-    ])
+                                          ])
     @pytest.mark.parametrize('kf_id', [
         '', 'AABB1122', 'blah', 'blah blah'
     ])
