@@ -82,6 +82,9 @@ class DateOrDatetime(fields.DateTime):
     ValidationError.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def _deserialize(self, value, attr, data):
         """
         Convert from string to datetime object

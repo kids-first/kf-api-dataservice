@@ -50,7 +50,6 @@ class BiospecimenTest(FlaskTestCase):
             'sequencing_center_id': kwargs.get('sequencing_center_id')
         }
         # Send post request
-        print(kwargs)
         response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
                                     data=json.dumps(kwargs),
                                     headers=self._api_headers())
@@ -68,7 +67,21 @@ class BiospecimenTest(FlaskTestCase):
                 self.assertEqual(parser.parse(biospecimen[k]), parser.parse(v))
             else:
                 self.assertEqual(biospecimen.get(k), v)
+
         self.assertEqual(2, Biospecimen.query.count())
+
+        # Test shipment_date = None
+        kwargs['shipment_date'] = None
+        # Send post request
+        response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
+                                    data=json.dumps(kwargs),
+                                    headers=self._api_headers())
+        # Check response status status_code
+        self.assertEqual(response.status_code, 201)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        self.assertEqual(3, Biospecimen.query.count())
+        self.assertIs(response['results']['shipment_date'], None)
 
     def test_post_multiple(self):
         # Create a biospecimen with participant
@@ -305,7 +318,7 @@ class BiospecimenTest(FlaskTestCase):
             'ncit_id_tissue_type': 'Test',
             'ncit_id_anatomical_site': 'C12439',
             'uberon_id_anatomical_site': 'UBERON:0000955',
-            'sequencing_center_id':sc.kf_id
+            'sequencing_center_id': sc.kf_id
         }
         d = Biospecimen(**kwargs)
 
