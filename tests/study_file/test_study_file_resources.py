@@ -22,7 +22,7 @@ def study_files(client, entities):
         'file_name': 'my_data.csv',
         'study_id': Study.query.first().kf_id,
         'size': 1024,
-        'availability': 'available for download',
+        'availability': 'Immediate Download',
         'urls': ['s3://mystudy/my_data.csv'],
         'hashes': {
             'md5': str(uuid.uuid4()).replace('-', '')
@@ -45,7 +45,7 @@ def _new_study_file(client):
         'study_id': Study.query.first().kf_id,
         'data_type': 'clinical',
         'file_format': 'csv',
-        'availability': 'available for download',
+        'availability': 'Immediate Download',
         'size': 1024,
         'urls': ['s3://mystudy/my_data.csv'],
         'hashes': {

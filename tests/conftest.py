@@ -152,7 +152,7 @@ def entities(client, indexd):
             'file_name': 'test_file_name 1',
             'data_type': 'clinical',
             'file_format': 'csv',
-            'availability': 'available for download',
+            'availability': 'Immediate Download',
             'size': 1000,
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())}
