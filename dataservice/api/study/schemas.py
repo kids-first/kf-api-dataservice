@@ -1,8 +1,8 @@
 from marshmallow_sqlalchemy import field_for
 
-from dataservice.api.study.models import Study
+from dataservice.api.study.models import Study, ReleaseStatusEnum
 from dataservice.api.common.schemas import BaseSchema
-from dataservice.api.common.custom_fields import PatchedURLFor
+from dataservice.api.common.custom_fields import PatchedURLFor, EnumColumn
 from dataservice.extensions import ma
 
 
@@ -10,6 +10,7 @@ class StudySchema(BaseSchema):
 
     investigator_id = field_for(Study, 'investigator_id',
                                 required=False, example='IG_ABB2C104')
+    release_status = EnumColumn(enum=[s.value for s in ReleaseStatusEnum])
 
     class Meta(BaseSchema.Meta):
         model = Study

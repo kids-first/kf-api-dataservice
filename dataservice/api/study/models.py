@@ -2,6 +2,7 @@ from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.participant.models import Participant
 from dataservice.api.study_file.models import StudyFile
+from enum import Enum
 
 
 class Study(db.Model, Base):
@@ -51,3 +52,14 @@ class Study(db.Model, Base):
 
     def __repr__(self):
         return '<Study {}>'.format(self.kf_id)
+
+
+class ReleaseStatusEnum(Enum):
+    """
+    Enum class for experimental_strategy field with possible choices
+    """
+    WGS = "Pending"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"

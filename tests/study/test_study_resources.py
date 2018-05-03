@@ -82,7 +82,7 @@ class StudyTest(FlaskTestCase):
         # Update the study via http api
         body = {
             'external_id': 'new_id',
-            'release_status': 'published'
+            'release_status': 'Pending'
         }
         response = self.client.patch(url_for(STUDY_URL,
                                              kf_id=kf_id),
@@ -166,7 +166,7 @@ class StudyTest(FlaskTestCase):
         body = {
             'external_id': external_id,
             'version': '1.0',
-            'release_status': 'pending'
+            'release_status': 'Pending'
         }
         if include_nullables:
             body.update({'investigator_id': inv.kf_id})
