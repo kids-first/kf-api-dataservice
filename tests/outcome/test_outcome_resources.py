@@ -35,7 +35,7 @@ class OutcomeTest(FlaskTestCase):
         kwargs = {
             'external_id': 'test_0',
             'vital_status': 'Alive',
-            'disease_related': None,
+            'disease_related': "Not Applicable",
             'age_at_event_days': 365,
             'participant_id': p.kf_id
         }
@@ -62,7 +62,7 @@ class OutcomeTest(FlaskTestCase):
         oc2 = {
             'external_id': 'test_1',
             'vital_status': 'Dead',
-            'disease_related': 'True',
+            'disease_related': 'Yes',
             'age_at_event_days': 369,
             'participant_id': oc1['participant_id']
         }
@@ -128,9 +128,9 @@ class OutcomeTest(FlaskTestCase):
             'participant_id': kwargs['participant_id']
         }
         response = self.client.patch(url_for(OUTCOMES_URL,
-                                           kf_id=kwargs['kf_id']),
-                                   headers=self._api_headers(),
-                                   data=json.dumps(body))
+                                             kf_id=kwargs['kf_id']),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
         # Check status code
         self.assertEqual(response.status_code, 200)
         # Check field values got updated
@@ -159,7 +159,6 @@ class OutcomeTest(FlaskTestCase):
         o = Outcome.query.first()
         self.assertIs(o, None)
 
-
     def _create_save_to_db(self):
         """
         Create and save outcome
@@ -175,7 +174,7 @@ class OutcomeTest(FlaskTestCase):
         kwargs = {
             'external_id': 'test_0',
             'vital_status': 'Alive',
-            'disease_related': 'False',
+            'disease_related': 'No',
             'age_at_event_days': 365
         }
         oc = Outcome(**kwargs)

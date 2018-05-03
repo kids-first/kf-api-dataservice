@@ -226,7 +226,10 @@ class TestAPI:
                               ('/genomic-files', 'availability',
                                'availble for download'),
                               ('/genomic-files', 'data_type',
-                               'aligned read')])
+                               'aligned read'),
+                              ('/outcomes', 'vital_status', 'test'),
+                              ('/biospecimens', 'disease_related', 'test'),
+                              ])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]

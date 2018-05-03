@@ -132,7 +132,7 @@ def entities(client, indexd):
         '/outcomes': {
             'external_id': 'out001',
             'vital_status': 'Alive',
-            'disease_related': 'False',
+            'disease_related': 'No',
             'age_at_event_days': 120,
         },
         '/phenotypes': {
