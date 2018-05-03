@@ -210,7 +210,12 @@ class TestAPI:
                               ('/sequencing-experiments', 'total_reads', -12),
                               ('/sequencing-experiments',
                                'experiment_date', 'hai der'),
-                              ('/diagnoses', 'age_at_event_days', -5)])
+                              ('/diagnoses', 'age_at_event_days', -5),
+                              ('/participants', 'gender', 'mle'),
+                              ('/participants', 'ethnicity',
+                               'Not Hispanic'),
+                              ('/participants', 'race',
+                               'american indian')])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]

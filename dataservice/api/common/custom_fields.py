@@ -13,6 +13,7 @@ from flask_marshmallow.fields import (
 )
 
 from dataservice.extensions import ma
+from marshmallow.validate import OneOf
 
 
 class PatchedURLFor(ma.URLFor):
@@ -92,3 +93,19 @@ class DateOrDatetime(fields.DateTime):
             raise ValidationError('Invalid date or datetime string')
 
         return value
+
+
+class EnumColumn(fields.Field):
+    """Validates against a given set of enumerated values."""
+
+    def __init__(self, enum, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.enum = enum
+        self.validators.insert(0,
+                               OneOf([v.lower() for v in self.enum]))
+
+    def _validate(self, value):
+        if type(value) is self.enum:
+            super()._validate(value.lower())
+        else:
+            super()._validate(value.lower())

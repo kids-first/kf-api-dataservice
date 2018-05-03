@@ -80,7 +80,7 @@ def entities(client, indexd):
             'external_id': 'p0',
             'is_proband': True,
             'consent_type': 'GRU-IRB',
-            'race': 'black',
+            'race': 'Black or African American',
             'gender': 'male',
             'ethnicity': 'hispanic or latino'
         },

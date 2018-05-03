@@ -1,16 +1,12 @@
 import json
 from flask import url_for
 from datetime import datetime
-from urllib.parse import urlparse
 from dateutil import parser, tz
 
 from dataservice.extensions import db
-from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
-from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.participant.models import Participant
-from dataservice.api.study.models import Study
+
 from tests.utils import FlaskTestCase
 
 SEQUENCING_EXPERIMENTS_URL = 'api.sequencing_experiments'
@@ -75,7 +71,7 @@ class SequencingExperimentTest(FlaskTestCase):
                 continue
             if k is 'experiment_date':
                 self.assertEqual(
-                        str(parser.parse(sequencing_experiment[k])), str(v))
+                    str(parser.parse(sequencing_experiment[k])), str(v))
             else:
                 self.assertEqual(sequencing_experiment[k], kwargs[k])
 
@@ -166,7 +162,7 @@ class SequencingExperimentTest(FlaskTestCase):
         '''
         dt = datetime.now()
         seq_experiment_data = {
-            'external_id':external_id,
+            'external_id': external_id,
             'experiment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'experiment_strategy': 'WXS',
             'library_name': 'Test_library_name_1',
