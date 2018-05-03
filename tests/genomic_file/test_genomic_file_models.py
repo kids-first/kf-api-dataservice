@@ -191,15 +191,6 @@ class ModelTest(IndexdTestCase):
 
     # TODO Check that file is not deleted if deletion on indexd fails
 
-    def test_not_null_constraint(self):
-        """
-        Test that a genomic file cannot be created without required parameters
-        such as biospecimen_id
-        """
-        # Create genomic file without foreign key_
-        gf = GenomicFile()
-        self.assertRaises(IntegrityError, db.session.add(gf))
-
     def test_foreign_key_constraint(self):
         """
         Test that a genomic file cannot be created without an existing
