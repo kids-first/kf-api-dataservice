@@ -1,5 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
+from enum import Enum
 
 
 class Diagnosis(db.Model, Base):
@@ -66,3 +67,17 @@ class Diagnosis(db.Model, Base):
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
                                nullable=False)
+
+
+class DiagnosisCategoryEnum(Enum):
+
+    """
+     Enum class for diagnosis_category field with possible choices
+    """
+    Structural_Birth_Defect = "Structural Birth Defect"
+    Cancer = "Cancer"
+    Other = "Other"
+    Not_Reported = "Not Reported"
+    Not_Applicable = "Not Applicable"
+    Not_Allowed_To_Collect = "Not Allowed To Collect"
+    Not_Available = "Not Available"

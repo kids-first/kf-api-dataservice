@@ -221,7 +221,8 @@ class TestAPI:
                               ('/participants', 'race',
                                'american indian'),
                               ('/biospecimens', 'analyte_type', 'test'),
-                              ('/biospecimens', 'analyte_type', '')])
+                              ('/biospecimens', 'analyte_type', ''),
+                              ('/diagnoses', 'diagnosis_categoty', 'canc')])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]
@@ -270,7 +271,6 @@ class TestAPI:
 
         body = json.loads(resp.data.decode('utf-8'))
         assert body['_status']['code'] == 400
-        print(body['_status']['message'])
         assert 'could not {} '.format(action) in body['_status']['message']
 
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
