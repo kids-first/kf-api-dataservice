@@ -12,7 +12,7 @@ class CavaticaTask(db.Model, Base):
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     :param name: Name of cavatica_task
-    :param cavatica_task_id: Id of executed task assigned by Cavatica
+    :param external_cavatica_task_id: Id of executed task assigned by Cavatica
     """
     __tablename__ = 'cavatica_task'
     __prefix__ = 'CT'
