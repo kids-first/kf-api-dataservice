@@ -48,7 +48,6 @@ class GenomicFile(db.Model, Base, IndexdFile):
                              'cold storage')
     sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
-                                         'sequencing_experiment.kf_id'),
-                                         nullable=False)
+                                         'sequencing_experiment.kf_id'))
     biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
-                               nullable=False)
+                               nullable=True)

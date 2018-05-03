@@ -99,6 +99,7 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
     response_mock = MagicMock()
     response_mock.status_code = 404
     response_mock.json.return_value = {'error': 'no record found'}
+
     def get(*args, **kwargs):
         return response_mock
     indexd.get.side_effect = get
@@ -115,6 +116,7 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
     for res in resp['results']:
         assert 'kf_id' in res
     assert indexd.get.call_count == 103
+
 
 def test_get_one(client, entities):
     """
@@ -163,8 +165,8 @@ def test_update(client, indexd, entities):
     }
 
     response = client.patch(url_for(GENOMICFILE_URL,
-                                  kf_id=kf_id),
-                               data=json.dumps(body),
+                                    kf_id=kf_id),
+                            data=json.dumps(body),
                             headers={'Content-Type': 'application/json'})
 
     assert indexd.post.call_count == orig_calls + 1
@@ -218,6 +220,7 @@ def test_delete_error(client, indexd, entities):
     response_mock = MagicMock()
     response_mock.status_code = 500
     response_mock.json.return_value = {'error': 'fake error message'}
+
     def exc():
         raise HTTPError()
     response_mock.raise_for_status = exc
@@ -250,13 +253,12 @@ def _new_genomic_file(client):
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'availability': 'availble for download',
-        'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'biospecimen_id': Biospecimen.query.first().kf_id,
         'controlled_access': False,
     }
     response = client.post(url_for(GENOMICFILE_LIST_URL),
-                                headers={'Content-Type': 'application/json'},
-                                data=json.dumps(body))
+                           headers={'Content-Type': 'application/json'},
+                           data=json.dumps(body))
     resp = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 201
     return resp

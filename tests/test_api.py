@@ -33,10 +33,10 @@ class TestAPI:
     and header checks
     """
 
-    @pytest.mark.parametrize('endpoint,method,status_code', 
-        [(ept, 'GET', 200) for ept in ENDPOINTS] +
-        [(ept+'/123', 'GET', 404) for ept in ENDPOINTS]
-    )
+    @pytest.mark.parametrize('endpoint,method,status_code',
+                             [(ept, 'GET', 200) for ept in ENDPOINTS] +
+                             [(ept+'/123', 'GET', 404) for ept in ENDPOINTS]
+                             )
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
         call_func = getattr(client, method.lower())
@@ -46,13 +46,17 @@ class TestAPI:
         assert json.loads(resp)['_status']['code'] == status_code
 
     @pytest.mark.parametrize('endpoint,method,status_message',
-        [('/status', 'GET', 'Welcome to'),
-        ('/persons', 'GET', 'The requested URL was not found')] +
-        [(ept, 'GET', 'success') for ept in ENDPOINTS] +
-        [(ept+'/123', 'GET', 'could not find') for ept in ENDPOINTS] +
-        [(ept+'/123', 'PATCH', 'could not find') for ept in ENDPOINTS] +
-        [(ept+'/123', 'DELETE', 'could not find') for ept in ENDPOINTS]
-    )
+                             [('/status', 'GET', 'Welcome to'),
+                              ('/persons', 'GET',
+                               'The requested URL was not found')] +
+                             [(ept, 'GET', 'success') for ept in ENDPOINTS] +
+                             [(ept+'/123', 'GET',
+                               'could not find') for ept in ENDPOINTS] +
+                             [(ept+'/123', 'PATCH',
+                               'could not find') for ept in ENDPOINTS] +
+                             [(ept+'/123', 'DELETE', 'could not find')
+                                 for ept in ENDPOINTS]
+                             )
     def test_status_messages(self, client, endpoint, method, status_message):
         """
         Test endpoint response messages by checking if the message
@@ -64,8 +68,8 @@ class TestAPI:
         assert resp['_status']['message'].startswith(status_message)
 
     @pytest.mark.parametrize('endpoint,method',
-        [(ept, 'GET') for ept in ENDPOINTS]
-    )
+                             [(ept, 'GET') for ept in ENDPOINTS]
+                             )
     def test_status_format(self, client, endpoint, method):
         """ Test that the _response field is consistent """
         call_func = getattr(client, method.lower())
@@ -112,9 +116,9 @@ class TestAPI:
                     else:
                         assert link is None
 
-    @pytest.mark.parametrize('endpoint', ENDPOINTS) 
-    @pytest.mark.parametrize('method', ['POST', 'PATCH']) 
-    @pytest.mark.parametrize('fields', [['created_at', 'modified_at']]) 
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
+    @pytest.mark.parametrize('method', ['POST', 'PATCH'])
+    @pytest.mark.parametrize('fields', [['created_at', 'modified_at']])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
         inputs = entities[endpoint]

@@ -13,7 +13,6 @@ def test_kf_id():
     contain any invalid characters
     """
 
-
     for _ in range(1000):
         prefix = ''.join(random.sample(string.ascii_uppercase, 2))
         kf_id = kf_id_generator(prefix)()
@@ -25,6 +24,7 @@ def test_kf_id():
         assert 'L' not in kf_id[2:]
         assert 'O' not in kf_id[2:]
         assert 'U' not in kf_id[2:]
+
 
 def test_kf_id_field(client):
     from dataservice.extensions import db
@@ -41,6 +41,7 @@ def test_kf_id_field(client):
         assert t.kf_id[:3] == 'TT_'
         s.rollback()
 
+
 @pytest.mark.parametrize('cls', Base.__subclasses__())
 def test_has_prefix(cls):
     """
@@ -51,6 +52,7 @@ def test_has_prefix(cls):
     assert len(cls.__prefix__) == 2
     assert cls.__prefix__ != '__', '{} does not have a prefix'.format(cls)
 
+
 @pytest.mark.parametrize('cls', Base.__subclasses__())
 def test_has_unique_prefix(cls):
     """
@@ -59,7 +61,8 @@ def test_has_unique_prefix(cls):
     for cls2 in Base.__subclasses__():
         if cls2 != cls and cls.__prefix__ == cls2.__prefix__:
             raise AssertionError(
-                    '{} and {} both use {}'.format(cls, cls2, cls.__prefix__))
+                '{} and {} both use {}'.format(cls, cls2, cls.__prefix__))
+
 
 def test_uuid():
     """

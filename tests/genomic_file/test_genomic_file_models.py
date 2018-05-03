@@ -189,16 +189,7 @@ class ModelTest(IndexdTestCase):
         # Check that indexd was called successfully
         assert self.indexd.Session().delete.call_count == 2
 
-    ## TODO Check that file is not deleted if deletion on indexd fails
-
-    def test_not_null_constraint(self):
-        """
-        Test that a genomic file cannot be created without required parameters
-        such as biospecimen_id
-        """
-        # Create genomic file without foreign key_
-        gf = GenomicFile()
-        self.assertRaises(IntegrityError, db.session.add(gf))
+    # TODO Check that file is not deleted if deletion on indexd fails
 
     def test_foreign_key_constraint(self):
         """
@@ -224,7 +215,7 @@ class ModelTest(IndexdTestCase):
                 'external_id': 'genomic_file_{}'.format(i),
                 'file_name': 'file_{}'.format(i),
                 'size': (random.randint(MIN_SIZE_MB, MAX_SIZE_MB) *
-                              MB_TO_BYTES),
+                         MB_TO_BYTES),
                 'data_type': 'submitted aligned read',
                 'file_format': '.cram',
                 'urls': ['s3://file_{}'.format(i)],
