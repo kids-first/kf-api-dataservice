@@ -255,7 +255,7 @@ def _new_genomic_file(client):
         'availability': 'Immediate Download',
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'biospecimen_id': Biospecimen.query.first().kf_id,
-        'controlled_access': False,
+        'controlled_access': False
     }
     response = client.post(url_for(GENOMICFILE_LIST_URL),
                            headers={'Content-Type': 'application/json'},

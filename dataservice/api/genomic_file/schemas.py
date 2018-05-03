@@ -3,6 +3,7 @@ from marshmallow_sqlalchemy import field_for
 from dataservice.api.genomic_file.models import (GenomicFile, DataTypeEnum,
                                                  AvailabilityEnum)
 from dataservice.api.common.schemas import BaseSchema, IndexdFileSchema
+from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
 from dataservice.api.common.custom_fields import EnumColumn
 
@@ -18,12 +19,10 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         enum=[s.value for s in AvailabilityEnum])
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',
-                                         required=True,
                                          load_only=True)
 
     biospecimen_id = field_for(GenomicFile,
                                'biospecimen_id',
-                               required=True,
                                load_only=True)
 
     latest_did = field_for(GenomicFile,
@@ -34,8 +33,10 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
-        'biospecimen': ma.URLFor('api.biospecimens',
-                                 kf_id='<biospecimen_id>'),
-        'sequencing_experiment': ma.URLFor('api.sequencing_experiments',
-                                           kf_id='<sequencing_experiment_id>')
+        'biospecimen': PatchedURLFor(
+            'api.biospecimens',
+            kf_id='<biospecimen_id>'),
+        'sequencing_experiment': PatchedURLFor(
+            'api.sequencing_experiments',
+            kf_id='<sequencing_experiment_id>')
     }, description='Resource links and pagination')
