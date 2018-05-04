@@ -63,6 +63,7 @@ def entities(client, indexd):
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())},
             'controlled_access': False,
+            'acl': ['TEST01'],
             'availability': 'availble for download'
         },
         '/studies': {

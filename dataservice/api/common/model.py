@@ -78,6 +78,7 @@ class IndexdFile:
     urls = []
     rev = None
     hashes = {}
+    acl = []
     # The metadata property is already used by sqlalchemy
     _metadata = {}
     size = None
