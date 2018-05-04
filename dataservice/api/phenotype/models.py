@@ -47,7 +47,6 @@ class Phenotype(db.Model, Base):
 
 
 class ObservedEnum(Enum):
-
     """
      Enum class for observed field with possible choices
     """

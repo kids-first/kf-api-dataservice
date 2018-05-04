@@ -98,7 +98,7 @@ class DateOrDatetime(fields.DateTime):
         return value
 
 
-class EnumColumn(fields.Field):
+class EnumField(fields.Field):
     """Validates against a given set of enumerated values."""
 
     def __init__(self, enum, *args, **kwargs):

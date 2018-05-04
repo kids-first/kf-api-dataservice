@@ -4,7 +4,7 @@ from dataservice.api.participant.models import (Participant, GenderEnum,
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.extensions import ma
 
-from dataservice.api.common.custom_fields import PatchedURLFor, EnumColumn
+from dataservice.api.common.custom_fields import PatchedURLFor, EnumField
 
 
 class ParticipantSchema(BaseSchema):
@@ -12,9 +12,9 @@ class ParticipantSchema(BaseSchema):
                          load_only=True)
     family_id = field_for(Participant, 'family_id',
                           required=False, example='FM_ABB2C104')
-    gender = EnumColumn(enum=[s.value for s in GenderEnum])
-    ethnicity = EnumColumn(enum=[s.value for s in EthnicityEnum])
-    race = EnumColumn(enum=[s.value for s in RaceEnum])
+    gender = EnumField(enum=[s.value for s in GenderEnum])
+    ethnicity = EnumField(enum=[s.value for s in EthnicityEnum])
+    race = EnumField(enum=[s.value for s in RaceEnum])
 
     class Meta(BaseSchema.Meta):
         model = Participant

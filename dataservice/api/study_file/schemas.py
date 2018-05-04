@@ -4,11 +4,11 @@ from dataservice.api.study_file.models import StudyFile
 from dataservice.api.common.schemas import BaseSchema, IndexdFileSchema
 from dataservice.extensions import ma
 from dataservice.api.genomic_file.models import AvailabilityEnum
-from dataservice.api.common.custom_fields import EnumColumn
+from dataservice.api.common.custom_fields import EnumField
 
 
 class StudyFileSchema(BaseSchema, IndexdFileSchema):
-    availability = EnumColumn(
+    availability = EnumField(
         enum=[s.value for s in AvailabilityEnum])
 
     class Meta(BaseSchema.Meta):

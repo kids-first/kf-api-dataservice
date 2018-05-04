@@ -6,7 +6,7 @@ from dataservice.api.sequencing_experiment.models import (
     PlatformEnum,
     LibraryStrandEnum)
 from dataservice.api.common.schemas import BaseSchema
-from dataservice.api.common.custom_fields import DateOrDatetime, EnumColumn
+from dataservice.api.common.custom_fields import DateOrDatetime, EnumField
 from dataservice.api.common.validation import validate_positive_number
 from dataservice.extensions import ma
 
@@ -16,10 +16,10 @@ class SequencingExperimentSchema(BaseSchema):
                                      'sequencing_center_id',
                                      required=True,
                                      load_only=True)
-    experiment_strategy = EnumColumn(
+    experiment_strategy = EnumField(
         enum=[s.value for s in ExperimentStrategyEnum])
-    platform = EnumColumn(enum=[s.value for s in PlatformEnum])
-    library_strand = EnumColumn(enum=[s.value for s in LibraryStrandEnum])
+    platform = EnumField(enum=[s.value for s in PlatformEnum])
+    library_strand = EnumField(enum=[s.value for s in LibraryStrandEnum])
 
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_experiments'

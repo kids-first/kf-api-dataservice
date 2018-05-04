@@ -102,10 +102,9 @@ class Biospecimen(db.Model, Base):
 
 
 class AnalyteTypeEnum(Enum):
-
     """
     Enum class for analyte_type field with possible choices
-   """
+    """
     DNA = "DNA"
     RNA = "RNA"
     Other = "Other"

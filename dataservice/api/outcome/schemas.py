@@ -5,7 +5,7 @@ from dataservice.api.outcome.models import (
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.validation import validate_age
 from dataservice.extensions import ma
-from dataservice.api.common.custom_fields import EnumColumn
+from dataservice.api.common.custom_fields import EnumField
 
 
 class OutcomeSchema(BaseSchema):
@@ -14,8 +14,8 @@ class OutcomeSchema(BaseSchema):
                                load_only=True, example='PT_DZB048J5')
     age_at_event_days = field_for(Outcome, 'age_at_event_days',
                                   validate=validate_age, example=232)
-    vital_status = EnumColumn(enum=[s.value for s in VitalStatusEnum])
-    disease_related = EnumColumn(enum=[s.value for s in DiseaseRelatedEnum])
+    vital_status = EnumField(enum=[s.value for s in VitalStatusEnum])
+    disease_related = EnumField(enum=[s.value for s in DiseaseRelatedEnum])
 
     class Meta(BaseSchema.Meta):
         model = Outcome

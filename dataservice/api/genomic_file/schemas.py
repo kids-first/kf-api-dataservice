@@ -5,7 +5,7 @@ from dataservice.api.genomic_file.models import (GenomicFile, DataTypeEnum,
 from dataservice.api.common.schemas import BaseSchema, IndexdFileSchema
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
-from dataservice.api.common.custom_fields import EnumColumn
+from dataservice.api.common.custom_fields import EnumField
 
 
 class GenomicFileSchema(BaseSchema, IndexdFileSchema):
@@ -13,9 +13,9 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         model = GenomicFile
         resource_url = 'api.genomic_files'
         collection_url = 'api.genomic_files_list'
-    data_type = EnumColumn(
+    data_type = EnumField(
         enum=[s.value for s in DataTypeEnum])
-    availability = EnumColumn(
+    availability = EnumField(
         enum=[s.value for s in AvailabilityEnum])
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',

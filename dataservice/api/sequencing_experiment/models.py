@@ -82,7 +82,6 @@ def delete_orphans(mapper, connection, state):
 
 
 class ExperimentStrategyEnum(Enum):
-
     """
      Enum class for experimental_strategy field with possible choices
     """
@@ -97,7 +96,6 @@ class ExperimentStrategyEnum(Enum):
 
 
 class PlatformEnum(Enum):
-
     """
      Enum class for platform field with possible choices
     """
@@ -115,7 +113,6 @@ class PlatformEnum(Enum):
 
 
 class LibraryStrandEnum(Enum):
-
     """
      Enum class for library_strand field with possible choices
     """

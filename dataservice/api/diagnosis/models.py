@@ -70,7 +70,6 @@ class Diagnosis(db.Model, Base):
 
 
 class DiagnosisCategoryEnum(Enum):
-
     """
      Enum class for diagnosis_category field with possible choices
     """

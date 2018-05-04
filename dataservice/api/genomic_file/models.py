@@ -55,7 +55,6 @@ class GenomicFile(db.Model, Base, IndexdFile):
 
 
 class DataTypeEnum(Enum):
-
     """
      Enum class for data_type field with possible choices
     """
@@ -70,7 +69,6 @@ class DataTypeEnum(Enum):
 
 
 class AvailabilityEnum(Enum):
-
     """
      Enum class for availability field with possible choices
     """

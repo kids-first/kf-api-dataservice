@@ -36,7 +36,6 @@ class Outcome(db.Model, Base):
 
 
 class VitalStatusEnum(Enum):
-
     """
      Enum class for vital_status field with possible choices
     """
@@ -49,7 +48,6 @@ class VitalStatusEnum(Enum):
 
 
 class DiseaseRelatedEnum(Enum):
-
     """
      Enum class for disease_related field with possible choices
     """
