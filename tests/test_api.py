@@ -140,6 +140,15 @@ class TestAPI:
             assert (field not in body['results']
                     or body['results'][field] != 'test')
 
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
+    def test_predefined_kf_id(self, client, endpoint):
+        """ Check that posting predefined kf_id doesn't 500 """
+        resp = client.post(endpoint,
+                           data=json.dumps({'kf_id': 'XX_00000000'}),
+                           headers={'Content-Type': 'application/json'})
+        assert resp.status_code != 500
+
+
     @pytest.mark.parametrize('field', ['uuid'])
     @pytest.mark.parametrize('endpoint', ENDPOINTS)
     def test_excluded_field(self, client, entities, field, endpoint):

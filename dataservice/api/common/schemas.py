@@ -7,8 +7,9 @@ from marshmallow import (
     ValidationError
 )
 from flask import url_for, request
-from dataservice.api.common.pagination import Pagination
 from flask_marshmallow import Schema
+from dataservice.api.common.pagination import Pagination
+from dataservice.extensions import db
 
 
 class BaseSchema(ma.ModelSchema):
@@ -18,6 +19,9 @@ class BaseSchema(ma.ModelSchema):
     def __init__(self, code=200, message='success', *args, **kwargs):
         self.status_code = code
         self.status_message = message
+        # Add the request's db session to serializer if one is not specified
+        if 'session' not in kwargs:
+            kwargs['session'] = db.session
         super(BaseSchema, self).__init__(*args, **kwargs)
 
     class Meta:
