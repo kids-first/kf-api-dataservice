@@ -81,6 +81,7 @@ class BaseSchema(ma.ModelSchema):
 
 class IndexdFileSchema(Schema):
     urls = ma.List(ma.Str(), required=True)
+    acl = ma.List(ma.Str(), required=False)
     file_name = ma.Str()
     hashes = ma.Dict(required=True)
     metadata = ma.Dict(attribute='_metadata')
