@@ -54,6 +54,18 @@ class SequencingExperimentTest(FlaskTestCase):
 
         self.assertEqual(2, SequencingExperiment.query.count())
 
+        # Check for allow none fields
+        kwargs['experiment_date'] = None
+        # Send get request
+        response = self.client.post(url_for(SEQUENCING_EXPERIMENTS_LIST_URL),
+                                    data=json.dumps(kwargs),
+                                    headers=self._api_headers())
+        # Check response status status_code
+        self.assertEqual(response.status_code, 201)
+        response = json.loads(response.data.decode('utf-8'))
+        self.assertIs(response['results']['experiment_date'], None)
+        self.assertEqual(3, SequencingExperiment.query.count())
+
     def test_get(self):
         """
         Test retrieval of sequencing_experiment
@@ -75,7 +87,7 @@ class SequencingExperimentTest(FlaskTestCase):
                 continue
             if k is 'experiment_date':
                 self.assertEqual(
-                        str(parser.parse(sequencing_experiment[k])), str(v))
+                    str(parser.parse(sequencing_experiment[k])), str(v))
             else:
                 self.assertEqual(sequencing_experiment[k], kwargs[k])
 
@@ -166,7 +178,7 @@ class SequencingExperimentTest(FlaskTestCase):
         '''
         dt = datetime.now()
         seq_experiment_data = {
-            'external_id':external_id,
+            'external_id': external_id,
             'experiment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'experiment_strategy': 'WXS',
             'library_name': 'Test_library_name_1',
