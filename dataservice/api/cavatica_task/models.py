@@ -1,3 +1,4 @@
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from dataservice.extensions import db
@@ -17,7 +18,7 @@ class CavaticaTask(db.Model, Base):
     __tablename__ = 'cavatica_task'
     __prefix__ = 'CT'
 
-    external_cavatica_task_id = db.Column(db.Text(),
+    external_cavatica_task_id = db.Column(UUID(as_uuid=True),
                                           doc='Id assigned to Cavatica task'
                                           'by Cavatica')
     name = db.Column(db.Text(), doc='Name given to Cavatica task by user')

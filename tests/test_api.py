@@ -193,11 +193,9 @@ class TestAPI:
     ])
     def test_child_links(self, client, entities, resource, fields):
         """ Checks that references to other resources have correct ID """
-        from pprint import pprint
         kf_id = entities.get('kf_ids').get(resource)
         resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
-        pprint(body)
         for field in fields:
             assert field in body
             if type(body[field]) is list:

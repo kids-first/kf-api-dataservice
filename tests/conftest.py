@@ -92,7 +92,7 @@ def entities(client, indexd):
             'github_commit_url': 'www.github.com'
         },
         '/cavatica-tasks': {
-            'external_cavatica_task_id': 'app1',
+            'external_cavatica_task_id': str(uuid.uuid4()),
             'name': 'MyTask'
         },
         '/genomic-files': {
