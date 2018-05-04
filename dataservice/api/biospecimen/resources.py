@@ -55,7 +55,7 @@ class BiospecimenListAPI(CRUDView):
               Biospecimen
         """
 
-        body = request.json
+        body = request.get_json(force=True)
 
         # Deserialize
         try:

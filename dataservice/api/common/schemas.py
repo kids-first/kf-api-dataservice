@@ -88,6 +88,8 @@ class BaseSchema(ma.ModelSchema):
 
     @validates_schema(pass_original=True)
     def check_unknown_fields(self, data, original_data):
+        if data is None:
+            return
         unknown = set(original_data) - set(self.fields)
         if unknown:
             raise ValidationError('Unknown field', unknown)

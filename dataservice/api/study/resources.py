@@ -48,8 +48,9 @@ class StudyListAPI(CRUDView):
             resource:
               Study
         """
+        body = request.get_json(force=True)
         try:
-            st = StudySchema(strict=True).load(request.json).data
+            st = StudySchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400, 'could not create study: {}'.format(err.messages))
 
@@ -96,7 +97,7 @@ class StudyAPI(CRUDView):
             resource:
               Study
         """
-        body = request.json
+        body = request.get_json(force=True)
         st = Study.query.get(kf_id)
         if st is None:
             abort(404, 'could not find {} `{}`'

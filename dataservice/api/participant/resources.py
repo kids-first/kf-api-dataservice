@@ -58,8 +58,9 @@ class ParticipantListAPI(CRUDView):
             resource:
               Participant
         """
+        body = request.get_json(force=True)
         try:
-            p = ParticipantSchema(strict=True).load(request.json).data
+            p = ParticipantSchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400, 'could not create participant: {}'.format(err.messages))
 
@@ -113,7 +114,7 @@ class ParticipantAPI(CRUDView):
                   .format('participant', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             p = ParticipantSchema(strict=True).load(body, instance=p,
                                                     partial=True).data

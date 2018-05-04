@@ -54,7 +54,7 @@ class OutcomeListAPI(CRUDView):
               Outcome
         """
 
-        body = request.json
+        body = request.get_json(force=True)
 
         # Deserialize
         try:
@@ -117,7 +117,7 @@ class OutcomeAPI(CRUDView):
         if o is None:
             abort(404, 'could not find {} `{}`'.format('outcome', kf_id))
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         # Validation only
         try:
             o = OutcomeSchema(strict=True).load(body, instance=o,

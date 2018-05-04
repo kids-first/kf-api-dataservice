@@ -54,8 +54,9 @@ class InvestigatorListAPI(CRUDView):
             resource:
               Investigator
         """
+        body = request.get_json(force=True)
         try:
-            inv = InvestigatorSchema(strict=True).load(request.json).data
+            inv = InvestigatorSchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400,
                   'could not create investigator: {}'.format(err.messages))
@@ -103,7 +104,7 @@ class InvestigatorAPI(CRUDView):
             resource:
               Investigator
         """
-        body = request.json
+        body = request.get_json(force=True)
         inv = Investigator.query.get(kf_id)
         if inv is None:
             abort(404, 'could not find {} `{}`'
