@@ -148,6 +148,17 @@ class TestAPI:
                            headers={'Content-Type': 'application/json'})
         assert resp.status_code != 500
 
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
+    @pytest.mark.parametrize('kf_id', ['XX_00000000', 'SD_ILOU0000', 'SD_01'])
+    def test_malformed_predefined_kf_id(self, client, endpoint, kf_id):
+        """ Check that posting malformed predefined kf_id doesn't 500 """
+        resp = client.post(endpoint,
+                data=json.dumps({'kf_id': kf_id, 'external_id': 'blah'}),
+                           headers={'Content-Type': 'application/json'})
+        assert resp.status_code == 400
+        resp = json.loads(resp.data.decode('utf-8'))
+        assert 'Invalid kf_id' in resp['_status']['message']
+
 
     @pytest.mark.parametrize('field', ['uuid'])
     @pytest.mark.parametrize('endpoint', ENDPOINTS)

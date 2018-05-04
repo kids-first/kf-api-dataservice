@@ -1,9 +1,11 @@
+import re
 from dataservice.extensions import ma
 from marshmallow import (
     fields,
     post_dump,
     pre_dump,
     validates_schema,
+    validates,
     ValidationError
 )
 from flask import url_for, request
@@ -34,6 +36,14 @@ class BaseSchema(ma.ModelSchema):
             self.__pagination__ = data
             return data.items
         return data
+
+    @validates('kf_id')
+    def valid(self, value):
+        prefix = self.Meta.model.__prefix__
+        r = r'^'+prefix+r'_[A-HJ-KM-NP-TV-Z0-9]{8}'
+        m = re.search(r, value)
+        if not m:
+            raise ValidationError('Invalid kf_id')
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
