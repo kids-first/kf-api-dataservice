@@ -1,4 +1,5 @@
 from marshmallow_sqlalchemy import field_for
+from marshmallow.validate import URL
 
 from dataservice.api.cavatica_app.models import CavaticaApp
 from dataservice.api.common.schemas import BaseSchema
@@ -10,6 +11,8 @@ class CavaticaAppSchema(BaseSchema):
 
     revision = field_for(CavaticaApp, 'revision',
                          validate=validate_positive_number)
+    github_commit_url = field_for(CavaticaApp, 'github_commit_url',
+                                  validate=URL())
 
     class Meta(BaseSchema.Meta):
         model = CavaticaApp

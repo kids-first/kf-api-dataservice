@@ -122,6 +122,8 @@ class TestAPI:
             endpoint = '{}/{}'.format(endpoint, kf_id)
         resp = call_func(endpoint, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
+        from pprint import pprint
+        pprint(body)
         if 'results' not in body:
             assert ('error saving' in body['_status']['message'] or
                     'already exists' in body['_status']['message'])
@@ -208,29 +210,37 @@ class TestAPI:
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint, field, value',
                              [('/biospecimens', 'shipment_date', 12000),
-                              ('/biospecimens', 'shipment_date', '12000'),
-                              ('/biospecimens', 'shipment_date', 'hai der'),
-                              ('/biospecimens', 'concentration_mg_per_ml',
-                               -12),
-                              ('/biospecimens', 'volume_ml', -12),
-                              ('/outcomes', 'age_at_event_days', -12),
-                              ('/phenotypes', 'age_at_event_days', -12),
-                              ('/sequencing-experiments',
-                               'max_insert_size', -12),
-                              ('/sequencing-experiments',
-                               'mean_insert_size', -12),
-                              ('/sequencing-experiments',
-                               'mean_depth', -12),
-                              ('/sequencing-experiments',
-                               'mean_read_length', -12),
-                              ('/sequencing-experiments', 'total_reads', -12),
-                              ('/sequencing-experiments',
-                               'experiment_date', 'hai der'),
-                              ('/cavatica-apps', 'revision', -5),
-                              ('/cavatica-apps', 'revision', 'hai der'),
-                              ('/cavatica-task-genomic-files',
-                               'is_input', 'hai der'),
-                              ('/diagnoses', 'age_at_event_days', -5)])
+                                 ('/biospecimens', 'shipment_date', '12000'),
+                                 ('/biospecimens', 'shipment_date', 'hai der'),
+                                 ('/biospecimens', 'concentration_mg_per_ml',
+                                  -12),
+                                 ('/biospecimens', 'volume_ml', -12),
+                                 ('/outcomes', 'age_at_event_days', -12),
+                                 ('/phenotypes', 'age_at_event_days', -12),
+                                 ('/sequencing-experiments',
+                                  'max_insert_size', -12),
+                                 ('/sequencing-experiments',
+                                  'mean_insert_size', -12),
+                                 ('/sequencing-experiments',
+                                  'mean_depth', -12),
+                                 ('/sequencing-experiments',
+                                  'mean_read_length', -12),
+                                 ('/sequencing-experiments',
+                                  'total_reads', -12),
+                                 ('/sequencing-experiments',
+                                  'experiment_date', 'hai der'),
+                                 ('/cavatica-apps', 'revision', -5),
+                                 ('/cavatica-apps', 'revision', 'hai der'),
+                                 ('/cavatica-apps', 'github_commit_url',
+                                  "github"),
+                                 ('/cavatica-apps', 'github_commit_url',
+                                     "www.google.com"),
+                                 ('/cavatica-apps', 'github_commit_url',
+                                     "http://"),
+                                 ('/cavatica-task-genomic-files',
+                                  'is_input', 'hai der'),
+                                 ('/diagnoses', 'age_at_event_days', -5)
+                              ])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]

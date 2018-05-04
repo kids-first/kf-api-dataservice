@@ -89,7 +89,7 @@ def entities(client, indexd):
             'external_cavatica_app_id': 'app1',
             'name': 'MyApp',
             'revision': 1,
-            'github_commit_url': 'www.github.com'
+            'github_commit_url': 'http://www.github.com'
         },
         '/cavatica-tasks': {
             'external_cavatica_task_id': str(uuid.uuid4()),
