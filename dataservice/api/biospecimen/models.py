@@ -101,6 +101,11 @@ class Biospecimen(db.Model, Base):
                                     doc='genomic files this biospecimen')
 
 
+ANALYTE_TYPE_ENUM = {
+    'DNA', 'RNA', 'Other'
+}
+
+
 class AnalyteTypeEnum(Enum):
     """
     Enum class for analyte_type field with possible choices
