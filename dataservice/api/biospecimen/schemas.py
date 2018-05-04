@@ -1,10 +1,14 @@
 from marshmallow_sqlalchemy import field_for
 
-from dataservice.api.biospecimen.models import Biospecimen, AnalyteTypeEnum
+from dataservice.api.biospecimen.models import Biospecimen, ANALYTE_TYPE_ENUM
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.validation import validate_age
-from dataservice.api.common.custom_fields import DateOrDatetime, EnumField
-from dataservice.api.common.validation import validate_positive_number
+from dataservice.api.common.custom_fields import DateOrDatetime
+from dataservice.api.common.validation import (
+    validate_positive_number,
+    enum_validation_generator
+)
+
 from dataservice.extensions import ma
 
 
@@ -18,11 +22,14 @@ class BiospecimenSchema(BaseSchema):
     volume_ml = field_for(Biospecimen, 'volume_ml',
                           validate=validate_positive_number)
 
-    shipment_date = DateOrDatetime(allow_none=True)
+    shipment_date = field_for(Biospecimen, 'shipment_date',
+                              field_class=DateOrDatetime)
 
     sequencing_center_id = field_for(Biospecimen, 'sequencing_center_id',
                                      required=True, load_only=True)
-    analyte_type = EnumField(enum=[s.value for s in AnalyteTypeEnum])
+    analyte_type = field_for(Biospecimen, 'analyte_type',
+                             validate=enum_validation_generator(
+                                 ANALYTE_TYPE_ENUM))
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen
