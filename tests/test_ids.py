@@ -1,5 +1,6 @@
 import pytest
 import random
+import re
 import string
 from dataservice.api.common.model import Base
 from dataservice.api.common.id_service import uuid_generator, kf_id_generator
@@ -25,6 +26,7 @@ def test_kf_id():
         assert 'O' not in kf_id[2:]
         assert 'U' not in kf_id[2:]
 
+        assert re.search(r'^'+prefix+r'_[A-HJ-KM-NP-TV-Z0-9]{8}', kf_id)
 
 def test_kf_id_field(client):
     from dataservice.extensions import db
