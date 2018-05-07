@@ -50,6 +50,9 @@ class TestingConfig(Config):
     BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', '')
     BUCKET_SERVICE_TOKEN = 'test123'
 
+    MODEL_VERSION = '0.1.0'
+    MIGRATION = 'aaaaaaaaaaaa'
+
 
 class ProductionConfig(Config):
     @staticmethod

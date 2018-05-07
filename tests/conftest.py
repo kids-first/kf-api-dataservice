@@ -24,6 +24,7 @@ from dataservice.api.cavatica_task.models import (
     CavaticaTaskGenomicFile
 )
 from unittest.mock import MagicMock, patch
+from tests.mocks import MockIndexd
 
 
 ENDPOINTS = [
@@ -58,11 +59,17 @@ def app():
     yield create_app('testing')
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.yield_fixture(scope='module')
 def client(app):
     app_context = app.app_context()
     app_context.push()
     db.create_all()
+
+    mock = patch('dataservice.extensions.flask_indexd.requests')
+    mock = mock.start()
+    indexd_mock = MockIndexd()
+    mock.Session().get.side_effect = indexd_mock.get
+    mock.Session().post.side_effect = indexd_mock.post
 
     mod = 'dataservice.api.study.models.requests'
     mock_bs = patch(mod)
@@ -79,6 +86,7 @@ def client(app):
     yield app.test_client()
 
     mock_bs.stop()
+    mock.stop()
     # Need to make sure we close all connections so pg won't lock tables
     db.session.close()
     db.drop_all()
@@ -89,8 +97,8 @@ def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
 
 
-@pytest.fixture
-def entities(client, indexd):
+@pytest.fixture(scope='module')
+def entities(client):
     """
     Create mock entities
     """
