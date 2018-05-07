@@ -1,11 +1,18 @@
 from marshmallow_sqlalchemy import field_for
 
-from dataservice.api.genomic_file.models import (GenomicFile, DataTypeEnum,
-                                                 AvailabilityEnum)
+from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.common.schemas import BaseSchema, IndexdFileSchema
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
-from dataservice.api.common.custom_fields import EnumField
+from dataservice.api.common.validation import enum_validation_generator
+
+DATA_TYPE_ENUM = {'Submitted Aligned Reads',
+                  'Submitted Aligned Reads Index',
+                  'Simple Nucleotide Variation',
+                  'Other'}
+
+AVAILABILITY_ENUM = {'Immediate Download',
+                     'Cold Storage'}
 
 
 class GenomicFileSchema(BaseSchema, IndexdFileSchema):
@@ -13,10 +20,12 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         model = GenomicFile
         resource_url = 'api.genomic_files'
         collection_url = 'api.genomic_files_list'
-    data_type = EnumField(
-        enum=[s.value for s in DataTypeEnum])
-    availability = EnumField(
-        enum=[s.value for s in AvailabilityEnum])
+    data_type = field_for(GenomicFile, 'data_type',
+                          validate=enum_validation_generator(
+                              DATA_TYPE_ENUM))
+    availability = field_for(GenomicFile, 'availability',
+                             validate=enum_validation_generator(
+                                 AVAILABILITY_ENUM))
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',
                                          load_only=True)

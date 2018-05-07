@@ -1,4 +1,5 @@
 from marshmallow import ValidationError
+from marshmallow.validate import OneOf
 
 MIN_AGE_DAYS = 0
 # Max value chosen due to HIPAA de-identification standard
@@ -28,3 +29,41 @@ def validate_positive_number(value):
     type_str = type(value).__name__
     if int(value) < 0:
         raise ValidationError('Must be a positive {}'.format(type_str))
+
+
+class EnumValidator(OneOf):
+    """
+    Modified OneOf validator class to provide custom error messages.
+    Original documentation:
+    Validator which succeeds if ``value`` is a member of ``choices``.
+    :param iterable choices: A sequence of valid values.
+    :param iterable labels: Optional sequence of labels to pair with the
+    choices.
+    :param str error: Error message to raise in case of a validation error.
+    Can be interpolated with `{input}`, `{choices}` and `{labels}`.
+    """
+
+    default_message = 'Not a valid choice.'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, orig_value):
+        value = orig_value
+        choices = {v: v for v in self.choices}
+        try:
+            if value not in choices:
+                raise ValidationError(self._format_error(orig_value))
+        except TypeError:
+            raise ValidationError(self._format_error(orig_value))
+        return choices[value]
+
+
+def enum_validation_generator(_enum):
+    from dataservice.api.common.model import COMMON_ENUM
+
+    extended_enum = _enum.union(COMMON_ENUM)
+    error_message = 'Not a valid choice. Must be one of: {}'.format(
+        ', '.join(list(_enum) + list(COMMON_ENUM)))
+
+    return EnumValidator(extended_enum, error=error_message)

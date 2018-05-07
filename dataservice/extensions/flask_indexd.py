@@ -77,6 +77,7 @@ class Indexd(object):
 
           {
             "file_name": "my_file",
+            "acl": ["phs000000"],
             "hashes": {
               "md5": "0b7940593044dff8e74380476b2b27a9"
             },
@@ -85,7 +86,6 @@ class Indexd(object):
               "s3://mybucket/mykey/"
             ],
             "metadata": {
-              "acls": "phs000000",
               "kf_id": "PT_00000000"
             }
           }
@@ -115,6 +115,7 @@ class Indexd(object):
             "size": record.size,
             "form": "object",
             "hashes": record.hashes,
+            "acl": record.acl,
             "urls": record.urls,
             "metadata": meta
         }
@@ -155,6 +156,7 @@ class Indexd(object):
             "file_name": record.file_name,
             "size": record.size,
             "hashes": record.hashes,
+            "acl": record.acl,
             "urls": record.urls,
             "metadata": record._metadata
         }

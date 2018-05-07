@@ -58,6 +58,7 @@ def test_new_indexd_error(client, entities):
         'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
         'size': 123,
+        'acl': ['TEST'],
         'data_type': 'Submitted Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
@@ -137,6 +138,7 @@ def test_get_one(client, entities):
     assert resp['metadata'] == gf._metadata
     assert 'rev' not in resp
     assert resp['size'] == gf.size
+    assert resp['acl'] == gf.acl
     # check properties from datamodel
     assert resp['file_name'] == gf.file_name
     assert resp['data_type'] == gf.data_type

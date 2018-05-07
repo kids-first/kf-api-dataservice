@@ -10,6 +10,9 @@ from dataservice.extensions import db, indexd
 from dataservice.extensions.flask_indexd import RecordNotFound
 from dataservice.api.common.id_service import uuid_generator, kf_id_generator
 
+COMMON_ENUM = {"Not Reported", "Not Applicable", "Not Allowed To Collect",
+               "Not Available"}
+
 
 class KfId(types.TypeDecorator):
     """
@@ -78,6 +81,7 @@ class IndexdFile:
     urls = []
     rev = None
     hashes = {}
+    acl = []
     # The metadata property is already used by sqlalchemy
     _metadata = {}
     size = None

@@ -37,7 +37,7 @@ class PhenotypeTest(FlaskTestCase):
             'source_text_phenotype': 'Hand tremor',
             'age_at_event_days': 365,
             'hpo_id_phenotype': 'HP:0002378',
-            'observed': 'positive',
+            'observed': 'Positive',
             'participant_id': p.kf_id
         }
         # Send get request
@@ -65,7 +65,7 @@ class PhenotypeTest(FlaskTestCase):
             'source_text_phenotype': 'Tall stature',
             'hpo_id_phenotype': 'HP:0000098',
             'snomed_id_phenotype': '38033009',
-            'observed': 'positive',
+            'observed': 'Positive',
             'participant_id': ph1['participant_id']
         }
         # Send post request
@@ -176,7 +176,7 @@ class PhenotypeTest(FlaskTestCase):
             'source_text_phenotype': 'Hand Tremor',
             'hpo_id_phenotype': 'HP:0002378',
             'snomed_id_phenotype': '38033009',
-            'observed': 'positive',
+            'observed': 'Positive',
             'age_at_event_days': 365
         }
         ph = Phenotype(**kwargs)

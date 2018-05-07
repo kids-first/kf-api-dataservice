@@ -8,7 +8,6 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
-from enum import Enum
 
 
 class AliasGroup(db.Model, Base):
@@ -208,44 +207,3 @@ def delete_orphans(mapper, connection, state):
     q = (db.session.query(AliasGroup)
          .filter(~AliasGroup.participants.any()))
     q.delete(synchronize_session='fetch')
-
-
-class GenderEnum(Enum):
-    """
-    Enum class for gender field with possible choices
-    """
-    Male = "Male"
-    Female = "Female"
-    Not_Reported = "Not Reported"
-    Not_Applicable = "Not Applicable"
-    Not_Allowed_To_Collect = "Not Allowed To Collect"
-    Not_Available = "Not Available"
-
-
-class EthnicityEnum(Enum):
-    """
-    Enum class for ethnicity field with possible choices
-    """
-    Hispanic_or_Latino = "Hispanic or Latino"
-    Not_Hispanic_or_Latino = "Not Hispanic or Latino"
-    Not_Reported = "Not Reported"
-    Not_Applicable = "Not Applicable"
-    Not_Allowed_To_Collect = "Not Allowed To Collect"
-    Not_Available = "Not Available"
-
-
-class RaceEnum(Enum):
-    """
-    Enum class for race field with possible choices
-    """
-    White = "White"
-    American_Indian_or_Alaska_Native = "American Indian or Alaska Native"
-    Black_or_African_American = "Black or African American"
-    Asian = "Asian"
-    Native_Hawaiian_or_Other_Pacific_Islander =\
-        "Native Hawaiian or Other Pacific Islander"
-    Other = "Other"
-    Not_Reported = "Not Reported"
-    Not_Applicable = "Not Applicable"
-    Not_Allowed_To_Collect = "Not Allowed To Collect"
-    Not_Available = "Not Available"

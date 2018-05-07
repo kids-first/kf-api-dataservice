@@ -130,7 +130,7 @@ class ParticipantTest(FlaskTestCase):
         body = {
             'external_id': 'participant 0',
             'consent_type': 'something',
-            'gender': 'male',
+            'gender': 'Male',
             'kf_id': kf_id
         }
         response = self.client.patch(url_for(PARTICIPANT_URL,
@@ -235,9 +235,9 @@ class ParticipantTest(FlaskTestCase):
             'external_id': external_id,
             'is_proband': True,
             'consent_type': 'GRU-IRB',
-            'race': 'asian',
+            'race': 'Asian',
             'ethnicity': 'Not Hispanic or Latino',
-            'gender': 'male',
+            'gender': 'Male',
             'study_id': s.kf_id
         }
         if include_nullables:

@@ -134,7 +134,7 @@ class ModelTest(FlaskTestCase):
             'name': 'study1',
             'short_name': 'S1',
             'version': 'v1',
-            'release_status': 'pending'
+            'release_status': 'Pending'
         }
         study = Study(**kwargs)
 

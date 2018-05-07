@@ -1,6 +1,5 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
-from enum import Enum
 
 
 class Outcome(db.Model, Base):
@@ -33,27 +32,3 @@ class Outcome(db.Model, Base):
                                nullable=False,
                                doc='kf_id of the participant this outcome was '
                                    'reported for')
-
-
-class VitalStatusEnum(Enum):
-    """
-     Enum class for vital_status field with possible choices
-    """
-    Alive = "Alive"
-    Dead = "Dead"
-    Not_Reported = "Not Reported"
-    Not_Applicable = "Not Applicable"
-    Not_Allowed_To_Collect = "Not Allowed To Collect"
-    Not_Available = "Not Available"
-
-
-class DiseaseRelatedEnum(Enum):
-    """
-     Enum class for disease_related field with possible choices
-    """
-    Yes = "Yes"
-    No = "No"
-    Not_Reported = "Not Reported"
-    Not_Applicable = "Not Applicable"
-    Not_Allowed_To_Collect = "Not Allowed To Collect"
-    Not_Available = "Not Available"

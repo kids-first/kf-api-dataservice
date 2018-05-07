@@ -30,7 +30,7 @@ class DiagnosisTest(FlaskTestCase):
             'external_id': 'd1',
             'source_text_diagnosis': 'flu',
             'age_at_event_days': 365,
-            'diagnosis_category': 'cancer',
+            'diagnosis_category': 'Cancer',
             'source_text_tumor_location': 'Brain',
             'mondo_id_diagnosis': 'DOID:8469',
             'icd_id_diagnosis': 'J10.01',
@@ -63,7 +63,7 @@ class DiagnosisTest(FlaskTestCase):
         d2 = {
             'external_id': 'd2',
             'source_text_diagnosis': 'cold',
-            'diagnosis_category': 'cancer',
+            'diagnosis_category': 'Cancer',
             'source_text_tumor_location': 'Brain',
             'mondo_id_diagnosis': 'DOID:8469',
             'icd_id_diagnosis': 'J10.01',
@@ -128,7 +128,7 @@ class DiagnosisTest(FlaskTestCase):
         # Update existing diagnosis
         body = {
             'source_text_diagnosis': 'hangry',
-            'diagnosis_category': 'birth defect',
+            'diagnosis_category': 'Structural Birth Defect',
             'participant_id': kwargs['participant_id']
         }
         response = self.client.patch(url_for(DIAGNOSES_URL,
@@ -193,7 +193,7 @@ class DiagnosisTest(FlaskTestCase):
         kwargs = {
             'external_id': 'd1',
             'source_text_diagnosis': 'flu',
-            'diagnosis_category': 'cancer',
+            'diagnosis_category': 'Cancer',
             'source_text_tumor_location': 'Brain',
             'age_at_event_days': 365,
             'mondo_id_diagnosis': 'DOID:8469',

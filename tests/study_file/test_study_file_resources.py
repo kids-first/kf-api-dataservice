@@ -84,7 +84,6 @@ def test_get_list(client, study_files, indexd):
 
     resp = client.get(url_for(STUDY_FILE_LIST_URL))
     resp = json.loads(resp.data.decode('utf-8'))
-    print(resp)
 
     assert resp['_status']['code'] == 200
     assert resp['total'] == StudyFile.query.count()

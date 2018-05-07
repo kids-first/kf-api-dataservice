@@ -63,7 +63,8 @@ def entities(client, indexd):
             'urls': ['s3://bucket/key'],
             'hashes': {'md5': str(uuid.uuid4())},
             'controlled_access': False,
-            'availability': 'Immediate Download'
+            'availability': 'Immediate Download',
+            'acl': ['TEST01']
         },
         '/studies': {
             'external_id': 'phs001'
@@ -81,8 +82,8 @@ def entities(client, indexd):
             'is_proband': True,
             'consent_type': 'GRU-IRB',
             'race': 'Black or African American',
-            'gender': 'male',
-            'ethnicity': 'hispanic or latino'
+            'gender': 'Male',
+            'ethnicity': 'Hispanic or Latino'
         },
         '/families': {
             'external_id': 'family0'

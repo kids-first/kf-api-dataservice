@@ -50,6 +50,18 @@ class SequencingExperimentTest(FlaskTestCase):
 
         self.assertEqual(2, SequencingExperiment.query.count())
 
+        # Check for allow none fields
+        kwargs['experiment_date'] = None
+        # Send get request
+        response = self.client.post(url_for(SEQUENCING_EXPERIMENTS_LIST_URL),
+                                    data=json.dumps(kwargs),
+                                    headers=self._api_headers())
+        # Check response status status_code
+        self.assertEqual(response.status_code, 201)
+        response = json.loads(response.data.decode('utf-8'))
+        self.assertIs(response['results']['experiment_date'], None)
+        self.assertEqual(3, SequencingExperiment.query.count())
+
     def test_get(self):
         """
         Test retrieval of sequencing_experiment

@@ -1,10 +1,22 @@
 from marshmallow_sqlalchemy import field_for
-from dataservice.api.participant.models import (Participant, GenderEnum,
-                                                EthnicityEnum, RaceEnum)
+from dataservice.api.participant.models import Participant
+
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.extensions import ma
 
-from dataservice.api.common.custom_fields import PatchedURLFor, EnumField
+from dataservice.api.common.custom_fields import PatchedURLFor
+from dataservice.api.common.validation import enum_validation_generator
+
+# Enum Choices for participant fields
+
+GENDER_ENUM = {'Male', 'Female'}
+ETHNICITY_ENUM = {'Hispanic or Latino',
+                  'Not Hispanic or Latino'}
+RACE_ENUM = {
+    'White', 'American Indian or Alaska Native',
+    'Black or African American', 'Asian',
+    'Native Hawaiian or Other Pacific Islander',
+    'Other'}
 
 
 class ParticipantSchema(BaseSchema):
@@ -12,9 +24,15 @@ class ParticipantSchema(BaseSchema):
                          load_only=True)
     family_id = field_for(Participant, 'family_id',
                           required=False, example='FM_ABB2C104')
-    gender = EnumField(enum=[s.value for s in GenderEnum])
-    ethnicity = EnumField(enum=[s.value for s in EthnicityEnum])
-    race = EnumField(enum=[s.value for s in RaceEnum])
+    gender = field_for(Participant, 'gender',
+                       validate=enum_validation_generator(
+                           GENDER_ENUM))
+    ethnicity = field_for(Participant, 'ethnicity',
+                          validate=enum_validation_generator(
+                              ETHNICITY_ENUM))
+    race = field_for(Participant, 'race',
+                     validate=enum_validation_generator(
+                         RACE_ENUM))
 
     class Meta(BaseSchema.Meta):
         model = Participant
