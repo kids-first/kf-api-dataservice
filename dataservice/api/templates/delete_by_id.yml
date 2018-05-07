@@ -12,3 +12,7 @@ responses:
     description: {{ resource }} deleted
     schema:
       $ref: '#/definitions/{{ resource }}Response'
+  404:
+    description: {{ resource }} not found
+    schema:
+      $ref: '#/definitions/{{ resource }}NotFoundErrorResponse'

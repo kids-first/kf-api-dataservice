@@ -1,14 +1,17 @@
+import re
 from dataservice.extensions import ma
 from marshmallow import (
     fields,
     post_dump,
     pre_dump,
     validates_schema,
+    validates,
     ValidationError
 )
 from flask import url_for, request
-from dataservice.api.common.pagination import Pagination
 from flask_marshmallow import Schema
+from dataservice.api.common.pagination import Pagination
+from dataservice.extensions import db
 
 
 class BaseSchema(ma.ModelSchema):
@@ -18,6 +21,9 @@ class BaseSchema(ma.ModelSchema):
     def __init__(self, code=200, message='success', *args, **kwargs):
         self.status_code = code
         self.status_message = message
+        # Add the request's db session to serializer if one is not specified
+        if 'session' not in kwargs:
+            kwargs['session'] = db.session
         super(BaseSchema, self).__init__(*args, **kwargs)
 
     class Meta:
@@ -30,6 +36,14 @@ class BaseSchema(ma.ModelSchema):
             self.__pagination__ = data
             return data.items
         return data
+
+    @validates('kf_id')
+    def valid(self, value):
+        prefix = self.Meta.model.__prefix__
+        r = r'^'+prefix+r'_[A-HJ-KM-NP-TV-Z0-9]{8}'
+        m = re.search(r, value)
+        if not m:
+            raise ValidationError('Invalid kf_id')
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
@@ -74,6 +88,8 @@ class BaseSchema(ma.ModelSchema):
 
     @validates_schema(pass_original=True)
     def check_unknown_fields(self, data, original_data):
+        if data is None:
+            return
         unknown = set(original_data) - set(self.fields)
         if unknown:
             raise ValidationError('Unknown field', unknown)
@@ -92,12 +108,27 @@ class ErrorSchema(Schema):
     """ Handles HTTPException marshalling """
 
     class Meta:
-        fields = ('description', 'code')
+        fields = ("description", "code")
 
     @post_dump(pass_many=False)
     def wrap_envelope(self, data):
         return {'_status': {'message': data['description'],
                             'code': data['code']}}
+
+
+def error_response_generator(resource_name, status_code):
+    class ErrorResponseSchema(Schema):
+        _examples = {
+            404: "could not find {} <kf_id>".format(resource_name),
+            400: ("could not update {}".format(resource_name) +
+                  " {'<field>': ['Not a valid <expected type>.']}")
+        }
+        description = fields.String(description='status message',
+                                    example=_examples.get(status_code))
+        code = fields.Integer(description='HTTP response code',
+                              example=status_code)
+
+    return ErrorResponseSchema
 
 
 def response_generator(schema):
@@ -108,12 +139,14 @@ def response_generator(schema):
     return RespSchema
 
 
-def paginated_generator(schema):
+def paginated_generator(url, schema):
+
     class PaginatedSchema(Schema):
         _status = fields.Dict(example={'message': 'success', 'code': 200})
-        _links = fields.Dict(example={'next': '/participants?after=1519402953',
-                                      'self': '/participants?after=1519402952'
-                                      })
+        _links = fields.Dict(
+            example={'next': '{}?after=1519402953'.format(url),
+                     'self': '{}?after=1519402952'.format(url)
+                     })
         limit = fields.Integer(example=10,
                                description='Max number of results per page')
         total = fields.Integer(example=1342,
@@ -133,6 +166,10 @@ class StatusSchema(Schema):
     tags = fields.List(
         fields.String(description='Any tags associated with the version',
                       example=['rc', 'beta']))
+    datamodel = fields.Str(description='The datamodel version',
+                           example='1.0.0')
+    migration = fields.Str(description='The datamodel revision',
+                           example='cdefcd75e417')
 
     @post_dump(pass_many=False)
     def wrap_envelope(self, data):

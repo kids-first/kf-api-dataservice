@@ -51,8 +51,9 @@ class StudyFileListAPI(CRUDView):
             resource:
               StudyFile
         """
+        body = request.get_json(force=True)
         try:
-            st = StudyFileSchema(strict=True).load(request.json).data
+            st = StudyFileSchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400, 'could not create study_file: {}'.format(err.messages))
         db.session.add(st)
@@ -105,7 +106,7 @@ class StudyFileAPI(CRUDView):
             resource:
               StudyFile
         """
-        body = request.json
+        body = request.get_json(force=True)
         st = StudyFile.query.get(kf_id)
         if st is None:
             abort(404, 'could not find {} `{}`'

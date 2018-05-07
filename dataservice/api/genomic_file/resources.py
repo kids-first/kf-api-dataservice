@@ -1,5 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
+from sqlalchemy.orm import joinedload
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, indexd_pagination
@@ -32,7 +33,9 @@ class GenomicFileListAPI(CRUDView):
               GenomicFile
         """
         # Get a page of the data from the model first
-        q = GenomicFile.query
+        q = GenomicFile.query.options(joinedload(
+            GenomicFile.cavatica_task_genomic_files)
+            .load_only('kf_id'))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
@@ -59,8 +62,9 @@ class GenomicFileListAPI(CRUDView):
             resource:
               GenomicFile
         """
+        body = request.get_json(force=True)
         try:
-            gf = GenomicFileSchema(strict=True).load(request.json).data
+            gf = GenomicFileSchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400,
                   'could not create genomic_file: {}'.format(err.messages))
@@ -117,7 +121,7 @@ class GenomicFileAPI(CRUDView):
             resource:
               GenomicFile
         """
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         gf = GenomicFile.query.get(kf_id)
         if gf is None:
             abort(404, 'could not find {} `{}`'

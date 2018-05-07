@@ -42,6 +42,38 @@ class ParticipantTest(FlaskTestCase):
             self.assertEqual(participant[k], getattr(p, k))
         self.assertEqual(1, Participant.query.count())
 
+    def test_post_with_kf_id(self):
+        """
+        Test creating a new participant with a predetermined kf_id
+        """
+        s = Study(external_id='phs001')
+        db.session.add(s)
+        db.session.commit()
+
+        body = {
+            'kf_id': 'PT_00000000',
+            'external_id': 'test',
+            'is_proband': True,
+            'consent_type': 'GRU-IRB',
+            'race': 'Asian',
+            'ethnicity': 'Hispanic or Latino',
+            'gender': 'Female',
+            'study_id': s.kf_id
+        }
+
+        response = self.client.post(url_for(PARTICIPANT_LIST_URL),
+                                    headers=self._api_headers(),
+                                    data=json.dumps(body))
+
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(response.status_code, 201)
+
+        self.assertEqual(resp['results']['kf_id'], 'PT_00000000')
+
+        p = Participant.query.first()
+        self.assertEqual(p.kf_id, resp['results']['kf_id'])
+        self.assertEqual(p.kf_id, 'PT_00000000')
+
     def test_post_missing_req_params(self):
         """
         Test create participant that is missing required parameters in body

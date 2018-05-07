@@ -3,28 +3,7 @@ import pkg_resources
 import pytest
 
 from dataservice.api.common import id_service
-
-
-ENDPOINTS = [
-    '/studies',
-    '/investigators',
-    '/participants',
-    '/outcomes',
-    '/phenotypes',
-    '/diagnoses',
-    '/biospecimens',
-    '/sequencing-experiments',
-    '/sequencing-centers',
-    '/family-relationships',
-    '/study-files',
-    '/families',
-    '/family-relationships',
-    '/studies',
-    '/investigators',
-    '/outcomes',
-    '/phenotypes',
-    '/genomic-files'
-]
+from tests.conftest import ENDPOINTS
 
 
 class TestAPI:
@@ -33,9 +12,17 @@ class TestAPI:
     and header checks
     """
 
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
+    def test_no_content_type(self, client, endpoint):
+        """ Test that no 500 is thrown when the content isnt specified """
+        resp = client.post(endpoint, data='{}')
+        assert resp.status_code < 500
+        resp = client.patch(endpoint, data='{}')
+        assert resp.status_code < 500
+
     @pytest.mark.parametrize('endpoint,method,status_code',
                              [(ept, 'GET', 200) for ept in ENDPOINTS] +
-                             [(ept+'/123', 'GET', 404) for ept in ENDPOINTS]
+                             [(ept + '/123', 'GET', 404) for ept in ENDPOINTS]
                              )
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
@@ -49,12 +36,14 @@ class TestAPI:
                              [('/status', 'GET', 'Welcome to'),
                               ('/persons', 'GET',
                                'The requested URL was not found')] +
-                             [(ept, 'GET', 'success') for ept in ENDPOINTS] +
-                             [(ept+'/123', 'GET',
-                               'could not find') for ept in ENDPOINTS] +
-                             [(ept+'/123', 'PATCH',
-                               'could not find') for ept in ENDPOINTS] +
-                             [(ept+'/123', 'DELETE', 'could not find')
+                             [(ept, 'GET', 'success')
+                              for ept in ENDPOINTS] +
+                             [(ept + '/123', 'GET', 'could not find')
+                              for ept in ENDPOINTS] +
+                             [(ept + '/123', 'PATCH', 'could not find')
+                              for ept in ENDPOINTS] +
+                             [(ept + '/123', 'DELETE', 'could not find')
+
                               for ept in ENDPOINTS]
                              )
     def test_status_messages(self, client, endpoint, method, status_message):
@@ -63,7 +52,7 @@ class TestAPI:
         returned from the server contains a given string
         """
         call_func = getattr(client, method.lower())
-        resp = call_func(endpoint)
+        resp = call_func(endpoint, data='{}')
         resp = json.loads(resp.data.decode('utf-8'))
         assert resp['_status']['message'].startswith(status_message)
 
@@ -90,7 +79,9 @@ class TestAPI:
         ('/diagnoses', ['participant']),
         ('/biospecimens', ['participant', 'sequencing_center']),
         ('/sequencing-experiments', ['sequencing_center']),
-        ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
+        ('/genomic-files', ['biospecimen', 'sequencing_experiment']),
+        ('/cavatica-tasks', ['cavatica_app']),
+        ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
@@ -132,6 +123,8 @@ class TestAPI:
             endpoint = '{}/{}'.format(endpoint, kf_id)
         resp = call_func(endpoint, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
+        from pprint import pprint
+        pprint(body)
         if 'results' not in body:
             assert ('error saving' in body['_status']['message'] or
                     'already exists' in body['_status']['message'])
@@ -139,6 +132,26 @@ class TestAPI:
         for field in fields:
             assert (field not in body['results']
                     or body['results'][field] != 'test')
+
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
+    def test_predefined_kf_id(self, client, endpoint):
+        """ Check that posting predefined kf_id doesn't 500 """
+        resp = client.post(endpoint,
+                           data=json.dumps({'kf_id': 'XX_00000000'}),
+                           headers={'Content-Type': 'application/json'})
+        assert resp.status_code != 500
+
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
+    @pytest.mark.parametrize('kf_id', ['XX_00000000', 'SD_ILOU0000', 'SD_01'])
+    def test_malformed_predefined_kf_id(self, client, endpoint, kf_id):
+        """ Check that posting malformed predefined kf_id doesn't 500 """
+        resp = client.post(endpoint,
+                           data=json.dumps(
+                               {'kf_id': kf_id, 'external_id': 'blah'}),
+                           headers={'Content-Type': 'application/json'})
+        assert resp.status_code == 400
+        resp = json.loads(resp.data.decode('utf-8'))
+        assert 'Invalid kf_id' in resp['_status']['message']
 
     @pytest.mark.parametrize('field', ['uuid'])
     @pytest.mark.parametrize('endpoint', ENDPOINTS)
@@ -176,14 +189,16 @@ class TestAPI:
         ('/sequencing-experiments', ['genomic_files']),
         ('/studies', ['study_files', 'participants']),
         ('/investigators', ['studies']),
-        ('/families', ['participants'])
+        ('/families', ['participants']),
+        ('/cavatica-apps', ['cavatica_tasks']),
+        ('/cavatica-tasks', ['cavatica_task_genomic_files']),
+        ('/genomic-files', ['cavatica_task_genomic_files'])
     ])
     def test_child_links(self, client, entities, resource, fields):
         """ Checks that references to other resources have correct ID """
         kf_id = entities.get('kf_ids').get(resource)
         resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
-
         for field in fields:
             assert field in body
             if type(body[field]) is list:
@@ -236,7 +251,18 @@ class TestAPI:
                               ('/outcomes', 'vital_status', 'test'),
                               ('/biospecimens', 'disease_related', 'test'),
                               ('/phenotypes', 'observed', 'test'),
-                              ('/study-files', 'availability', 'test')
+                              ('/study-files', 'availability', 'test'),
+                              ('/cavatica-apps', 'revision', -5),
+                              ('/cavatica-apps', 'revision', 'hai der'),
+                              ('/cavatica-apps', 'github_commit_url',
+                                  "github"),
+                              ('/cavatica-apps', 'github_commit_url',
+                               "www.google.com"),
+                              ('/cavatica-apps', 'github_commit_url',
+                               "http://"),
+                              ('/cavatica-task-genomic-files',
+                                  'is_input', 'hai der'),
+                              ('/diagnoses', 'age_at_event_days', -5)
                               ])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
@@ -298,7 +324,13 @@ class TestAPI:
                               ('/diagnoses', 'participant_id'),
                               ('/biospecimens', 'participant_id'),
                               ('/genomic-files', 'biospecimen_id'),
-                              ('/genomic-files', 'sequencing_experiment_id')])
+                              ('/genomic-files', 'sequencing_experiment_id'),
+                              ('/cavatica-tasks', 'cavatica_app_id'),
+                              ('/cavatica-task-genomic-files',
+                               'cavatica_task_id'),
+                              ('/cavatica-task-genomic-files',
+                               'genomic_file_id')
+                              ])
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key
@@ -329,6 +361,11 @@ class TestAPI:
         assert 'tags' in status
         assert type(status['tags']) is list
         assert 'Dataservice' in status['message']
+        assert 'migration' in status
+        assert len(status['migration']) == 12
+        assert 'datamodel' in status
+        assert status['datamodel'].count('.') == 2
+        assert status['datamodel'].replace('.', '').isdigit()
 
     def test_versions(self, client):
         """ Test that versions are aligned accross package, docs, and api """

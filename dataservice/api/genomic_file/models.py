@@ -1,5 +1,8 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, IndexdFile, KfId
+from dataservice.api.cavatica_task.models import (
+    CavaticaTaskGenomicFile
+)
 
 
 class GenomicFile(db.Model, Base, IndexdFile):
@@ -37,8 +40,8 @@ class GenomicFile(db.Model, Base, IndexdFile):
                             doc='external id used by contributor')
     data_type = db.Column(db.Text(), doc='Type of genomic file')
     file_format = db.Column(db.Text(), doc='Size of file in bytes')
-    is_harmonized = db.Column(db.Boolean(), doc='Whether or not the file'
-                              ' is harmonized')
+    is_harmonized = db.Column(db.Boolean(), default=False,
+                              doc='Whether or not the file is harmonized')
     reference_genome = db.Column(db.Text(), doc='Original reference genome of'
                                  ' the unharmonized genomic files')
     controlled_access = db.Column(db.Boolean(), doc='Whether or not the file'
@@ -51,3 +54,7 @@ class GenomicFile(db.Model, Base, IndexdFile):
                                          'sequencing_experiment.kf_id'))
     biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
                                nullable=True)
+
+    cavatica_task_genomic_files = db.relationship(CavaticaTaskGenomicFile,
+                                                  backref='genomic_file',
+                                                  cascade='all, delete-orphan')

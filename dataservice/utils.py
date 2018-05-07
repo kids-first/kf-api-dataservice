@@ -1,5 +1,6 @@
 import pkg_resources
 from itertools import tee
+from re import sub
 
 
 def _get_version():
@@ -13,3 +14,14 @@ def iterate_pairwise(iterable):
     a, b = tee(iterable)
     next(b, None)
     return zip(a, b)
+
+
+def to_snake_case(camel_case_str):
+    """
+    Convert camel case string to snake case string
+
+    Example: FooBarBaz converts to foo_bar_baz
+    """
+    s1 = sub('(.)([A-Z][a-z]+)', r'\1_\2', camel_case_str)
+
+    return sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
