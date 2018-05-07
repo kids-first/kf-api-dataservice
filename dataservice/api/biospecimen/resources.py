@@ -114,7 +114,7 @@ class BiospecimenAPI(CRUDView):
                   .format('biospecimen', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             sa = BiospecimenSchema(strict=True).load(body, instance=sa,
                                                      partial=True).data

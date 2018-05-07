@@ -3,28 +3,7 @@ import pkg_resources
 import pytest
 
 from dataservice.api.common import id_service
-
-
-ENDPOINTS = [
-    '/studies',
-    '/investigators',
-    '/participants',
-    '/outcomes',
-    '/phenotypes',
-    '/diagnoses',
-    '/biospecimens',
-    '/sequencing-experiments',
-    '/sequencing-centers',
-    '/family-relationships',
-    '/study-files',
-    '/families',
-    '/family-relationships',
-    '/studies',
-    '/investigators',
-    '/outcomes',
-    '/phenotypes',
-    '/genomic-files'
-]
+from tests.conftest import ENDPOINTS
 
 
 class TestAPI:
@@ -43,7 +22,7 @@ class TestAPI:
 
     @pytest.mark.parametrize('endpoint,method,status_code',
                              [(ept, 'GET', 200) for ept in ENDPOINTS] +
-                             [(ept+'/123', 'GET', 404) for ept in ENDPOINTS]
+                             [(ept + '/123', 'GET', 404) for ept in ENDPOINTS]
                              )
     def test_status_codes(self, client, endpoint, method, status_code):
         """ Test endpoint response codes """
@@ -57,13 +36,14 @@ class TestAPI:
                              [('/status', 'GET', 'Welcome to'),
                               ('/persons', 'GET',
                                'The requested URL was not found')] +
-                             [(ept, 'GET', 'success') for ept in ENDPOINTS] +
-                             [(ept+'/123', 'GET',
-                               'could not find') for ept in ENDPOINTS] +
-                             [(ept+'/123', 'PATCH',
-                               'could not find') for ept in ENDPOINTS] +
-                             [(ept+'/123', 'DELETE', 'could not find')
-                                 for ept in ENDPOINTS]
+                             [(ept, 'GET', 'success')
+                              for ept in ENDPOINTS] +
+                             [(ept + '/123', 'GET', 'could not find')
+                              for ept in ENDPOINTS] +
+                             [(ept + '/123', 'PATCH', 'could not find')
+                              for ept in ENDPOINTS] +
+                             [(ept + '/123', 'DELETE', 'could not find')
+                              for ept in ENDPOINTS]
                              )
     def test_status_messages(self, client, endpoint, method, status_message):
         """
@@ -98,7 +78,9 @@ class TestAPI:
         ('/diagnoses', ['participant']),
         ('/biospecimens', ['participant', 'sequencing_center']),
         ('/sequencing-experiments', ['sequencing_center']),
-        ('/genomic-files', ['biospecimen', 'sequencing_experiment'])
+        ('/genomic-files', ['biospecimen', 'sequencing_experiment']),
+        ('/cavatica-tasks', ['cavatica_app']),
+        ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
@@ -140,6 +122,8 @@ class TestAPI:
             endpoint = '{}/{}'.format(endpoint, kf_id)
         resp = call_func(endpoint, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
+        from pprint import pprint
+        pprint(body)
         if 'results' not in body:
             assert ('error saving' in body['_status']['message'] or
                     'already exists' in body['_status']['message'])
@@ -204,14 +188,16 @@ class TestAPI:
         ('/sequencing-experiments', ['genomic_files']),
         ('/studies', ['study_files', 'participants']),
         ('/investigators', ['studies']),
-        ('/families', ['participants'])
+        ('/families', ['participants']),
+        ('/cavatica-apps', ['cavatica_tasks']),
+        ('/cavatica-tasks', ['cavatica_task_genomic_files']),
+        ('/genomic-files', ['cavatica_task_genomic_files'])
     ])
     def test_child_links(self, client, entities, resource, fields):
         """ Checks that references to other resources have correct ID """
         kf_id = entities.get('kf_ids').get(resource)
         resp = client.get(resource + '/' + kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
-
         for field in fields:
             assert field in body
             if type(body[field]) is list:
@@ -224,25 +210,37 @@ class TestAPI:
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint, field, value',
                              [('/biospecimens', 'shipment_date', 12000),
-                              ('/biospecimens', 'shipment_date', '12000'),
-                              ('/biospecimens', 'shipment_date', 'hai der'),
-                              ('/biospecimens', 'concentration_mg_per_ml',
-                               -12),
-                              ('/biospecimens', 'volume_ml', -12),
-                              ('/outcomes', 'age_at_event_days', -12),
-                              ('/phenotypes', 'age_at_event_days', -12),
-                              ('/sequencing-experiments',
-                               'max_insert_size', -12),
-                              ('/sequencing-experiments',
-                               'mean_insert_size', -12),
-                              ('/sequencing-experiments',
-                               'mean_depth', -12),
-                              ('/sequencing-experiments',
-                               'mean_read_length', -12),
-                              ('/sequencing-experiments', 'total_reads', -12),
-                              ('/sequencing-experiments',
-                               'experiment_date', 'hai der'),
-                              ('/diagnoses', 'age_at_event_days', -5)])
+                                 ('/biospecimens', 'shipment_date', '12000'),
+                                 ('/biospecimens', 'shipment_date', 'hai der'),
+                                 ('/biospecimens', 'concentration_mg_per_ml',
+                                  -12),
+                                 ('/biospecimens', 'volume_ml', -12),
+                                 ('/outcomes', 'age_at_event_days', -12),
+                                 ('/phenotypes', 'age_at_event_days', -12),
+                                 ('/sequencing-experiments',
+                                  'max_insert_size', -12),
+                                 ('/sequencing-experiments',
+                                  'mean_insert_size', -12),
+                                 ('/sequencing-experiments',
+                                  'mean_depth', -12),
+                                 ('/sequencing-experiments',
+                                  'mean_read_length', -12),
+                                 ('/sequencing-experiments',
+                                  'total_reads', -12),
+                                 ('/sequencing-experiments',
+                                  'experiment_date', 'hai der'),
+                                 ('/cavatica-apps', 'revision', -5),
+                                 ('/cavatica-apps', 'revision', 'hai der'),
+                                 ('/cavatica-apps', 'github_commit_url',
+                                  "github"),
+                                 ('/cavatica-apps', 'github_commit_url',
+                                     "www.google.com"),
+                                 ('/cavatica-apps', 'github_commit_url',
+                                     "http://"),
+                                 ('/cavatica-task-genomic-files',
+                                  'is_input', 'hai der'),
+                                 ('/diagnoses', 'age_at_event_days', -5)
+                              ])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
         inputs = entities[endpoint]
@@ -304,7 +302,13 @@ class TestAPI:
                               ('/diagnoses', 'participant_id'),
                               ('/biospecimens', 'participant_id'),
                               ('/genomic-files', 'biospecimen_id'),
-                              ('/genomic-files', 'sequencing_experiment_id')])
+                              ('/genomic-files', 'sequencing_experiment_id'),
+                              ('/cavatica-tasks', 'cavatica_app_id'),
+                              ('/cavatica-task-genomic-files',
+                               'cavatica_task_id'),
+                              ('/cavatica-task-genomic-files',
+                               'genomic_file_id')
+                              ])
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
         Test bad foreign key

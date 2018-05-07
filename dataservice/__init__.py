@@ -17,7 +17,11 @@ from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
-from dataservice.api.workflow.models import Workflow, WorkflowGenomicFile
+from dataservice.api.cavatica_task.models import (
+    CavaticaTask,
+    CavaticaTaskGenomicFile
+)
+from dataservice.api.cavatica_app.models import CavaticaApp
 from dataservice.api.study_file.models import StudyFile
 from config import config
 
