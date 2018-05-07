@@ -63,7 +63,7 @@ class SequencingExperimentListAPI(CRUDView):
               SequencingExperiment
         """
 
-        body = request.json
+        body = request.get_json(force=True)
 
         # Deserialize
         try:
@@ -127,7 +127,7 @@ class SequencingExperimentAPI(CRUDView):
                   .format('sequencing_experiment', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             se = (SequencingExperimentSchema(strict=True).
                   load(body, instance=se,

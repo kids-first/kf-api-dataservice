@@ -54,8 +54,9 @@ class FamilyListAPI(CRUDView):
             resource:
               Family
         """
+        body = request.get_json(force=True)
         try:
-            fam = FamilySchema(strict=True).load(request.json).data
+            fam = FamilySchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400, 'could not create family: {}'.format(err.messages))
 
@@ -109,7 +110,7 @@ class FamilyAPI(CRUDView):
                   .format('family', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             fam = FamilySchema(strict=True).load(body, instance=fam,
                                                  partial=True).data

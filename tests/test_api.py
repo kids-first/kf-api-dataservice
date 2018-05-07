@@ -33,6 +33,14 @@ class TestAPI:
     and header checks
     """
 
+    @pytest.mark.parametrize('endpoint', ENDPOINTS)
+    def test_no_content_type(self, client, endpoint):
+        """ Test that no 500 is thrown when the content isnt specified """
+        resp = client.post(endpoint, data='{}')
+        assert resp.status_code < 500
+        resp = client.patch(endpoint, data='{}')
+        assert resp.status_code < 500
+
     @pytest.mark.parametrize('endpoint,method,status_code',
                              [(ept, 'GET', 200) for ept in ENDPOINTS] +
                              [(ept+'/123', 'GET', 404) for ept in ENDPOINTS]
@@ -63,7 +71,7 @@ class TestAPI:
         returned from the server contains a given string
         """
         call_func = getattr(client, method.lower())
-        resp = call_func(endpoint)
+        resp = call_func(endpoint, data='{}')
         resp = json.loads(resp.data.decode('utf-8'))
         assert resp['_status']['message'].startswith(status_message)
 

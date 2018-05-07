@@ -53,7 +53,7 @@ class DiagnosisListAPI(CRUDView):
               Diagnosis
         """
 
-        body = request.json
+        body = request.get_json(force=True)
 
         # Deserialize
         try:
@@ -113,7 +113,7 @@ class DiagnosisAPI(CRUDView):
                   .format('diagnosis', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             dg = DiagnosisSchema(strict=True).load(body, instance=dg,
                                                    partial=True).data

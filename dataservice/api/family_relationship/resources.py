@@ -55,7 +55,7 @@ class FamilyRelationshipListAPI(CRUDView):
               FamilyRelationship
         """
 
-        body = request.json
+        body = request.get_json(force=True)
 
         # Deserialize
         try:
@@ -118,7 +118,7 @@ class FamilyRelationshipAPI(CRUDView):
                   .format('family_relationship', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             fr = FamilyRelationshipSchema(strict=True).load(body, instance=fr,
                                                             partial=True).data

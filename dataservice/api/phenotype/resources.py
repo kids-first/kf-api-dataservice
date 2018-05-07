@@ -53,7 +53,7 @@ class PhenotypeListAPI(CRUDView):
               Phenotype
         """
 
-        body = request.json
+        body = request.get_json(force=True)
 
         # Deserialize
         try:
@@ -110,7 +110,7 @@ class PhenotypeAPI(CRUDView):
             resource:
               Phenotype
         """
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         # Check if phenotype exists
         p = Phenotype.query.get(kf_id)
         # Not found in database

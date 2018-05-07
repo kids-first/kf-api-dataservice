@@ -61,7 +61,7 @@ class SequencingCenterListAPI(CRUDView):
               SequencingCenter
         """
 
-        body = request.json
+        body = request.get_json(force=True)
 
         # Deserialize
         try:
@@ -125,7 +125,7 @@ class SequencingCenterAPI(CRUDView):
                   .format('sequencing_center', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             se = (SequencingCenterSchema(strict=True).
                   load(body, instance=se,
