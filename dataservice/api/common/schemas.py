@@ -108,12 +108,27 @@ class ErrorSchema(Schema):
     """ Handles HTTPException marshalling """
 
     class Meta:
-        fields = ('description', 'code')
+        fields = ("description", "code")
 
     @post_dump(pass_many=False)
     def wrap_envelope(self, data):
         return {'_status': {'message': data['description'],
                             'code': data['code']}}
+
+
+def error_response_generator(resource_name, status_code):
+    class ErrorResponseSchema(Schema):
+        _examples = {
+            404: "could not find {} <kf_id>".format(resource_name),
+            400: ("could not update {}".format(resource_name) +
+                  " {'<field>': ['Not a valid <expected type>.']}")
+        }
+        description = fields.String(description='status message',
+                                    example=_examples.get(status_code))
+        code = fields.Integer(description='HTTP response code',
+                              example=status_code)
+
+    return ErrorResponseSchema
 
 
 def response_generator(schema):
@@ -124,12 +139,14 @@ def response_generator(schema):
     return RespSchema
 
 
-def paginated_generator(schema):
+def paginated_generator(url, schema):
+
     class PaginatedSchema(Schema):
         _status = fields.Dict(example={'message': 'success', 'code': 200})
-        _links = fields.Dict(example={'next': '/participants?after=1519402953',
-                                      'self': '/participants?after=1519402952'
-                                      })
+        _links = fields.Dict(
+            example={'next': '{}?after=1519402953'.format(url),
+                     'self': '{}?after=1519402952'.format(url)
+                     })
         limit = fields.Integer(example=10,
                                description='Max number of results per page')
         total = fields.Integer(example=1342,

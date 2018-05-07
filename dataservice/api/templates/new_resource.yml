@@ -8,7 +8,11 @@ parameters:
   schema:
     $ref: "#/definitions/{{ resource }}"
 responses:
-  200:
+  201:
     description: {{ resource }} created
     schema:
       $ref: '#/definitions/{{ resource }}Response'
+  400:
+    description: {{ resource }} not created
+    schema:
+      $ref: '#/definitions/{{ resource }}ClientErrorResponse'

@@ -18,3 +18,11 @@ responses:
     description: {{ resource }} updated
     schema:
       $ref: '#/definitions/{{ resource }}Response'
+  404:
+    description: {{ resource }} not found
+    schema:
+      $ref: '#/definitions/{{ resource }}NotFoundErrorResponse'
+  400:
+    description: {{ resource }} not updated
+    schema:
+      $ref: '#/definitions/{{ resource }}ClientErrorResponse'
