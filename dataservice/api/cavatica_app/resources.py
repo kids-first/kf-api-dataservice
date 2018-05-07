@@ -65,8 +65,9 @@ class CavaticaAppListAPI(CRUDView):
             resource:
               CavaticaApp
         """
+        body = request.get_json(force=True)
         try:
-            app = CavaticaAppSchema(strict=True).load(request.json).data
+            app = CavaticaAppSchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400,
                   'could not create cavatica_app: {}'.format(err.messages))
@@ -121,7 +122,7 @@ class CavaticaAppAPI(CRUDView):
                   .format('cavatica_app', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             app = CavaticaAppSchema(strict=True).load(body, instance=app,
                                                       partial=True).data

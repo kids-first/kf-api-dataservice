@@ -60,9 +60,10 @@ class CavaticaTaskGenomicFileListAPI(CRUDView):
             resource:
               CavaticaTaskGenomicFile
         """
+        body = request.get_json(force=True)
         try:
             app = (CavaticaTaskGenomicFileSchema(strict=True)
-                   .load(request.json).data)
+                   .load(body).data)
         except ValidationError as err:
             abort(400,
                   'could not create cavatica_task_genomic_file: {}'
@@ -118,7 +119,7 @@ class CavaticaTaskGenomicFileAPI(CRUDView):
                   .format('cavatica_task_genomic_file', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             app = (CavaticaTaskGenomicFileSchema(strict=True)
                    .load(body, instance=app, partial=True).data)

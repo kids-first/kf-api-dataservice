@@ -63,8 +63,9 @@ class CavaticaTaskListAPI(CRUDView):
             resource:
               CavaticaTask
         """
+        body = request.get_json(force=True)
         try:
-            app = CavaticaTaskSchema(strict=True).load(request.json).data
+            app = CavaticaTaskSchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400,
                   'could not create cavatica_task: {}'.format(err.messages))
@@ -119,7 +120,7 @@ class CavaticaTaskAPI(CRUDView):
                   .format('cavatica_task', kf_id))
 
         # Partial update - validate but allow missing required fields
-        body = request.json or {}
+        body = request.get_json(force=True) or {}
         try:
             app = CavaticaTaskSchema(strict=True).load(body, instance=app,
                                                        partial=True).data
