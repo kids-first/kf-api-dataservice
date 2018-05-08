@@ -1,7 +1,7 @@
-import re
 from dataservice.extensions import ma
 from marshmallow import (
     fields,
+    post_load,
     post_dump,
     pre_dump,
     validates_schema,
@@ -11,6 +11,8 @@ from marshmallow import (
 from flask import url_for, request
 from flask_marshmallow import Schema
 from dataservice.api.common.pagination import Pagination
+from dataservice.api.common.custom_fields import DateOrDatetime
+from dataservice.api.common.validation import validate_kf_id
 from dataservice.extensions import db
 
 
@@ -39,11 +41,7 @@ class BaseSchema(ma.ModelSchema):
 
     @validates('kf_id')
     def valid(self, value):
-        prefix = self.Meta.model.__prefix__
-        r = r'^'+prefix+r'_[A-HJ-KM-NP-TV-Z0-9]{8}'
-        m = re.search(r, value)
-        if not m:
-            raise ValidationError('Invalid kf_id')
+        validate_kf_id(self.Meta.model.__prefix__, value)
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
@@ -154,6 +152,39 @@ def paginated_generator(url, schema):
         results = fields.List(fields.Nested(schema))
 
     return PaginatedSchema
+
+
+def filter_schema_factory(model_filter_schema_cls):
+    """
+    Create an instance of a model's filter schema
+
+    Remove schema attributes that are not applicable to filters (_links)
+    Allow partially populated schema
+    Validate with strict=True - reuse model schema's validators
+    """
+    exclude = ('_links', )
+    if hasattr(model_filter_schema_cls.Meta, 'exclude'):
+        exclude += model_filter_schema_cls.Meta.exclude
+
+    return model_filter_schema_cls(strict=True, partial=True, exclude=exclude)
+
+
+class FilterSchemaMixin(ma.ModelSchema):
+    """
+    Filter schema mixin inherited by all model filter schemas
+    """
+
+    created_at = DateOrDatetime()
+    modified_at = DateOrDatetime()
+    study_id = fields.Str()
+
+    @validates('study_id')
+    def valid(self, value):
+        validate_kf_id('SD', value)
+
+    @post_load
+    def make_instance(self, data):
+        return data
 
 
 class StatusSchema(Schema):
