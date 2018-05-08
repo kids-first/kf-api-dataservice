@@ -122,8 +122,7 @@ class TestAPI:
             endpoint = '{}/{}'.format(endpoint, kf_id)
         resp = call_func(endpoint, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
-        from pprint import pprint
-        pprint(body)
+
         if 'results' not in body:
             assert ('error saving' in body['_status']['message'] or
                     'already exists' in body['_status']['message'])
@@ -145,12 +144,11 @@ class TestAPI:
     def test_malformed_predefined_kf_id(self, client, endpoint, kf_id):
         """ Check that posting malformed predefined kf_id doesn't 500 """
         resp = client.post(endpoint,
-                data=json.dumps({'kf_id': kf_id, 'external_id': 'blah'}),
+                           data=json.dumps({'kf_id': kf_id, 'external_id': 'blah'}),
                            headers={'Content-Type': 'application/json'})
         assert resp.status_code == 400
         resp = json.loads(resp.data.decode('utf-8'))
         assert 'Invalid kf_id' in resp['_status']['message']
-
 
     @pytest.mark.parametrize('field', ['uuid'])
     @pytest.mark.parametrize('endpoint', ENDPOINTS)
