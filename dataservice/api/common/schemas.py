@@ -162,21 +162,24 @@ def filter_schema_factory(model_filter_schema_cls):
     Allow partially populated schema
     Validate with strict=True - reuse model schema's validators
     """
+    # Exclude fields
     exclude = ('_links', )
     if hasattr(model_filter_schema_cls.Meta, 'exclude'):
         exclude += model_filter_schema_cls.Meta.exclude
 
-    return model_filter_schema_cls(strict=True, partial=True, exclude=exclude)
+    return model_filter_schema_cls(strict=True,
+                                   partial=True,
+                                   exclude=exclude)
 
 
 class FilterSchemaMixin(ma.ModelSchema):
     """
     Filter schema mixin inherited by all model filter schemas
     """
-
-    created_at = DateOrDatetime()
-    modified_at = DateOrDatetime()
     study_id = fields.Str()
+
+    class Meta:
+        dump_only = ()
 
     @validates('study_id')
     def valid(self, value):
