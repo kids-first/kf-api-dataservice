@@ -199,7 +199,6 @@ class TestPagination:
         else:
             assert len(ids_seen) == resp['total']
 
-    @pytest.mark.parametrize('study_id', ['blah', 'ST_00000000', 50])
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
         ('/study-files'),
@@ -218,7 +217,41 @@ class TestPagination:
         ('/cavatica-task-genomic-files')
     ])
     def test_non_exist_study_filter(self, client, participants,
-                                    endpoint, study_id):
+                                    endpoint):
+        """
+        Test pagination of resources with a study filter that doesn't exist or
+        is invalid
+
+        Should return no results
+        """
+        endpoint = '{}?study_id={}'.format(endpoint, 'SD_00000000')
+        resp = client.get(endpoint)
+        resp = json.loads(resp.data.decode('utf-8'))
+
+        assert len(resp['results']) == 0
+        assert resp['limit'] == 10
+        assert resp['total'] == 0
+
+    @pytest.mark.parametrize('study_id', ['blah', 3489, 'PT_00001111'])
+    @pytest.mark.parametrize('endpoint', [
+        # ('/participants'),
+        # ('/study-files'),
+        # ('/investigators'),
+        # ('/biospecimens'),
+        # ('/sequencing-experiments'),
+        ('/diagnoses')
+        # ('/outcomes'),
+        # ('/phenotypes'),
+        # ('/families'),
+        # ('/family-relationships'),
+        # ('/genomic-files'),
+        # ('/sequencing-centers'),
+        # ('/cavatica-tasks'),
+        # ('/cavatica-apps'),
+        # ('/cavatica-task-genomic-files')
+    ])
+    def test_invalid_study_filter(self, client, participants,
+                                  endpoint, study_id):
         """
         Test pagination of resources with a study filter that doesn't exist or
         is invalid
@@ -226,12 +259,16 @@ class TestPagination:
         Should return no results
         """
         endpoint = '{}?study_id={}'.format(endpoint, study_id)
-        resp = client.get(endpoint)
-        resp = json.loads(resp.data.decode('utf-8'))
+        response = client.get(endpoint)
 
-        assert len(resp['results']) == 0
-        assert resp['limit'] == 10
-        assert resp['total'] == 0
+        # Check status code
+        assert response.status_code == 400
+        # Check content
+        resp = json.loads(response.data.decode('utf-8'))
+        assert ('could not retrieve entities:' in
+                resp['_status']['message'])
+        assert 'Invalid kf_id' in resp['_status']['message']
+        assert 'study_id' in resp['_status']['message']
 
     @pytest.mark.parametrize('endpoint, expected_total', [
         ('/studies', 101),
