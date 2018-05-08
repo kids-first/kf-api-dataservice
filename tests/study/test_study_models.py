@@ -4,6 +4,7 @@ from dataservice.extensions import db
 from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
+from unittest.mock import patch, Mock
 
 
 class ModelTest(FlaskTestCase):
@@ -28,6 +29,20 @@ class ModelTest(FlaskTestCase):
         # Participant studies
         for p in participants:
             self.assertEqual(study.kf_id, p.study.kf_id)
+
+    def test_bucket_service(self):
+        """
+        Test that a request is sent to create a new bucket
+        """
+        s = Study(external_id='phs002')
+        db.session.add(s)
+        db.session.commit()
+        assert self.bucket_service.post.call_count == 1
+        
+        headers = {'Authorization': 'Bearer test123'}
+        self.bucket_service.post.assert_called_with('/buckets',
+                                                    json={'study_id': s.kf_id},
+                                                    headers=headers)
 
     def test_update(self):
         """

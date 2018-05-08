@@ -37,25 +37,6 @@ class TestPagination:
     Test that entities are iterated and returned properly
     """
 
-    @pytest.yield_fixture(scope='module')
-    def client(self, app):
-        app_context = app.app_context()
-        app_context.push()
-        db.create_all()
-
-        mock = patch('dataservice.extensions.flask_indexd.requests')
-        mock = mock.start()
-        indexd_mock = MockIndexd()
-        mock.Session().get.side_effect = indexd_mock.get
-        mock.Session().post.side_effect = indexd_mock.post
-
-        yield app.test_client()
-        mock.stop()
-
-        # Need to make sure we close all connections so pg won't lock tables
-        db.session.close()
-        db.drop_all()
-
     @pytest.fixture(scope='module')
     def participants(client):
 
