@@ -1,11 +1,16 @@
 from flask import abort, request
 from marshmallow import ValidationError
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.diagnosis.models import Diagnosis
-from dataservice.api.diagnosis.schemas import DiagnosisSchema
+from dataservice.api.diagnosis.schemas import (
+    DiagnosisSchema,
+    DiagnosisFilterSchema
+)
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class DiagnosisListAPI(CRUDView):
@@ -17,7 +22,9 @@ class DiagnosisListAPI(CRUDView):
     schemas = {'Diagnosis': DiagnosisSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(DiagnosisFilterSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get all diagnoses
         ---
@@ -29,11 +36,14 @@ class DiagnosisListAPI(CRUDView):
             resource:
               Diagnosis
         """
-        q = Diagnosis.query
+        # Get study id and remove from model filter params
+        study_id = filter_params.pop('study_id', None)
 
-        # Filter by study
+        # Apply entity filter params
+        q = Diagnosis.query.filter_by(**filter_params)
+
+        # Apply study_id filter
         from dataservice.api.participant.models import Participant
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(Participant.diagnoses)
                  .filter(Participant.study_id == study_id))
