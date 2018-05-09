@@ -239,10 +239,10 @@ class TestPagination:
         # ('/investigators'),
         ('/biospecimens'),
         # ('/sequencing-experiments'),
-        ('/diagnoses')
-        # ('/outcomes'),
+        ('/diagnoses'),
+        ('/outcomes'),
         ('/phenotypes'),
-        # ('/families'),
+        ('/families'),
         # ('/family-relationships'),
         # ('/genomic-files'),
         # ('/sequencing-centers'),

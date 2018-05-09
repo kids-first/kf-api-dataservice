@@ -1,12 +1,13 @@
 from flask import abort, request
 from marshmallow import ValidationError
-from sqlalchemy.orm import Load, load_only
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.outcome.models import Outcome
-from dataservice.api.outcome.schemas import OutcomeSchema
+from dataservice.api.outcome.schemas import OutcomeSchema, OutcomeFilterSchema
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class OutcomeListAPI(CRUDView):
@@ -18,7 +19,9 @@ class OutcomeListAPI(CRUDView):
     schemas = {'Outcome': OutcomeSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(OutcomeFilterSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get all outcomes
         ---
@@ -30,11 +33,13 @@ class OutcomeListAPI(CRUDView):
             resource:
               Outcome
         """
-        q = Outcome.query
+        # Get study id and remove from model filter params
+        study_id = filter_params.pop('study_id', None)
+
+        q = Outcome.query.filter_by(**filter_params)
 
         # Filter by study
         from dataservice.api.participant.models import Participant
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(Participant.outcomes)
                  .filter(Participant.study_id == study_id))
