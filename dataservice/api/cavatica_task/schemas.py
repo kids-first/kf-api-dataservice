@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.cavatica_task.models import CavaticaTask
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
 
@@ -22,3 +22,8 @@ class CavaticaTaskSchema(BaseSchema):
         'cavatica_app': PatchedURLFor('api.cavatica_apps',
                                       kf_id='<cavatica_app_id>')
     })
+
+
+class CavaticaTaskFilterSchema(FilterSchemaMixin,
+                               CavaticaTaskSchema):
+    pass

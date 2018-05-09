@@ -213,7 +213,8 @@ ENTITY_PARAMS = {
         '/cavatica-tasks': {
             'valid': {
                 'name': 'CavaticaTask_1'
-            }
+            },
+            'invalid': []
         }
     }
 }
@@ -318,7 +319,8 @@ class TestFilterParams:
                                  (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter),
-                                 (CavaticaApp)
+                                 (CavaticaApp),
+                                 (CavaticaTask)
                              ])
     def test_filter_params(self, client, entities, model):
         """
@@ -365,7 +367,8 @@ class TestFilterParams:
                                  (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter),
-                                 (CavaticaApp)
+                                 (CavaticaApp),
+                                 (CavaticaTask)
                              ])
     def test_invalid_filter_params(self, client, entities, model):
         """
@@ -407,7 +410,8 @@ class TestFilterParams:
                                  (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter),
-                                 (CavaticaApp)
+                                 (CavaticaApp),
+                                 (CavaticaTask)
                              ])
     def test_unknown_filter_params(self, client, entities, model):
         """
@@ -449,7 +453,8 @@ class TestFilterParams:
                                  (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter),
-                                 (CavaticaApp)
+                                 (CavaticaApp),
+                                 (CavaticaTask)
                              ])
     def test_generated_date_filters(self, client, entities, model, field):
         """
@@ -502,7 +507,8 @@ class TestFilterParams:
                                  (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter),
-                                 (CavaticaApp)
+                                 (CavaticaApp),
+                                 (CavaticaTask)
                              ])
     def test_invalid_gen_date_filters(self, client, entities, model,
                                       invalid_params):
