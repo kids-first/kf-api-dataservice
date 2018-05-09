@@ -235,7 +235,7 @@ class TestPagination:
     @pytest.mark.parametrize('study_id', ['blah', 3489, 'PT_00001111'])
     @pytest.mark.parametrize('endpoint', [
         ('/participants'),
-        # ('/study-files'),
+        ('/study-files'),
         # ('/investigators'),
         ('/biospecimens'),
         # ('/sequencing-experiments'),

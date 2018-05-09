@@ -109,7 +109,8 @@ ENTITY_PARAMS = {
         '/study-files': {
             'valid': {
                 'file_name': 'File_1'
-            }
+            },
+            'invalid': []
         },
         '/sequencing-centers': {
             'valid': {
@@ -279,6 +280,7 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
+                                 (StudyFile),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
@@ -315,6 +317,7 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
+                                 (StudyFile),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
@@ -348,6 +351,7 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
+                                 (StudyFile),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
@@ -381,6 +385,7 @@ class TestFilterParams:
     @pytest.mark.parametrize('field', ['created_at', 'modified_at'])
     @pytest.mark.parametrize('model',
                              [
+                                 (StudyFile),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
@@ -425,6 +430,7 @@ class TestFilterParams:
                                                 ])
     @pytest.mark.parametrize('model',
                              [
+                                 (StudyFile),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
