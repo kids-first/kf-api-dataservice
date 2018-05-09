@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
 from dataservice.api.common.custom_fields import DateOrDatetime
 from dataservice.api.common.validation import validate_positive_number
 from dataservice.extensions import ma
@@ -36,3 +36,8 @@ class SequencingExperimentSchema(BaseSchema):
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>')
     }, description='Resource links and pagination')
+
+
+class SequencingExperimentFilterSchema(FilterSchemaMixin,
+                                       SequencingExperimentSchema):
+    pass

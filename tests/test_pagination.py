@@ -238,7 +238,7 @@ class TestPagination:
         ('/study-files'),
         ('/investigators'),
         ('/biospecimens'),
-        # ('/sequencing-experiments'),
+        ('/sequencing-experiments'),
         ('/diagnoses'),
         ('/outcomes'),
         ('/phenotypes'),

@@ -141,11 +141,12 @@ ENTITY_PARAMS = {
         },
         '/biospecimens': {
             'valid': {
-                'analyte_type': 'RNA'
+                'analyte_type': 'RNA',
+                'shipment_date': SAMPLE_DATE
             },
             'invalid': [
-                {'age_at_event_days': -1},
-                {'age_at_event_days': 'hello'}
+                {'age_at_event_days': -1, 'shipment_date': 'hai der'},
+                {'age_at_event_days': 'hello', 'shipment_date': 123}
             ]
         },
         '/diagnoses': {
@@ -181,8 +182,12 @@ ENTITY_PARAMS = {
         '/sequencing-experiments': {
             'valid': {
                 'external_id': 'SeqExp_1',
-                'is_paired_end': True
-            }
+                'is_paired_end': True,
+                'experiment_date': SAMPLE_DATE
+            },
+            'invalid': [
+                {'experiment_date': 'hai der'}
+            ]
         },
         '/genomic-files': {
             'valid': {
@@ -289,7 +294,9 @@ class TestFilterParams:
                                  (Family),
                                  (Diagnosis),
                                  (Phenotype),
-                                 (Outcome)
+                                 (Outcome),
+                                 (Biospecimen),
+                                 (SequencingExperiment)
                              ])
     def test_filter_params(self, client, entities, model):
         """
@@ -317,6 +324,8 @@ class TestFilterParams:
         # All results have correct field values
         for result in resp['results']:
             for k, v in filter_params.items():
+                if k.lower().endswith('date'):
+                    v = 'T'.join(v.split(' '))
                 assert result.get(k) == v
 
     @pytest.mark.parametrize('model',
@@ -328,7 +337,9 @@ class TestFilterParams:
                                  (Family),
                                  (Diagnosis),
                                  (Phenotype),
-                                 (Outcome)
+                                 (Outcome),
+                                 (Biospecimen),
+                                 (SequencingExperiment)
                              ])
     def test_invalid_filter_params(self, client, entities, model):
         """
@@ -364,7 +375,9 @@ class TestFilterParams:
                                  (Family),
                                  (Diagnosis),
                                  (Phenotype),
-                                 (Outcome)
+                                 (Outcome),
+                                 (Biospecimen),
+                                 (SequencingExperiment)
                              ])
     def test_unknown_filter_params(self, client, entities, model):
         """
@@ -400,7 +413,9 @@ class TestFilterParams:
                                  (Family),
                                  (Diagnosis),
                                  (Phenotype),
-                                 (Outcome)
+                                 (Outcome),
+                                 (Biospecimen),
+                                 (SequencingExperiment)
                              ])
     def test_generated_date_filters(self, client, entities, model, field):
         """
@@ -447,7 +462,9 @@ class TestFilterParams:
                                  (Family),
                                  (Diagnosis),
                                  (Phenotype),
-                                 (Outcome)
+                                 (Outcome),
+                                 (Biospecimen),
+                                 (SequencingExperiment)
                              ])
     def test_invalid_gen_date_filters(self, client, entities, model,
                                       invalid_params):
