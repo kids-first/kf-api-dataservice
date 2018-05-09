@@ -99,7 +99,8 @@ ENTITY_PARAMS = {
         '/studies': {
             'valid': {
                 'external_id': 'Study_1'
-            }
+            },
+            'invalid': []
         },
         '/investigators': {
             'valid': {
@@ -280,6 +281,7 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
+                                 (Study),
                                  (StudyFile),
                                  (Participant),
                                  (Family),
@@ -317,6 +319,7 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
+                                 (Study),
                                  (StudyFile),
                                  (Participant),
                                  (Family),
@@ -351,6 +354,7 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
+                                 (Study),
                                  (StudyFile),
                                  (Participant),
                                  (Family),
@@ -385,6 +389,7 @@ class TestFilterParams:
     @pytest.mark.parametrize('field', ['created_at', 'modified_at'])
     @pytest.mark.parametrize('model',
                              [
+                                 (Study),
                                  (StudyFile),
                                  (Participant),
                                  (Family),
@@ -430,6 +435,7 @@ class TestFilterParams:
                                                 ])
     @pytest.mark.parametrize('model',
                              [
+                                 (Study),
                                  (StudyFile),
                                  (Participant),
                                  (Family),

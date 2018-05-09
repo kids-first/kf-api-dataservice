@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.study.models import Study
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
 
@@ -22,3 +22,7 @@ class StudySchema(BaseSchema):
         'investigator': PatchedURLFor('api.investigators',
                                       kf_id='<investigator_id>')
     })
+
+
+class StudyFilterSchema(FilterSchemaMixin, StudySchema):
+    pass
