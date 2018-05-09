@@ -243,7 +243,7 @@ class TestPagination:
         ('/outcomes'),
         ('/phenotypes'),
         ('/families'),
-        # ('/family-relationships'),
+        ('/family-relationships'),
         ('/genomic-files'),
         ('/sequencing-centers'),
         # ('/cavatica-tasks'),

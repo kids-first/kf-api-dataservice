@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.family_relationship.models import FamilyRelationship
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
 from dataservice.extensions import ma
 
 
@@ -25,3 +25,8 @@ class FamilyRelationshipSchema(BaseSchema):
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
         'relative': ma.URLFor('api.participants', kf_id='<relative_id>')
     })
+
+
+class FamilyRelationshipFilterSchema(FilterSchemaMixin,
+                                     FamilyRelationshipSchema):
+    pass

@@ -38,7 +38,7 @@ ENTITY_ENDPOINT_MAP = {
     Investigator: '/investigators',
     StudyFile: '/study-files',
     Family: '/families',
-    # FamilyRelationship: '/family-relationships',
+    FamilyRelationship: '/family-relationships',
     CavaticaApp: '/cavatica-apps',
     SequencingCenter: '/sequencing-centers',
     Participant: '/participants',
@@ -59,6 +59,7 @@ ENTITY_PARAMS = {
         '/study-files': {'file_name': 'File_0'},
         '/cavatica-apps': {'name': 'App_0'},
         '/families': {'external_id': 'Family_0'},
+        '/family-relationships': {},
         '/sequencing-centers': {'name': ''},
         '/participants': {
             'is_proband': True,
@@ -128,6 +129,12 @@ ENTITY_PARAMS = {
         '/families': {
             'valid': {
                 'external_id': 'Family_1'
+            },
+            'invalid': []
+        },
+        '/family-relationships': {
+            'valid': {
+                'participant_to_relative_relation': 'mother'
             },
             'invalid': []
         },
@@ -219,6 +226,8 @@ class TestFilterParams:
         with db.session.no_autoflush:
             entities = {}
             for model, endpoint in ENTITY_ENDPOINT_MAP.items():
+                if model == FamilyRelationship:
+                    continue
                 for i in range(ENTITY_TOTAL):
                     data = ENTITY_PARAMS['fields'][endpoint].copy()
                     if i % 2 != 0:
@@ -297,6 +306,7 @@ class TestFilterParams:
                                  (Investigator),
                                  (Participant),
                                  (Family),
+                                 (FamilyRelationship),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome),
@@ -342,6 +352,7 @@ class TestFilterParams:
                                  (Investigator),
                                  (Participant),
                                  (Family),
+                                 (FamilyRelationship),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome),
@@ -382,6 +393,7 @@ class TestFilterParams:
                                  (Investigator),
                                  (Participant),
                                  (Family),
+                                 (FamilyRelationship),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome),
@@ -422,6 +434,7 @@ class TestFilterParams:
                                  (Investigator),
                                  (Participant),
                                  (Family),
+                                 (FamilyRelationship),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome),
@@ -473,6 +486,7 @@ class TestFilterParams:
                                  (Investigator),
                                  (Participant),
                                  (Family),
+                                 (FamilyRelationship),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome),
