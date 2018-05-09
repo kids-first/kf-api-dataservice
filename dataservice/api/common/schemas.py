@@ -172,7 +172,7 @@ def filter_schema_factory(model_filter_schema_cls):
                                    exclude=exclude)
 
 
-class FilterSchemaMixin(ma.ModelSchema):
+class FilterSchemaMixin(ma.Schema):
     """
     Filter schema mixin inherited by all model filter schemas
     """

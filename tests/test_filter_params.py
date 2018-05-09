@@ -130,7 +130,10 @@ ENTITY_PARAMS = {
             'valid': {
                 'is_proband': False,
                 'gender': 'female'
-            }
+            },
+            'invalid': [
+                {'is_proband': 'hello'}
+            ]
         },
         '/biospecimens': {
             'valid': {
@@ -263,7 +266,8 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
-                                 (Diagnosis)
+                                 (Diagnosis),
+                                 (Participant)
                              ])
     def test_filter_params(self, client, entities, model):
         """
@@ -295,7 +299,8 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
-                                 (Diagnosis)
+                                 (Diagnosis),
+                                 (Participant)
                              ])
     def test_invalid_filter_params(self, client, entities, model):
         """
@@ -324,7 +329,8 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
-                                 (Diagnosis)
+                                 (Diagnosis),
+                                 (Participant)
                              ])
     def test_unknown_filter_params(self, client, entities, model):
         """
@@ -353,7 +359,8 @@ class TestFilterParams:
     @pytest.mark.parametrize('field', ['created_at', 'modified_at'])
     @pytest.mark.parametrize('model',
                              [
-                                 (Diagnosis)
+                                 (Diagnosis),
+                                 (Participant)
                              ])
     def test_generated_date_filters(self, client, entities, model, field):
         """
@@ -393,7 +400,8 @@ class TestFilterParams:
                                                 ])
     @pytest.mark.parametrize('model',
                              [
-                                 (Diagnosis)
+                                 (Diagnosis),
+                                 (Participant)
                              ])
     def test_invalid_gen_date_filters(self, client, entities, model,
                                       invalid_params):
