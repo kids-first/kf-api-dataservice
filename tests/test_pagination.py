@@ -245,7 +245,7 @@ class TestPagination:
         ('/families'),
         # ('/family-relationships'),
         # ('/genomic-files'),
-        # ('/sequencing-centers'),
+        ('/sequencing-centers'),
         # ('/cavatica-tasks'),
         # ('/cavatica-apps'),
         # ('/cavatica-task-genomic-files')

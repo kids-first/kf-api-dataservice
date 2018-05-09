@@ -116,8 +116,9 @@ ENTITY_PARAMS = {
         },
         '/sequencing-centers': {
             'valid': {
-                'name': ''
-            }
+                'name': 'SequencingCenter_0'
+            },
+            'invalid': []
         },
         '/cavatica-apps': {
             'valid': {
@@ -296,7 +297,8 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
-                                 (SequencingExperiment)
+                                 (SequencingExperiment),
+                                 (SequencingCenter)
                              ])
     def test_filter_params(self, client, entities, model):
         """
@@ -339,7 +341,8 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
-                                 (SequencingExperiment)
+                                 (SequencingExperiment),
+                                 (SequencingCenter)
                              ])
     def test_invalid_filter_params(self, client, entities, model):
         """
@@ -377,7 +380,8 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
-                                 (SequencingExperiment)
+                                 (SequencingExperiment),
+                                 (SequencingCenter)
                              ])
     def test_unknown_filter_params(self, client, entities, model):
         """
@@ -415,7 +419,8 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
-                                 (SequencingExperiment)
+                                 (SequencingExperiment),
+                                 (SequencingCenter)
                              ])
     def test_generated_date_filters(self, client, entities, model, field):
         """
@@ -464,7 +469,8 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
-                                 (SequencingExperiment)
+                                 (SequencingExperiment),
+                                 (SequencingCenter)
                              ])
     def test_invalid_gen_date_filters(self, client, entities, model,
                                       invalid_params):

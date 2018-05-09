@@ -1,14 +1,17 @@
 from flask import abort, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.sequencing_center.schemas import (
-    SequencingCenterSchema
+    SequencingCenterSchema,
+    SequencingCenterFilterSchema
 )
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class SequencingCenterListAPI(CRUDView):
@@ -20,7 +23,9 @@ class SequencingCenterListAPI(CRUDView):
     schemas = {'SequencingCenter': SequencingCenterSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(SequencingCenterFilterSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get all sequencing_centers
         ---
@@ -32,7 +37,11 @@ class SequencingCenterListAPI(CRUDView):
             resource:
               SequencingCenter
         """
+        # Get study id and remove from model filter params
+        study_id = filter_params.pop('study_id', None)
+
         q = (SequencingCenter.query
+             .filter_by(**filter_params)
              .options(joinedload(SequencingCenter.biospecimens)
                       .load_only('kf_id'))
              .options(joinedload(SequencingCenter.sequencing_experiments).
@@ -40,7 +49,6 @@ class SequencingCenterListAPI(CRUDView):
         # Filter by study
         from dataservice.api.participant.models import Participant
         from dataservice.api.biospecimen.models import Biospecimen
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(SequencingCenter.biospecimens)
                  .join(Biospecimen.participant)
