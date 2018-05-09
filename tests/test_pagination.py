@@ -248,7 +248,7 @@ class TestPagination:
         ('/sequencing-centers'),
         ('/cavatica-tasks'),
         ('/cavatica-apps'),
-        # ('/cavatica-task-genomic-files')
+        ('/cavatica-task-genomic-files')
     ])
     def test_invalid_study_filter(self, client, participants,
                                   endpoint, study_id):

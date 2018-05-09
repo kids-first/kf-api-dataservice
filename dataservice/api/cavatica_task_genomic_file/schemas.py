@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.cavatica_task.models import CavaticaTaskGenomicFile
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
 from dataservice.extensions import ma
 
 
@@ -28,3 +28,8 @@ class CavaticaTaskGenomicFileSchema(BaseSchema):
         'genomic_file': ma.URLFor('api.genomic_files',
                                   kf_id='<genomic_file_id>')
     })
+
+
+class CavaticaTaskGenomicFileFilterSchema(FilterSchemaMixin,
+                                          CavaticaTaskGenomicFileSchema):
+    pass
