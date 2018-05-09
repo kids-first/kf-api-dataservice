@@ -1,0 +1,98 @@
+
+common:
+    # The value was not reported, either to the original data source or to the
+    # DRC, could potentially mean that follow up could occur to gather the
+    # value if it's meaningful
+    - Not Reported
+
+    # In the current context the value isn't applicable
+    # (e.g. tumor location for a structural birth defect
+    - Not Applicable
+
+    # The value cannot be collected due to privacy, consent, etc other issues,
+    # follow up cannot occur
+    - Not Allowed To Collect
+
+    # Follow up was tried but the value isn't available
+    - Not Available
+
+    # Contributor explicitly reported that the value is unknown
+    - Reported Unknown
+
+study:
+    release_status:
+        - Pending # Not sure about the choices here
+
+study_file:
+    availability:
+        - Immediate Download
+        - Cold Storage
+
+participant:
+    gender:
+        - Male
+        - Female
+    race:
+      - White
+      - American Indian or Alaska Native
+      - Black or African American
+      - Asian
+      - Native Hawaiian or Other Pacific Islander
+      - Other
+    ethnicity:
+        - Hispanic or Latino
+        - Not Hispanic or Latino
+
+diagnosis:
+    diagnosis_category:
+        - Structural Birth Defect
+        - Cancer
+        - Other
+
+phenotype:
+    observed:
+        - Positive
+        - Negative
+
+outcome:
+    vital_status:
+        - Alive
+        - Dead
+    disease_related:
+        - Yes
+        - No
+
+biospecimen:
+    analyte_type:
+        - DNA
+        - RNA
+        - Other
+
+genomic_file:
+    data_type:
+        - Submitted Aligned Reads
+        - Submitted Aligned Reads Index
+        - Simple Nucleotide Variation
+        - Other
+    availability:
+        - Immediate Download
+        - Cold Storage
+
+sequencing_experiment:
+    experiment_strategy:
+        - WGS
+        - WXS
+        - RNA-Seq
+        - Other
+    platform:
+        - Illumina
+        - SOLiD
+        - LS454
+        - Ion Torrent
+        - Complete Genomics
+        - PacBio
+        - Other
+    library_strand:
+        - Unstranded
+        - First Stranded
+        - Second Stranded
