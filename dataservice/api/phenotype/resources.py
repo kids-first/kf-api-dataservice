@@ -7,8 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.phenotype.schemas import (
-    PhenotypeSchema,
-    PhenotypeFilterSchema
+    PhenotypeSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -23,7 +22,7 @@ class PhenotypeListAPI(CRUDView):
     schemas = {'Phenotype': PhenotypeSchema}
 
     @paginated
-    @use_args(filter_schema_factory(PhenotypeFilterSchema),
+    @use_args(filter_schema_factory(PhenotypeSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

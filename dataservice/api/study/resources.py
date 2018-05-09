@@ -6,7 +6,7 @@ from webargs.flaskparser import use_args
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.study.models import Study
-from dataservice.api.study.schemas import StudySchema, StudyFilterSchema
+from dataservice.api.study.schemas import StudySchema
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
 
@@ -20,7 +20,7 @@ class StudyListAPI(CRUDView):
     schemas = {'Study': StudySchema}
 
     @paginated
-    @use_args(filter_schema_factory(StudyFilterSchema),
+    @use_args(filter_schema_factory(StudySchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

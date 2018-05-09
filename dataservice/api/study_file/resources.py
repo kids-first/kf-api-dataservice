@@ -6,8 +6,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, indexd_pagination
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.study_file.schemas import (
-    StudyFileSchema,
-    StudyFileFilterSchema
+    StudyFileSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -22,7 +21,7 @@ class StudyFileListAPI(CRUDView):
     schemas = {'StudyFile': StudyFileSchema}
 
     @paginated
-    @use_args(filter_schema_factory(StudyFileFilterSchema),
+    @use_args(filter_schema_factory(StudyFileSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

@@ -3,8 +3,7 @@ from marshmallow_sqlalchemy import field_for
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.common.schemas import (
     BaseSchema,
-    IndexdFileSchema,
-    FilterSchemaMixin
+    IndexdFileSchema
 )
 from dataservice.extensions import ma
 
@@ -28,7 +27,3 @@ class StudyFileSchema(BaseSchema, IndexdFileSchema):
         'collection': ma.URLFor(Meta.collection_url),
         'study': ma.URLFor('api.studies', kf_id='<study_id>')
     })
-
-
-class StudyFileFilterSchema(FilterSchemaMixin, StudyFileSchema):
-    pass

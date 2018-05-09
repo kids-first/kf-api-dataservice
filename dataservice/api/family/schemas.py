@@ -1,5 +1,5 @@
 from dataservice.api.family.models import Family
-from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
+from dataservice.api.common.schemas import BaseSchema
 from dataservice.extensions import ma
 
 
@@ -14,7 +14,3 @@ class FamilySchema(BaseSchema):
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url)
     })
-
-
-class FamilyFilterSchema(FilterSchemaMixin, FamilySchema):
-    pass

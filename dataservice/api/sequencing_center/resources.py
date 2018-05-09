@@ -7,8 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.sequencing_center.schemas import (
-    SequencingCenterSchema,
-    SequencingCenterFilterSchema
+    SequencingCenterSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -23,7 +22,7 @@ class SequencingCenterListAPI(CRUDView):
     schemas = {'SequencingCenter': SequencingCenterSchema}
 
     @paginated
-    @use_args(filter_schema_factory(SequencingCenterFilterSchema),
+    @use_args(filter_schema_factory(SequencingCenterSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

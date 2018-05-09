@@ -8,8 +8,7 @@ from dataservice.api.cavatica_task.models import (
     CavaticaTaskGenomicFile
 )
 from dataservice.api.cavatica_task_genomic_file.schemas import (
-    CavaticaTaskGenomicFileSchema,
-    CavaticaTaskGenomicFileFilterSchema
+    CavaticaTaskGenomicFileSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -24,7 +23,7 @@ class CavaticaTaskGenomicFileListAPI(CRUDView):
     schemas = {'CavaticaTaskGenomicFile': CavaticaTaskGenomicFileSchema}
 
     @paginated
-    @use_args(filter_schema_factory(CavaticaTaskGenomicFileFilterSchema),
+    @use_args(filter_schema_factory(CavaticaTaskGenomicFileSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

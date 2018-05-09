@@ -6,8 +6,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.family_relationship.schemas import (
-    FamilyRelationshipSchema,
-    FamilyRelationshipFilterSchema
+    FamilyRelationshipSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -22,7 +21,7 @@ class FamilyRelationshipListAPI(CRUDView):
     schemas = {'FamilyRelationship': FamilyRelationshipSchema}
 
     @paginated
-    @use_args(filter_schema_factory(FamilyRelationshipFilterSchema),
+    @use_args(filter_schema_factory(FamilyRelationshipSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

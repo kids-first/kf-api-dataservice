@@ -1,5 +1,5 @@
 from dataservice.api.sequencing_center.models import SequencingCenter
-from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
+from dataservice.api.common.schemas import BaseSchema
 from dataservice.extensions import ma
 
 
@@ -12,8 +12,3 @@ class SequencingCenterSchema(BaseSchema):
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
     }, description='Resource links and pagination')
-
-
-class SequencingCenterFilterSchema(FilterSchemaMixin,
-                                   SequencingCenterSchema):
-    pass

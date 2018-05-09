@@ -7,8 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_experiment.schemas import (
-    SequencingExperimentSchema,
-    SequencingExperimentFilterSchema
+    SequencingExperimentSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -23,7 +22,7 @@ class SequencingExperimentListAPI(CRUDView):
     schemas = {'SequencingExperiment': SequencingExperimentSchema}
 
     @paginated
-    @use_args(filter_schema_factory(SequencingExperimentFilterSchema),
+    @use_args(filter_schema_factory(SequencingExperimentSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.outcome.models import Outcome
-from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
+from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.validation import validate_age
 from dataservice.extensions import ma
 
@@ -23,7 +23,3 @@ class OutcomeSchema(BaseSchema):
         'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>')
     })
-
-
-class OutcomeFilterSchema(FilterSchemaMixin, OutcomeSchema):
-    pass

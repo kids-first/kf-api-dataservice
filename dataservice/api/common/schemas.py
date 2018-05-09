@@ -11,7 +11,6 @@ from marshmallow import (
 from flask import url_for, request
 from flask_marshmallow import Schema
 from dataservice.api.common.pagination import Pagination
-from dataservice.api.common.custom_fields import DateOrDatetime
 from dataservice.api.common.validation import validate_kf_id
 from dataservice.extensions import db
 
@@ -154,22 +153,30 @@ def paginated_generator(url, schema):
     return PaginatedSchema
 
 
-def filter_schema_factory(model_filter_schema_cls):
+def filter_schema_factory(model_schema_cls):
     """
     Create an instance of a model's filter schema
 
+    Dynamically define filter schemas based on model schema
+    and filter schema mixin classes
     Remove schema attributes that are not applicable to filters (_links)
     Allow partially populated schema
     Validate with strict=True - reuse model schema's validators
     """
-    # Exclude fields
-    exclude = ('_links', )
-    if hasattr(model_filter_schema_cls.Meta, 'exclude'):
-        exclude += model_filter_schema_cls.Meta.exclude
 
-    return model_filter_schema_cls(strict=True,
-                                   partial=True,
-                                   exclude=exclude)
+    # Dynamically define the model filter schema class
+    cls_name = ('{}FilterSchema'
+                .format(model_schema_cls.__name__.split('Schema')[0]))
+    base_classes = (FilterSchemaMixin, model_schema_cls)
+    cls = type(cls_name, base_classes, {})
+
+    # Update some class attributes
+    exclude = ('_links', )
+    if hasattr(cls.Meta, 'exclude'):
+        exclude += cls.Meta.exclude
+
+    # Generate class instance
+    return cls(strict=True, partial=True, exclude=exclude)
 
 
 class FilterSchemaMixin(ma.Schema):

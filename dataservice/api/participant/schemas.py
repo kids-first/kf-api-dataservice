@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.participant.models import Participant
-from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
+from dataservice.api.common.schemas import BaseSchema
 from dataservice.extensions import ma
 
 from dataservice.api.common.custom_fields import PatchedURLFor
@@ -25,7 +25,3 @@ class ParticipantSchema(BaseSchema):
         'study': ma.URLFor('api.studies', kf_id='<study_id>'),
         'family': PatchedURLFor('api.families', kf_id='<family_id>')
     })
-
-
-class ParticipantFilterSchema(FilterSchemaMixin, ParticipantSchema):
-    pass

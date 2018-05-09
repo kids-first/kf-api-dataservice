@@ -7,8 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.participant.models import Participant
 from dataservice.api.participant.schemas import (
-    ParticipantSchema,
-    ParticipantFilterSchema
+    ParticipantSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -23,7 +22,7 @@ class ParticipantListAPI(CRUDView):
     schemas = {'Participant': ParticipantSchema}
 
     @paginated
-    @use_args(filter_schema_factory(ParticipantFilterSchema),
+    @use_args(filter_schema_factory(ParticipantSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

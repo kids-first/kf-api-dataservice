@@ -7,8 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, indexd_pagination
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.genomic_file.schemas import (
-    GenomicFileSchema,
-    GenomicFileFilterSchema
+    GenomicFileSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -23,7 +22,7 @@ class GenomicFileListAPI(CRUDView):
     schemas = {'GenomicFile': GenomicFileSchema}
 
     @paginated
-    @use_args(filter_schema_factory(GenomicFileFilterSchema),
+    @use_args(filter_schema_factory(GenomicFileSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

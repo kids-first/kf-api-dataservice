@@ -7,8 +7,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.cavatica_task.models import CavaticaTask
 from dataservice.api.cavatica_task.schemas import (
-    CavaticaTaskSchema,
-    CavaticaTaskFilterSchema
+    CavaticaTaskSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -23,7 +22,7 @@ class CavaticaTaskListAPI(CRUDView):
     schemas = {'CavaticaTask': CavaticaTaskSchema}
 
     @paginated
-    @use_args(filter_schema_factory(CavaticaTaskFilterSchema),
+    @use_args(filter_schema_factory(CavaticaTaskSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

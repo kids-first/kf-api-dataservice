@@ -8,8 +8,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.investigator.schemas import (
-    InvestigatorSchema,
-    InvestigatorFilterSchema
+    InvestigatorSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -24,7 +23,7 @@ class InvestigatorListAPI(CRUDView):
     schemas = {'Investigator': InvestigatorSchema}
 
     @paginated
-    @use_args(filter_schema_factory(InvestigatorFilterSchema),
+    @use_args(filter_schema_factory(InvestigatorSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

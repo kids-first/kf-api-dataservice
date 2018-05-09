@@ -6,7 +6,7 @@ from webargs.flaskparser import use_args
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.family.models import Family
-from dataservice.api.family.schemas import FamilySchema, FamilyFilterSchema
+from dataservice.api.family.schemas import FamilySchema
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
 
@@ -20,7 +20,7 @@ class FamilyListAPI(CRUDView):
     schemas = {'Family': FamilySchema}
 
     @paginated
-    @use_args(filter_schema_factory(FamilyFilterSchema),
+    @use_args(filter_schema_factory(FamilySchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """

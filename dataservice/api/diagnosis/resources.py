@@ -6,8 +6,7 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.diagnosis.schemas import (
-    DiagnosisSchema,
-    DiagnosisFilterSchema
+    DiagnosisSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -22,7 +21,7 @@ class DiagnosisListAPI(CRUDView):
     schemas = {'Diagnosis': DiagnosisSchema}
 
     @paginated
-    @use_args(filter_schema_factory(DiagnosisFilterSchema),
+    @use_args(filter_schema_factory(DiagnosisSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """
