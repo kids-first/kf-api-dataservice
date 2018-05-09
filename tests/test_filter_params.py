@@ -326,22 +326,8 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
-                                 (Study),
-                                 (StudyFile),
-                                 (Investigator),
-                                 (Participant),
-                                 (Family),
-                                 (FamilyRelationship),
-                                 (Diagnosis),
-                                 (Phenotype),
-                                 (Outcome),
-                                 (Biospecimen),
-                                 (GenomicFile),
-                                 (SequencingExperiment),
-                                 (SequencingCenter),
-                                 (CavaticaApp),
-                                 (CavaticaTask),
-                                 (CavaticaTaskGenomicFile)
+                                 (model)
+                                 for model in ENTITY_ENDPOINT_MAP.keys()
                              ])
     def test_filter_params(self, client, entities, model):
         """
@@ -375,22 +361,8 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
-                                 (Study),
-                                 (StudyFile),
-                                 (Investigator),
-                                 (Participant),
-                                 (Family),
-                                 (FamilyRelationship),
-                                 (Diagnosis),
-                                 (Phenotype),
-                                 (Outcome),
-                                 (Biospecimen),
-                                 (GenomicFile),
-                                 (SequencingExperiment),
-                                 (SequencingCenter),
-                                 (CavaticaApp),
-                                 (CavaticaTask),
-                                 (CavaticaTaskGenomicFile)
+                                 (model)
+                                 for model in ENTITY_ENDPOINT_MAP.keys()
                              ])
     def test_invalid_filter_params(self, client, entities, model):
         """
@@ -419,22 +391,8 @@ class TestFilterParams:
 
     @pytest.mark.parametrize('model',
                              [
-                                 (Study),
-                                 (StudyFile),
-                                 (Investigator),
-                                 (Participant),
-                                 (Family),
-                                 (FamilyRelationship),
-                                 (Diagnosis),
-                                 (Phenotype),
-                                 (Outcome),
-                                 (Biospecimen),
-                                 (GenomicFile),
-                                 (SequencingExperiment),
-                                 (SequencingCenter),
-                                 (CavaticaApp),
-                                 (CavaticaTask),
-                                 (CavaticaTaskGenomicFile)
+                                 (model)
+                                 for model in ENTITY_ENDPOINT_MAP.keys()
                              ])
     def test_unknown_filter_params(self, client, entities, model):
         """
@@ -463,22 +421,8 @@ class TestFilterParams:
     @pytest.mark.parametrize('field', ['created_at', 'modified_at'])
     @pytest.mark.parametrize('model',
                              [
-                                 (Study),
-                                 (StudyFile),
-                                 (Investigator),
-                                 (Participant),
-                                 (Family),
-                                 (FamilyRelationship),
-                                 (Diagnosis),
-                                 (Phenotype),
-                                 (Outcome),
-                                 (Biospecimen),
-                                 (GenomicFile),
-                                 (SequencingExperiment),
-                                 (SequencingCenter),
-                                 (CavaticaApp),
-                                 (CavaticaTask),
-                                 (CavaticaTaskGenomicFile)
+                                 (model)
+                                 for model in ENTITY_ENDPOINT_MAP.keys()
                              ])
     def test_generated_date_filters(self, client, entities, model, field):
         """
@@ -518,22 +462,8 @@ class TestFilterParams:
                                                 ])
     @pytest.mark.parametrize('model',
                              [
-                                 (Study),
-                                 (StudyFile),
-                                 (Investigator),
-                                 (Participant),
-                                 (Family),
-                                 (FamilyRelationship),
-                                 (Diagnosis),
-                                 (Phenotype),
-                                 (Outcome),
-                                 (Biospecimen),
-                                 (GenomicFile),
-                                 (SequencingExperiment),
-                                 (SequencingCenter),
-                                 (CavaticaApp),
-                                 (CavaticaTask),
-                                 (CavaticaTaskGenomicFile)
+                                 (model)
+                                 for model in ENTITY_ENDPOINT_MAP.keys()
                              ])
     def test_invalid_gen_date_filters(self, client, entities, model,
                                       invalid_params):

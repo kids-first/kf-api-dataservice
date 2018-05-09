@@ -200,21 +200,7 @@ class TestPagination:
             assert len(ids_seen) == resp['total']
 
     @pytest.mark.parametrize('endpoint', [
-        ('/participants'),
-        ('/study-files'),
-        ('/investigators'),
-        ('/biospecimens'),
-        ('/sequencing-experiments'),
-        ('/diagnoses'),
-        ('/outcomes'),
-        ('/phenotypes'),
-        ('/families'),
-        ('/family-relationships'),
-        ('/genomic-files'),
-        ('/sequencing-centers'),
-        ('/cavatica-tasks'),
-        ('/cavatica-apps'),
-        ('/cavatica-task-genomic-files')
+        (ept) for ept in ENDPOINTS if ept != '/studies'
     ])
     def test_non_exist_study_filter(self, client, participants,
                                     endpoint):
@@ -234,21 +220,7 @@ class TestPagination:
 
     @pytest.mark.parametrize('study_id', ['blah', 3489, 'PT_00001111'])
     @pytest.mark.parametrize('endpoint', [
-        ('/participants'),
-        ('/study-files'),
-        ('/investigators'),
-        ('/biospecimens'),
-        ('/sequencing-experiments'),
-        ('/diagnoses'),
-        ('/outcomes'),
-        ('/phenotypes'),
-        ('/families'),
-        ('/family-relationships'),
-        ('/genomic-files'),
-        ('/sequencing-centers'),
-        ('/cavatica-tasks'),
-        ('/cavatica-apps'),
-        ('/cavatica-task-genomic-files')
+        (ept) for ept in ENDPOINTS if ept != '/studies'
     ])
     def test_invalid_study_filter(self, client, participants,
                                   endpoint, study_id):
