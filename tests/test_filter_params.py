@@ -5,8 +5,6 @@ from dateutil import parser, tz
 from datetime import datetime
 from urllib.parse import urlencode
 
-from pprint import pprint
-
 from dataservice.extensions import db
 from dataservice.utils import iterate_pairwise
 from dataservice.api.study.models import Study
@@ -57,10 +55,12 @@ ENTITY_PARAMS = {
         '/studies': {'external_id': 'Study_0'},
         '/investigators': {'name': 'Investigator_0'},
         '/study-files': {'file_name': 'File_0'},
-        '/cavatica-apps': {'name': 'App_0'},
+        '/cavatica-apps': {'name': 'App_0', 'revision': 1,
+                           'github_commit_url': 'https://github.com'
+                                                '/kids-first/cav-app'},
         '/families': {'external_id': 'Family_0'},
         '/family-relationships': {},
-        '/sequencing-centers': {'name': ''},
+        '/sequencing-centers': {},
         '/participants': {
             'is_proband': True,
             'consent_type': 'GRU-IRB',
@@ -124,7 +124,11 @@ ENTITY_PARAMS = {
         '/cavatica-apps': {
             'valid': {
                 'name': 'App_1'
-            }
+            },
+            'invalid': [
+                {'github_commit_url': 'not a url'},
+                {'github_commit_url': 'google.com'}
+            ]
         },
         '/families': {
             'valid': {
@@ -313,7 +317,8 @@ class TestFilterParams:
                                  (Biospecimen),
                                  (GenomicFile),
                                  (SequencingExperiment),
-                                 (SequencingCenter)
+                                 (SequencingCenter),
+                                 (CavaticaApp)
                              ])
     def test_filter_params(self, client, entities, model):
         """
@@ -359,7 +364,8 @@ class TestFilterParams:
                                  (Biospecimen),
                                  (GenomicFile),
                                  (SequencingExperiment),
-                                 (SequencingCenter)
+                                 (SequencingCenter),
+                                 (CavaticaApp)
                              ])
     def test_invalid_filter_params(self, client, entities, model):
         """
@@ -400,7 +406,8 @@ class TestFilterParams:
                                  (Biospecimen),
                                  (GenomicFile),
                                  (SequencingExperiment),
-                                 (SequencingCenter)
+                                 (SequencingCenter),
+                                 (CavaticaApp)
                              ])
     def test_unknown_filter_params(self, client, entities, model):
         """
@@ -441,7 +448,8 @@ class TestFilterParams:
                                  (Biospecimen),
                                  (GenomicFile),
                                  (SequencingExperiment),
-                                 (SequencingCenter)
+                                 (SequencingCenter),
+                                 (CavaticaApp)
                              ])
     def test_generated_date_filters(self, client, entities, model, field):
         """
@@ -493,7 +501,8 @@ class TestFilterParams:
                                  (Biospecimen),
                                  (GenomicFile),
                                  (SequencingExperiment),
-                                 (SequencingCenter)
+                                 (SequencingCenter),
+                                 (CavaticaApp)
                              ])
     def test_invalid_gen_date_filters(self, client, entities, model,
                                       invalid_params):
