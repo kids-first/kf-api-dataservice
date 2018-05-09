@@ -1,12 +1,17 @@
 from flask import abort, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.biospecimen.schemas import BiospecimenSchema
+from dataservice.api.biospecimen.schemas import (
+    BiospecimenSchema,
+    BiospecimenFilterSchema
+)
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class BiospecimenListAPI(CRUDView):
@@ -18,7 +23,9 @@ class BiospecimenListAPI(CRUDView):
     schemas = {'Biospecimen': BiospecimenSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(BiospecimenFilterSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get all biospecimens
         ---
@@ -30,12 +37,19 @@ class BiospecimenListAPI(CRUDView):
             resource:
               Biospecimen
         """
-        q = Biospecimen.query.options(joinedload(Biospecimen.genomic_files)
-                                      .load_only('kf_id'))
+        # Get study id and remove from model filter params
+        from pprint import pprint
+        pprint(filter_params)
+        study_id = filter_params.pop('study_id', None)
 
-        # Filter by study
+        # Apply filter params
+        q = (Biospecimen.query
+             .filter_by(**filter_params)
+             .options(joinedload(Biospecimen.genomic_files)
+                      .load_only('kf_id')))
+
+        # Apply study filter param
         from dataservice.api.participant.models import Participant
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(Participant.biospecimens)
                  .filter(Participant.study_id == study_id))

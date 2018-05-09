@@ -237,7 +237,7 @@ class TestPagination:
         ('/participants'),
         # ('/study-files'),
         # ('/investigators'),
-        # ('/biospecimens'),
+        ('/biospecimens'),
         # ('/sequencing-experiments'),
         ('/diagnoses')
         # ('/outcomes'),

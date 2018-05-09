@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, FilterSchemaMixin
 from dataservice.api.common.validation import validate_age
 from dataservice.api.common.custom_fields import DateOrDatetime
 from dataservice.api.common.validation import validate_positive_number
@@ -35,3 +35,7 @@ class BiospecimenSchema(BaseSchema):
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>')
     })
+
+
+class BiospecimenFilterSchema(FilterSchemaMixin, BiospecimenSchema):
+    pass

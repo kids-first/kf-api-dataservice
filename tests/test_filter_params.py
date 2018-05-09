@@ -138,7 +138,11 @@ ENTITY_PARAMS = {
         '/biospecimens': {
             'valid': {
                 'analyte_type': 'RNA'
-            }
+            },
+            'invalid': [
+                {'age_at_event_days': -1},
+                {'age_at_event_days': 'hello'}
+            ]
         },
         '/diagnoses': {
             'valid': {
