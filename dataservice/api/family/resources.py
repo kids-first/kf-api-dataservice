@@ -1,12 +1,14 @@
 from flask import abort, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.family.models import Family
-from dataservice.api.family.schemas import FamilySchema
+from dataservice.api.family.schemas import FamilySchema, FamilyFilterSchema
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class FamilyListAPI(CRUDView):
@@ -18,7 +20,9 @@ class FamilyListAPI(CRUDView):
     schemas = {'Family': FamilySchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(FamilyFilterSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get a paginated familys
         ---
@@ -29,12 +33,16 @@ class FamilyListAPI(CRUDView):
             resource:
               Family
         """
-        q = Family.query.options(joinedload(Family.participants)
-                                 .load_only('kf_id'))
+        # Get study id and remove from model filter params
+        study_id = filter_params.pop('study_id', None)
+
+        q = (Family.query
+             .filter_by(**filter_params)
+             .options(joinedload(Family.participants)
+                      .load_only('kf_id')))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(Family.participants)
                  .filter(Participant.study_id == study_id)

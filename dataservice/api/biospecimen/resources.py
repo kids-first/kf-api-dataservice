@@ -38,8 +38,6 @@ class BiospecimenListAPI(CRUDView):
               Biospecimen
         """
         # Get study id and remove from model filter params
-        from pprint import pprint
-        pprint(filter_params)
         study_id = filter_params.pop('study_id', None)
 
         # Apply filter params

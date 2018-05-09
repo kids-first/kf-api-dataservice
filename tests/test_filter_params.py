@@ -124,7 +124,8 @@ ENTITY_PARAMS = {
         '/families': {
             'valid': {
                 'external_id': 'Family_1'
-            }
+            },
+            'invalid': []
         },
         '/participants': {
             'valid': {
@@ -279,6 +280,7 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Participant),
+                                 (Family),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome)
@@ -314,6 +316,7 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Participant),
+                                 (Family),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome)
@@ -346,6 +349,7 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Participant),
+                                 (Family),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome)
@@ -378,6 +382,7 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Participant),
+                                 (Family),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome)
@@ -421,6 +426,7 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Participant),
+                                 (Family),
                                  (Diagnosis),
                                  (Phenotype),
                                  (Outcome)
