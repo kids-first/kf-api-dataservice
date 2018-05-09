@@ -10,12 +10,53 @@ from dataservice.extensions import db
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
+from tests.conftest import entities as ent
+from unittest.mock import MagicMock, patch
+from tests.mocks import MockIndexd
 
 STUDY_FILE_URL = 'api.study_files'
 STUDY_FILE_LIST_URL = 'api.study_files_list'
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
+def entities(client):
+    return ent(client)
+
+
+@pytest.yield_fixture(scope='function')
+def client(app):
+    app_context = app.app_context()
+    app_context.push()
+    db.create_all()
+
+    mock = patch('dataservice.extensions.flask_indexd.requests')
+    mock = mock.start()
+    indexd_mock = MockIndexd()
+    mock.Session().get.side_effect = indexd_mock.get
+    mock.Session().post.side_effect = indexd_mock.post
+
+    mod = 'dataservice.api.study.models.requests'
+    mock_bs = patch(mod)
+    mock_bs = mock_bs.start()
+    
+    mock_resp_get = MagicMock()
+    mock_resp_get.status_code = 200
+    mock_resp_post = MagicMock()
+    mock_resp_post.status_code = 201
+
+    mock_bs.Session().get.side_effect = mock_resp_get
+    mock_bs.Session().post.side_effect = mock_resp_post
+
+    yield app.test_client()
+
+    mock_bs.stop()
+    mock.stop()
+    # Need to make sure we close all connections so pg won't lock tables
+    db.session.close()
+    db.drop_all()
+
+
+@pytest.fixture(scope='function')
 def study_files(client, entities):
 
     props = {
@@ -76,7 +117,7 @@ def test_new(client, indexd, entities):
     assert indexd.post.call_count == orig_calls + 1
 
 
-def test_get_list(client, study_files, indexd):
+def test_get_list(client, indexd, study_files):
     """
     Test that study files are returned in a paginated list with all
     info loaded from indexd

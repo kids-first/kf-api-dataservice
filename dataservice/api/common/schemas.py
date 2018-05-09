@@ -12,6 +12,8 @@ from flask import url_for, request
 from flask_marshmallow import Schema
 from dataservice.api.common.pagination import Pagination
 from dataservice.extensions import db
+AVAILABILITY_ENUM = {'Immediate Download',
+                     'Cold Storage'}
 
 
 class BaseSchema(ma.ModelSchema):

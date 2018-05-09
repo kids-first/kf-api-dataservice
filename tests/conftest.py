@@ -23,6 +23,9 @@ from dataservice.api.cavatica_task.models import (
     CavaticaTask,
     CavaticaTaskGenomicFile
 )
+from unittest.mock import MagicMock, patch
+from tests.mocks import MockIndexd
+
 
 ENDPOINTS = [
     '/studies',
@@ -56,12 +59,34 @@ def app():
     yield create_app('testing')
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.yield_fixture(scope='module')
 def client(app):
     app_context = app.app_context()
     app_context.push()
     db.create_all()
+
+    mock = patch('dataservice.extensions.flask_indexd.requests')
+    mock = mock.start()
+    indexd_mock = MockIndexd()
+    mock.Session().get.side_effect = indexd_mock.get
+    mock.Session().post.side_effect = indexd_mock.post
+
+    mod = 'dataservice.api.study.models.requests'
+    mock_bs = patch(mod)
+    mock_bs = mock_bs.start()
+
+    mock_resp_get = MagicMock()
+    mock_resp_get.status_code = 200
+    mock_resp_post = MagicMock()
+    mock_resp_post.status_code = 201
+
+    mock_bs.Session().get.side_effect = mock_resp_get
+    mock_bs.Session().post.side_effect = mock_resp_post
+
     yield app.test_client()
+
+    mock_bs.stop()
+    mock.stop()
     # Need to make sure we close all connections so pg won't lock tables
     db.session.close()
     db.drop_all()
@@ -72,8 +97,8 @@ def swagger(client):
     yield json.loads(client.get('/swagger').data.decode('utf-8'))
 
 
-@pytest.fixture
-def entities(client, indexd):
+@pytest.fixture(scope='module')
+def entities(client):
     """
     Create mock entities
     """
@@ -98,7 +123,7 @@ def entities(client, indexd):
         '/genomic-files': {
             'external_id': 'genfile001',
             'file_name': 'hg38.fq',
-            'data_type': 'Submitted Aligned Reads',
+            'data_type': 'Aligned Reads',
             'file_format': 'fastq',
             'size': 1000,
             'urls': ['s3://bucket/key'],

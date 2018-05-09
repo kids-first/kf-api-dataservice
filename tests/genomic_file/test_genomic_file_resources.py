@@ -11,19 +11,58 @@ from dataservice.extensions.flask_indexd import RecordNotFound
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from tests.conftest import entities as ent
+from unittest.mock import MagicMock, patch
+from tests.mocks import MockIndexd
 
 
 GENOMICFILE_URL = 'api.genomic_files'
 GENOMICFILE_LIST_URL = 'api.genomic_files_list'
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
+def entities(client):
+    return ent(client)
+
+@pytest.yield_fixture(scope='function')
+def client(app):
+    app_context = app.app_context()
+    app_context.push()
+    db.create_all()
+
+    mock = patch('dataservice.extensions.flask_indexd.requests')
+    mock = mock.start()
+    indexd_mock = MockIndexd()
+    mock.Session().get.side_effect = indexd_mock.get
+    mock.Session().post.side_effect = indexd_mock.post
+
+    mod = 'dataservice.api.study.models.requests'
+    mock_bs = patch(mod)
+    mock_bs = mock_bs.start()
+
+    mock_resp_get = MagicMock()
+    mock_resp_get.status_code = 200
+    mock_resp_post = MagicMock()
+    mock_resp_post.status_code = 201
+
+    mock_bs.Session().get.side_effect = mock_resp_get
+    mock_bs.Session().post.side_effect = mock_resp_post
+
+    yield app.test_client()
+
+    mock_bs.stop()
+    mock.stop()
+    # Need to make sure we close all connections so pg won't lock tables
+    db.session.close()
+    db.drop_all()
+
+@pytest.fixture(scope='function')
 def genomic_files(client, entities):
 
     props = {
         'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
-        'data_type': 'Submitted Aligned Reads',
+        'data_type': 'Aligned Reads',
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'biospecimen_id': Biospecimen.query.first().kf_id,
         'file_format': 'bam'
@@ -59,7 +98,7 @@ def test_new_indexd_error(client, entities):
         'file_name': 'hg38.bam',
         'size': 123,
         'acl': ['TEST'],
-        'data_type': 'Submitted Aligned Reads',
+        'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
@@ -77,7 +116,7 @@ def test_new_indexd_error(client, entities):
     assert GenomicFile.query.count() == init_count
 
 
-def test_get_list(client, genomic_files, indexd):
+def test_get_list(client, indexd, genomic_files):
     """
     Test that genomic files are returned in a paginated list with all
     info loaded from indexd
@@ -250,7 +289,7 @@ def _new_genomic_file(client):
         'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
         'size': 123,
-        'data_type': 'Submitted Aligned Reads',
+        'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},

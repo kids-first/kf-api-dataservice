@@ -9,7 +9,7 @@ from dataservice.api.common.validation import enum_validation_generator
 
 # Enum Choices for participant fields
 
-GENDER_ENUM = {'Male', 'Female'}
+GENDER_ENUM = {'Male', 'Female', 'Other'}
 ETHNICITY_ENUM = {'Hispanic or Latino',
                   'Not Hispanic or Latino'}
 RACE_ENUM = {

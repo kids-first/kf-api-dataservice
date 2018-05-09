@@ -11,7 +11,7 @@ from dataservice.extensions.flask_indexd import RecordNotFound
 from dataservice.api.common.id_service import uuid_generator, kf_id_generator
 
 COMMON_ENUM = {"Not Reported", "Not Applicable", "Not Allowed To Collect",
-               "Not Available"}
+               "Not Available", "Reported Unknown"}
 
 
 class KfId(types.TypeDecorator):

@@ -3,7 +3,7 @@ from marshmallow_sqlalchemy import field_for
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.common.schemas import BaseSchema, IndexdFileSchema
 from dataservice.extensions import ma
-from dataservice.api.genomic_file.schemas import AVAILABILITY_ENUM
+from dataservice.api.common.schemas import AVAILABILITY_ENUM
 from dataservice.api.common.validation import enum_validation_generator
 
 

@@ -37,25 +37,6 @@ class TestPagination:
     Test that entities are iterated and returned properly
     """
 
-    @pytest.yield_fixture(scope='module')
-    def client(self, app):
-        app_context = app.app_context()
-        app_context.push()
-        db.create_all()
-
-        mock = patch('dataservice.extensions.flask_indexd.requests')
-        mock = mock.start()
-        indexd_mock = MockIndexd()
-        mock.Session().get.side_effect = indexd_mock.get
-        mock.Session().post.side_effect = indexd_mock.post
-
-        yield app.test_client()
-        mock.stop()
-
-        # Need to make sure we close all connections so pg won't lock tables
-        db.session.close()
-        db.drop_all()
-
     @pytest.fixture(scope='module')
     def participants(client):
 
@@ -99,9 +80,9 @@ class TestPagination:
                 'external_id': "test",
                 'is_proband': True,
                 'consent_type': 'GRU-IRB',
-                'race': 'asian',
-                'ethnicity': 'not hispanic',
-                'gender': 'male'
+                'race': 'Asian',
+                'ethnicity': 'Hispanic or Latino',
+                'gender': 'Male'
             }
             p = Participant(**data, study_id=s.kf_id, family_id=f.kf_id)
             diag = Diagnosis()
@@ -125,7 +106,7 @@ class TestPagination:
             gf_kwargs = {
                 'external_id': 'gf_0',
                 'file_name': 'hg38.fq',
-                'data_type': 'reads',
+                'data_type': 'Aligned Reads',
                 'file_format': 'fastq',
                 'size': 1000,
                 'urls': ['s3://bucket/key'],

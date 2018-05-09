@@ -112,7 +112,7 @@ class TestAPI:
     @pytest.mark.parametrize('fields', [['created_at', 'modified_at']])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
-        inputs = entities[endpoint]
+        inputs = entities[endpoint].copy()
         method_name = method.lower()
         [inputs.update({field: 'test'}) for field in fields]
         call_func = getattr(client, method_name)
@@ -165,7 +165,7 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint', ENDPOINTS)
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
-        inputs = entities[endpoint]
+        inputs = entities[endpoint].copy()
         inputs.update({'blah': 'test'})
         action = 'create'
         if method.lower() in {'put', 'patch'}:
@@ -239,6 +239,8 @@ class TestAPI:
                               ('/participants', 'gender', 'mle'),
                               ('/participants', 'ethnicity',
                                'Not Hispanic'),
+                              ('/participants', 'ethnicity',
+                              ''),
                               ('/participants', 'race',
                                'american indian'),
                               ('/biospecimens', 'analyte_type', 'test'),
@@ -266,7 +268,7 @@ class TestAPI:
                               ])
     def test_bad_input(self, client, entities, endpoint, method, field, value):
         """ Tests bad inputs """
-        inputs = entities[endpoint]
+        inputs = entities[endpoint].copy()
         inputs.update({field: value})
         action = 'create'
         if method.lower() in {'put', 'patch'}:
@@ -299,7 +301,7 @@ class TestAPI:
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
         """ Tests missing required parameters """
-        inputs = entities[endpoint]
+        inputs = entities[endpoint].copy()
         inputs.pop(field, None)
         action = 'create'
         if method.lower() in {'put'}:
@@ -336,7 +338,7 @@ class TestAPI:
         Test bad foreign key
         Foregin key is a valid kf_id but refers an entity that doesn't exist
         """
-        inputs = entities[endpoint]
+        inputs = entities[endpoint].copy()
         inputs.update({field: id_service.kf_id_generator('ZZ')()})
         if method.lower() in {'put', 'patch'}:
             kf_id = entities.get('kf_ids').get(endpoint)

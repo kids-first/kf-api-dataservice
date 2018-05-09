@@ -7,7 +7,7 @@ from dataservice.api.common.validation import (validate_positive_number,
                                                enum_validation_generator)
 from dataservice.extensions import ma
 
-EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'Other'}
+EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq', 'Other'}
 PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Complete Genomics', 'PacBio', 'Other'}
 LIBRARY_STRAND_ENUM = {'Unstranded', 'First Stranded',

@@ -1,3 +1,50 @@
+# Kids First Dataservice Release v1.0.0
+
+## Features
+### Summary
+
+Feature Emojis: ✨x14 🐛x8 🗃x5 📝x2 ⚡x2 👷x1 💄x1 🔧x1 🚑x1
+Feature Labels: [data model](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"data+model"+) x16 [bug](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"bug"+) x10 [feature](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"feature"+) x9 [Ready for review](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"Ready+for+review"+) x2 [documentation](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"documentation"+) x2 [refactor](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"refactor"+) x1
+### New features and changes
+
+- (#145) ✨ Genomic file resource - @dankolbman
+- (#196) ✨ Alias Group Model (for participant aliases) - @znatty22
+- (#204) ✨Model updates - @parimalak
+- (#218) ✨ Merging participant and demographic - @parimalak
+- (#219) 👪 Family model and resources - @dankolbman
+- (#223) 📝 Update API docs to include 400, 404 responses - @znatty22
+- (#225) 👷 moving to the new deployment process - @alubneuski
+- (#228) ✨Biospecimen model - @parimalak
+- (#230) ✨ Filter Resources by Study  - @znatty22
+- (#235) 🐛 fix backref's for diagnoses, outcomes, phenotypes in participant model - @parimalak
+- (#238) 🗃 Add missing alias_group migration - @znatty22
+- (#244) ✨ Sequencing Center entity - @parimalak
+- (#247) 🗃 Fix migration heads - @parimalak
+- (#250) ⚡️Optimize loading of children in default pagination - @znatty22
+- (#252) 💄 Center logo and badges - @dankolbman
+- (#253) 🗃 Study file integration with Indexd - @dankolbman
+- (#255) 🐛 Use correct schema for study file resources - @dankolbman
+- (#256) 📝 Update entity relationship diagram - @znatty22
+- (#258) 🐛Delete parent orphans - @znatty22
+- (#261) ✨ Relation links - @znatty22
+- (#262) ✨Model Changes - @parimalak
+- (#263) ✨ Add integration with bucket service - @dankolbman
+- (#268) 🔧 Update indexd required fields with required flag in schema - @znatty22
+- (#270) ✨ Add availabilty to study_file - @parimalak
+- (#281) 🗃 Squash migrations - @dankolbman
+- (#283) 🐛 Change modified_at field on update - @dankolbman
+- (#284) ⚡️ Faster tests - @dankolbman
+- (#289) ✨ Update sequencing_experiment_id to be nullable in genomic_file - @parimalak
+- (#290) ✨ Cavatica Models and Endpoints - @znatty22
+- (#300) 🐛 Fix bug w shipment_date = null - @znatty22
+- (#302) 🗃 Remove null constraint on biospecimen_id in genomic file - @dankolbman
+- (#304) 🐛 Fix bug w experiment_date = null - @znatty22
+- (#305) ✨ Move acl to root document - @dankolbman
+- (#308) 🐛 Use the db session by default in all base schemas - @dankolbman
+- (#309) 🐛 Ignore mime type when parsing request body - @dankolbman
+- (#312) 🚑 Remove datamodel and migration version from status - @dankolbman
+
+
 # Kids First Dataservice Release 0.2.0
 
 ### Summary
