@@ -105,7 +105,8 @@ ENTITY_PARAMS = {
         '/investigators': {
             'valid': {
                 'name': 'Investigator_1'
-            }
+            },
+            'invalid': []
         },
         '/study-files': {
             'valid': {
@@ -283,6 +284,7 @@ class TestFilterParams:
                              [
                                  (Study),
                                  (StudyFile),
+                                 (Investigator),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
@@ -321,6 +323,7 @@ class TestFilterParams:
                              [
                                  (Study),
                                  (StudyFile),
+                                 (Investigator),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
@@ -356,6 +359,7 @@ class TestFilterParams:
                              [
                                  (Study),
                                  (StudyFile),
+                                 (Investigator),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
@@ -391,6 +395,7 @@ class TestFilterParams:
                              [
                                  (Study),
                                  (StudyFile),
+                                 (Investigator),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),
@@ -437,6 +442,7 @@ class TestFilterParams:
                              [
                                  (Study),
                                  (StudyFile),
+                                 (Investigator),
                                  (Participant),
                                  (Family),
                                  (Diagnosis),

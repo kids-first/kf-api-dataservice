@@ -1,12 +1,18 @@
 from flask import abort, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
+from webargs.flaskparser import use_args
+
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.investigator.models import Investigator
-from dataservice.api.investigator.schemas import InvestigatorSchema
+from dataservice.api.investigator.schemas import (
+    InvestigatorSchema,
+    InvestigatorFilterSchema
+)
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class InvestigatorListAPI(CRUDView):
@@ -18,7 +24,9 @@ class InvestigatorListAPI(CRUDView):
     schemas = {'Investigator': InvestigatorSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(InvestigatorFilterSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get a paginated investigators
         ---
@@ -29,13 +37,17 @@ class InvestigatorListAPI(CRUDView):
             resource:
               Investigator
         """
-        q = Investigator.query.options(
-            joinedload(Investigator.studies)
-            .load_only('kf_id'))
+        # Get study id and remove from model filter params
+        study_id = filter_params.pop('study_id', None)
+
+        q = (Investigator.query
+             .filter_by(**filter_params)
+             .options(
+                 joinedload(Investigator.studies)
+                 .load_only('kf_id')))
 
         # Filter by study
         from dataservice.api.study.models import Study
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(Investigator.studies)
                  .filter(Study.kf_id == study_id))
