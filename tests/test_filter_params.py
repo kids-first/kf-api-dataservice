@@ -164,7 +164,11 @@ ENTITY_PARAMS = {
         '/phenotypes': {
             'valid': {
                 'external_id': 'Phenotype_1'
-            }
+            },
+            'invalid': [
+                {'age_at_event_days': -1},
+                {'age_at_event_days': 'hello'},
+            ]
         },
         '/sequencing-experiments': {
             'valid': {
@@ -271,7 +275,8 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Diagnosis),
-                                 (Participant)
+                                 (Participant),
+                                 (Phenotype)
                              ])
     def test_filter_params(self, client, entities, model):
         """
@@ -304,7 +309,8 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Diagnosis),
-                                 (Participant)
+                                 (Participant),
+                                 (Phenotype)
                              ])
     def test_invalid_filter_params(self, client, entities, model):
         """
@@ -334,7 +340,8 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Diagnosis),
-                                 (Participant)
+                                 (Participant),
+                                 (Phenotype)
                              ])
     def test_unknown_filter_params(self, client, entities, model):
         """
@@ -364,7 +371,8 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Diagnosis),
-                                 (Participant)
+                                 (Participant),
+                                 (Phenotype)
                              ])
     def test_generated_date_filters(self, client, entities, model, field):
         """
@@ -405,7 +413,8 @@ class TestFilterParams:
     @pytest.mark.parametrize('model',
                              [
                                  (Diagnosis),
-                                 (Participant)
+                                 (Participant),
+                                 (Phenotype)
                              ])
     def test_invalid_gen_date_filters(self, client, entities, model,
                                       invalid_params):

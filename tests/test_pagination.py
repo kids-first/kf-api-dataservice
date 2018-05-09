@@ -241,7 +241,7 @@ class TestPagination:
         # ('/sequencing-experiments'),
         ('/diagnoses')
         # ('/outcomes'),
-        # ('/phenotypes'),
+        ('/phenotypes'),
         # ('/families'),
         # ('/family-relationships'),
         # ('/genomic-files'),
