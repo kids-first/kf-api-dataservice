@@ -192,8 +192,12 @@ ENTITY_PARAMS = {
         },
         '/genomic-files': {
             'valid': {
-                'external_id': 'GenomicFile_1'
-            }
+                'external_id': 'GenomicFile_1',
+                'controlled_access': True
+            },
+            'invalid': [
+                {'controlled_access': 'hello', 'size': 'hello'}
+            ]
         },
         '/cavatica-tasks': {
             'valid': {
@@ -297,6 +301,7 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
+                                 (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter)
                              ])
@@ -341,6 +346,7 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
+                                 (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter)
                              ])
@@ -380,6 +386,7 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
+                                 (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter)
                              ])
@@ -419,6 +426,7 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
+                                 (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter)
                              ])
@@ -469,6 +477,7 @@ class TestFilterParams:
                                  (Phenotype),
                                  (Outcome),
                                  (Biospecimen),
+                                 (GenomicFile),
                                  (SequencingExperiment),
                                  (SequencingCenter)
                              ])

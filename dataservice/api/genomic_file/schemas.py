@@ -1,7 +1,11 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.common.schemas import BaseSchema, IndexdFileSchema
+from dataservice.api.common.schemas import (
+    BaseSchema,
+    IndexdFileSchema,
+    FilterSchemaMixin
+)
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
 
@@ -35,3 +39,8 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             'api.sequencing_experiments',
             kf_id='<sequencing_experiment_id>')
     }, description='Resource links and pagination')
+
+
+class GenomicFileFilterSchema(FilterSchemaMixin,
+                              GenomicFileSchema):
+    pass
