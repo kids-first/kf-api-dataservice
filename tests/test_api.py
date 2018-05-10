@@ -204,7 +204,7 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint,child_relations', [
         ('/studies', ['study_files', 'participants']),
         ('/investigators', ['studies']),
-        # ('/families', ['participants']),
+        ('/families', ['participants']),
         # ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
         # ('/participants', ['diagnoses',
         #                    'phenotypes', 'outcomes', 'biospecimens']),
