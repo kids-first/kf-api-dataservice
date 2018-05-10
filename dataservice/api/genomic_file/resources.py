@@ -1,12 +1,16 @@
 from flask import abort, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, indexd_pagination
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.genomic_file.schemas import GenomicFileSchema
+from dataservice.api.genomic_file.schemas import (
+    GenomicFileSchema
+)
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class GenomicFileListAPI(CRUDView):
@@ -18,7 +22,9 @@ class GenomicFileListAPI(CRUDView):
     schemas = {'GenomicFile': GenomicFileSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(GenomicFileSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get paginated genomic_files
 
@@ -32,15 +38,19 @@ class GenomicFileListAPI(CRUDView):
             resource:
               GenomicFile
         """
+        # Get study id and remove from model filter params
+        study_id = filter_params.pop('study_id', None)
+
         # Get a page of the data from the model first
-        q = GenomicFile.query.options(joinedload(
-            GenomicFile.cavatica_task_genomic_files)
-            .load_only('kf_id'))
+        q = (GenomicFile.query
+             .filter_by(**filter_params)
+             .options(joinedload(
+                 GenomicFile.cavatica_task_genomic_files)
+                 .load_only('kf_id')))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
         from dataservice.api.biospecimen.models import Biospecimen
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(GenomicFile.biospecimen)
                  .join(Biospecimen.participant)

@@ -1,0 +1,247 @@
+{
+    "fields": {
+        "/studies": {"external_id": "Study_0",
+                     "version": "v1",
+                     "release_status": "Pending"},
+        "/investigators": {"name": "Investigator_0",
+                           "external_id": "inv001"},
+        "/study-files": {
+            "external_id": "File_0",
+            "file_name": "test_file_name 1",
+            "data_type": "clinical",
+            "file_format": "csv",
+            "availability": "Immediate Download",
+            "size": 1000,
+            "urls": ["s3://bucket/key"],
+            "hashes": {"md5": "1ab12165-7351-4744-921c-a97a19b84773"}
+        },
+        "/families": {"external_id": "Family_0"},
+        "/family-relationships": {},
+        "/sequencing-centers": {},
+        "/participants": {
+            "is_proband": true,
+            "consent_type": "GRU-IRB",
+            "race": "Asian",
+            "ethnicity": "Hispanic or Latino",
+            "gender": "Male"
+        },
+        "/biospecimens": {
+            "external_sample_id": "Biospecimen_0",
+            "external_aliquot_id": "a0",
+            "source_text_tissue_type": "tissue",
+            "composition": "comp",
+            "source_text_anatomical_site": "site",
+            "age_at_event_days": 365,
+            "source_text_tumor_descriptor": "tumor",
+            "shipment_origin": "CORIELL",
+            "analyte_type": "DNA",
+            "concentration_mg_per_ml": 200.0,
+            "volume_ml": 13.99,
+            "shipment_date": "",
+            "uberon_id_anatomical_site": "test",
+            "spatial_descriptor": "left side",
+            "ncit_id_tissue_type": "Test",
+            "ncit_id_anatomical_site": "C12439"
+        },
+        "/diagnoses": {
+            "external_id": "d0",
+            "diagnosis_category": "Structural Birth Defect",
+            "source_text_diagnosis": "diag",
+            "age_at_event_days": 365,
+            "mondo_id_diagnosis": "DOID:8469",
+            "icd_id_diagnosis": "J10.01",
+            "uberon_id_tumor_location": "UBERON:0000955",
+            "spatial_descriptor": "left side"
+        },
+        "/outcomes": {
+            "external_id": "Outcome_0",
+            "vital_status": "Alive",
+            "disease_related": "Yes",
+            "age_at_event_days": 120
+        },
+        "/phenotypes": {
+            "external_id": "Phenotype_0",
+            "source_text_phenotype": "test phenotype 1",
+            "hpo_id_phenotype": "HP:0000118",
+            "snomed_id_phenotype": "38033009",
+            "age_at_event_days": 120
+        },
+        "/sequencing-experiments": {
+            "external_id": "SeqExp_0",
+            "instrument_model": "HiSeq",
+            "experiment_strategy": "WXS",
+            "library_name": "Library_1",
+            "library_strand": "Unstranded",
+            "is_paired_end": false,
+            "platform": "Illumina"
+        },
+        "/genomic-files": {
+            "external_id": "GenomicFile_0",
+            "file_name": "hg38.fq",
+            "data_type": "Aligned Reads",
+            "file_format": "fastq",
+            "size": 1000,
+            "urls": ["s3://bucket/key"],
+            "hashes": {"md5": "1ab12165-7351-4744-921c-a97a19b84773"},
+            "controlled_access": false,
+            "availability": "Immediate Download"
+        },
+        "/cavatica-apps": {
+            "external_cavatica_app_id": "app1",
+            "name": "App_0",
+            "revision": 1,
+            "github_commit_url": "https://github.com/kids-first/cav-app"
+        },
+        "/cavatica-tasks": {
+            "name": "CavaticaTask_0",
+            "external_cavatica_task_id": "1ab12165-7351-4744-921c-a97a19b84773"},
+        "/cavatica-task-genomic-files": {}
+
+    },
+    "filter_params": {
+        "/studies": {
+            "valid": {
+                "external_id": "Study_1"
+            },
+            "invalid": []
+        },
+        "/investigators": {
+            "valid": {
+                "name": "Investigator_1"
+            },
+            "invalid": []
+        },
+        "/study-files": {
+            "valid": {
+                "file_name": "File_1"
+            },
+            "invalid": []
+        },
+        "/sequencing-centers": {
+            "valid": {
+                "name": "SequencingCenter_0"
+            },
+            "invalid": []
+        },
+        "/families": {
+            "valid": {
+                "external_id": "Family_1"
+            },
+            "invalid": []
+        },
+        "/family-relationships": {
+            "valid": {
+                "participant_to_relative_relation": "mother"
+            },
+            "invalid": []
+        },
+        "/participants": {
+            "valid": {
+                "is_proband": false,
+                "gender": "Female"
+            },
+            "invalid": [
+                {"is_proband": "hello"},
+                {"gender": "test", "race": "test", "ethnicity": "test"}
+            ]
+        },
+        "/biospecimens": {
+            "valid": {
+                "analyte_type": "RNA",
+                "shipment_date": ""
+            },
+            "invalid": [
+                {"age_at_event_days": -1, "shipment_date": "hai der"},
+                {"age_at_event_days": "hello"},
+                {"analyte_type": "test"}
+            ]
+        },
+        "/diagnoses": {
+            "valid": {
+                "diagnosis_category": "Cancer",
+                "source_text_diagnosis": "Diagnosis_1",
+                "age_at_event_days": 100
+            },
+            "invalid": [
+                {"age_at_event_days": -1},
+                {"age_at_event_days": "hello"},
+                {"diagnosis_category": "test"}
+            ]
+        },
+        "/outcomes": {
+            "valid": {
+                "external_id": "Outcome_1",
+                "vital_status": "Dead"
+            },
+            "invalid": [
+                {"age_at_event_days": -1},
+                {"age_at_event_days": "hello"},
+                {"vital_status": "test"}
+
+            ]
+        },
+        "/phenotypes": {
+            "valid": {
+                "external_id": "Phenotype_1"
+            },
+            "invalid": [
+                {"age_at_event_days": -1},
+                {"age_at_event_days": "hello"}
+            ]
+        },
+        "/sequencing-experiments": {
+            "valid": {
+                "external_id": "SeqExp_1",
+                "is_paired_end": true,
+                "experiment_date": ""
+            },
+            "invalid": [
+                {"experiment_date": "hai der"},
+                {"mean_insert_size": -12},
+                {"max_insert_size": -12},
+                {"mean_depth": -12},
+                {"mean_read_length": -12},
+                {"total_reads": -12},
+                {"experiment_strategy": "test"},
+                {"platform": "test"},
+                {"library_strand": "test"}
+            ]
+        },
+        "/genomic-files": {
+            "valid": {
+                "external_id": "GenomicFile_1",
+                "controlled_access": true
+            },
+            "invalid": [
+                {"controlled_access": "hello", "size": "hello"},
+                {"availability": "availble for download"},
+                {"data_type": "read"}
+            ]
+        },
+        "/cavatica-apps": {
+            "valid": {
+                "name": "App_1"
+            },
+            "invalid": [
+                {"revision": -5},
+                {"revision": "hey"},
+                {"github_commit_url": "not a url"},
+                {"github_commit_url": "google.com"}
+            ]
+        },
+        "/cavatica-tasks": {
+            "valid": {
+                "name": "CavaticaTask_1"
+            },
+            "invalid": []
+        },
+        "/cavatica-task-genomic-files": {
+            "valid": {
+                "is_input": true
+            },
+            "invalid": [
+                {"is_input": "hello"}
+            ]
+        }
+    }
+}

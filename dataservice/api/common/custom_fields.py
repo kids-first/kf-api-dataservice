@@ -66,6 +66,10 @@ class PatchedURLFor(ma.URLFor):
                     )
             else:
                 param_values[name] = attr_tpl
+
+        # Remove fields that are not query params
+        param_values.pop('allow_none', None)
+
         return url_for(self.endpoint, **param_values)
 
 

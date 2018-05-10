@@ -11,11 +11,13 @@ from dataservice.api.study_file.models import StudyFile
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 from tests.conftest import entities as ent
+from tests.conftest import ENTITY_TOTAL
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
 
 STUDY_FILE_URL = 'api.study_files'
 STUDY_FILE_LIST_URL = 'api.study_files_list'
+EXPECTED_TOTAL = ENTITY_TOTAL + 102
 
 
 @pytest.fixture(scope='function')
@@ -38,7 +40,7 @@ def client(app):
     mod = 'dataservice.api.study.models.requests'
     mock_bs = patch(mod)
     mock_bs = mock_bs.start()
-    
+
     mock_resp_get = MagicMock()
     mock_resp_get.status_code = 200
     mock_resp_post = MagicMock()
@@ -69,13 +71,14 @@ def study_files(client, entities):
             'md5': str(uuid.uuid4()).replace('-', '')
         }
     }
-    for _ in range(102):
+
+    for _ in range(EXPECTED_TOTAL - ENTITY_TOTAL):
         resp = client.post(url_for(STUDY_FILE_LIST_URL),
                            headers={'Content-Type': 'application/json'},
                            data=json.dumps(props))
         assert resp.status_code == 201
 
-    assert StudyFile.query.count() == 103
+    assert StudyFile.query.count() == EXPECTED_TOTAL
 
 
 @pytest.mark.usefixtures("indexd")
@@ -156,7 +159,7 @@ def test_get_list_with_missing_files(client, indexd, study_files):
     assert len(resp['results']) == 0
     for res in resp['results']:
         assert 'kf_id' in res
-    assert indexd.get.call_count == 103
+    assert indexd.get.call_count == EXPECTED_TOTAL
 
 
 def test_get_one(client, entities):

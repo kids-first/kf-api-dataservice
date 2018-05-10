@@ -1,3 +1,4 @@
+import json
 import pkg_resources
 from itertools import tee
 from re import sub
@@ -25,3 +26,14 @@ def to_snake_case(camel_case_str):
     s1 = sub('(.)([A-Z][a-z]+)', r'\1_\2', camel_case_str)
 
     return sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def read_json(filepath):
+    with open(filepath, 'r') as json_file:
+        return json.load(json_file)
+
+
+def write_json(data, filepath):
+    with open(filepath, 'w') as json_file:
+        json.dump(data, json_file, sort_keys=True, indent=4,
+                  separators=(',', ':'))

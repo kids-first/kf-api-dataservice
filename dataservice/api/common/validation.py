@@ -1,3 +1,4 @@
+import re
 from marshmallow import ValidationError
 from marshmallow.validate import OneOf
 
@@ -29,6 +30,13 @@ def validate_positive_number(value):
     type_str = type(value).__name__
     if int(value) < 0:
         raise ValidationError('Must be a positive {}'.format(type_str))
+
+
+def validate_kf_id(prefix, value):
+    r = r'^' + prefix + r'_[A-HJ-KM-NP-TV-Z0-9]{8}'
+    m = re.search(r, value)
+    if not m:
+        raise ValidationError('Invalid kf_id')
 
 
 class EnumValidator(OneOf):

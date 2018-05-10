@@ -1,12 +1,16 @@
 from flask import abort, request
 from sqlalchemy.orm import joinedload
 from marshmallow import ValidationError
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.participant.models import Participant
-from dataservice.api.participant.schemas import ParticipantSchema
+from dataservice.api.participant.schemas import (
+    ParticipantSchema
+)
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class ParticipantListAPI(CRUDView):
@@ -18,7 +22,9 @@ class ParticipantListAPI(CRUDView):
     schemas = {'Participant': ParticipantSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(ParticipantSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get a paginated participants
         ---
@@ -29,7 +35,8 @@ class ParticipantListAPI(CRUDView):
             resource:
               Participant
         """
-        q = (Participant.query
+        # Apply entity filter params
+        q = (Participant.query.filter_by(**filter_params)
                         .options(joinedload(Participant.diagnoses)
                                  .load_only('kf_id'))
                         .options(joinedload(Participant.biospecimens)
@@ -38,11 +45,6 @@ class ParticipantListAPI(CRUDView):
                                  .load_only('kf_id'))
                         .options(joinedload(Participant.outcomes)
                                  .load_only('kf_id')))
-
-        # Filter by study
-        study_id = request.args.get('study_id')
-        if study_id:
-            q = q.filter_by(study_id=study_id)
 
         return (ParticipantSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

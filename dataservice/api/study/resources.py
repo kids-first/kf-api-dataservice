@@ -1,12 +1,14 @@
 from flask import abort, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.study.models import Study
 from dataservice.api.study.schemas import StudySchema
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class StudyListAPI(CRUDView):
@@ -18,7 +20,9 @@ class StudyListAPI(CRUDView):
     schemas = {'Study': StudySchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(StudySchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get a paginated studies
         ---
@@ -29,8 +33,10 @@ class StudyListAPI(CRUDView):
             resource:
               Study
         """
-        q = (Study.query.options(joinedload(Study.study_files)
-                                 .load_only('kf_id'))
+        q = (Study.query
+             .filter_by(**filter_params)
+             .options(joinedload(Study.study_files)
+                      .load_only('kf_id'))
              .options(joinedload(Study.participants)
                       .load_only('kf_id')))
 
