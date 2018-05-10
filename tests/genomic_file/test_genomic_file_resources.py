@@ -7,22 +7,24 @@ from requests.exceptions import HTTPError
 from flask import url_for
 
 from dataservice.extensions import db
-from dataservice.extensions.flask_indexd import RecordNotFound
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.conftest import entities as ent
+from tests.conftest import ENTITY_TOTAL
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
 
 
 GENOMICFILE_URL = 'api.genomic_files'
 GENOMICFILE_LIST_URL = 'api.genomic_files_list'
+EXPECTED_TOTAL = ENTITY_TOTAL + 102
 
 
 @pytest.fixture(scope='function')
 def entities(client):
     return ent(client)
+
 
 @pytest.yield_fixture(scope='function')
 def client(app):
@@ -39,7 +41,7 @@ def client(app):
     mod = 'dataservice.api.study.models.requests'
     mock_bs = patch(mod)
     mock_bs = mock_bs.start()
-    
+
     mock_resp_get = MagicMock()
     mock_resp_get.status_code = 200
     mock_resp_post = MagicMock()
@@ -56,6 +58,7 @@ def client(app):
     db.session.close()
     db.drop_all()
 
+
 @pytest.fixture(scope='function')
 def genomic_files(client, entities):
 
@@ -67,7 +70,7 @@ def genomic_files(client, entities):
         'biospecimen_id': Biospecimen.query.first().kf_id,
         'file_format': 'bam'
     }
-    gfs = [GenomicFile(**props) for _ in range(102)]
+    gfs = [GenomicFile(**props) for _ in range(EXPECTED_TOTAL - ENTITY_TOTAL)]
     db.session.add_all(gfs)
     db.session.commit()
 
@@ -155,7 +158,7 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
     assert len(resp['results']) == 0
     for res in resp['results']:
         assert 'kf_id' in res
-    assert indexd.get.call_count == 103
+    assert indexd.get.call_count == EXPECTED_TOTAL
 
 
 def test_get_one(client, entities):

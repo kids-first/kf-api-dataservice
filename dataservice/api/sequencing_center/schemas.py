@@ -1,5 +1,3 @@
-from marshmallow_sqlalchemy import field_for
-
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.extensions import ma

@@ -1,9 +1,11 @@
+import os
 import json
 from datetime import datetime
+from dateutil import tz
 import pytest
-import uuid
 
 from dataservice import create_app
+from dataservice.utils import iterate_pairwise, read_json
 from dataservice.extensions import db
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
@@ -25,33 +27,47 @@ from dataservice.api.cavatica_task.models import (
 )
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
-
-
-ENDPOINTS = [
-    '/studies',
-    '/investigators',
-    '/participants',
-    '/outcomes',
-    '/phenotypes',
-    '/diagnoses',
-    '/biospecimens',
-    '/sequencing-experiments',
-    '/sequencing-centers',
-    '/family-relationships',
-    '/study-files',
-    '/families',
-    '/family-relationships',
-    '/studies',
-    '/investigators',
-    '/outcomes',
-    '/phenotypes',
-    '/genomic-files',
-    '/cavatica-tasks',
-    '/cavatica-apps',
-    '/cavatica-task-genomic-files'
-]
-
 pytest_plugins = ['tests.mocks']
+
+ENTITY_TOTAL = 15
+ENTITY_ENDPOINT_MAP = {
+    Study: '/studies',
+    Investigator: '/investigators',
+    StudyFile: '/study-files',
+    Family: '/families',
+    FamilyRelationship: '/family-relationships',
+    CavaticaApp: '/cavatica-apps',
+    SequencingCenter: '/sequencing-centers',
+    Participant: '/participants',
+    Diagnosis: '/diagnoses',
+    Phenotype: '/phenotypes',
+    Outcome: '/outcomes',
+    Biospecimen: '/biospecimens',
+    GenomicFile: '/genomic-files',
+    SequencingExperiment: '/sequencing-experiments',
+    CavaticaTask: '/cavatica-tasks',
+    CavaticaTaskGenomicFile: '/cavatica-task-genomic-files'
+}
+
+ENDPOINT_ENTITY_MAP = {v: k for k, v in ENTITY_ENDPOINT_MAP.items()}
+ENDPOINTS = list(ENTITY_ENDPOINT_MAP.values())
+
+
+def _create_entity_params(filepath):
+    # Read data from file
+    data = read_json(filepath)
+    # Apply overrides
+    d = str(datetime.now().replace(tzinfo=tz.tzutc()))
+    data['fields']['/biospecimens']['shipment_date'] = d
+    data['fields']['/sequencing-experiments']['experiment_date'] = d
+    data['filter_params']['/biospecimens']['valid']['shipment_date'] = d
+    data['filter_params']['/sequencing-experiments']['valid']['experiment_date'] = d
+    return data
+
+
+ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
+DATA_FILE = os.path.join(ROOT_DIR, 'data.json')
+ENTITY_PARAMS = _create_entity_params(DATA_FILE)
 
 
 @pytest.yield_fixture(scope='session')
@@ -74,7 +90,7 @@ def client(app):
     mod = 'dataservice.api.study.models.requests'
     mock_bs = patch(mod)
     mock_bs = mock_bs.start()
-    
+
     mock_resp_get = MagicMock()
     mock_resp_get.status_code = 200
     mock_resp_post = MagicMock()
@@ -99,250 +115,129 @@ def swagger(client):
 
 @pytest.fixture(scope='module')
 def entities(client):
-    """
-    Create mock entities
-    """
-    inputs = {
-        '/investigators': {
-            'external_id': 'inv001',
-            'name': 'submitter'
-        },
-        '/cavatica-task-genomic-files': {
-            'is_input': True
-        },
-        '/cavatica-apps': {
-            'external_cavatica_app_id': 'app1',
-            'name': 'MyApp',
-            'revision': 1,
-            'github_commit_url': 'http://www.github.com'
-        },
-        '/cavatica-tasks': {
-            'external_cavatica_task_id': str(uuid.uuid4()),
-            'name': 'MyTask'
-        },
-        '/genomic-files': {
-            'external_id': 'genfile001',
-            'file_name': 'hg38.fq',
-            'data_type': 'reads',
-            'file_format': 'fastq',
-            'size': 1000,
-            'urls': ['s3://bucket/key'],
-            'hashes': {'md5': str(uuid.uuid4())},
-            'controlled_access': False,
-            'acl': ['TEST01'],
-            'availability': 'availble for download'
-        },
-        '/studies': {
-            'external_id': 'phs001'
-        },
-        '/sequencing-experiment': {
-            'external_id': 'WGS-01',
-            'instrument_model': 'HiSeq',
-            'experiment_strategy': 'WGS',
-            'platform': 'illumina',
-            'center': 'WashU',
-            'is_paired_end': True
-        },
-        '/participants': {
-            'external_id': 'p0',
-            'is_proband': True,
-            'consent_type': 'GRU-IRB',
-            'race': 'black',
-            'gender': 'male',
-            'ethnicity': 'hispanic or latino'
-        },
-        '/families': {
-            'external_id': 'family0'
-        },
-        '/biospecimens': {
-            'external_sample_id': 's0',
-            'external_aliquot_id': 'a0',
-            'source_text_tissue_type': 'tissue',
-            'composition': 'comp',
-            'source_text_anatomical_site': 'site',
-            'age_at_event_days': 365,
-            'source_text_tumor_descriptor': 'tumor',
-            'shipment_origin': 'CORIELL',
-            'analyte_type': 'DNA',
-            'concentration_mg_per_ml': 200.0,
-            'volume_ml': 13.99,
-            'shipment_date': str(datetime.utcnow()),
-            'uberon_id_anatomical_site': 'test',
-            'spatial_descriptor': 'left side',
-            'ncit_id_tissue_type': 'Test',
-            'ncit_id_anatomical_site': 'C12439'
-        },
-        '/sequencing-experiments': {
-            'external_id': 'se1',
-            'experiment_date': str(datetime.utcnow()),
-            'experiment_strategy': 'WGS',
-            'library_name': 'a library',
-            'library_strand': 'a strand',
-            'is_paired_end': True,
-            'platform': 'Illumina',
-            'instrument_model': 'HiSeqX',
-            'max_insert_size': 500,
-            'mean_insert_size': 300,
-            'mean_depth': 60.89,
-            'total_reads': 1000,
-            'mean_read_length': 50
-        },
-        '/diagnoses': {
-            'external_id': 'd0',
-            'source_text_diagnosis': 'diag',
-            'age_at_event_days': 365,
-            'mondo_id_diagnosis': 'DOID:8469',
-            'icd_id_diagnosis': 'J10.01',
-            'uberon_id_tumor_location': 'UBERON:0000955',
-            'spatial_descriptor': 'left side'
-        },
-        '/outcomes': {
-            'external_id': 'out001',
-            'vital_status': 'Alive',
-            'disease_related': 'False',
-            'age_at_event_days': 120,
-        },
-        '/phenotypes': {
-            'external_id': 'phe001',
-            'source_text_phenotype': 'test phenotype 1',
-            'hpo_id_phenotype': 'HP:0000118',
-            'snomed_id_phenotype': '38033009',
-            'age_at_event_days': 120
-        },
+    # Create initial entities
+    with db.session.no_autoflush:
+        _entities = {}
+        for model, endpoint in ENTITY_ENDPOINT_MAP.items():
+            if model in {FamilyRelationship,
+                         CavaticaTaskGenomicFile}:
+                continue
+            for i in range(ENTITY_TOTAL):
+                data = ENTITY_PARAMS['fields'][endpoint].copy()
+                if i % 2 != 0:
+                    if endpoint in ENTITY_PARAMS['filter_params']:
+                        data.update(ENTITY_PARAMS.get(
+                            'filter_params')[endpoint]['valid'])
+                if model == Participant:
+                    data['external_id'] = 'Participant_{}'.format(i)
+                if model == SequencingCenter:
+                    _name = 'SequencingCenter_{}'.format(i)
+                    data['name'] = _name
+                    ENTITY_PARAMS['fields']['/sequencing-centers'].update(
+                        {'name': _name}
+                    )
+                m = model(**data)
+                if model not in _entities:
+                    _entities[model] = []
+                _entities[model].append(m)
 
-        '/family-relationships': {
-            'external_id': 'famrel001',
-            'participant_to_relative_relation': 'mother'
-        },
-        '/study-files': {
-            'external_id': 'studfile001',
-            'file_name': 'test_file_name 1',
-            'data_type': 'clinical',
-            'file_format': 'csv',
-            'availability': 'available for download',
-            'size': 1000,
-            'urls': ['s3://bucket/key'],
-            'hashes': {'md5': str(uuid.uuid4())}
-        },
-        '/sequencing-centers': {
-            'external_id': 'SC001',
-            'name': 'Baylor'
-        }
-    }
+                db.session.add(m)
 
-    # Create and save entities to db
-    # Study, investigator
-    investigator = Investigator(**inputs['/investigators'])
-    study = Study(**inputs['/studies'])
-    study.investigator = investigator
+        # Family relationships
+        for participant, relative in iterate_pairwise(
+                _entities[Participant]):
+            gender = participant.gender
+            rel = 'mother'
+            if gender == 'male':
+                rel = 'father'
+            r = FamilyRelationship(participant=participant,
+                                   relative=relative,
+                                   participant_to_relative_relation=rel)
+            if model not in _entities:
+                _entities[FamilyRelationship] = []
+            _entities[FamilyRelationship].append(r)
 
-    # Add participants to study
-    sf = StudyFile(**inputs['/study-files'], study_id=study.kf_id)
-    p = Participant(**inputs['/participants'])
-    p1 = Participant(**inputs['/participants'])
-    p2 = Participant(**inputs['/participants'])
+            ENTITY_PARAMS['fields']['/family-relationships'].update({
+                'participant_to_relative_relation': rel
+            })
 
-    family = Family(**inputs['/families'])
-    family.participants.extend([p1, p2])
+            db.session.add(r)
 
-    study.participants.extend([p, p1, p2])
-    db.session.add(study)
-    db.session.commit()
+        # Cavatica task genomic files
+        for i, (ct, gf) in enumerate(zip(
+                _entities[CavaticaTask], _entities[GenomicFile])):
+            is_input = True
+            if i % 2 == 0:
+                is_input = False
+            ctgf = CavaticaTaskGenomicFile(cavatica_task=ct,
+                                           genomic_file=gf,
+                                           is_input=is_input)
+            if model not in _entities:
+                _entities[CavaticaTaskGenomicFile] = []
+            _entities[CavaticaTaskGenomicFile].append(ctgf)
 
-    # Add entities to participant
-    outcome = Outcome(**inputs['/outcomes'], participant_id=p.kf_id)
-    phenotype = Phenotype(**inputs['/phenotypes'], participant_id=p.kf_id)
-    diagnosis = Diagnosis(**inputs['/diagnoses'], participant_id=p.kf_id)
-    seq_center = SequencingCenter.query.\
-        filter_by(name=inputs['/sequencing-centers']['name'])\
-        .one_or_none()
-    if seq_center is None:
-        seq_center = SequencingCenter(**inputs['/sequencing-centers'])
-        db.session.add(seq_center)
+            ENTITY_PARAMS['fields']['/cavatica-task-genomic-files'].update({
+                'is_input': is_input
+            })
+
+            db.session.add(ctgf)
+
+        # Add relations
+        s0 = _entities[Study][0]
+        f0 = _entities[Family][0]
+        p0 = _entities[Participant][0]
+        sc0 = _entities[SequencingCenter][0]
+        se0 = _entities[SequencingExperiment][0]
+        ca0 = _entities[CavaticaApp][0]
+
+        # Investigator
+        for inv in _entities[Investigator]:
+            inv.studies.append(s0)
+        # Study file
+        for sf in _entities[StudyFile]:
+            sf.study = s0
+        # Participant
+        for ent in _entities[Participant]:
+            ent.study = s0
+            ent.family = f0
+
+        # Biospecimen, Diagnosis, Phenotype, Outcome
+        participant_ents = [Biospecimen, Diagnosis, Phenotype, Outcome]
+        for participant_ent in participant_ents:
+            for ent in _entities[participant_ent]:
+                ent.participant = p0
+                if Biospecimen == participant_ent:
+                    ent.sequencing_center = sc0
+        # SequencingExperiment
+        for ent in _entities[SequencingExperiment]:
+            ent.sequencing_center = sc0
+
+        # GenomicFiles
+        bs0 = _entities[Biospecimen][0]
+        for ent in _entities[GenomicFile]:
+            ent.sequencing_experiment = se0
+            ent.biospecimen = bs0
+
+        # CavaticaTask
+        for ent in _entities[CavaticaApp]:
+            ent.cavatica_app = ca0
+
         db.session.commit()
-    seq_exp = SequencingExperiment(**inputs['/sequencing-experiments'],
-                                   sequencing_center_id=seq_center.kf_id)
 
-    biospecimen = Biospecimen(**inputs['/biospecimens'],
-                              participant_id=p.kf_id,
-                              sequencing_center_id=seq_center.kf_id)
-    gen_file = GenomicFile(**inputs['/genomic-files'],
-                           biospecimen_id=biospecimen.kf_id,
-                           sequencing_experiment_id=seq_exp.kf_id)
-    ca = CavaticaApp(**inputs['/cavatica-apps'])
-    ct = CavaticaTask(**inputs['/cavatica-tasks'],
-                      cavatica_app=ca)
-    ctgf = CavaticaTaskGenomicFile(cavatica_task=ct, genomic_file=gen_file,
-                                   is_input=False)
+    return _entities
 
-    biospecimen.genomic_files = [gen_file]
-    seq_exp.genomic_files = [gen_file]
-    seq_center.sequencing_experiments = [seq_exp]
-    seq_center.biospecimens = [biospecimen]
-    p.biospecimens = [biospecimen]
-    p.diagnoses = [diagnosis]
-    p.outcomes = [outcome]
-    p.phenotypes = [phenotype]
 
-    # Family relationship
-    inputs['/family-relationships']['participant_id'] = p1.kf_id
-    inputs['/family-relationships']['relative_id'] = p2.kf_id
-    fr = FamilyRelationship(**inputs['/family-relationships'])
-
-    db.session.add(fr)
-
-    # Add participants to study
-    study.investigator = investigator
-    study.study_files = [sf]
-    study.participants.append(p)
-    db.session.add(study)
-    db.session.add(p)
-    db.session.add(seq_exp)
-    db.session.commit()
-
-    # Add foreign keys
-    # Study and participant
-    inputs['/participants']['study_id'] = study.kf_id
-
-    # Entity and participant
-    endpoints = ['/diagnoses', '/biospecimens', '/outcomes',
-                 '/phenotypes']
-    for e in endpoints:
-        inputs[e]['participant_id'] = p.kf_id
-
-    inputs['/genomic-files']['biospecimen_id'] = biospecimen.kf_id
-    # Study and study_files
-    inputs['/study-files']['study_id'] = study.kf_id
-    # Genomic File and Sequencing Experiment
-    inputs['/genomic-files']['sequencing_experiment_id'] = seq_exp.kf_id
-    # Sequencing_experiment and sequencing_center
-    inputs['/sequencing-experiments']['sequencing_center_id'] =\
-        seq_center.kf_id
-    # Biospecimen and sequencing_center
-    inputs['/biospecimens']['sequencing_center_id'] = seq_center.kf_id
-    # Cavatica task and Cavatica app
-    inputs['/cavatica-tasks']['cavatica_app_id'] = ca.kf_id
-    # Cavatica task and genomic files
-    inputs['/cavatica-task-genomic-files']['cavatica_task_id'] = ct.kf_id
-    inputs['/cavatica-task-genomic-files']['genomic_file_id'] = gen_file.kf_id
-
-    # Add kf_ids
-    inputs['kf_ids'] = {}
-    inputs['kf_ids'].update({'/studies': study.kf_id})
-    inputs['kf_ids'].update({'/study-files': sf.kf_id})
-    inputs['kf_ids'].update({'/investigators': investigator.kf_id})
-    inputs['kf_ids'].update({'/participants': p.kf_id})
-    inputs['kf_ids'].update({'/outcomes': outcome.kf_id})
-    inputs['kf_ids'].update({'/phenotypes': phenotype.kf_id})
-    inputs['kf_ids'].update({'/diagnoses': diagnosis.kf_id})
-    inputs['kf_ids'].update({'/biospecimens': biospecimen.kf_id})
-    inputs['kf_ids'].update({'/sequencing-experiments': seq_exp.kf_id})
-    inputs['kf_ids'].update({'/family-relationships': fr.kf_id})
-    inputs['kf_ids'].update({'/families': family.kf_id})
-    inputs['kf_ids'].update({'/genomic-files': gen_file.kf_id})
-    inputs['kf_ids'].update({'/cavatica-apps': ca.kf_id})
-    inputs['kf_ids'].update({'/cavatica-tasks': ct.kf_id})
-    inputs['kf_ids'].update({'/cavatica-task-genomic-files': ctgf.kf_id})
-    inputs['kf_ids'].update({'/sequencing-centers': seq_center.kf_id})
-
+def _add_foreign_keys(inputs, entity):
+    from sqlalchemy.orm import (
+        object_mapper,
+        ColumnProperty
+    )
+    mapper = object_mapper(entity)
+    for prop in mapper.iterate_properties:
+        if isinstance(prop, ColumnProperty):
+            attr = getattr(entity.__class__.__table__.c, prop.key)
+            if attr.foreign_keys:
+                value = getattr(entity, prop.key)
+                if value:
+                    inputs.update({prop.key: value})
     return inputs

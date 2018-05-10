@@ -1,11 +1,15 @@
 from flask import abort, request
 from marshmallow import ValidationError
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, indexd_pagination
 from dataservice.api.study_file.models import StudyFile
-from dataservice.api.study_file.schemas import StudyFileSchema
+from dataservice.api.study_file.schemas import (
+    StudyFileSchema
+)
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class StudyFileListAPI(CRUDView):
@@ -17,7 +21,9 @@ class StudyFileListAPI(CRUDView):
     schemas = {'StudyFile': StudyFileSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(StudyFileSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get a paginated study files
         ---
@@ -28,12 +34,7 @@ class StudyFileListAPI(CRUDView):
             resource:
               StudyFile
         """
-        q = StudyFile.query
-
-        # Filter by study
-        study_id = request.args.get('study_id')
-        if study_id:
-            q = q.filter(StudyFile.study_id == study_id)
+        q = StudyFile.query.filter_by(**filter_params)
 
         pager = indexd_pagination(q, after, limit)
 

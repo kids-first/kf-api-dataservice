@@ -1,7 +1,7 @@
-import re
 from dataservice.extensions import ma
 from marshmallow import (
     fields,
+    post_load,
     post_dump,
     pre_dump,
     validates_schema,
@@ -11,6 +11,7 @@ from marshmallow import (
 from flask import url_for, request
 from flask_marshmallow import Schema
 from dataservice.api.common.pagination import Pagination
+from dataservice.api.common.validation import validate_kf_id
 from dataservice.extensions import db
 
 
@@ -39,11 +40,7 @@ class BaseSchema(ma.ModelSchema):
 
     @validates('kf_id')
     def valid(self, value):
-        prefix = self.Meta.model.__prefix__
-        r = r'^'+prefix+r'_[A-HJ-KM-NP-TV-Z0-9]{8}'
-        m = re.search(r, value)
-        if not m:
-            raise ValidationError('Invalid kf_id')
+        validate_kf_id(self.Meta.model.__prefix__, value)
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
@@ -154,6 +151,50 @@ def paginated_generator(url, schema):
         results = fields.List(fields.Nested(schema))
 
     return PaginatedSchema
+
+
+def filter_schema_factory(model_schema_cls):
+    """
+    Create an instance of a model's filter schema
+
+    Dynamically define filter schemas based on model schema
+    and filter schema mixin classes
+    Remove schema attributes that are not applicable to filters (_links)
+    Allow partially populated schema
+    Validate with strict=True - reuse model schema's validators
+    """
+
+    # Dynamically define the model filter schema class
+    cls_name = ('{}FilterSchema'
+                .format(model_schema_cls.__name__.split('Schema')[0]))
+    base_classes = (FilterSchemaMixin, model_schema_cls)
+    cls = type(cls_name, base_classes, {})
+
+    # Update some class attributes
+    exclude = ('_links', )
+    if hasattr(cls.Meta, 'exclude'):
+        exclude += cls.Meta.exclude
+
+    # Generate class instance
+    return cls(strict=True, partial=True, exclude=exclude)
+
+
+class FilterSchemaMixin(ma.Schema):
+    """
+    Filter schema mixin inherited by all model filter schemas
+    """
+    study_id = fields.Str()
+
+    class Meta:
+        dump_only = ()
+
+    @validates('study_id')
+    def valid(self, value):
+        validate_kf_id('SD', value)
+
+    @post_load
+    def make_instance(self, data):
+        return data
 
 
 class StatusSchema(Schema):

@@ -16,9 +16,34 @@ UNIQUE_COL_RE = re.compile('duplicate key value violates unique constraint ' +
 
 
 def http_error(e):
-    """ Handles all HTTPExceptions """
+    """
+    Handles all HTTPExceptions
+
+    HTTP 422 Unprocessable Entity exceptions result from validation errors in
+    processing filter parameters. The message from the 422 error must be
+    parsed differently than other HTTP errors
+    """
     db.session.rollback()
-    return ErrorSchema().jsonify(e), e.code
+    # Default message
+    data = e
+    code = e.code
+
+    # HTTP 422 message
+    if e.code == 422:
+        data, code = handle_filter_validation_error(e)
+    return ErrorSchema().jsonify(data), code
+
+
+def handle_filter_validation_error(e):
+    """
+    Parse UnprocessableEntity exceptions resulting from
+    filter parameter validation errors.
+    """
+    code = 400
+    message = 'could not retrieve entities:'
+    data = {'description': '{} {}'.format(message, e.exc.messages),
+            'code': code}
+    return data, code
 
 
 def integrity_error(e):
@@ -46,7 +71,7 @@ def integrity_error(e):
     # Entity is related to other entity already
     if m:
         key = m.group('key')
-        key = key.replace('_' + m.group('entity')+'_id', '')
+        key = key.replace('_' + m.group('entity') + '_id', '')
         message = '{} "{}" may only have one {}'.format(m.group('entity'),
                                                         m.group('kf_id'),
                                                         key)

@@ -1,12 +1,16 @@
 from flask import abort, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.cavatica_task.models import CavaticaTask
-from dataservice.api.cavatica_task.schemas import CavaticaTaskSchema
+from dataservice.api.cavatica_task.schemas import (
+    CavaticaTaskSchema
+)
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class CavaticaTaskListAPI(CRUDView):
@@ -18,7 +22,9 @@ class CavaticaTaskListAPI(CRUDView):
     schemas = {'CavaticaTask': CavaticaTaskSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(CavaticaTaskSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get a paginated cavatica_tasks
         ---
@@ -29,9 +35,14 @@ class CavaticaTaskListAPI(CRUDView):
             resource:
               CavaticaTask
         """
-        q = CavaticaTask.query.options(joinedload(
-            CavaticaTask.cavatica_task_genomic_files)
-            .load_only('kf_id'))
+        # Get study id and remove from model filter params
+        study_id = filter_params.pop('study_id', None)
+
+        q = (CavaticaTask.query
+             .filter_by(**filter_params)
+             .options(joinedload(
+                 CavaticaTask.cavatica_task_genomic_files)
+                 .load_only('kf_id')))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
@@ -41,7 +52,6 @@ class CavaticaTaskListAPI(CRUDView):
             CavaticaTaskGenomicFile
         )
 
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(CavaticaTask.cavatica_task_genomic_files)
                  .join(CavaticaTaskGenomicFile.genomic_file)

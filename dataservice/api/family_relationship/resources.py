@@ -1,5 +1,6 @@
 from flask import abort, request
 from marshmallow import ValidationError
+from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
@@ -8,6 +9,7 @@ from dataservice.api.family_relationship.schemas import (
     FamilyRelationshipSchema
 )
 from dataservice.api.common.views import CRUDView
+from dataservice.api.common.schemas import filter_schema_factory
 
 
 class FamilyRelationshipListAPI(CRUDView):
@@ -19,7 +21,9 @@ class FamilyRelationshipListAPI(CRUDView):
     schemas = {'FamilyRelationship': FamilyRelationshipSchema}
 
     @paginated
-    def get(self, after, limit):
+    @use_args(filter_schema_factory(FamilyRelationshipSchema),
+              locations=('query',))
+    def get(self, filter_params, after, limit):
         """
         Get all family_relationships
         ---
@@ -31,11 +35,13 @@ class FamilyRelationshipListAPI(CRUDView):
             resource:
               FamilyRelationship
         """
-        q = FamilyRelationship.query
+        # Get study id and remove from model filter params
+        study_id = filter_params.pop('study_id', None)
+
+        q = FamilyRelationship.query.filter_by(**filter_params)
 
         # Filter by study
         from dataservice.api.participant.models import Participant
-        study_id = request.args.get('study_id')
         if study_id:
             q = (q.join(FamilyRelationship.participant)
                  .filter(Participant.study_id == study_id))
