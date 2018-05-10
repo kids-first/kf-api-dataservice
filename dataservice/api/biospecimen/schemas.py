@@ -22,7 +22,7 @@ class BiospecimenSchema(BaseSchema):
     volume_ml = field_for(Biospecimen, 'volume_ml',
                           validate=validate_positive_number)
 
-    shipment_date = field_for(Biospecimen, 'volume_ml',
+    shipment_date = field_for(Biospecimen, 'shipment_date',
                               field_class=DateOrDatetime)
 
     class Meta(BaseSchema.Meta):

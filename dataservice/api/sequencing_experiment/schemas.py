@@ -31,7 +31,8 @@ class SequencingExperimentSchema(BaseSchema):
                             validate=validate_positive_number)
     mean_read_length = field_for(SequencingExperiment, 'mean_read_length',
                                  validate=validate_positive_number)
-    experiment_date = DateOrDatetime(allow_none=True)
+    experiment_date = field_for(SequencingExperiment, 'experiment_date',
+                                field_class=DateOrDatetime)
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),

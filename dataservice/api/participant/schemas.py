@@ -11,6 +11,7 @@ class ParticipantSchema(BaseSchema):
     study_id = field_for(Participant, 'study_id', required=True,
                          load_only=True)
     family_id = field_for(Participant, 'family_id',
+                          load_only=True,
                           required=False, example='FM_ABB2C104')
 
     class Meta(BaseSchema.Meta):
