@@ -17,6 +17,9 @@ class SequencingExperimentSchema(BaseSchema):
         resource_url = 'api.sequencing_experiments'
         collection_url = 'api.sequencing_experiments_list'
         model = SequencingExperiment
+        exclude = (BaseSchema.Meta.exclude +
+                   ('sequencing_center', ) +
+                   ('genomic_files', ))
 
     max_insert_size = field_for(SequencingExperiment, 'max_insert_size',
                                 validate=validate_positive_number)
@@ -34,5 +37,7 @@ class SequencingExperimentSchema(BaseSchema):
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'sequencing_center': ma.URLFor('api.sequencing_centers',
-                                       kf_id='<sequencing_center_id>')
+                                       kf_id='<sequencing_center_id>'),
+        'genomic_files': ma.URLFor('api.genomic_files_list',
+                                   sequencing_experiment_id='<kf_id>')
     }, description='Resource links and pagination')
