@@ -1,9 +1,15 @@
 import json
 import pkg_resources
 import pytest
+from pprint import pprint
 
 from dataservice.api.common import id_service
-from tests.conftest import ENDPOINTS
+from tests.conftest import (
+    ENDPOINT_ENTITY_MAP,
+    ENDPOINTS,
+    ENTITY_PARAMS,
+    _add_foreign_keys
+)
 
 
 class TestAPI:
@@ -11,7 +17,6 @@ class TestAPI:
     General API tests such as reponse code checks, envelope formatting checks,
     and header checks
     """
-
     @pytest.mark.parametrize('endpoint', ENDPOINTS)
     def test_no_content_type(self, client, endpoint):
         """ Test that no 500 is thrown when the content isnt specified """
@@ -111,17 +116,27 @@ class TestAPI:
     @pytest.mark.parametrize('fields', [['created_at', 'modified_at']])
     def test_read_only(self, client, entities, endpoint, method, fields):
         """ Test that given fields can not be written or modified """
-        inputs = entities[endpoint].copy()
-        method_name = method.lower()
+        # Setup inputs
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
         [inputs.update({field: 'test'}) for field in fields]
+
+        # Setup enpdoint
+        url = endpoint
+        method_name = method.lower()
         call_func = getattr(client, method_name)
         kwargs = {'data': json.dumps(inputs),
                   'headers': {'Content-Type': 'application/json'}}
         if method_name in {'put', 'patch'}:
-            kf_id = entities.get('kf_ids').get(endpoint)
-            endpoint = '{}/{}'.format(endpoint, kf_id)
-        resp = call_func(endpoint, **kwargs)
+            kf_id = entity.kf_id
+            url = '{}/{}'.format(endpoint, kf_id)
+
+        # Send request
+        resp = call_func(url, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
+        pprint(body)
 
         if 'results' not in body:
             assert ('error saving' in body['_status']['message'] or
@@ -144,7 +159,8 @@ class TestAPI:
     def test_malformed_predefined_kf_id(self, client, endpoint, kf_id):
         """ Check that posting malformed predefined kf_id doesn't 500 """
         resp = client.post(endpoint,
-                           data=json.dumps({'kf_id': kf_id, 'external_id': 'blah'}),
+                           data=json.dumps({'kf_id': kf_id,
+                                            'external_id': 'blah'}),
                            headers={'Content-Type': 'application/json'})
         assert resp.status_code == 400
         resp = json.loads(resp.data.decode('utf-8'))
@@ -162,15 +178,22 @@ class TestAPI:
     @pytest.mark.parametrize('endpoint', ENDPOINTS)
     def test_unknown_field(self, client, entities, endpoint, method):
         """ Test that unknown fields are rejected when trying to create  """
-        inputs = entities[endpoint].copy()
+        # Setup inputs
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
         inputs.update({'blah': 'test'})
+
+        # Setup endpoint
+        url = endpoint
         action = 'create'
         if method.lower() in {'put', 'patch'}:
             action = 'update'
-            kf_id = entities.get('kf_ids').get(endpoint)
-            endpoint = '{}/{}'.format(endpoint, kf_id)
+            kf_id = entity.kf_id
+            url = '{}/{}'.format(endpoint, kf_id)
         call_func = getattr(client, method.lower())
-        resp = call_func(endpoint, data=json.dumps(inputs),
+        resp = call_func(url, data=json.dumps(inputs),
                          headers={'Content-Type': 'application/json'})
 
         body = json.loads(resp.data.decode('utf-8'))
@@ -178,7 +201,7 @@ class TestAPI:
         assert 'could not {} '.format(action) in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']
 
-    @pytest.mark.parametrize('resource,fields', [
+    @pytest.mark.parametrize('endpoint,fields', [
         ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
         ('/participants', ['diagnoses',
                            'phenotypes', 'outcomes', 'biospecimens']),
@@ -191,10 +214,15 @@ class TestAPI:
         ('/cavatica-tasks', ['cavatica_task_genomic_files']),
         ('/genomic-files', ['cavatica_task_genomic_files'])
     ])
-    def test_child_links(self, client, entities, resource, fields):
+    def test_child_links(self, client, entities, endpoint, fields):
         """ Checks that references to other resources have correct ID """
-        kf_id = entities.get('kf_ids').get(resource)
-        resp = client.get(resource + '/' + kf_id)
+        # Setup inputs
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
+
+        resp = client.get(endpoint + '/' + entity.kf_id)
         body = json.loads(resp.data.decode('utf-8'))['results']
         for field in fields:
             assert field in body
@@ -206,50 +234,33 @@ class TestAPI:
                 assert len(body[field]) == 11
 
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
-    @pytest.mark.parametrize('endpoint, field, value',
-                             [('/biospecimens', 'shipment_date', 12000),
-                                 ('/biospecimens', 'shipment_date', '12000'),
-                                 ('/biospecimens', 'shipment_date', 'hai der'),
-                                 ('/biospecimens', 'concentration_mg_per_ml',
-                                  -12),
-                                 ('/biospecimens', 'volume_ml', -12),
-                                 ('/outcomes', 'age_at_event_days', -12),
-                                 ('/phenotypes', 'age_at_event_days', -12),
-                                 ('/sequencing-experiments',
-                                  'max_insert_size', -12),
-                                 ('/sequencing-experiments',
-                                  'mean_insert_size', -12),
-                                 ('/sequencing-experiments',
-                                  'mean_depth', -12),
-                                 ('/sequencing-experiments',
-                                  'mean_read_length', -12),
-                                 ('/sequencing-experiments',
-                                  'total_reads', -12),
-                                 ('/sequencing-experiments',
-                                  'experiment_date', 'hai der'),
-                                 ('/cavatica-apps', 'revision', -5),
-                                 ('/cavatica-apps', 'revision', 'hai der'),
-                                 ('/cavatica-apps', 'github_commit_url',
-                                  "github"),
-                                 ('/cavatica-apps', 'github_commit_url',
-                                     "www.google.com"),
-                                 ('/cavatica-apps', 'github_commit_url',
-                                     "http://"),
-                                 ('/cavatica-task-genomic-files',
-                                  'is_input', 'hai der'),
-                                 ('/diagnoses', 'age_at_event_days', -5)
+    @pytest.mark.parametrize('endpoint, invalid_params',
+                             [(endpoint, invalid_param)
+                              for endpoint in ENDPOINTS
+                                 for invalid_param in ENTITY_PARAMS.get(
+                                 'filter_params')[endpoint]['invalid']
                               ])
-    def test_bad_input(self, client, entities, endpoint, method, field, value):
+    def test_bad_input(self, client, entities, endpoint, invalid_params,
+                       method):
         """ Tests bad inputs """
-        inputs = entities[endpoint].copy()
-        inputs.update({field: value})
+        # Setup inputs
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
+        inputs.update(invalid_params)
+
+        # Setup endpoint
+        url = endpoint
         action = 'create'
         if method.lower() in {'put', 'patch'}:
             action = 'update'
-            kf_id = entities.get('kf_ids').get(endpoint)
-            endpoint = '{}/{}'.format(endpoint, kf_id)
+            kf_id = entity.kf_id
+            url = '{}/{}'.format(endpoint, kf_id)
         call_func = getattr(client, method.lower())
-        resp = call_func(endpoint, data=json.dumps(inputs),
+
+        # Send request
+        resp = call_func(url, data=json.dumps(inputs),
                          headers={'Content-Type': 'application/json'})
 
         body = json.loads(resp.data.decode('utf-8'))
@@ -275,15 +286,22 @@ class TestAPI:
     def test_missing_required_params(self, client, entities, endpoint,
                                      method, field):
         """ Tests missing required parameters """
-        inputs = entities[endpoint].copy()
+        # Setup inputs
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
         inputs.pop(field, None)
+
+        # Setup endpoint
+        url = endpoint
         action = 'create'
         if method.lower() in {'put'}:
             action = 'update'
             kf_id = entities.get('kf_ids').get(endpoint)
-            endpoint = '{}/{}'.format(endpoint, kf_id)
+            url = '{}/{}'.format(endpoint, kf_id)
         call_func = getattr(client, method.lower())
-        resp = call_func(endpoint, data=json.dumps(inputs),
+        resp = call_func(url, data=json.dumps(inputs),
                          headers={'Content-Type': 'application/json'})
 
         body = json.loads(resp.data.decode('utf-8'))
@@ -312,13 +330,19 @@ class TestAPI:
         Test bad foreign key
         Foregin key is a valid kf_id but refers an entity that doesn't exist
         """
-        inputs = entities[endpoint].copy()
+        # Setup inputs
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
         inputs.update({field: id_service.kf_id_generator('ZZ')()})
+
+        # Setup endpoint
+        url = endpoint
         if method.lower() in {'put', 'patch'}:
-            kf_id = entities.get('kf_ids').get(endpoint)
-            endpoint = '{}/{}'.format(endpoint, kf_id)
+            url = '{}/{}'.format(endpoint, entity.kf_id)
         call_func = getattr(client, method.lower())
-        resp = call_func(endpoint, data=json.dumps(inputs),
+        resp = call_func(url, data=json.dumps(inputs),
                          headers={'Content-Type': 'application/json'})
 
         body = json.loads(resp.data.decode('utf-8'))
