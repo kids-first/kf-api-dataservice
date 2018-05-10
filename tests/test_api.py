@@ -205,10 +205,9 @@ class TestAPI:
         ('/investigators', ['studies']),
         ('/families', ['participants']),
         ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
-        # ('/participants', ['diagnoses',
-        #                    'phenotypes', 'outcomes', 'biospecimens']),
-        #
-        # ('/biospecimens', ['genomic_files']),
+        ('/participants', ['diagnoses',
+                           'phenotypes', 'outcomes', 'biospecimens']),
+        ('/biospecimens', ['genomic_files']),
         # ('/sequencing-experiments', ['genomic_files']),
         # ('/genomic-files', ['cavatica_task_genomic_files'])
         # ('/cavatica-apps', ['cavatica_tasks']),
