@@ -14,6 +14,9 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         model = GenomicFile
         resource_url = 'api.genomic_files'
         collection_url = 'api.genomic_files_list'
+        exclude = (BaseSchema.Meta.exclude +
+                   ('biospecimen', 'sequencing_experiment',) +
+                   ('cavatica_task_genomic_files', ))
 
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',
@@ -36,5 +39,7 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             kf_id='<biospecimen_id>'),
         'sequencing_experiment': PatchedURLFor(
             'api.sequencing_experiments',
-            kf_id='<sequencing_experiment_id>')
+            kf_id='<sequencing_experiment_id>'),
+        'cavatica_task_genomic_files': ma.URLFor(
+            'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>')
     }, description='Resource links and pagination')
