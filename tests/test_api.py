@@ -1,7 +1,6 @@
 import json
 import pkg_resources
 import pytest
-from pprint import pprint
 
 from dataservice.api.common import id_service
 from tests.conftest import (
@@ -205,7 +204,7 @@ class TestAPI:
         ('/studies', ['study_files', 'participants']),
         ('/investigators', ['studies']),
         ('/families', ['participants']),
-        # ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
+        ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
         # ('/participants', ['diagnoses',
         #                    'phenotypes', 'outcomes', 'biospecimens']),
         #
@@ -226,13 +225,19 @@ class TestAPI:
         resp = client.get(endpoint + '/' + entity.kf_id)
         links = json.loads(resp.data.decode('utf-8'))['_links']
         for child in child_relations:
+            # Child entity exists in links
             assert child in links
+            # Format of link
             link = links[child]
-            endpoint = link.split('?')[0]
-            assert ('/' + child.replace('_', '-')) == endpoint
+            link_endpoint = link.split('?')[0]
+            assert ('/' + child.replace('_', '-')) == link_endpoint
             assert type(link) is str
             kf_id = link.split('=')[-1]
             assert len(kf_id) == 11
+            # Foreign key exists
+            foreign_key = link.split('?')[-1].split('=')[0]
+            related_entity_cls = ENDPOINT_ENTITY_MAP[link_endpoint]
+            assert getattr(related_entity_cls, foreign_key)
 
     # @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     # @pytest.mark.parametrize('endpoint, invalid_params',
