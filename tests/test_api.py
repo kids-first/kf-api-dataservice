@@ -209,8 +209,8 @@ class TestAPI:
                            'phenotypes', 'outcomes', 'biospecimens']),
         ('/biospecimens', ['genomic_files']),
         ('/sequencing-experiments', ['genomic_files']),
-        ('/genomic-files', ['cavatica_task_genomic_files'])
-        # ('/cavatica-apps', ['cavatica_tasks']),
+        ('/genomic-files', ['cavatica_task_genomic_files']),
+        ('/cavatica-apps', ['cavatica_tasks']),
         # ('/cavatica-tasks', ['cavatica_task_genomic_files']),
     ])
     def test_child_links(self, client, entities, endpoint, child_relations):
