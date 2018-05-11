@@ -7,8 +7,7 @@ from dataservice.api.participant.models import Participant
 REVERSE_RELS = {
     'mother': 'child',
     'father': 'child',
-    'sister': 'sister',
-    'brother': 'brother'
+    'sibling': 'sibling'
 }
 
 
