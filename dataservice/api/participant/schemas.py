@@ -33,5 +33,7 @@ class ParticipantSchema(BaseSchema):
         'outcomes': ma.URLFor('api.outcomes_list',
                               participant_id='<kf_id>'),
         'biospecimens': ma.URLFor('api.biospecimens_list',
-                                  participant_id='<kf_id>')
+                                  participant_id='<kf_id>'),
+        'family_relationhips': ma.URLFor('api.family_relationships_list',
+                                         participant_id='<kf_id>')
     })
