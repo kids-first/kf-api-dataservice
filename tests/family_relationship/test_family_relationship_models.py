@@ -25,14 +25,14 @@ class ModelTest(FlaskTestCase):
         # Check database
         for p in Participant.query.all():
             if p.external_id == 'Fred' or p.external_id == 'Wilma':
-                self.assertIn(p3, self._immediate_relatives(p))
+                self.assertIn(p3, self._all_relatives(p))
             if p.external_id == 'Pebbles':
                 for relative in [p1, p2, p4, p5]:
-                    self.assertIn(relative, self._immediate_relatives(p))
+                    self.assertIn(relative, self._all_relatives(p))
             if p.external_id == 'Dino':
-                self.assertIn(p3, self._immediate_relatives(p))
+                self.assertIn(p3, self._all_relatives(p))
             if p.external_id == 'Bart':
-                self.assertIn(p3, self._immediate_relatives(p))
+                self.assertIn(p3, self._all_relatives(p))
         for r in FamilyRelationship.query.all():
             self.assertEqual(r.relative_to_participant_relation,
                              REVERSE_RELS.get(
@@ -106,8 +106,8 @@ class ModelTest(FlaskTestCase):
         # Check database
         rel = FamilyRelationship.query.filter_by(participant=p).one()
         pebbles = Participant.query.filter_by(external_id='Pebbles').one()
-        self.assertNotIn(pebbles, self._immediate_relatives(p))
-        self.assertIn(susy, self._immediate_relatives(p))
+        self.assertNotIn(pebbles, self._all_relatives(p))
+        self.assertIn(susy, self._all_relatives(p))
         self.assertEqual('daughter', rel.participant_to_relative_relation)
 
     def test_delete(self):
@@ -225,7 +225,7 @@ class ModelTest(FlaskTestCase):
         study = Study(external_id='phs001')
 
         # Create participants
-        # Father of p3, p5
+        # Father of p3
         p1 = Participant(external_id='Fred', is_proband=False)
         # Mother of p3, p5
         p2 = Participant(external_id='Wilma',  is_proband=False)
@@ -255,5 +255,11 @@ class ModelTest(FlaskTestCase):
 
         return p1, p2, p3, p4, p5, study
 
-    def _immediate_relatives(self, p):
-        return [r for r in p.immediate_relatives()]
+    def _all_relatives(self, p):
+        relationships = FamilyRelationship.query_all_relationships(
+            p.kf_id).all()
+        relatives = []
+        for rel in relationships:
+            relatives.extend([rel.participant, rel.relative])
+
+        return relatives
