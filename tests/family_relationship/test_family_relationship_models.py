@@ -176,6 +176,46 @@ class ModelTest(FlaskTestCase):
         # Add to db
         self.assertRaises(IntegrityError, db.session.add(r))
 
+    def test_case_sensitivity(self):
+        """
+        Test that relationships are created w proper label regardless of case
+        """
+        study = Study(external_id='study')
+        p1 = Participant(external_id='P0', is_proband=False)
+        p2 = Participant(external_id='P1',  is_proband=False)
+        study.participants.extend([p1, p2])
+
+        # Create relationships
+        r = FamilyRelationship(participant=p1, relative=p2,
+                               participant_to_relative_relation='Father')
+        count = FamilyRelationship.query.count()
+        db.session.add(study)
+        db.session.add(r)
+        db.session.commit()
+
+        kf_id = r.kf_id
+        assert count + 1 == FamilyRelationship.query.count()
+        # Original value goes in as is
+        assert 'Father' == r.participant_to_relative_relation
+        # Correct reverse relation selected
+        assert 'Child' == r.relative_to_participant_relation
+
+        r.participant_to_relative_relation = 'mother'
+        db.session.commit()
+
+        # Original value as is, proper reverse relation selected
+        r = FamilyRelationship.query.get(kf_id)
+        assert 'mother' == r.participant_to_relative_relation
+        assert 'Child' == r.relative_to_participant_relation
+
+        r.participant_to_relative_relation = 'Sibling'
+        db.session.commit()
+
+        # Original value as is, proper reverse relation selected
+        r = FamilyRelationship.query.get(kf_id)
+        assert 'Sibling' == r.participant_to_relative_relation
+        assert 'Sibling' == r.relative_to_participant_relation
+
     def test_not_null_constraint(self):
         """
         Test that a family relationship cannot be created without required
