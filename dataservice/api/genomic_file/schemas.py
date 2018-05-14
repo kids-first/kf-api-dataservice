@@ -10,6 +10,8 @@ from dataservice.api.common.validation import enum_validation_generator
 DATA_TYPE_ENUM = {'Aligned Reads',
                   'Aligned Reads Index',
                   'Simple Nucleotide Variation',
+                  'Variant Calls',
+                  'Individual Variant Calls',
                   'Other'}
 
 
