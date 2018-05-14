@@ -27,8 +27,7 @@ class Config:
 
     BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', None)
     BUCKET_SERVICE_TOKEN = os.environ.get('BUCKET_SERVICE_TOKEN', None)
-    SNS_EVENT_ARN = os.environ.get('SNS_EVENT_ARN',
-                                   'arn:aws:sns:*:123456789012:my_topic')
+    SNS_EVENT_ARN = os.environ.get('SNS_EVENT_ARN', None)
 
     @staticmethod
     def init_app(app):
