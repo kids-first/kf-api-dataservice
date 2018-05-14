@@ -1,5 +1,6 @@
 import re
 from marshmallow import ValidationError
+from marshmallow.validate import OneOf
 
 MIN_AGE_DAYS = 0
 # Max value chosen due to HIPAA de-identification standard
@@ -36,3 +37,13 @@ def validate_kf_id(prefix, value):
     m = re.search(r, value)
     if not m:
         raise ValidationError('Invalid kf_id')
+
+
+def enum_validation_generator(_enum):
+    from dataservice.api.common.model import COMMON_ENUM
+
+    extended_enum = _enum.union(COMMON_ENUM)
+    error_message = 'Not a valid choice. Must be one of: {}'.format(
+        ', '.join(list(_enum) + list(COMMON_ENUM)))
+
+    return OneOf(extended_enum, error=error_message)

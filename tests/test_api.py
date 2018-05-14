@@ -48,6 +48,7 @@ class TestAPI:
                              [(ept + '/123', 'PATCH', 'could not find')
                               for ept in ENDPOINTS] +
                              [(ept + '/123', 'DELETE', 'could not find')
+
                               for ept in ENDPOINTS]
                              )
     def test_status_messages(self, client, endpoint, method, status_message):
@@ -270,7 +271,6 @@ class TestAPI:
     @pytest.mark.parametrize('method', ['POST'])
     @pytest.mark.parametrize('endpoint, field',
                              [
-                                 ('/biospecimens', 'analyte_type'),
                                  ('/family-relationships', 'participant_id'),
                                  ('/family-relationships', 'relative_id'),
                                  ('/study-files', 'study_id'),
