@@ -24,6 +24,7 @@ class BaseSchema(ma.ModelSchema):
     def __init__(self, code=200, message='success', *args, **kwargs):
         self.status_code = code
         self.status_message = message
+
         # Add the request's db session to serializer if one is not specified
         if 'session' not in kwargs:
             kwargs['session'] = db.session

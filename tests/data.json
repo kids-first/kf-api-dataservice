@@ -49,8 +49,8 @@
             "diagnosis_category": "Structural Birth Defect",
             "source_text_diagnosis": "diag",
             "age_at_event_days": 365,
-            "mondo_id_diagnosis": "DOID:8469",
-            "icd_id_diagnosis": "J10.01",
+            "mondo_id_diagnosis": "MONDO:8469",
+            "icd_id_diagnosis": "ICD10:J10.01",
             "uberon_id_tumor_location": "UBERON:0000955",
             "spatial_descriptor": "left side"
         },
