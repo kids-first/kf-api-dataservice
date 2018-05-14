@@ -14,6 +14,10 @@ ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other"}
 class BiospecimenSchema(BaseSchema):
     participant_id = field_for(Biospecimen, 'participant_id', required=True,
                                load_only=True)
+
+    sequencing_center_id = field_for(Biospecimen, 'sequencing_center_id',
+                                     required=True, load_only=True)
+
     age_at_event_days = field_for(Biospecimen, 'age_at_event_days',
                                   validate=validate_age)
     concentration_mg_per_ml = field_for(Biospecimen, 'concentration_mg_per_ml',
@@ -21,7 +25,8 @@ class BiospecimenSchema(BaseSchema):
     volume_ml = field_for(Biospecimen, 'volume_ml',
                           validate=validate_positive_number)
 
-    shipment_date = DateOrDatetime(allow_none=True)
+    shipment_date = field_for(Biospecimen, 'shipment_date',
+                              field_class=DateOrDatetime)
 
     sequencing_center_id = field_for(Biospecimen, 'sequencing_center_id',
                                      required=True, load_only=True)
@@ -33,11 +38,16 @@ class BiospecimenSchema(BaseSchema):
         model = Biospecimen
         resource_url = 'api.biospecimens'
         collection_url = 'api.biospecimens_list'
+        exclude = (BaseSchema.Meta.exclude +
+                   ('participant', 'sequencing_center') +
+                   ('genomic_files',))
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
         'sequencing_center': ma.URLFor('api.sequencing_centers',
-                                       kf_id='<sequencing_center_id>')
+                                       kf_id='<sequencing_center_id>'),
+        'genomic_files': ma.URLFor('api.genomic_files_list',
+                                   biospecimen_id='<kf_id>')
     })

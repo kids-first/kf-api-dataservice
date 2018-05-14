@@ -1,4 +1,5 @@
-from sqlalchemy import event
+from sqlalchemy import event, or_
+
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
@@ -66,6 +67,18 @@ class FamilyRelationship(db.Model, Base):
         primaryjoin=relative_id == Participant.kf_id,
         backref=db.backref('incoming_family_relationships',
                            cascade='all, delete-orphan'))
+
+    @classmethod
+    def query_all_relationships(cls, participant_kf_id):
+        """
+        Find all relationship records given a the kf_id of a particpant
+        """
+
+        q = cls.query.filter(or_(
+            FamilyRelationship.participant_id == participant_kf_id,
+            FamilyRelationship.relative_id == participant_kf_id))
+
+        return q
 
     def __repr__(self):
         return '<{} is {} of {}>'.format(self.participant,

@@ -13,7 +13,9 @@ RELEASE_STATUS_ENUM = {'Pending', 'Waiting', 'Running', 'Staged',
 class StudySchema(BaseSchema):
 
     investigator_id = field_for(Study, 'investigator_id',
-                                required=False, example='IG_ABB2C104')
+                                required=False, load_only=True,
+                                example='IG_ABB2C104')
+
     release_status = field_for(Study, 'release_status',
                                validate=enum_validation_generator(
                                    RELEASE_STATUS_ENUM))
@@ -22,10 +24,13 @@ class StudySchema(BaseSchema):
         model = Study
         resource_url = 'api.studies'
         collection_url = 'api.studies_list'
+        exclude = BaseSchema.Meta.exclude + ('participants', 'study_files')
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'investigator': PatchedURLFor('api.investigators',
-                                      kf_id='<investigator_id>')
+                                      kf_id='<investigator_id>'),
+        'participants': ma.URLFor('api.participants_list', study_id='<kf_id>'),
+        'study_files': ma.URLFor('api.study_files_list', study_id='<kf_id>')
     })

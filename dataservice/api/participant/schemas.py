@@ -23,6 +23,7 @@ class ParticipantSchema(BaseSchema):
     study_id = field_for(Participant, 'study_id', required=True,
                          load_only=True)
     family_id = field_for(Participant, 'family_id',
+                          load_only=True,
                           required=False, example='FM_ABB2C104')
     gender = field_for(Participant, 'gender',
                        validate=enum_validation_generator(
@@ -38,11 +39,22 @@ class ParticipantSchema(BaseSchema):
         model = Participant
         resource_url = 'api.participants'
         collection_url = 'api.participants_list'
-        exclude = BaseSchema.Meta.exclude + ('study', 'family')
+        exclude = (BaseSchema.Meta.exclude +
+                   ('study', 'family') +
+                   ('diagnoses', 'phenotypes', 'outcomes', 'biospecimens'))
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'study': ma.URLFor('api.studies', kf_id='<study_id>'),
-        'family': PatchedURLFor('api.families', kf_id='<family_id>')
+        'family': PatchedURLFor('api.families', kf_id='<family_id>'),
+        'diagnoses': ma.URLFor('api.diagnoses_list', participant_id='<kf_id>'),
+        'phenotypes': ma.URLFor('api.phenotypes_list',
+                                participant_id='<kf_id>'),
+        'outcomes': ma.URLFor('api.outcomes_list',
+                              participant_id='<kf_id>'),
+        'biospecimens': ma.URLFor('api.biospecimens_list',
+                                  participant_id='<kf_id>'),
+        'family_relationhips': ma.URLFor('api.family_relationships_list',
+                                         participant_id='<kf_id>')
     })

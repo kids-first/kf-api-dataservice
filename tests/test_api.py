@@ -1,7 +1,6 @@
 import json
 import pkg_resources
 import pytest
-from pprint import pprint
 
 from dataservice.api.common import id_service
 from tests.conftest import (
@@ -79,6 +78,7 @@ class TestAPI:
         ('/study-files', ['study']),
         ('/investigators', []),
         ('/participants', ['study', 'family']),
+        ('/family-relationships', ['participant', 'relative']),
         ('/phenotypes', ['participant']),
         ('/outcomes', ['participant']),
         ('/diagnoses', ['participant']),
@@ -90,27 +90,67 @@ class TestAPI:
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
-        resp = client.get(endpoint,
+        # Setup inputs
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        resp = client.get(endpoint + '/' + entity.kf_id,
                           headers={'Content-Type': 'application/json'})
+
         body = json.loads(resp.data.decode('utf-8'))
-
+        # All links are formatted properly
         assert '_links' in body
+        for parent in parents:
+            # Links formatted properly
+            assert parent in body['_links']
+            link = body['_links'][parent]
+            if link:
+                assert len(link.split('/')[-1]) == 11
 
-        # If paginated results
-        if isinstance(body['results'], list):
-            for res in body['results']:
-                assert '_links' in res
-                # Parent entities are in links
-                for p in parents:
-                    assert p in res['_links']
-                # All links are formatted properly
-                for key, link in res['_links'].items():
-                    if key == 'collection':
-                        continue
-                    if link:
-                        assert len(link.split('/')[-1]) == 11
-                    else:
-                        assert link is None
+        # Test self and collection links
+        assert 'collection' in body['_links']
+        assert body['_links']['collection'] == endpoint
+        assert 'self' in body['_links']
+        self_link = body['_links']['self']
+        self_kf_id = self_link.split('/')[-1]
+        self_endpoint = '/' + self_link.split('/')[1]
+        self_model_cls = ENDPOINT_ENTITY_MAP.get(self_endpoint)
+        assert self_model_cls.query.get(self_kf_id)
+
+    @pytest.mark.parametrize('endpoint,child_relations', [
+        ('/studies', ['study_files', 'participants']),
+        ('/investigators', ['studies']),
+        ('/families', ['participants']),
+        ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
+        ('/participants', ['diagnoses',
+                           'phenotypes', 'outcomes', 'biospecimens']),
+        ('/biospecimens', ['genomic_files']),
+        ('/sequencing-experiments', ['genomic_files']),
+        ('/genomic-files', ['cavatica_task_genomic_files']),
+        ('/cavatica-apps', ['cavatica_tasks']),
+        ('/cavatica-tasks', ['cavatica_task_genomic_files']),
+    ])
+    def test_child_links(self, client, entities, endpoint, child_relations):
+        """ Checks that references to other resources have correct ID """
+        # Setup inputs
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+
+        resp = client.get(endpoint + '/' + entity.kf_id)
+        links = json.loads(resp.data.decode('utf-8'))['_links']
+        for child in child_relations:
+            # Child entity exists in links
+            assert child in links
+            # Format of link
+            link = links[child]
+            link_endpoint = link.split('?')[0]
+            assert ('/' + child.replace('_', '-')) == link_endpoint
+            assert type(link) is str
+            kf_id = link.split('=')[-1]
+            assert len(kf_id) == 11
+            # Foreign key exists
+            foreign_key = link.split('?')[-1].split('=')[0]
+            related_entity_cls = ENDPOINT_ENTITY_MAP[link_endpoint]
+            assert getattr(related_entity_cls, foreign_key)
 
     @pytest.mark.parametrize('endpoint', ENDPOINTS)
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
@@ -137,7 +177,6 @@ class TestAPI:
         # Send request
         resp = call_func(url, **kwargs)
         body = json.loads(resp.data.decode('utf-8'))
-        pprint(body)
 
         if 'results' not in body:
             assert ('error saving' in body['_status']['message'] or
@@ -201,38 +240,6 @@ class TestAPI:
         assert body['_status']['code'] == 400
         assert 'could not {} '.format(action) in body['_status']['message']
         assert 'Unknown field' in body['_status']['message']
-
-    @pytest.mark.parametrize('endpoint,fields', [
-        ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
-        ('/participants', ['diagnoses',
-                           'phenotypes', 'outcomes', 'biospecimens']),
-        ('/biospecimens', ['genomic_files']),
-        ('/sequencing-experiments', ['genomic_files']),
-        ('/studies', ['study_files', 'participants']),
-        ('/investigators', ['studies']),
-        ('/families', ['participants']),
-        ('/cavatica-apps', ['cavatica_tasks']),
-        ('/cavatica-tasks', ['cavatica_task_genomic_files']),
-        ('/genomic-files', ['cavatica_task_genomic_files'])
-    ])
-    def test_child_links(self, client, entities, endpoint, fields):
-        """ Checks that references to other resources have correct ID """
-        # Setup inputs
-        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
-        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
-        entity = entities.get(model_cls)[0]
-        _add_foreign_keys(inputs, entity)
-
-        resp = client.get(endpoint + '/' + entity.kf_id)
-        body = json.loads(resp.data.decode('utf-8'))['results']
-        for field in fields:
-            assert field in body
-            if type(body[field]) is list:
-                assert all([type(f) is str for f in body[field]])
-                assert all([len(f) == 11 for f in body[field]])
-            else:
-                assert type(body[field]) is str
-                assert len(body[field]) == 11
 
     @pytest.mark.parametrize('method', ['POST', 'PATCH'])
     @pytest.mark.parametrize('endpoint, invalid_params',

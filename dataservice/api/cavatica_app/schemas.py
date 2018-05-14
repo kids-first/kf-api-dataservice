@@ -18,8 +18,11 @@ class CavaticaAppSchema(BaseSchema):
         model = CavaticaApp
         resource_url = 'api.cavatica_apps'
         collection_url = 'api.cavatica_apps_list'
+        exclude = BaseSchema.Meta.exclude + ('cavatica_tasks', )
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
-        'collection': ma.URLFor(Meta.collection_url)
+        'collection': ma.URLFor(Meta.collection_url),
+        'cavatica_tasks': ma.URLFor('api.cavatica_tasks_list',
+                                    cavatica_app_id='<kf_id>')
     })

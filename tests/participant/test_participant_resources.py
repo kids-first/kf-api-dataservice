@@ -36,8 +36,9 @@ class ParticipantTest(FlaskTestCase):
         participant = resp['results']
         body['participant_id'] = Participant.query.get(
             participant.get('kf_id'))
+        skip_ids = {'family_id', 'participant_id', 'study_id'}
         for k, v in body.items():
-            if k == 'participant_id' or k == 'study_id':
+            if k in skip_ids:
                 continue
             self.assertEqual(participant[k], getattr(p, k))
         self.assertEqual(1, Participant.query.count())
