@@ -5,7 +5,6 @@ from datetime import datetime
 from dateutil import parser, tz
 
 from dataservice.extensions import db
-from dataservice.api.common import id_service
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
@@ -31,11 +30,11 @@ class DiagnosisTest(FlaskTestCase):
             'external_id': 'd1',
             'source_text_diagnosis': 'flu',
             'age_at_event_days': 365,
-            'diagnosis_category': 'cancer',
+            'diagnosis_category': 'Cancer',
             'source_text_tumor_location': 'Brain',
             'mondo_id_diagnosis': 'DOID:8469',
             'icd_id_diagnosis': 'J10.01',
-            'uberon_id_tumor_location':'UBERON:0000955',
+            'uberon_id_tumor_location': 'UBERON:0000955',
             'spatial_descriptor': 'left side',
             'participant_id': kwargs.get('participant_id')
         }
@@ -64,11 +63,11 @@ class DiagnosisTest(FlaskTestCase):
         d2 = {
             'external_id': 'd2',
             'source_text_diagnosis': 'cold',
-            'diagnosis_category': 'cancer',
+            'diagnosis_category': 'Cancer',
             'source_text_tumor_location': 'Brain',
             'mondo_id_diagnosis': 'DOID:8469',
             'icd_id_diagnosis': 'J10.01',
-            'uberon_id_tumor_location':'UBERON:0000955',
+            'uberon_id_tumor_location': 'UBERON:0000955',
             'spatial_descriptor': 'left side',
             'participant_id': d1['participant_id']
         }
@@ -129,7 +128,7 @@ class DiagnosisTest(FlaskTestCase):
         # Update existing diagnosis
         body = {
             'source_text_diagnosis': 'hangry',
-            'diagnosis_category': 'birth defect',
+            'diagnosis_category': 'Structural Birth Defect',
             'participant_id': kwargs['participant_id']
         }
         response = self.client.patch(url_for(DIAGNOSES_URL,
@@ -194,12 +193,12 @@ class DiagnosisTest(FlaskTestCase):
         kwargs = {
             'external_id': 'd1',
             'source_text_diagnosis': 'flu',
-            'diagnosis_category': 'cancer',
+            'diagnosis_category': 'Cancer',
             'source_text_tumor_location': 'Brain',
             'age_at_event_days': 365,
             'mondo_id_diagnosis': 'DOID:8469',
             'icd_id_diagnosis': 'J10.01',
-            'uberon_id_tumor_location':'UBERON:0000955',
+            'uberon_id_tumor_location': 'UBERON:0000955',
             'spatial_descriptor': 'left side'
         }
         d = Diagnosis(**kwargs)

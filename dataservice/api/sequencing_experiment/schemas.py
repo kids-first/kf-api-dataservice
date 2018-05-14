@@ -3,8 +3,15 @@ from marshmallow_sqlalchemy import field_for
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.custom_fields import DateOrDatetime
-from dataservice.api.common.validation import validate_positive_number
+from dataservice.api.common.validation import (validate_positive_number,
+                                               enum_validation_generator)
 from dataservice.extensions import ma
+
+EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq', 'Other'}
+PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
+                 'Complete Genomics', 'PacBio', 'Other'}
+LIBRARY_STRAND_ENUM = {'Unstranded', 'First Stranded',
+                       'Second Stranded', 'Other'}
 
 
 class SequencingExperimentSchema(BaseSchema):
@@ -12,6 +19,16 @@ class SequencingExperimentSchema(BaseSchema):
                                      'sequencing_center_id',
                                      required=True,
                                      load_only=True)
+    experiment_strategy = field_for(SequencingExperiment,
+                                    'experiment_strategy',
+                                    validate=enum_validation_generator(
+                                        EXPERIMENT_STRATEGY_ENUM))
+    platform = field_for(SequencingExperiment, 'platform',
+                         validate=enum_validation_generator(
+                             PLATFORM_ENUM))
+    library_strand = field_for(SequencingExperiment, 'library_strand',
+                               validate=enum_validation_generator(
+                                   LIBRARY_STRAND_ENUM))
 
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_experiments'

@@ -6,9 +6,15 @@ from dataservice.api.common.schemas import (
     IndexdFileSchema
 )
 from dataservice.extensions import ma
+from dataservice.api.common.schemas import AVAILABILITY_ENUM
+from dataservice.api.common.validation import enum_validation_generator
 
 
 class StudyFileSchema(BaseSchema, IndexdFileSchema):
+    availability = field_for(StudyFile, 'availability',
+                             validate=enum_validation_generator(
+                                 AVAILABILITY_ENUM))
+
     class Meta(BaseSchema.Meta):
         model = StudyFile
         resource_url = 'api.study_files'

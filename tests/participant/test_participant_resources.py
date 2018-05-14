@@ -23,7 +23,7 @@ class ParticipantTest(FlaskTestCase):
         """
         Test creating a new participant
         """
-        response = self._make_participant(external_id="TEST")
+        body, response = self._make_participant(external_id="TEST")
         resp = json.loads(response.data.decode("utf-8"))
 
         self.assertEqual(response.status_code, 201)
@@ -34,14 +34,14 @@ class ParticipantTest(FlaskTestCase):
 
         p = Participant.query.first()
         participant = resp['results']
-        self.assertEqual(p.kf_id, participant['kf_id'])
-        self.assertEqual(p.external_id, participant['external_id'])
-        self.assertEqual(p.consent_type, participant['consent_type'])
-        self.assertEqual(p.family_id, resp['_links']['family'][-11:])
-        self.assertEqual(p.is_proband, participant['is_proband'])
-        self.assertEqual(p.race, participant['race'])
-        self.assertEqual(p.ethnicity, participant['ethnicity'])
-        self.assertEqual(p.gender, participant['gender'])
+        body['participant_id'] = Participant.query.get(
+            participant.get('kf_id'))
+        skip_ids = {'family_id', 'participant_id', 'study_id'}
+        for k, v in body.items():
+            if k in skip_ids:
+                continue
+            self.assertEqual(participant[k], getattr(p, k))
+        self.assertEqual(1, Participant.query.count())
 
     def test_post_with_kf_id(self):
         """
@@ -56,9 +56,9 @@ class ParticipantTest(FlaskTestCase):
             'external_id': 'test',
             'is_proband': True,
             'consent_type': 'GRU-IRB',
-            'race': 'asian',
-            'ethnicity': 'not hispanic',
-            'gender': 'female',
+            'race': 'Asian',
+            'ethnicity': 'Hispanic or Latino',
+            'gender': 'Female',
             'study_id': s.kf_id
         }
 
@@ -103,7 +103,7 @@ class ParticipantTest(FlaskTestCase):
         """
         Test retrieving a participant by id
         """
-        resp = self._make_participant("TEST")
+        body, resp = self._make_participant("TEST")
         resp = json.loads(resp.data.decode("utf-8"))
         kf_id = resp['results']['kf_id']
 
@@ -123,7 +123,7 @@ class ParticipantTest(FlaskTestCase):
         """
         Test that there is no family link if the participant doesnt have one
         """
-        resp = self._make_participant(include_nullables=False)
+        body, resp = self._make_participant(include_nullables=False)
         resp = json.loads(resp.data.decode("utf-8"))
         kf_id = resp['results']['kf_id']
 
@@ -155,7 +155,7 @@ class ParticipantTest(FlaskTestCase):
         """
         Test updating an existing participant
         """
-        response = self._make_participant(external_id="TEST")
+        body, response = self._make_participant(external_id="TEST")
         resp = json.loads(response.data.decode("utf-8"))
         participant = resp['results']
         kf_id = participant.get('kf_id')
@@ -163,7 +163,7 @@ class ParticipantTest(FlaskTestCase):
         body = {
             'external_id': 'participant 0',
             'consent_type': 'something',
-            'gender': 'updated_gender',
+            'gender': 'Male',
             'kf_id': kf_id
         }
         response = self.client.patch(url_for(PARTICIPANT_URL,
@@ -200,7 +200,7 @@ class ParticipantTest(FlaskTestCase):
         """
         Test updating an existing participant with invalid input
         """
-        response = self._make_participant(external_id="TEST")
+        body, response = self._make_participant(external_id="TEST")
         resp = json.loads(response.data.decode("utf-8"))
         participant = resp['results']
         kf_id = participant.get('kf_id')
@@ -235,7 +235,7 @@ class ParticipantTest(FlaskTestCase):
         """
         Test deleting a participant by id
         """
-        resp = self._make_participant("TEST")
+        body, resp = self._make_participant("TEST")
         resp = json.loads(resp.data.decode("utf-8"))
         kf_id = resp['results']['kf_id']
 
@@ -268,15 +268,14 @@ class ParticipantTest(FlaskTestCase):
             'external_id': external_id,
             'is_proband': True,
             'consent_type': 'GRU-IRB',
-            'race': 'asian',
-            'ethnicity': 'not hispanic',
-            'gender': 'female',
+            'race': 'Asian',
+            'ethnicity': 'Not Hispanic or Latino',
+            'gender': 'Male',
             'study_id': s.kf_id
         }
         if include_nullables:
             body.update({'family_id': fam.kf_id})
-
         response = self.client.post(url_for(PARTICIPANT_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
-        return response
+        return body, response

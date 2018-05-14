@@ -6,10 +6,9 @@ from dataservice.api.common.model import Base, KfId
 from dataservice.api.participant.models import Participant
 
 REVERSE_RELS = {
-    'mother': 'child',
-    'father': 'child',
-    'sister': 'sister',
-    'brother': 'brother'
+    'mother': 'Child',
+    'father': 'Child',
+    'sibling': 'Sibling'
 }
 
 
@@ -93,5 +92,5 @@ def set_reverse_relation(target, value, oldvalue, initiator):
     Listen for set 'participant_to_relative_relation' events and
     set the reverse relationship, 'relative_to_participant_relation' attribute
     """
-    target.relative_to_participant_relation = REVERSE_RELS.get(value, None)
-#
+    target.relative_to_participant_relation = REVERSE_RELS.get(value.lower(),
+                                                               None)

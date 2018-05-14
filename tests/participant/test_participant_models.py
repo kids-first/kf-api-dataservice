@@ -75,8 +75,8 @@ class ModelTest(FlaskTestCase):
         self.assertGreater(new_participant.modified_at, dt)
         self.assertIs(type(uuid.UUID(new_participant.uuid)), uuid.UUID)
         self.assertEqual(new_participant.external_id, 'Test_Participant_0')
-        self.assertEqual(new_participant.is_proband,False)
-        self.assertEqual(new_participant.race,'asian')
+        self.assertEqual(new_participant.is_proband, False)
+        self.assertEqual(new_participant.race, 'asian')
 
     def test_get_participant(self):
         """
@@ -88,9 +88,9 @@ class ModelTest(FlaskTestCase):
         participant = self._get_participant(kf_id)
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(participant.external_id, 'Test_Participant_0')
-        self.assertEqual(participant.is_proband,False)
+        self.assertEqual(participant.is_proband, False)
         self.assertEqual(participant.kf_id, kf_id)
-        self.assertEqual(participant.ethnicity,'not hispanic')
+        self.assertEqual(participant.ethnicity, 'not hispanic')
 
     def test_participant_not_found(self):
         """

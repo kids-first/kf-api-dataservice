@@ -1,6 +1,5 @@
 from datetime import datetime
 import uuid
-import random
 
 from dataservice.extensions import db
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
@@ -22,17 +21,17 @@ class ModelTest(FlaskTestCase):
         """
         sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
         if sc is None:
-            sc = SequencingCenter(external_id='SC_0',name="Baylor")
+            sc = SequencingCenter(external_id='SC_0', name="Baylor")
             db.session.add(sc)
             db.session.commit()
         seq_data = {
-         'external_id': 'Seq_0',
-         'experiment_strategy': 'WXS',
-         'library_name': 'Test_library_name_1',
-         'library_strand': 'Unstranded',
-         'is_paired_end': False,
-         'platform': 'Test_platform_name_1'
-         }
+            'external_id': 'Seq_0',
+            'experiment_strategy': 'WXS',
+            'library_name': 'Test_library_name_1',
+            'library_strand': 'Unstranded',
+            'is_paired_end': False,
+            'platform': 'Test_platform_name_1'
+        }
         seq_exp = SequencingExperiment(**seq_data,
                                        sequencing_center_id=sc.kf_id)
         db.session.add(seq_exp)
@@ -103,7 +102,7 @@ class ModelTest(FlaskTestCase):
         """
         ids = self.create_seqexp_seqcen()
         # Create sequencing_center with same value in name
-        sc = SequencingCenter(external_id='SC_0',name='Baylor')
+        sc = SequencingCenter(external_id='SC_0', name='Baylor')
 
         # Add sequencing_center to db
         db.session.add(sc)

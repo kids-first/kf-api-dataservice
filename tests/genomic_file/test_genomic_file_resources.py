@@ -65,7 +65,7 @@ def genomic_files(client, entities):
     props = {
         'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
-        'data_type': 'aligned reads',
+        'data_type': 'Aligned Reads',
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'biospecimen_id': Biospecimen.query.first().kf_id,
         'file_format': 'bam'
@@ -101,7 +101,7 @@ def test_new_indexd_error(client, entities):
         'file_name': 'hg38.bam',
         'size': 123,
         'acl': ['TEST'],
-        'data_type': 'aligned reads',
+        'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
@@ -292,13 +292,14 @@ def _new_genomic_file(client):
         'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
         'size': 123,
-        'data_type': 'aligned reads',
+        'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
-        'availability': 'availble for download',
+        'availability': 'Immediate Download',
+        'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'biospecimen_id': Biospecimen.query.first().kf_id,
-        'controlled_access': False,
+        'controlled_access': False
     }
     response = client.post(url_for(GENOMICFILE_LIST_URL),
                            headers={'Content-Type': 'application/json'},

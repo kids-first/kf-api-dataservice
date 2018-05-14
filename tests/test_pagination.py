@@ -80,9 +80,9 @@ class TestPagination:
                 'external_id': "test",
                 'is_proband': True,
                 'consent_type': 'GRU-IRB',
-                'race': 'asian',
-                'ethnicity': 'not hispanic',
-                'gender': 'male'
+                'race': 'Asian',
+                'ethnicity': 'Hispanic or Latino',
+                'gender': 'Male'
             }
             p = Participant(**data, study_id=s.kf_id, family_id=f.kf_id)
             diag = Diagnosis()
@@ -106,7 +106,7 @@ class TestPagination:
             gf_kwargs = {
                 'external_id': 'gf_0',
                 'file_name': 'hg38.fq',
-                'data_type': 'reads',
+                'data_type': 'Aligned Reads',
                 'file_format': 'fastq',
                 'size': 1000,
                 'urls': ['s3://bucket/key'],

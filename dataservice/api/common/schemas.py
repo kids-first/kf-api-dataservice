@@ -13,6 +13,8 @@ from flask_marshmallow import Schema
 from dataservice.api.common.pagination import Pagination
 from dataservice.api.common.validation import validate_kf_id
 from dataservice.extensions import db
+AVAILABILITY_ENUM = {'Immediate Download',
+                     'Cold Storage'}
 
 
 class BaseSchema(ma.ModelSchema):

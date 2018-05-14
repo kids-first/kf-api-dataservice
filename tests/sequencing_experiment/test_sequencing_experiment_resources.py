@@ -1,16 +1,12 @@
 import json
 from flask import url_for
 from datetime import datetime
-from urllib.parse import urlparse
 from dateutil import parser, tz
 
 from dataservice.extensions import db
-from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
-from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.participant.models import Participant
-from dataservice.api.study.models import Study
+
 from tests.utils import FlaskTestCase
 
 SEQUENCING_EXPERIMENTS_URL = 'api.sequencing_experiments'
@@ -103,7 +99,7 @@ class SequencingExperimentTest(FlaskTestCase):
             'external_id': 'se2',
             'experiment_strategy': 'WGS',
             'library_name': 'a library',
-            'library_strand': 'a strand',
+            'library_strand': 'Unstranded',
             'is_paired_end': True,
             'platform': 'Illumina',
             'instrument_model': 'HiSeqX'
@@ -184,7 +180,7 @@ class SequencingExperimentTest(FlaskTestCase):
             'library_name': 'Test_library_name_1',
             'library_strand': 'Unstranded',
             'is_paired_end': False,
-            'platform': 'Test_platform_name_1',
+            'platform': 'Illumina',
             'instrument_model': '454 GS FLX Titanium',
             'max_insert_size': 600,
             'mean_insert_size': 500,
