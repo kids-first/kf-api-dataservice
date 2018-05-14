@@ -1,6 +1,8 @@
-import yaml
+import boto3
 import jinja2
-from flask import url_for
+import json
+import yaml
+from flask import request, current_app
 from flask.views import MethodView
 from dataservice.api.common.schemas import (
     response_generator,
@@ -169,3 +171,54 @@ class CRUDView(MethodView):
         Returns endpoints for all subclasses
         """
         return [c.endpoint for c in cls.__subclasses__()]
+
+    def dispatch_request(self, *args, **kwargs):
+        """
+        Sends event to sns
+        """
+        resp = super(CRUDView, self).dispatch_request(*args, **kwargs)
+
+        if isinstance(resp, tuple):
+            status = resp[1]
+            resp = resp[0]
+        else:
+            status = resp.status_code
+
+        self.send_sns(resp)
+
+        return resp, status
+
+    def send_sns(self, resp):
+        """
+        Send an event to SNS containing the response if:
+        - There is a topic ARN in the config
+        - Response is 2xx
+        - Method is POST, PATCH, PUT, or DELETE
+        """
+        # Bail if there is no ARN in the config
+        if ('SNS_EVENT_ARN' not in current_app.config or
+                current_app.config['SNS_EVENT_ARN'] is None):
+            return
+        arn = current_app.config['SNS_EVENT_ARN']
+
+        # Bail early if not a good response
+        if resp.status_code >= 300:
+            return
+
+        # Bail early if not an interesting method type
+        meth = request.method.lower()
+        if meth not in ['post', 'patch', 'put', 'delete']:
+            return
+
+        message = {'default': json.dumps({
+            'path': request.path,
+            'method': meth,
+            'api_version': current_app.config['PKG_VERSION'],
+            'api_commit': current_app.config['GIT_COMMIT'],
+            'data': json.loads(resp.data.decode('utf8'))
+        })}
+
+        client = boto3.client('sns', region_name='us-east-1')
+        client.publish(TopicArn=arn,
+                       MessageStructure='json',
+                       Message=json.dumps(message))

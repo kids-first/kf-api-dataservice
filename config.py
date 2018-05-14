@@ -27,6 +27,8 @@ class Config:
 
     BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', None)
     BUCKET_SERVICE_TOKEN = os.environ.get('BUCKET_SERVICE_TOKEN', None)
+    SNS_EVENT_ARN = os.environ.get('SNS_EVENT_ARN',
+                                   'arn:aws:sns:*:123456789012:my_topic')
 
     @staticmethod
     def init_app(app):
@@ -46,12 +48,14 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/test'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+
     INDEXD_URL = os.environ.get('INDEXD_URL', '')
     BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', '')
     BUCKET_SERVICE_TOKEN = 'test123'
 
     MODEL_VERSION = '0.1.0'
     MIGRATION = 'aaaaaaaaaaaa'
+    SNS_EVENT_ARN = None
 
 
 class ProductionConfig(Config):
