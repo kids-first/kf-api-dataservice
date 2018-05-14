@@ -1,3 +1,23 @@
+# Kids First Dataservice Release v1.1.0
+
+## Features
+### Summary
+
+Feature Emojis: ✨x17 🐛x10 🗃x5 🔧x3 📝x2 ⚡x2 👷x1 💄x1 🚑x1 🏷x1 ♻️x1
+Feature Labels: [data model](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"data+model"+) x17 [feature](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"feature"+) x12 [bug](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"bug"+) x12 [Ready for review](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"Ready+for+review"+) x5 [refactor](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"refactor"+) x3 [documentation](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"documentation"+) x2 [devops](https://github.com/kids-first/kf-api-dataservice/issues?utf8=%E2%9C%93&q=label%3A"devops"+) x1
+### New features and changes
+
+- (#316) 🔧 Bucket secret default - @dankolbman
+- (#317) ✨ Basic Filter Params - @znatty22
+- (#324) ♻️ Refactor child links - @znatty22
+- (#331) 🔧Fix reverse family relationships - @znatty22
+- (#333) 🐛 Fix case sensitivity of family relationships - @znatty22
+- (#299) ✨ Add enum validators for entities - @parimalak
+- (#279) ✨ Add SNS events for data changes - @dankolbman
+- (#334) ✏️ Update genomic file data type enum - @dankolbman
+- (#335) 🐛 Default SNS ARN to None - @dankolbman
+
+
 # Kids First Dataservice Release v1.0.0
 
 ## Features
