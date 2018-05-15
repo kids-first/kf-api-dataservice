@@ -12,7 +12,7 @@ parameters:
   description: Content
   required: true
   schema:
-    $ref: "#/definitions/Participant"
+    $ref: "#/definitions/{{ resource }}"
 responses:
   200:
     description: {{ resource }} updated
