@@ -38,11 +38,11 @@
             "concentration_mg_per_ml": 200.0,
             "volume_ml": 13.99,
             "shipment_date": "",
-            "uberon_id_anatomical_site": "test",
+            "uberon_id_anatomical_site": "UBERON:test",
             "spatial_descriptor": "left side",
-            "ncit_id_tissue_type": "Test",
-            "ncit_id_anatomical_site": "C12439",
-            "dbgap_consent_code": "phs00000.c1"
+            "dbgap_consent_code": "phs00000.c1",
+            "ncit_id_tissue_type": "NCIT:Test",
+            "ncit_id_anatomical_site": "NCIT:C12439"
         },
         "/diagnoses": {
             "external_id": "d0",
@@ -161,7 +161,10 @@
             "invalid": [
                 {"age_at_event_days": -1, "shipment_date": "hai der"},
                 {"age_at_event_days": "hello"},
-                {"analyte_type": "test"}
+                {"analyte_type": "test"},
+                {"ncit_id_tissue_type": "Test",
+                 "ncit_id_anatomical_site": "C12439",
+                 "uberon_id_anatomical_site": "test"}
             ]
         },
         "/diagnoses": {
@@ -173,7 +176,10 @@
             "invalid": [
                 {"age_at_event_days": -1},
                 {"age_at_event_days": "hello"},
-                {"diagnosis_category": "test"}
+                {"diagnosis_category": "test"},
+                {"mondo_id_diagnosis": "8469",
+                "icd_id_diagnosis": "J10.01",
+                "uberon_id_tumor_location": "0000955"}
             ]
         },
         "/outcomes": {

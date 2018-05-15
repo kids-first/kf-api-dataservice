@@ -44,8 +44,8 @@ class BiospecimenTest(FlaskTestCase):
             'volume_ml': 12.67,
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'spatial_descriptor': 'left side',
-            'ncit_id_tissue_type': 'Test',
-            'ncit_id_anatomical_site': 'C12439',
+            'ncit_id_tissue_type': 'NCIT:Test',
+            'ncit_id_anatomical_site': 'NCIT:C12439',
             'participant_id': kwargs.get('participant_id'),
             'dbgap_consent_code': 'phs00000.c1',
             'sequencing_center_id': kwargs.get('sequencing_center_id')
@@ -316,8 +316,8 @@ class BiospecimenTest(FlaskTestCase):
             'volume_ml': 12.67,
             'shipment_date': dt,
             'spatial_descriptor': 'left side',
-            'ncit_id_tissue_type': 'Test',
-            'ncit_id_anatomical_site': 'C12439',
+            'ncit_id_tissue_type': 'NCIT:Test',
+            'ncit_id_anatomical_site': 'NCIT:C12439',
             'uberon_id_anatomical_site': 'UBERON:0000955',
             'dbgap_consent_code': 'phs00000.c1',
             'sequencing_center_id': sc.kf_id

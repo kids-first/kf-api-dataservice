@@ -6,7 +6,9 @@ from dataservice.api.common.validation import validate_age
 from dataservice.api.common.custom_fields import (DateOrDatetime,
                                                   PatchedURLFor)
 from dataservice.api.common.validation import (validate_positive_number,
-                                               enum_validation_generator)
+                                               enum_validation_generator,
+                                               validate_ontology_id_prefix,
+                                               FieldValidator)
 from dataservice.extensions import ma
 
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other"}
@@ -34,6 +36,17 @@ class BiospecimenSchema(BaseSchema):
     analyte_type = field_for(Biospecimen, 'analyte_type',
                              validate=enum_validation_generator(
                                  ANALYTE_TYPE_ENUM))
+    uberon_id_anatomical_site = FieldValidator(
+        attribute='uberon_id_anatomical_site',
+        validate=validate_ontology_id_prefix,
+        field='uberon_id_anatomical_site')
+    ncit_id_tissue_type = FieldValidator(attribute='ncit_id_tissue_type',
+                                         validate=validate_ontology_id_prefix,
+                                         field='ncit_id_tissue_type')
+    ncit_id_anatomical_site = FieldValidator(
+        attribute='ncit_id_anatomical_site',
+        validate=validate_ontology_id_prefix,
+        field='ncit_id_anatomical_site')
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen
