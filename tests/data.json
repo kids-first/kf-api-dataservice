@@ -64,7 +64,7 @@
             "external_id": "Phenotype_0",
             "source_text_phenotype": "test phenotype 1",
             "hpo_id_phenotype": "HP:0000118",
-            "snomed_id_phenotype": "38033009",
+            "snomed_id_phenotype": "SNOMEDCT:38033009",
             "age_at_event_days": 120
         },
         "/sequencing-experiments": {
@@ -200,7 +200,9 @@
             },
             "invalid": [
                 {"age_at_event_days": -1},
-                {"age_at_event_days": "hello"}
+                {"age_at_event_days": "hello"},
+                {"hpo_id_phenotype": "0000118",
+                "snomed_id_phenotype": "38033009"}
             ]
         },
         "/sequencing-experiments": {

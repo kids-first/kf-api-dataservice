@@ -64,7 +64,7 @@ class PhenotypeTest(FlaskTestCase):
             'external_id': 'test_phenotype_1',
             'source_text_phenotype': 'Tall stature',
             'hpo_id_phenotype': 'HP:0000098',
-            'snomed_id_phenotype': '38033009',
+            'snomed_id_phenotype': 'SNOMEDCT:38033009',
             'observed': 'Positive',
             'participant_id': ph1['participant_id']
         }
@@ -175,7 +175,7 @@ class PhenotypeTest(FlaskTestCase):
             'external_id': 'test_phenotype_0',
             'source_text_phenotype': 'Hand Tremor',
             'hpo_id_phenotype': 'HP:0002378',
-            'snomed_id_phenotype': '38033009',
+            'snomed_id_phenotype': 'SNOMEDCT:38033009',
             'observed': 'Positive',
             'age_at_event_days': 365
         }

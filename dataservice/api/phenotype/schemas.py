@@ -3,7 +3,9 @@ from marshmallow_sqlalchemy import field_for
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.validation import (validate_age,
-                                               enum_validation_generator)
+                                               enum_validation_generator,
+                                               validate_ontology_id_prefix,
+                                               FieldValidator)
 from dataservice.extensions import ma
 
 
@@ -19,6 +21,13 @@ class PhenotypeSchema(BaseSchema):
     observed = field_for(Phenotype, 'observed',
                          validate=enum_validation_generator(
                              OBSERVED_ENUM))
+    hpo_id_phenotype = FieldValidator(
+        attribute='hpo_id_phenotype',
+        validate=validate_ontology_id_prefix,
+        field='hpo_id_phenotype')
+    snomed_id_phenotype = FieldValidator(attribute='snomed_id_phenotype',
+                                         validate=validate_ontology_id_prefix,
+                                         field='snomed_id_phenotype')
 
     class Meta(BaseSchema.Meta):
         model = Phenotype
