@@ -38,15 +38,13 @@ class BiospecimenSchema(BaseSchema):
                                  ANALYTE_TYPE_ENUM))
     uberon_id_anatomical_site = FieldValidator(
         attribute='uberon_id_anatomical_site',
-        validate=validate_ontology_id_prefix,
-        field='uberon_id_anatomical_site')
+        validate=validate_ontology_id_prefix)
     ncit_id_tissue_type = FieldValidator(attribute='ncit_id_tissue_type',
-                                         validate=validate_ontology_id_prefix,
-                                         field='ncit_id_tissue_type')
+                                         validate=validate_ontology_id_prefix
+                                         )
     ncit_id_anatomical_site = FieldValidator(
         attribute='ncit_id_anatomical_site',
-        validate=validate_ontology_id_prefix,
-        field='ncit_id_anatomical_site')
+        validate=validate_ontology_id_prefix)
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen

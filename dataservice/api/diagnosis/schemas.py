@@ -4,7 +4,7 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.validation import (validate_age,
                                                validate_ontology_id_prefix,
-					       FieldValidator,
+                                               FieldValidator,
                                                enum_validation_generator)
 from dataservice.api.common.custom_fields import PatchedURLFor
 
@@ -27,18 +27,14 @@ class DiagnosisSchema(BaseSchema):
                                    validate=enum_validation_generator(
                                        DIAGNOSIS_CATEGORY_ENUM))
     mondo_id_diagnosis = FieldValidator(attribute='mondo_id_diagnosis',
-                                        validate=validate_ontology_id_prefix,
-                                        field='mondo_id_diagnosis')
+                                        validate=validate_ontology_id_prefix)
     icd_id_diagnosis = FieldValidator(attribute='icd_id_diagnosis',
-                                      validate=validate_ontology_id_prefix,
-                                      field='icd_id_diagnosis')
+                                      validate=validate_ontology_id_prefix)
     uberon_id_tumor_location = FieldValidator(
         attribute='uberon_id_tumor_location',
-        validate=validate_ontology_id_prefix,
-        field='uberon_id_tumor_location')
+        validate=validate_ontology_id_prefix)
     ncit_id_diagnosis = FieldValidator(attribute='ncit_id_diagnosis',
-                                       validate=validate_ontology_id_prefix,
-                                       field='ncit_id_diagnosis')
+                                       validate=validate_ontology_id_prefix)
 
     class Meta(BaseSchema.Meta):
         model = Diagnosis

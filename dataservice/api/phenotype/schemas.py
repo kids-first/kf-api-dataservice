@@ -23,11 +23,9 @@ class PhenotypeSchema(BaseSchema):
                              OBSERVED_ENUM))
     hpo_id_phenotype = FieldValidator(
         attribute='hpo_id_phenotype',
-        validate=validate_ontology_id_prefix,
-        field='hpo_id_phenotype')
+        validate=validate_ontology_id_prefix)
     snomed_id_phenotype = FieldValidator(attribute='snomed_id_phenotype',
-                                         validate=validate_ontology_id_prefix,
-                                         field='snomed_id_phenotype')
+                                         validate=validate_ontology_id_prefix)
 
     class Meta(BaseSchema.Meta):
         model = Phenotype
