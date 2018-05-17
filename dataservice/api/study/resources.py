@@ -34,11 +34,7 @@ class StudyListAPI(CRUDView):
               Study
         """
         q = (Study.query
-             .filter_by(**filter_params)
-             .options(joinedload(Study.study_files)
-                      .load_only('kf_id'))
-             .options(joinedload(Study.participants)
-                      .load_only('kf_id')))
+             .filter_by(**filter_params))
 
         return (StudySchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

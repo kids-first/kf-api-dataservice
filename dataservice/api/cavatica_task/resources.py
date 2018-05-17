@@ -39,10 +39,7 @@ class CavaticaTaskListAPI(CRUDView):
         study_id = filter_params.pop('study_id', None)
 
         q = (CavaticaTask.query
-             .filter_by(**filter_params)
-             .options(joinedload(
-                 CavaticaTask.cavatica_task_genomic_files)
-                 .load_only('kf_id')))
+             .filter_by(**filter_params))
 
         # Filter by study
         from dataservice.api.participant.models import Participant

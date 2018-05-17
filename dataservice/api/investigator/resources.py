@@ -40,10 +40,7 @@ class InvestigatorListAPI(CRUDView):
         study_id = filter_params.pop('study_id', None)
 
         q = (Investigator.query
-             .filter_by(**filter_params)
-             .options(
-                 joinedload(Investigator.studies)
-                 .load_only('kf_id')))
+             .filter_by(**filter_params))
 
         # Filter by study
         from dataservice.api.study.models import Study
