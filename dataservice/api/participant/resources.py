@@ -36,15 +36,7 @@ class ParticipantListAPI(CRUDView):
               Participant
         """
         # Apply entity filter params
-        q = (Participant.query.filter_by(**filter_params)
-                        .options(joinedload(Participant.diagnoses)
-                                 .load_only('kf_id'))
-                        .options(joinedload(Participant.biospecimens)
-                                 .load_only('kf_id'))
-                        .options(joinedload(Participant.phenotypes)
-                                 .load_only('kf_id'))
-                        .options(joinedload(Participant.outcomes)
-                                 .load_only('kf_id')))
+        q = (Participant.query.filter_by(**filter_params))
 
         return (ParticipantSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

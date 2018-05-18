@@ -41,9 +41,7 @@ class BiospecimenListAPI(CRUDView):
 
         # Apply filter params
         q = (Biospecimen.query
-             .filter_by(**filter_params)
-             .options(joinedload(Biospecimen.genomic_files)
-                      .load_only('kf_id')))
+             .filter_by(**filter_params))
 
         # Apply study filter param
         from dataservice.api.participant.models import Participant

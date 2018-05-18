@@ -38,9 +38,7 @@ class CavaticaAppListAPI(CRUDView):
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
 
-        q = (CavaticaApp.query.filter_by(**filter_params)
-             .options(joinedload(CavaticaApp.cavatica_tasks)
-                      .load_only('kf_id')))
+        q = (CavaticaApp.query.filter_by(**filter_params))
 
         # Filter by study
         from dataservice.api.participant.models import Participant

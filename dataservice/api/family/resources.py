@@ -37,9 +37,7 @@ class FamilyListAPI(CRUDView):
         study_id = filter_params.pop('study_id', None)
 
         q = (Family.query
-             .filter_by(**filter_params)
-             .options(joinedload(Family.participants)
-                      .load_only('kf_id')))
+             .filter_by(**filter_params))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
