@@ -36,7 +36,8 @@ class CavaticaTask(db.Model, Base):
 
     cavatica_task_genomic_files = db.relationship('CavaticaTaskGenomicFile',
                                                   backref='cavatica_task',
-                                                  cascade='all, delete-orphan')
+                                                  cascade='all, delete-orphan',
+                                                  passive_deletes=True)
 
 
 class CavaticaTaskGenomicFile(db.Model, Base):
@@ -57,10 +58,12 @@ class CavaticaTaskGenomicFile(db.Model, Base):
                                           'cavatica_task_id',
                                           'is_input'),)
     genomic_file_id = db.Column(KfId(),
-                                db.ForeignKey('genomic_file.kf_id'),
+                                db.ForeignKey('genomic_file.kf_id',
+                                              ondelete='CASCADE'),
                                 nullable=False)
 
     cavatica_task_id = db.Column(KfId(),
-                                 db.ForeignKey('cavatica_task.kf_id'),
+                                 db.ForeignKey('cavatica_task.kf_id',
+                                               ondelete='CASCADE'),
                                  nullable=False)
     is_input = db.Column(db.Boolean(), nullable=False, default=True)

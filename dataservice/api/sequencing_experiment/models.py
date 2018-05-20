@@ -64,6 +64,7 @@ class SequencingExperiment(db.Model, Base):
                                  doc='Mean lenth of the reads')
     genomic_files = db.relationship(GenomicFile,
                                     cascade="all, delete-orphan",
+                                    passive_deletes=True,
                                     backref=db.backref(
                                         'sequencing_experiment',
                                         lazy=True))

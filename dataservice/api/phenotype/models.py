@@ -41,5 +41,6 @@ class Phenotype(db.Model, Base):
                                   doc='Age at the time of event occurred in '
                                       'number of days since birth')
     participant_id = db.Column(KfId(),
-                               db.ForeignKey('participant.kf_id'),
+                               db.ForeignKey('participant.kf_id',
+                                             ondelete='CASCADE'),
                                nullable=False)

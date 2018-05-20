@@ -42,13 +42,15 @@ class FamilyRelationship(db.Model, Base):
                             doc='external id used by contributor')
     participant_id = db.Column(
         KfId(),
-        db.ForeignKey('participant.kf_id'),
+        db.ForeignKey('participant.kf_id',
+                      ondelete='CASCADE'),
         nullable=False,
         doc='kf_id of one participant in the relationship')
 
     relative_id = db.Column(
         KfId(),
-        db.ForeignKey('participant.kf_id'),
+        db.ForeignKey('participant.kf_id',
+                      ondelete='CASCADE'),
         nullable=False,
         doc='kf_id of the other participant in the relationship')
 
@@ -60,13 +62,15 @@ class FamilyRelationship(db.Model, Base):
         Participant,
         primaryjoin=participant_id == Participant.kf_id,
         backref=db.backref('outgoing_family_relationships',
-                           cascade='all, delete-orphan'))
+                           cascade='all, delete-orphan'),
+        passive_deletes=True)
 
     relative = db.relationship(
         Participant,
         primaryjoin=relative_id == Participant.kf_id,
         backref=db.backref('incoming_family_relationships',
-                           cascade='all, delete-orphan'))
+                           cascade='all, delete-orphan'),
+        passive_deletes=True)
 
     @classmethod
     def query_all_relationships(cls, participant_kf_id):

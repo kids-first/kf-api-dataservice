@@ -25,7 +25,8 @@ class StudyFile(db.Model, Base, IndexdFile):
     external_id = db.Column(db.Text(),
                             doc='external id used by contributor')
     study_id = db.Column(KfId(),
-                         db.ForeignKey('study.kf_id'),
+                         db.ForeignKey('study.kf_id',
+                                       ondelete='CASCADE'),
                          nullable=False)
     availability = db.Column(db.Text(), doc='Indicates whether a file is '
                              'available for immediate download, or is in '

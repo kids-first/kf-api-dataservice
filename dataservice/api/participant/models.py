@@ -67,21 +67,26 @@ class Participant(db.Model, Base):
                        doc='The gender of the participant')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
+                                passive_deletes=True,
                                 backref=db.backref('participant',
                                                    lazy=True))
     biospecimens = db.relationship(Biospecimen, backref='participant',
-                                   cascade='all, delete-orphan')
+                                   cascade='all, delete-orphan',
+                                   passive_deletes=True)
     outcomes = db.relationship(Outcome,
                                cascade='all, delete-orphan',
+                               passive_deletes=True,
                                backref=db.backref('participant',
                                                   lazy=True))
     phenotypes = db.relationship(Phenotype,
                                  cascade='all, delete-orphan',
+                                 passive_deletes=True,
                                  backref=db.backref('participant',
                                                     lazy=True))
 
     study_id = db.Column(KfId(),
-                         db.ForeignKey('study.kf_id'),
+                         db.ForeignKey('study.kf_id',
+                                       ondelete='CASCADE'),
                          nullable=False)
 
     alias_group_id = db.Column(KfId(), db.ForeignKey('alias_group.kf_id'))
