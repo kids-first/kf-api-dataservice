@@ -136,6 +136,23 @@ class StudyAPI(CRUDView):
         db.session.delete(st)
         db.session.commit()
 
+        # Delete orphans
+        # Families
+        from dataservice.api.family.models import Family
+        q = (db.session.query(Family)
+             .filter(~Family.participants.any()))
+        q.delete(synchronize_session=False)
+
+        # Sequencing experiments
+        from dataservice.api.sequencing_experiment.models import (
+            SequencingExperiment
+        )
+        q = (db.session.query(SequencingExperiment)
+             .filter(~SequencingExperiment.genomic_files.any()))
+        q.delete(synchronize_session=False)
+
+        db.session.commit()
+
         return StudySchema(
             200, 'study {} deleted'.format(st.kf_id)
         ).jsonify(st), 200
