@@ -36,8 +36,7 @@ class CavaticaTask(db.Model, Base):
 
     cavatica_task_genomic_files = db.relationship('CavaticaTaskGenomicFile',
                                                   backref='cavatica_task',
-                                                  cascade='all, delete-orphan',
-                                                  passive_deletes=True)
+                                                  cascade='all, delete-orphan')
 
 
 class CavaticaTaskGenomicFile(db.Model, Base):

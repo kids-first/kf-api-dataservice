@@ -45,13 +45,11 @@ class Study(db.Model, Base):
 
     participants = db.relationship(Participant,
                                    cascade="all, delete-orphan",
-                                   passive_deletes=True,
                                    backref='study')
     investigator_id = db.Column(KfId(),
                                 db.ForeignKey('investigator.kf_id'))
     study_files = db.relationship(StudyFile,
                                   cascade="all, delete-orphan",
-                                  passive_deletes=True,
                                   backref='study')
 
     def __repr__(self):

@@ -96,7 +96,6 @@ class Biospecimen(db.Model, Base):
                                      doc='The kf_id of the sequencing center')
     genomic_files = db.relationship(GenomicFile,
                                     cascade="all, delete-orphan",
-                                    passive_deletes=True,
                                     backref=db.backref(
                                         'biospecimen', lazy=True),
                                     doc='genomic files this biospecimen')

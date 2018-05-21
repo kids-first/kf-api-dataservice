@@ -67,20 +67,16 @@ class Participant(db.Model, Base):
                        doc='The gender of the participant')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
-                                passive_deletes=True,
                                 backref=db.backref('participant',
                                                    lazy=True))
     biospecimens = db.relationship(Biospecimen, backref='participant',
-                                   cascade='all, delete-orphan',
-                                   passive_deletes=True)
+                                   cascade='all, delete-orphan')
     outcomes = db.relationship(Outcome,
                                cascade='all, delete-orphan',
-                               passive_deletes=True,
                                backref=db.backref('participant',
                                                   lazy=True))
     phenotypes = db.relationship(Phenotype,
                                  cascade='all, delete-orphan',
-                                 passive_deletes=True,
                                  backref=db.backref('participant',
                                                     lazy=True))
 

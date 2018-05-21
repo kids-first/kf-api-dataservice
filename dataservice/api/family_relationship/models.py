@@ -62,15 +62,13 @@ class FamilyRelationship(db.Model, Base):
         Participant,
         primaryjoin=participant_id == Participant.kf_id,
         backref=db.backref('outgoing_family_relationships',
-                           cascade='all, delete-orphan'),
-        passive_deletes=True)
+                           cascade='all, delete-orphan'))
 
     relative = db.relationship(
         Participant,
         primaryjoin=relative_id == Participant.kf_id,
         backref=db.backref('incoming_family_relationships',
-                           cascade='all, delete-orphan'),
-        passive_deletes=True)
+                           cascade='all, delete-orphan'))
 
     @classmethod
     def query_all_relationships(cls, participant_kf_id):

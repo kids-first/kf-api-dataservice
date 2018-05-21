@@ -59,5 +59,4 @@ class GenomicFile(db.Model, Base, IndexdFile):
 
     cavatica_task_genomic_files = db.relationship(CavaticaTaskGenomicFile,
                                                   backref='genomic_file',
-                                                  cascade='all, delete-orphan',
-                                                  passive_deletes=True)
+                                                  cascade='all, delete-orphan')
