@@ -5,13 +5,15 @@ services:
     image: postgres:9.5
     environment:
       POSTGRES_DB: "dataservice"
+    ports:
+        - "5432:5432"
   dataservice:
     build: .
     command: /bin/ash -c "sleep 5; ./bin/run.sh"
     volumes:
       - .:/app
     ports:
-      - "5000:80"
+      - "1081:80"
     environment:
       - FLASK_CONFIG=development
       - PG_NAME=dataservice
