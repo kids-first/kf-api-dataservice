@@ -1,13 +1,14 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.phenotype.models import Phenotype
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, COMMON_ENUM
 from dataservice.api.common.validation import (validate_age,
                                                enum_validation_generator)
 from dataservice.extensions import ma
+from marshmallow import post_dump
 
-
-OBSERVED_ENUM = {'Positive', 'Negative'}
+OBSERVED_ENUM = {'positive': 'Positive', 'negative': 'Negative'}
+OBSERVED_ENUM.update(COMMON_ENUM)
 
 
 class PhenotypeSchema(BaseSchema):
@@ -19,6 +20,11 @@ class PhenotypeSchema(BaseSchema):
     observed = field_for(Phenotype, 'observed',
                          validate=enum_validation_generator(
                              OBSERVED_ENUM))
+
+    @post_dump()
+    def auto_populate_enum(self, data):
+        if data['observed'] is not None:
+            data['observed'] = OBSERVED_ENUM[data['observed'].lower()]
 
     class Meta(BaseSchema.Meta):
         model = Phenotype

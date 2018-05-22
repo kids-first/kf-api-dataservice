@@ -13,8 +13,15 @@ from flask_marshmallow import Schema
 from dataservice.api.common.pagination import Pagination
 from dataservice.api.common.validation import validate_kf_id
 from dataservice.extensions import db
-AVAILABILITY_ENUM = {'Immediate Download',
-                     'Cold Storage'}
+
+COMMON_ENUM = {"not reported": "Not Reported",
+               "not applicable": "Not Applicable",
+               "not allowed to collect": "Not Allowed To Collect",
+               "not available": "Not Available",
+               "reported unknown": "Reported Unknown"}
+AVAILABILITY_ENUM = {'immediate download': 'Immediate Download',
+                     'cold storage': 'Cold Storage'}
+AVAILABILITY_ENUM.update(COMMON_ENUM)
 
 
 class BaseSchema(ma.ModelSchema):

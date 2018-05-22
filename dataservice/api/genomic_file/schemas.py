@@ -2,23 +2,26 @@ from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.common.schemas import (BaseSchema, IndexdFileSchema,
-                                            AVAILABILITY_ENUM)
+                                            AVAILABILITY_ENUM, COMMON_ENUM)
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
+from marshmallow import post_dump
 from dataservice.api.common.validation import enum_validation_generator
 
-DATA_TYPE_ENUM = {'Aligned Reads',
-                  'Aligned Reads Index',
-                  'Unaligned Reads',
-                  'Simple Nucleotide Variation',
-                  'Variant Calls',
-                  'Variant Calls Index',
-                  'gVCF',
-                  'gVCF Index',
-                  'Other'}
+DATA_TYPE_ENUM = {'aligned reads': 'Aligned Reads',
+                  'aligned reads index': 'Aligned Reads Index',
+                  'unaligned reads': 'Unaligned Reads',
+                  'simple nucleotide variation': 'Simple Nucleotide Variation',
+                  'variant calls': 'Variant Calls',
+                  'variant calls index': 'Variant Calls Index',
+                  'gvcf': 'gVCF',
+                  'gvcf index': 'gVCF Index',
+                  'other': 'Other'}
+DATA_TYPE_ENUM.update(COMMON_ENUM)
 
 
 class GenomicFileSchema(BaseSchema, IndexdFileSchema):
+
     class Meta(BaseSchema.Meta, IndexdFileSchema.Meta):
         model = GenomicFile
         resource_url = 'api.genomic_files'
@@ -47,7 +50,6 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
                            'latest_did',
                            required=False,
                            dump_only=True)
-
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
@@ -62,3 +64,11 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         'read_group': PatchedURLFor(
             'api.read_groups', kf_id='<read_group.kf_id>')
     }, description='Resource links and pagination')
+
+    @post_dump()
+    def auto_populate_enum(self, data):
+        if data['data_type'] is not None:
+            data['data_type'] = DATA_TYPE_ENUM[data['data_type'].lower()]
+        if data['availability'] is not None:
+            data['availability'] = AVAILABILITY_ENUM[
+                data['availability'].lower()]

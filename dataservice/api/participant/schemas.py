@@ -1,22 +1,30 @@
 from marshmallow_sqlalchemy import field_for
 from dataservice.api.participant.models import Participant
 
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, COMMON_ENUM
 from dataservice.extensions import ma
-
+from marshmallow import post_dump
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.api.common.validation import enum_validation_generator
 
 # Enum Choices for participant fields
 
-GENDER_ENUM = {'Male', 'Female', 'Other'}
-ETHNICITY_ENUM = {'Hispanic or Latino',
-                  'Not Hispanic or Latino'}
+GENDER_ENUM = {'male': 'Male', 'female': 'Female', 'other': 'Other'}
+ETHNICITY_ENUM = {'hispanic or latino': 'Hispanic or Latino',
+                  'not hispanic or latino': 'Not Hispanic or Latino'}
 RACE_ENUM = {
-    'White', 'American Indian or Alaska Native',
-    'Black or African American', 'Asian',
+    'white': 'White',
+    'american indian or alaska native':
+    'American Indian or Alaska Native',
+    'black or african american':
+    'Black or African American',
+    'asian': 'Asian',
+    'native hawaiian or other pacific islander':
     'Native Hawaiian or Other Pacific Islander',
-    'Other'}
+    'other': 'Other'}
+GENDER_ENUM.update(COMMON_ENUM)
+ETHNICITY_ENUM.update(COMMON_ENUM)
+RACE_ENUM.update(COMMON_ENUM)
 
 
 class ParticipantSchema(BaseSchema):
@@ -34,6 +42,16 @@ class ParticipantSchema(BaseSchema):
     race = field_for(Participant, 'race',
                      validate=enum_validation_generator(
                          RACE_ENUM))
+
+    @post_dump()
+    def auto_populate_enum(self, data):
+        if data['gender'] is not None:
+            data['gender'] = GENDER_ENUM[data['gender'].lower()]
+        if data['ethnicity'].lower() is not None:
+            data['ethnicity'] = ETHNICITY_ENUM[data['ethnicity'].
+                                               lower()]
+        if data['race'] is not None:
+            data['race'] = RACE_ENUM[data['race'].lower()]
 
     class Meta(BaseSchema.Meta):
         model = Participant

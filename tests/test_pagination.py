@@ -102,7 +102,7 @@ class TestPagination:
                 'library_name': 'Test_library_name_1',
                 'library_strand': 'Unstranded',
                 'is_paired_end': False,
-                'platform': 'Test_platform_name_1'
+                'platform': 'illumina'
             }
             gf_kwargs = {
                 'external_id': 'gf_0',
@@ -123,7 +123,7 @@ class TestPagination:
             seq_exp = SequencingExperiment(**seq_data,
                                            sequencing_center_id=seq_cen.kf_id)
             db.session.add(seq_exp)
-            samp = Biospecimen(analyte_type='an analyte',
+            samp = Biospecimen(analyte_type='dna',
                                sequencing_center_id=seq_cen.kf_id,
                                participant=p)
             db.session.add(samp)

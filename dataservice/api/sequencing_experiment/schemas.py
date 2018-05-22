@@ -1,17 +1,28 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, COMMON_ENUM
 from dataservice.api.common.custom_fields import DateOrDatetime
 from dataservice.api.common.validation import (validate_positive_number,
                                                enum_validation_generator)
 from dataservice.extensions import ma
+from marshmallow import post_dump
 
-EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq', 'Other'}
-PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
-                 'Complete Genomics', 'PacBio', 'Other'}
-LIBRARY_STRAND_ENUM = {'Unstranded', 'First Stranded',
-                       'Second Stranded', 'Other'}
+
+EXPERIMENT_STRATEGY_ENUM = {'wgs': 'WGS', 'wxs': 'WXS',
+                            'rna-seq': 'RNA-Seq', 'mirna-seq': 'miRNA-Seq',
+                            'other': 'Other'}
+PLATFORM_ENUM = {'illumina': 'Illumina', 'solid': 'SOLiD', 'ls454': 'LS454',
+                 'ion torrent': 'Ion Torrent',  'pacbio': 'PacBio',
+                 'complete genomics': 'Complete Genomics', 'other': 'Other'
+                 }
+LIBRARY_STRAND_ENUM = {'unstranded': 'Unstranded',
+                       'first stranded': 'First Stranded',
+                       'second stranded': 'Second Stranded',
+                       'other': 'Other'}
+EXPERIMENT_STRATEGY_ENUM.update(COMMON_ENUM)
+PLATFORM_ENUM.update(COMMON_ENUM)
+LIBRARY_STRAND_ENUM.update(COMMON_ENUM)
 
 
 class SequencingExperimentSchema(BaseSchema):
@@ -29,6 +40,17 @@ class SequencingExperimentSchema(BaseSchema):
     library_strand = field_for(SequencingExperiment, 'library_strand',
                                validate=enum_validation_generator(
                                    LIBRARY_STRAND_ENUM))
+
+    @post_dump()
+    def auto_populate_enum(self, data):
+        if data['experiment_strategy'] is not None:
+            data['experiment_strategy'] = EXPERIMENT_STRATEGY_ENUM[
+                data['experiment_strategy'].lower()]
+        if data['platform'] is not None:
+            data['platform'] = PLATFORM_ENUM[data['platform'].lower()]
+        if data['library_strand'] is not None:
+            data['library_strand'] = LIBRARY_STRAND_ENUM[
+                data['library_strand'].lower()]
 
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_experiments'

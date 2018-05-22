@@ -99,5 +99,4 @@ class DateOrDatetime(fields.DateTime):
             value = parser.parse(str(value)) if value else None
         except ValueError as e:
             raise ValidationError('Invalid date or datetime string')
-
         return value

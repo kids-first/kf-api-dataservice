@@ -39,11 +39,43 @@ def validate_kf_id(prefix, value):
         raise ValidationError('Invalid kf_id')
 
 
+class EnumValidator(OneOf):
+    """
+    Modified OneOf validator class to provide case sensitive or insensitive
+    enumeration validation. Use kwarg `ignore_case` to set whether case
+    should be taken into account in validation. Set to True by default.
+    Original documentation:
+    Validator which succeeds if ``value`` is a member of ``choices``.
+    :param iterable choices: A sequence of valid values.
+    :param iterable labels: Optional sequence of labels to pair with the
+    choices.
+    :param str error: Error message to raise in case of a validation error.
+    Can be interpolated with `{input}`, `{choices}` and `{labels}`.
+    """
+
+    default_message = 'Not a valid choice.'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ignore_case = kwargs.get('ignore_case', True)
+
+    def __call__(self, orig_value):
+        value = orig_value
+        choices = {v: v for v in self.choices}
+        if self.ignore_case:
+            value = orig_value.lower()
+            choices = {choice.lower(): choice for choice in self.choices}
+        try:
+            if value not in choices:
+                raise ValidationError(self._format_error(orig_value))
+        except TypeError:
+            raise ValidationError(self._format_error(orig_value))
+        return choices[value]
+
 def enum_validation_generator(_enum, common=True):
     from dataservice.api.common.model import COMMON_ENUM
 
     extended_enum = _enum.union(COMMON_ENUM) if common else _enum
     error_message = 'Not a valid choice. Must be one of: {}'.format(
         ', '.join([str(el) for el in extended_enum]))
-
-    return OneOf(extended_enum, error=error_message)
+    return EnumValidator(_enum, error=error_message)

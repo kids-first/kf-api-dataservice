@@ -1,15 +1,19 @@
 from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, COMMON_ENUM
 from dataservice.api.common.validation import validate_age
 from dataservice.api.common.custom_fields import (DateOrDatetime,
                                                   PatchedURLFor)
 from dataservice.api.common.validation import (validate_positive_number,
                                                enum_validation_generator)
 from dataservice.extensions import ma
+from marshmallow import post_dump
 
-ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other"}
+ANALYTE_TYPE_ENUM = {"dna": "DNA",
+                     "rna": "RNA",
+                     "other": "Other"}
+ANALYTE_TYPE_ENUM.update(COMMON_ENUM)
 
 
 class BiospecimenSchema(BaseSchema):
@@ -28,12 +32,17 @@ class BiospecimenSchema(BaseSchema):
 
     shipment_date = field_for(Biospecimen, 'shipment_date',
                               field_class=DateOrDatetime)
-
     sequencing_center_id = field_for(Biospecimen, 'sequencing_center_id',
                                      required=True, load_only=True)
     analyte_type = field_for(Biospecimen, 'analyte_type',
                              validate=enum_validation_generator(
                                  ANALYTE_TYPE_ENUM))
+
+    @post_dump()
+    def auto_populate_enum(self, data):
+        if data['analyte_type'] is not None:
+            data['analyte_type'] = ANALYTE_TYPE_ENUM[
+                data['analyte_type'].lower()]
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen
