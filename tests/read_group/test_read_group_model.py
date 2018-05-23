@@ -77,7 +77,7 @@ class ModelTest(IndexdTestCase):
 
         rg = ReadGroup.query.first()
         self.assertEqual(rg.paired_end, 1)
-        self.assertEqual(rg.flow_cell, 8)
+        self.assertEqual(rg.flow_cell, '8')
 
     def test_delete_read_group(self):
         """

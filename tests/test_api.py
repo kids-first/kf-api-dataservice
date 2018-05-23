@@ -85,6 +85,7 @@ class TestAPI:
         ('/biospecimens', ['participant', 'sequencing_center']),
         ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['biospecimen', 'sequencing_experiment']),
+        ('/read-groups', ['genomic_file']),
         ('/cavatica-tasks', ['cavatica_app']),
         ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file'])
     ])
@@ -286,7 +287,7 @@ class TestAPI:
                                  ('/study-files', 'size'),
                                  ('/genomic-files', 'urls'),
                                  ('/genomic-files', 'hashes'),
-                                 ('/genomic-files', 'size'),
+                                 ('/read-groups', 'genomic_file_id'),
                                  ('/diagnoses', 'participant_id'),
                                  ('/sequencing-centers', 'name')
                              ])
@@ -326,6 +327,7 @@ class TestAPI:
                               ('/biospecimens', 'participant_id'),
                               ('/genomic-files', 'biospecimen_id'),
                               ('/genomic-files', 'sequencing_experiment_id'),
+                              ('/read-groups', 'genomic_file_id'),
                               ('/cavatica-tasks', 'cavatica_app_id'),
                               ('/cavatica-task-genomic-files',
                                'cavatica_task_id'),

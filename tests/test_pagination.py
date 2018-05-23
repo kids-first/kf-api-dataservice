@@ -14,6 +14,7 @@ from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.family_relationship.models import FamilyRelationship
@@ -133,6 +134,12 @@ class TestPagination:
                              sequencing_experiment_id=seq_exp.kf_id)
             db.session.add(gf)
 
+            db.session.flush()
+            rg = ReadGroup(lane_number=4,
+                           flow_cell='FL0123',
+                           genomic_file_id=gf.kf_id)
+            db.session.add(rg)
+
             ct = CavaticaTask(name='task_{}'.format(i))
             ct.genomic_files.append(gf)
             ca.cavatica_tasks.append(ct)
@@ -160,6 +167,7 @@ class TestPagination:
         ('/families', 1),
         ('/family-relationships', 50),
         ('/genomic-files', 50),
+        ('/read-groups', 50),
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 1),
         ('/cavatica-tasks', 50),
