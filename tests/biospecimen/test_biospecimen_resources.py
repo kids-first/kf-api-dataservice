@@ -47,6 +47,7 @@ class BiospecimenTest(FlaskTestCase):
             'ncit_id_tissue_type': 'Test',
             'ncit_id_anatomical_site': 'C12439',
             'participant_id': kwargs.get('participant_id'),
+            'dbgap_consent_code': 'phs00000.c1',
             'sequencing_center_id': kwargs.get('sequencing_center_id')
         }
         # Send post request
@@ -318,6 +319,7 @@ class BiospecimenTest(FlaskTestCase):
             'ncit_id_tissue_type': 'Test',
             'ncit_id_anatomical_site': 'C12439',
             'uberon_id_anatomical_site': 'UBERON:0000955',
+            'dbgap_consent_code': 'phs00000.c1',
             'sequencing_center_id': sc.kf_id
         }
         d = Biospecimen(**kwargs)

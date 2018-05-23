@@ -303,7 +303,8 @@ class ModelTest(FlaskTestCase):
             'uberon_id_anatomical_site': 'UBERON:0000955',
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',
-            'ncit_id_anatomical_site': 'C12439'
+            'ncit_id_anatomical_site': 'C12439',
+            'dbgap_consent_code': 'phs00000.c1'
         }
         return body
 
