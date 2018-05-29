@@ -133,9 +133,57 @@ class StudyAPI(CRUDView):
         if st is None:
             abort(404, 'could not find {} `{}`'.format('study', kf_id))
 
-        db.session.delete(st)
+        # -- Delete records from indexd - -
+        _delete_indexd_gfs(kf_id)
+        _delete_indexd_sfs(kf_id)
+
+        # Delete study - will execute db cascade delete
+        Study.query.filter_by(kf_id=kf_id).delete()
+        db.session.commit()
+
+        # -- Delete orphans ---
+        # Families
+        from dataservice.api.family.models import Family
+        (db.session.query(Family)
+         .filter(~Family.participants.any())).delete(
+            synchronize_session=False)
+
+        # Sequencing experiments
+        from dataservice.api.sequencing_experiment.models import (
+            SequencingExperiment
+        )
+        (db.session.query(SequencingExperiment)
+         .filter(~SequencingExperiment.genomic_files.any())).delete(
+            synchronize_session=False)
+
         db.session.commit()
 
         return StudySchema(
             200, 'study {} deleted'.format(st.kf_id)
         ).jsonify(st), 200
+
+
+def _delete_indexd_gfs(study_id):
+    """
+    Delete genomic files for a study from indexd
+    """
+    from dataservice.api.participant.models import Participant
+    from dataservice.api.biospecimen.models import Biospecimen
+    from dataservice.api.genomic_file.models import GenomicFile
+    from dataservice.api.common.model import delete_indexd
+    # GenomicFiles for this study
+    gfs = (GenomicFile.query.join(GenomicFile.biospecimen)
+           .join(Biospecimen.participant)
+           .filter(Participant.study_id == study_id)).all()
+    # Delete from indexd
+    [delete_indexd(None, None, gf) for gf in gfs]
+
+
+def _delete_indexd_sfs(study_id):
+    """
+    Delete study files for a study from indexd
+    """
+    from dataservice.api.study_file.models import StudyFile
+    from dataservice.api.common.model import delete_indexd
+    sfs = StudyFile.query.filter_by(study_id=study_id).all()
+    [delete_indexd(None, None, sf) for sf in sfs]

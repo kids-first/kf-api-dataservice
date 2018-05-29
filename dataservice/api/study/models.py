@@ -70,6 +70,6 @@ def make_bucket(mapper, connection, target):
         token = current_app.config['BUCKET_SERVICE_TOKEN']
         if token:
             header['Authorization'] = 'Bearer {}'.format(token)
-        resp = requests.post(url+'/buckets',
+        resp = requests.post(url + '/buckets',
                              json={'study_id': target.kf_id},
                              headers=header)

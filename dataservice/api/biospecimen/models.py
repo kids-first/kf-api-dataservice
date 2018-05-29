@@ -86,7 +86,8 @@ class Biospecimen(db.Model, Base):
                                    'spatial concepts from Biological Spatial'
                                    ' Ontology')
     participant_id = db.Column(KfId(),
-                               db.ForeignKey('participant.kf_id'),
+                               db.ForeignKey('participant.kf_id',
+                                             ondelete='CASCADE'),
                                nullable=False,
                                doc='The kf_id of the biospecimen\'s donor')
     sequencing_center_id = db.Column(KfId(),

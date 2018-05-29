@@ -1,17 +1,34 @@
 import json
-
+import uuid
 from flask import url_for
 
 from dataservice.extensions import db
+from dataservice.utils import iterate_pairwise
 from dataservice.api.study.models import Study
 from dataservice.api.investigator.models import Investigator
-from tests.utils import FlaskTestCase
+from dataservice.api.study_file.models import StudyFile
+from dataservice.api.participant.models import Participant
+from dataservice.api.family.models import Family
+from dataservice.api.family_relationship.models import FamilyRelationship
+from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.outcome.models import Outcome
+from dataservice.api.phenotype.models import Phenotype
+from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_center.models import SequencingCenter
+from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.cavatica_task.models import (
+    CavaticaTask,
+    CavaticaTaskGenomicFile
+)
+from tests.utils import IndexdTestCase
+from tests.conftest import ENTITY_ENDPOINT_MAP
 
 STUDY_URL = 'api.studies'
 STUDY_LIST_URL = 'api.studies_list'
 
 
-class StudyTest(FlaskTestCase):
+class StudyTest(IndexdTestCase):
     """
     Test study api endopoints
     """
@@ -133,27 +150,44 @@ class StudyTest(FlaskTestCase):
         self.assertEqual(study['external_id'], external_id)
         self.assertEqual(study['version'], body['version'])
 
-    def test_delete_study(self):
+    def test_delete_cascade_study(self):
         """
         Test deleting a study by id
         """
-        resp = self._make_study('TEST')
-        resp = json.loads(resp.data.decode('utf-8'))
-        kf_id = resp['results']['kf_id']
-
+        self._create_full_study('s0', 2)
+        self._create_full_study('s1', 4)
+        s0 = Study.query.filter_by(external_id='s0').one()
         response = self.client.delete(url_for(STUDY_URL,
-                                              kf_id=kf_id),
+                                              kf_id=s0.kf_id),
                                       headers=self._api_headers())
+        assert response.status_code == 200
 
-        resp = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(response.status_code, 200)
+        # Check counts
+        assert 1 == Study.query.count()
+        assert 4 == StudyFile.query.count()
+        assert 1 == Family.query.count()
+        assert 4 == Participant.query.count()
+        assert 4 == Outcome.query.count()
+        assert 4 == Diagnosis.query.count()
+        assert 4 == Phenotype.query.count()
+        assert 4 == Biospecimen.query.count()
+        assert 16 == GenomicFile.query.count()
+        assert 3 == FamilyRelationship.query.count()
+        assert 16 == CavaticaTaskGenomicFile.query.count()
 
-        response = self.client.get(url_for(STUDY_URL,
-                                           kf_id=kf_id),
-                                   headers=self._api_headers())
-
-        resp = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(response.status_code, 404)
+        # Check content
+        model_classes = ENTITY_ENDPOINT_MAP.keys()
+        skip = {'SequencingCenter', 'CavaticaTask', 'CavaticaTaskGenomicFile'}
+        for model_cls in model_classes:
+            for obj in model_cls.query.all():
+                if model_cls.__name__ == 'Biospecimen':
+                    attr = 'external_sample_id'
+                else:
+                    attr = 'external_id'
+                # All s0 objects should not exist
+                if model_cls.__name__ in skip:
+                    continue
+                assert getattr(obj, attr).startswith('s0') == False
 
     def _make_study(self, external_id='TEST-0001', include_nullables=True):
         """
@@ -175,3 +209,102 @@ class StudyTest(FlaskTestCase):
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
         return response
+
+    def _create_full_study(self, study_ext_id=0, n_participants=1):
+        # Sequencing center
+        sc = SequencingCenter.query.filter_by(name="Baylor").one_or_none()
+        if sc is None:
+            sc = SequencingCenter(name="Baylor")
+            db.session.add(sc)
+            db.session.commit()
+
+        # Create study
+        s0 = Study(external_id='{}'.format(study_ext_id))
+        f0 = Family(external_id='{}'.format(study_ext_id))
+        participants = []
+        for i in range(n_participants):
+            data = {
+                'file_name': '{}_sf{}.csv'.format(study_ext_id, i),
+                'external_id': '{}_sf{}.csv'.format(study_ext_id, i),
+                'data_type': 'clinical',
+                'file_format': 'csv',
+                'availability': 'Immediate Download',
+                'size': 1024,
+                'urls': ['s3://mystudy/my_data.csv'],
+                'hashes': {
+                    'md5': str(uuid.uuid4()).replace('-', '')
+                }
+            }
+            sf = StudyFile(**data)
+            p = Participant(external_id='{}_p{}'.format(study_ext_id, i),
+                            is_proband=True,
+                            study=s0, family=f0)
+            Diagnosis(external_id='{}_d{}'.format(study_ext_id, i),
+                      participant=p)
+            Phenotype(external_id='{}_ph{}'.format(study_ext_id, i),
+                      participant=p)
+            Outcome(external_id='{}_ot{}'.format(study_ext_id, i),
+                    participant=p)
+            # Biospecimen
+            bs = Biospecimen(external_sample_id='{}_bs{}'.format(study_ext_id,
+                                                                 i),
+                             analyte_type='dna',
+                             sequencing_center=sc,
+                             participant=p)
+            # SequencingExperiment
+            data = {
+                'external_id': '{}_se{}'.format(study_ext_id, i),
+                'experiment_strategy': 'wgs',
+                'is_paired_end': True,
+                'platform': 'platform',
+                'sequencing_center': sc
+            }
+            se = SequencingExperiment(**data)
+            data = {
+                'external_cavatica_task_id': str(uuid.uuid4()),
+                'name': '{}_ct{}'.format(study_ext_id, i),
+            }
+            ct = CavaticaTask(**data)
+            # Genomic Files
+            for i in range(4):
+                data = {
+                    'file_name': '{}_gf_{}.bam'.format(study_ext_id, i),
+                    'external_id': '{}_gf_{}'.format(study_ext_id, i),
+                    'data_type': 'submitted aligned read',
+                    'file_format': '.cram',
+                    'urls': ['s3://file_{}'.format(i)],
+                    'hashes': {'md5': str(uuid.uuid4())},
+                    'is_harmonized': True if i % 2 else False,
+                    'sequencing_experiment': se,
+                    'biospecimen': bs
+                }
+                gf = GenomicFile(**data)
+                CavaticaTaskGenomicFile(cavatica_task=ct, genomic_file=gf,
+                                        is_input=True)
+
+            sf.study = s0
+            p.study = s0
+            p.family = f0
+            participants.append(p)
+
+        db.session.add(s0)
+        db.session.commit()
+
+        # Create family_relationships
+        self._create_family_rels(study_ext_id, participants)
+
+    def _create_family_rels(self, study_ext_id, participants):
+        # Family relationships
+        for i, (participant, relative) in enumerate(iterate_pairwise(
+                participants)):
+            gender = participant.gender
+            rel = 'mother'
+            if gender == 'male':
+                rel = 'father'
+            r = FamilyRelationship(external_id='{}_fr_{}'.format(study_ext_id,
+                                                                 i),
+                                   participant=participant,
+                                   relative=relative,
+                                   participant_to_relative_relation=rel)
+            db.session.add(r)
+        db.session.commit()

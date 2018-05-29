@@ -81,7 +81,8 @@ class Participant(db.Model, Base):
                                                     lazy=True))
 
     study_id = db.Column(KfId(),
-                         db.ForeignKey('study.kf_id'),
+                         db.ForeignKey('study.kf_id',
+                                       ondelete='CASCADE'),
                          nullable=False)
 
     alias_group_id = db.Column(KfId(), db.ForeignKey('alias_group.kf_id'))

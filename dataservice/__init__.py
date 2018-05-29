@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
-import re
 import subprocess
 from flask import Flask
-from alembic.config import Config
-from alembic import command
 
 from dataservice import commands
 from dataservice.utils import _get_version
@@ -48,6 +45,9 @@ def create_app(config_name):
     register_blueprints(app)
     register_spec(app)
     prefetch_status(app)
+
+    # Debug
+    _debug(False)
 
     return app
 
@@ -157,3 +157,29 @@ def prefetch_status(app):
 
     app.config['GIT_TAGS'] = [] if tags[0] == '' else tags
     app.config['PKG_VERSION'] = _get_version()
+
+
+def _debug(is_enabled):
+    """
+    Debug helper
+
+    Print SQL statement + params before it is parsed into
+    low level SQL that will be executed by db
+    """
+
+    if not is_enabled:
+        return
+
+    from sqlalchemy.engine import Engine
+    from sqlalchemy import event
+    from pprint import pprint
+
+    @event.listens_for(Engine, 'before_execute')
+    def receive_before_execute(conn, clauseelement, multiparams, params):
+
+        print('Before execute')
+        print(clauseelement)
+        print('Multiparams')
+        pprint(multiparams)
+        print('params')
+        pprint(params)

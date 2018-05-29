@@ -51,8 +51,10 @@ class GenomicFile(db.Model, Base, IndexdFile):
                              'cold storage')
     sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
-                                         'sequencing_experiment.kf_id'))
-    biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id'),
+                                         'sequencing_experiment.kf_id',
+                                         ondelete='CASCADE'))
+    biospecimen_id = db.Column(KfId(), db.ForeignKey('biospecimen.kf_id',
+                                                     ondelete='CASCADE'),
                                nullable=True)
 
     cavatica_task_genomic_files = db.relationship(CavaticaTaskGenomicFile,
