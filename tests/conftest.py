@@ -226,6 +226,9 @@ def entities(client):
         for ent in _entities[CavaticaApp]:
             ent.cavatica_app = ca0
 
+        for rg in _entities[ReadGroup]:
+            db.session.add(rg)
+
         db.session.commit()
 
     return _entities
