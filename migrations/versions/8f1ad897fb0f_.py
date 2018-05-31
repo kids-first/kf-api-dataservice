@@ -1,5 +1,5 @@
 """
-1.0.1 Add dbgap_consent_code to biospecimen
+1.0.1 - Add dbgap_consent_code to biospecimen
 
 Revision ID: 8f1ad897fb0f
 Revises: 7575993b35a7
