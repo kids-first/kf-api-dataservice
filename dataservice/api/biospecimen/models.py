@@ -1,6 +1,7 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.diagnosis.models import Diagnosis
 
 
 class Biospecimen(db.Model, Base):
@@ -102,3 +103,7 @@ class Biospecimen(db.Model, Base):
                                     backref=db.backref(
                                         'biospecimen', lazy=True),
                                     doc='genomic files this biospecimen')
+    diagnoses = db.relationship(Diagnosis,
+                                cascade='all, delete-orphan',
+                                backref=db.backref('biospecimen',
+                                                   lazy=True))

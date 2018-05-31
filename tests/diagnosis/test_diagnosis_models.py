@@ -6,6 +6,8 @@ from sqlalchemy.exc import IntegrityError
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.extensions import db
 from tests.utils import FlaskTestCase
 
@@ -20,6 +22,25 @@ class ModelTest(FlaskTestCase):
         Test create diagnosis
         """
         diagnoses, kwarg_dict = self._create_diagnoses()
+
+        dt = datetime.now()
+
+        self.assertEqual(Diagnosis.query.count(), len(diagnoses))
+
+        for k, kwargs in kwarg_dict.items():
+            d = Diagnosis.query.filter_by(external_id=k).one()
+            for key, value in kwargs.items():
+                self.assertEqual(value, getattr(d, key))
+            self.assertGreater(dt, d.created_at)
+            self.assertGreater(dt, d.modified_at)
+            self.assertIs(type(uuid.UUID(d.uuid)), uuid.UUID)
+
+    def test_create_with_biospecimen(self):
+        """
+        Test create diagnosis with biospecimen and participant
+        """
+        diagnoses, kwarg_dict = self._create_diagnoses()
+
 
         dt = datetime.now()
 
@@ -109,7 +130,7 @@ class ModelTest(FlaskTestCase):
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
-    def _create_diagnosis(self, _id, participant_id=None):
+    def _create_diagnosis(self, _id, participant_id=None, biospecimen_id=None):
         """
         Create diagnosis
         """
@@ -126,6 +147,8 @@ class ModelTest(FlaskTestCase):
         }
         if participant_id:
             kwargs['participant_id'] = participant_id
+        if biospecimen_id:
+            kwargs['biospecimen_id'] = biospecimen_id
         return Diagnosis(**kwargs), kwargs
 
     def _create_diagnoses(self, total=2):
@@ -139,14 +162,23 @@ class ModelTest(FlaskTestCase):
         participant_id = 'Test subject 0'
         p = Participant(external_id=participant_id, is_proband=True,
                         study=study)
+        # Create sequencing center
+        s = SequencingCenter(name='washu')
+        db.session.add(s)
+        db.session.commit()
+        # Create biospecimen
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center_id=s.kf_id,
+                        participant=p)
         db.session.add(p)
+        db.session.add(b)
         db.session.commit()
 
         # Create diagnoses
         diagnoses = []
         kwarg_dict = {}
         for i in range(total):
-            d, kwargs = self._create_diagnosis(i)
+            d, kwargs = self._create_diagnosis(i, biospecimen_id=b.kf_id)
             kwarg_dict[d.external_id] = kwargs
             diagnoses.append(d)
 

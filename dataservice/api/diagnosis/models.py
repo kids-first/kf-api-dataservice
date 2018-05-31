@@ -66,3 +66,8 @@ class Diagnosis(db.Model, Base):
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
                                nullable=False)
+    biospecimen_id = db.Column(KfId(),
+                               db.ForeignKey('biospecimen.kf_id'),
+                               doc='the biospecimen which recieved the '
+                               'diagnosis',
+                               nullable=True)

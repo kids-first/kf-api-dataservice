@@ -3,7 +3,8 @@ from marshmallow_sqlalchemy import field_for
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.validation import validate_age
-from dataservice.api.common.custom_fields import DateOrDatetime
+from dataservice.api.common.custom_fields import (DateOrDatetime,
+                                                  PatchedURLFor)
 from dataservice.api.common.validation import (validate_positive_number,
                                                enum_validation_generator)
 from dataservice.extensions import ma
@@ -49,5 +50,7 @@ class BiospecimenSchema(BaseSchema):
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>'),
         'genomic_files': ma.URLFor('api.genomic_files_list',
+                                   biospecimen_id='<kf_id>'),
+        'diagnoses': PatchedURLFor('api.diagnoses_list',
                                    biospecimen_id='<kf_id>')
     })
