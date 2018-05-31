@@ -35,6 +35,7 @@ class Biospecimen(db.Model, Base):
            Institute Thesaurus which represents a harmonized anatomical_site
     :param spatial_descriptor: Ontology term that harmonizes the spatial
            concepts from Biological Spatial Ontology
+    :param dbgap_consent_code: Consent classification code from dbgap
     """
     __tablename__ = 'biospecimen'
     __prefix__ = 'BS'
@@ -93,6 +94,9 @@ class Biospecimen(db.Model, Base):
                                      db.ForeignKey('sequencing_center.kf_id'),
                                      nullable=False,
                                      doc='The kf_id of the sequencing center')
+    dbgap_consent_code = db.Column(db.Text(),
+                                   doc='Consent classification code from dbgap'
+                                   )
     genomic_files = db.relationship(GenomicFile,
                                     cascade="all, delete-orphan",
                                     backref=db.backref(
