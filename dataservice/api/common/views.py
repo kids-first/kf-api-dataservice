@@ -28,6 +28,9 @@ class CRUDView(MethodView):
     schemas = {}
     endpoint = None
     rule = '/'
+    temp_env = jinja2.Environment(
+            loader=jinja2.PackageLoader('dataservice.api', 'templates')
+    )
 
     def __init__(self, *args, **kwargs):
         super(CRUDView, self).__init__(*args, **kwargs)
@@ -159,10 +162,7 @@ class CRUDView(MethodView):
         """
         Renders a yaml file templated with jinja2 and deserializes to a dict
         """
-        env = jinja2.Environment(
-            loader=jinja2.PackageLoader('dataservice.api', 'templates')
-        )
-        template = env.get_template(template_name)
+        template = CRUDView.temp_env.get_template(template_name)
         return yaml.safe_load(template.render(**props))
 
     @classmethod
