@@ -141,6 +141,76 @@ class ModelTest(IndexdTestCase):
         [self.assertEqual(getattr(gf, k), v)
          for k, v in kwargs.items()]
 
+
+    def test_update_indexd_only(self):
+        """
+        Test updating of only indexd fields
+        """
+        # Create and save genomic files and dependent entities
+        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
+
+        kwargs = kwargs_dict[list(kwargs_dict.keys())[1]]
+
+        # Update fields
+        gf = GenomicFile.query.get(kwargs['kf_id'])
+        gf.external_id = 'blah'
+        gf.size = 1234
+        gf.acl = ['new_acl']
+        gf._metadata = {'test': 'test'}
+        did = gf.latest_did
+        db.session.commit()
+
+        # Check database
+        gf = GenomicFile.query.get(kwargs['kf_id'])
+        assert gf.size == 1234
+
+        assert self.indexd.Session().post.call_count == 3
+
+        expected = {
+            'file_name': 'hg38.bam',
+            'size': 1234,
+            'form': 'object',
+            'hashes': {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'},
+            'acl': ["new_acl"],
+            'urls': ['s3://bucket/key'],
+            'metadata': {'test': 'test'}
+        }
+        self.indexd.Session().post.assert_any_call(
+                '{}?rev={}'.format(did, gf.rev), json=expected)
+
+    def test_update_acl_only(self):
+        """
+        Test updating of only acl field 
+        """
+        # Create and save genomic files and dependent entities
+        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
+
+        kwargs = kwargs_dict[list(kwargs_dict.keys())[1]]
+
+        # Update fields
+        gf = GenomicFile.query.get(kwargs['kf_id'])
+        gf.acl = ['INTERNAL', 'new_acl']
+        did = gf.latest_did
+        db.session.commit()
+
+        # Check database
+        gf = GenomicFile.query.get(kwargs['kf_id'])
+        assert gf.acl == ['INTERNAL', 'new_acl']
+
+        assert self.indexd.Session().post.call_count == 3
+
+        expected = {
+            'file_name': 'hg38.bam',
+            'size': 7696048,
+            'form': 'object',
+            'hashes': {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'},
+            'acl': ['INTERNAL', 'new_acl'],
+            'urls': ['s3://bucket/key'],
+            'metadata': {}
+        }
+        self.indexd.Session().post.assert_any_call(
+                '{}?rev={}'.format(did, gf.rev), json=expected)
+
     def test_delete(self):
         """
         Test delete existing genomic file
@@ -222,7 +292,7 @@ class ModelTest(IndexdTestCase):
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
-                'hashes': {'md5': uuid.uuid4()},
+                'hashes': {'md5': str(uuid.uuid4())},
                 'availability': 'Immediate Download'
             }
             # Add genomic file to list in biospecimen

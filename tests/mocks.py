@@ -42,8 +42,8 @@ class MockIndexd(MagicMock):
             "md5": "dcff06ebb19bc9aa8f1aae1288d10dc2"
         },
         "metadata": {
-            "acls": "INTERNAL"
         },
+        "acl": ["INTERNAL"],
         "rev": "39b19b2d",
         "size": 7696048,
         "updated_date": "2018-02-21T00:44:27.414671",

@@ -108,12 +108,6 @@ class GenomicFileAPI(CRUDView):
             abort(404, 'could not find {} `{}`'
                   .format('genomic_file', kf_id))
 
-        # Merge will return None if the document wasnt found in indexd
-        merge = genomic_file.merge_indexd()
-        if merge is None:
-            abort(404, 'could not find {} `{}`'
-                  .format('genomic_file', kf_id))
-
         sch = GenomicFileSchema(many=False)
         return sch.jsonify(genomic_file)
 
@@ -131,12 +125,6 @@ class GenomicFileAPI(CRUDView):
         body = request.get_json(force=True) or {}
         gf = GenomicFile.query.get(kf_id)
         if gf is None:
-            abort(404, 'could not find {} `{}`'
-                  .format('genomic_file', kf_id))
-
-        # Fetch fields from indexd first
-        merge = gf.merge_indexd()
-        if merge is None:
             abort(404, 'could not find {} `{}`'
                   .format('genomic_file', kf_id))
 
