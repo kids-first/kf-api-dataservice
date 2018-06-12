@@ -87,9 +87,16 @@ class MockIndexd(MagicMock):
         """
         Mocks a response from GET /index/
         """
-        did = url.split('/')[-1].split('?')[0]
-        resp = self.doc.copy()
-        resp['did'] = did
+        if url.endswith('/versions'):
+            did = url.split('/')[-2]
+            resp = {}
+            for i in range(3):
+                resp[i] = self.doc.copy()
+                resp[i]['did'] = did if i == 0 else str(uuid.uuid4())
+        else:
+            did = url.split('/')[-1].split('?')[0]
+            resp = self.doc.copy()
+            resp['did'] = did
 
         return MockResp(resp=resp, status_code=self.status_code)
 

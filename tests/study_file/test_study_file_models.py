@@ -57,6 +57,57 @@ class ModelTest(IndexdTestCase):
                              external_id='phs002').one().kf_id)
         self.assertNotIn(sf0, Study.query.get(study.kf_id).study_files)
 
+    def test_update_all_versions(self):
+        """
+        Test that all verions of a document are updated when the acl is changed
+        """
+        # Create study_files and study
+        study_files, study, data = self.create_study_file()
+
+        orig_post = self.indexd.Session().post.call_count
+
+        sf = StudyFile.query.get(study_files[0].kf_id)
+        # These are the values set by the mock indexd get
+        sf.size = 7696048
+        sf.hashes = {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'}
+        # Update to a new acl
+        sf.acl = ['new_acl']
+        did = sf.latest_did
+        db.session.add(sf)
+        db.session.commit()
+
+        # Check that all versions were fetched
+        url = '{}/versions'.format(did)
+        self.indexd.Session().get.assert_any_call(url)
+        # Check that all versions were updated and the original changed
+        assert self.indexd.Session().put.call_count == 4
+        # Check that no new version was made
+        assert self.indexd.Session().post.call_count == orig_post
+
+    def test_new_version(self):
+        """
+        Test that a new version is created when content is changed
+        """
+        # Create study_files and study
+        study_files, study, data = self.create_study_file()
+
+        orig_post = self.indexd.Session().post.call_count
+
+        sf = StudyFile.query.get(study_files[0].kf_id)
+        # Set to value returned in the mock endpoint
+        sf.acl = ['INTERNAL']
+        # New content values
+        sf.size = 1234
+        sf.hashes = {'md5': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+        did = sf.latest_did
+        db.session.add(sf)
+        db.session.commit()
+
+        assert self.indexd.Session().put.call_count == 0
+        # Check that no new version was made
+        assert self.indexd.Session().post.call_count == orig_post + 1
+
+
     def test_delete(self):
         """
         Test delete study_file

@@ -168,9 +168,8 @@ class ModelTest(IndexdTestCase):
 
         expected = {
             'file_name': 'hg38.bam',
-            'size': 1234,
             'form': 'object',
-            'hashes': {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'},
+            'size': 1234,
             'acl': ["new_acl"],
             'urls': ['s3://bucket/key'],
             'metadata': {'test': 'test'}
@@ -197,18 +196,16 @@ class ModelTest(IndexdTestCase):
         gf = GenomicFile.query.get(kwargs['kf_id'])
         assert gf.acl == ['INTERNAL', 'new_acl']
 
-        assert self.indexd.Session().post.call_count == 3
+        # Update document and all versions
+        assert self.indexd.Session().put.call_count == 4
 
         expected = {
             'file_name': 'hg38.bam',
-            'size': 7696048,
-            'form': 'object',
-            'hashes': {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'},
             'acl': ['INTERNAL', 'new_acl'],
             'urls': ['s3://bucket/key'],
             'metadata': {}
         }
-        self.indexd.Session().post.assert_any_call(
+        self.indexd.Session().put.assert_any_call(
                 '{}?rev={}'.format(did, gf.rev), json=expected)
 
     def test_delete(self):
