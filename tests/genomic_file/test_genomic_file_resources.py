@@ -73,6 +73,7 @@ def genomic_files(client, entities):
     gfs = [GenomicFile(**props) for _ in range(EXPECTED_TOTAL - ENTITY_TOTAL)]
     db.session.add_all(gfs)
     db.session.commit()
+    db.session.expunge_all()
 
 
 def test_new(client, indexd, entities):
@@ -131,7 +132,7 @@ def test_get_list(client, indexd, genomic_files):
     assert resp['_status']['code'] == 200
     assert resp['total'] == GenomicFile.query.count()
     assert len(resp['results']) == 10
-    assert indexd.get.call_count == 11
+    assert indexd.get.call_count == 10
 
 
 def test_get_list_with_missing_files(client, indexd, genomic_files):
@@ -158,7 +159,7 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
     assert len(resp['results']) == 0
     for res in resp['results']:
         assert 'kf_id' in res
-    expected = (EXPECTED_TOTAL - ENTITY_TOTAL)*2 + ENTITY_TOTAL
+    expected = EXPECTED_TOTAL
     assert indexd.get.call_count == expected 
 
 

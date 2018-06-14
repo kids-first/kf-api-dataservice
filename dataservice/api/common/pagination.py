@@ -115,11 +115,10 @@ def indexd_pagination(q, after, limit):
         pager = Pagination(q, next_after, remain)
 
         for st in pager.items:
-            merged = st.merge_indexd()
-            if merged is not None:
-                keep.append(st)
-            else:
+            if hasattr(st, 'was_deleted') and st.was_deleted:
                 refresh = True
+            else:
+                keep.append(st)
 
     # Replace original page's items with new list of valid files
     pager.items = keep
