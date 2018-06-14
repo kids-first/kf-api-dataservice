@@ -47,7 +47,6 @@ class DiagnosisTest(FlaskTestCase):
                                     headers=self._api_headers())
 
         # Check response status status_code
-        print(response.data)
         self.assertEqual(response.status_code, 201)
 
         # Check response content
@@ -164,6 +163,49 @@ class DiagnosisTest(FlaskTestCase):
                 self.assertEqual(diagnosis[k], val)
 
         self.assertEqual(1, Diagnosis.query.count())
+
+    def test_invalid_biospecimen(self):
+        """
+        Test that a diagnosis cannot be linked with a biospecimen if
+        they refer to different participants
+        """
+        kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
+
+        # Create new participant with biospecimen
+        st = Study.query.first()
+        s = SequencingCenter.query.first()
+        p1 = Participant(external_id='p1', is_proband=True, study_id=st.kf_id)
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center_id=s.kf_id,
+                        participant=p1)
+        db.session.add(b)
+        db.session.commit()
+
+        # Update existing diagnosis
+        body = {
+            'source_text_diagnosis': 'hangry',
+            'diagnosis_category': 'Structural Birth Defect',
+            'participant_id': kwargs['participant_id'],
+            'biospecimen_id': b.kf_id
+        }
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 400)
+
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        assert 'could not modify diagnosis' in resp['_status']['message']
+        assert 'diagnosis {}'.format(kf_id) in resp['_status']['message']
+        assert ('participant {}'.format(kwargs.get('participant_id'))
+                in resp['_status']['message'])
+        assert ('biospecimen {}'.format(b.kf_id)
+                in resp['_status']['message'])
+        assert ('participant {}'.format(b.participant_id)
+                in resp['_status']['message'])
 
     def test_delete(self):
         """

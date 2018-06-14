@@ -104,6 +104,5 @@ class Biospecimen(db.Model, Base):
                                         'biospecimen', lazy=True),
                                     doc='genomic files this biospecimen')
     diagnoses = db.relationship(Diagnosis,
-                                cascade='all, delete-orphan',
                                 backref=db.backref('biospecimen',
                                                    lazy=True))

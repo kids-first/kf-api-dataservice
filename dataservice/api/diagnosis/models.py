@@ -1,3 +1,5 @@
+from sqlalchemy.orm import validates
+
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 
@@ -71,3 +73,44 @@ class Diagnosis(db.Model, Base):
                                doc='the biospecimen which recieved the '
                                'diagnosis',
                                nullable=True)
+
+    @validates('biospecimen_id')
+    def validate_biospecimen(self, key, value):
+        """
+        Ensure that both the diagnosis and biospecimen
+        (referred to by biospecimen_id) have the same participant
+
+        If this is not the case then raise DatabaseValidationError
+        """
+        from dataservice.api.biospecimen.models import Biospecimen
+        from dataservice.api.errors import DatabaseValidationError
+
+        if ((self.kf_id is None and self.participant_id is None) or
+                value is None):
+            return None
+
+        # Get biospecimen by id
+        bsp = Biospecimen.query.get(value)
+
+        # If it doesn't exist, return the original input value
+        # and let ORM handle non-existent foreign key
+        if bsp is None:
+            return value
+
+        # Check if this diagnosis and biospecimen refer to same participant
+        if self.participant_id != bsp.participant_id:
+            operation = 'modify'
+            target_entity = Diagnosis.__tablename__
+            kf_id = self.kf_id or ''
+            message = (
+                ('a diagnosis cannot be linked with a biospecimen if they '
+                 'refer to different participants. diagnosis {} '
+                 'refers to participant {} and '
+                 'biospecimen {} refers to participant {}')
+                .format(kf_id,
+                        self.participant_id,
+                        bsp.kf_id,
+                        bsp.participant_id))
+            raise DatabaseValidationError(target_entity, operation, message)
+
+        return value
