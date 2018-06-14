@@ -88,12 +88,6 @@ class StudyFileAPI(CRUDView):
             abort(404, 'could not find {} `{}`'
                   .format('study_file', kf_id))
 
-        # Merge will return None if the document wasnt found in indexd
-        merge = st.merge_indexd()
-        if merge is None:
-            abort(404, 'could not find {} `{}`'
-                  .format('study_file', kf_id))
-
         return StudyFileSchema(many=False).jsonify(st)
 
     def patch(self, kf_id):
@@ -110,12 +104,6 @@ class StudyFileAPI(CRUDView):
         body = request.get_json(force=True)
         st = StudyFile.query.get(kf_id)
         if st is None:
-            abort(404, 'could not find {} `{}`'
-                  .format('study_file', kf_id))
-
-        # Fetch fields from indexd first
-        merge = st.merge_indexd()
-        if merge is None:
             abort(404, 'could not find {} `{}`'
                   .format('study_file', kf_id))
 

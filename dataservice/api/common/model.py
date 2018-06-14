@@ -2,7 +2,8 @@ from datetime import datetime
 from flask import abort
 from requests.exceptions import HTTPError
 import sqlalchemy.types as types
-from sqlalchemy import event
+from sqlalchemy import event, inspect
+from sqlalchemy.orm import reconstructor
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -41,6 +42,33 @@ class IDMixin:
     uuid = db.Column(UUID(), unique=True, default=uuid_generator)
 
 
+class IndexdField():
+
+    def __init__(self, value):
+        self._value = value
+
+    def __get__(self, instance, owner=None):
+        return self._value
+
+    def __set__(self, instance, value):
+        """
+        If the value is being changed on an object that is already being
+        stored in the database, the modifed_at column will be explicitly
+        update. This must be done so that the object in the database is
+        update and the ORM update event is triggered. Otherwise, the event
+        will not be triggered and the object will not be updated in Indexd.
+
+        NB: The value of the field may only be *set* through assignment.
+        Collection functions such as list.append() or dict.__setitem__()
+        will not trigger this hook when invoked.
+        """
+        if instance and not value == self._value:
+            state = inspect(instance)
+            if state.persistent:
+                instance.modified_at = datetime.now()
+        self._value = value
+
+
 class IndexdFile:
     """
     Field reflection for objects that are stored in indexd
@@ -77,15 +105,16 @@ class IndexdFile:
     latest_did = db.Column(UUID(), nullable=False)
 
     # Fields used by indexd, but not tracked in the database
-    file_name = ''
-    urls = []
+    file_name = IndexdField('')
+    urls = IndexdField([])
     rev = None
-    hashes = {}
-    acl = []
+    hashes = IndexdField({})
+    acl = IndexdField([])
     # The metadata property is already used by sqlalchemy
-    _metadata = {}
-    size = None
+    _metadata = IndexdField({})
+    size = IndexdField(None)
 
+    @reconstructor
     def merge_indexd(self):
         """
         Gets additional fields from indexd

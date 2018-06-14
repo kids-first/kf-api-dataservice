@@ -79,6 +79,7 @@ def study_files(client, entities):
         assert resp.status_code == 201
 
     assert StudyFile.query.count() == EXPECTED_TOTAL
+    db.session.expunge_all()
 
 
 @pytest.mark.usefixtures("indexd")
@@ -159,7 +160,8 @@ def test_get_list_with_missing_files(client, indexd, study_files):
     assert len(resp['results']) == 0
     for res in resp['results']:
         assert 'kf_id' in res
-    assert indexd.get.call_count == EXPECTED_TOTAL
+    expected = EXPECTED_TOTAL
+    assert indexd.get.call_count == expected 
 
 
 def test_get_one(client, entities):

@@ -42,8 +42,8 @@ class MockIndexd(MagicMock):
             "md5": "dcff06ebb19bc9aa8f1aae1288d10dc2"
         },
         "metadata": {
-            "acls": "INTERNAL"
         },
+        "acl": ["INTERNAL"],
         "rev": "39b19b2d",
         "size": 7696048,
         "updated_date": "2018-02-21T00:44:27.414671",
@@ -87,9 +87,16 @@ class MockIndexd(MagicMock):
         """
         Mocks a response from GET /index/
         """
-        did = url.split('/')[-1].split('?')[0]
-        resp = self.doc.copy()
-        resp['did'] = did
+        if url.endswith('/versions'):
+            did = url.split('/')[-2]
+            resp = {}
+            for i in range(3):
+                resp[i] = self.doc.copy()
+                resp[i]['did'] = did if i == 0 else str(uuid.uuid4())
+        else:
+            did = url.split('/')[-1].split('?')[0]
+            resp = self.doc.copy()
+            resp['did'] = did
 
         return MockResp(resp=resp, status_code=self.status_code)
 

@@ -149,10 +149,10 @@ class Indexd(object):
         resp = self.session.get(url)
         self.check_response(resp)
 
-        record.rev = resp.json()['rev']
+        old = resp.json()
+        record.rev = old['rev']
 
         req_body = {
-            "form": "object",
             "file_name": record.file_name,
             "size": record.size,
             "hashes": record.hashes,
@@ -161,16 +161,54 @@ class Indexd(object):
             "metadata": record._metadata
         }
 
-        # Update the file on indexd
+        if req_body['size'] == old['size']:
+            del req_body['size']
+        if req_body['hashes'] == old['hashes']:
+            del req_body['hashes']
+
+        # If acl changed, update all previous version with new acl
+        if record.acl != old['acl']:
+            self._update_all_acls(record)
+
         url = '{}{}?rev={}'.format(self.url, record.latest_did, record.rev)
-        resp = self.session.post(url, json=req_body)
+        if 'size' in req_body or 'hashes' in req_body:
+            # Create a new version in indxed
+            req_body['form'] = 'object'
+            resp = self.session.post(url, json=req_body)
+            did = resp.json()['did']
+            record.latest_did = did
+        else:
+            # Update the file on indexd
+            resp = self.session.put(url, json=req_body)
+
         self.check_response(resp)
         resp.raise_for_status()
 
-        did = resp.json()['did']
-        record.latest_did = did
-
         return record
+
+    def _update_all_acls(self, record):
+        """
+        Update acls for all previous versions of a record and update the
+        target record's rev
+        """
+        # Only use fields allowed by the indexd PUT schema
+        fields = ['urls', 'acl', 'file_name', 'version',
+                  'metadata', 'urls_metadata', 'rev']
+
+        url = '{}{}/versions'.format(self.url, record.latest_did)
+        versions = self.session.get(url).json()
+        for version, doc in versions.items():
+            if doc['acl'] != record.acl:
+                did = doc['did']
+                doc = {k: v for k, v in doc.items() if k in fields}
+                doc['acl'] = record.acl
+                if doc['version'] is None:
+                    del doc['version']
+                url = '{}{}?rev={}'.format(self.url, did, doc['rev'])
+                resp = self.session.put(url, json=doc)
+                # Update the record's rev if it's the record being modified
+                if record.latest_did == did:
+                    record.rev = resp.json()['rev']
 
     def delete(self, record):
         """

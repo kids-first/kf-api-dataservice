@@ -18,7 +18,7 @@ from tests.mocks import MockIndexd
 
 GENOMICFILE_URL = 'api.genomic_files'
 GENOMICFILE_LIST_URL = 'api.genomic_files_list'
-EXPECTED_TOTAL = ENTITY_TOTAL + 102
+EXPECTED_TOTAL = ENTITY_TOTAL + 102*2
 
 
 @pytest.fixture(scope='function')
@@ -73,6 +73,7 @@ def genomic_files(client, entities):
     gfs = [GenomicFile(**props) for _ in range(EXPECTED_TOTAL - ENTITY_TOTAL)]
     db.session.add_all(gfs)
     db.session.commit()
+    db.session.expunge_all()
 
 
 def test_new(client, indexd, entities):
@@ -158,7 +159,8 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
     assert len(resp['results']) == 0
     for res in resp['results']:
         assert 'kf_id' in res
-    assert indexd.get.call_count == EXPECTED_TOTAL
+    expected = EXPECTED_TOTAL
+    assert indexd.get.call_count == expected 
 
 
 def test_get_one(client, entities):
