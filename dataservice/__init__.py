@@ -132,7 +132,13 @@ def register_error_handlers(app):
     NB: Exceptions to be handled must be imported in the head of this module
     """
     from dataservice.api import errors
+    # Database integrity error
     app.register_error_handler(IntegrityError, errors.integrity_error)
+
+    # Database validation errors
+    app.register_error_handler(errors.DatabaseValidationError,
+                               errors.database_validation_error)
+    # Http errors
     from werkzeug.exceptions import default_exceptions
     for ex in default_exceptions:
         app.register_error_handler(ex, errors.http_error)
