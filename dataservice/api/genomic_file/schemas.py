@@ -58,5 +58,7 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             'api.sequencing_experiments',
             kf_id='<sequencing_experiment_id>'),
         'cavatica_task_genomic_files': ma.URLFor(
-            'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>')
+            'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>'),
+        'read_groups': ma.URLFor(
+            'api.read_groups_list', genomic_file_id='<kf_id>')
     }, description='Resource links and pagination')
