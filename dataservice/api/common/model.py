@@ -104,15 +104,6 @@ class IndexdFile:
     # files in indexd cannot be looked up by their baseid
     latest_did = db.Column(UUID(), nullable=False)
 
-    # Fields used by indexd, but not tracked in the database
-    file_name = IndexdField('')
-    urls = IndexdField([])
-    rev = None
-    hashes = IndexdField({})
-    acl = IndexdField([])
-    # The metadata property is already used by sqlalchemy
-    _metadata = IndexdField({})
-    size = IndexdField(None)
 
     @reconstructor
     def merge_indexd(self):
@@ -124,6 +115,16 @@ class IndexdFile:
 
         :returns: This object, if merge was successful, otherwise None
         """
+        # Fields used by indexd, but not tracked in the database
+        self.file_name = IndexdField('')
+        self.urls = IndexdField([])
+        self.rev = None
+        self.hashes = IndexdField({})
+        self.acl = IndexdField([])
+        # The metadata property is already used by sqlalchemy
+        self._metadata = IndexdField({})
+        self.size = IndexdField(None)
+
         try:
             return indexd.get(self)
         except RecordNotFound as err:
