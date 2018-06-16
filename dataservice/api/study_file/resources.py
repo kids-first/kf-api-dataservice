@@ -1,3 +1,4 @@
+import datetime
 from flask import abort, request
 from marshmallow import ValidationError
 from webargs.flaskparser import use_args
@@ -116,6 +117,11 @@ class StudyFileAPI(CRUDView):
                                                     partial=True).data)
         except ValidationError as err:
             abort(400, 'could not update study_file: {}'.format(err.messages))
+
+        # The object won't be updated if only indexd fields are updated.
+        # Explicitly update the one of the mapped fields to force an update
+        # to the database.
+        st.modified_at = datetime.datetime.now()
 
         db.session.add(st)
         db.session.commit()

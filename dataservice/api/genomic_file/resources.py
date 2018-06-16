@@ -1,3 +1,4 @@
+import datetime
 from flask import abort, request
 from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
@@ -138,6 +139,11 @@ class GenomicFileAPI(CRUDView):
         except ValidationError as err:
             abort(400,
                   'could not update genomic_file: {}'.format(err.messages))
+
+        # The object won't be updated if only indexd fields are updated.
+        # Explicitly update the one of the mapped fields to force an update
+        # to the database.
+        gf.modified_at = datetime.datetime.now()
 
         db.session.add(gf)
         db.session.commit()

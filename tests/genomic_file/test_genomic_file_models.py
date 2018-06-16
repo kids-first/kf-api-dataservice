@@ -1,3 +1,4 @@
+import datetime
 import uuid
 import random
 import pytest
@@ -190,6 +191,8 @@ class ModelTest(IndexdTestCase):
         gf = GenomicFile.query.get(kwargs['kf_id'])
         gf.acl = ['INTERNAL', 'new_acl']
         did = gf.latest_did
+        # explicitly tell the object to update one of the mapped fields
+        gf.modified_at = datetime.datetime.now()
         db.session.commit()
 
         # Check database

@@ -42,33 +42,6 @@ class IDMixin:
     uuid = db.Column(UUID(), unique=True, default=uuid_generator)
 
 
-class IndexdField():
-
-    def __init__(self, value):
-        self._value = value
-
-    def __get__(self, instance, owner=None):
-        return self._value
-
-    def __set__(self, instance, value):
-        """
-        If the value is being changed on an object that is already being
-        stored in the database, the modifed_at column will be explicitly
-        update. This must be done so that the object in the database is
-        update and the ORM update event is triggered. Otherwise, the event
-        will not be triggered and the object will not be updated in Indexd.
-
-        NB: The value of the field may only be *set* through assignment.
-        Collection functions such as list.append() or dict.__setitem__()
-        will not trigger this hook when invoked.
-        """
-        if instance and not value == self._value:
-            state = inspect(instance)
-            if state.persistent:
-                instance.modified_at = datetime.now()
-        self._value = value
-
-
 class IndexdFile:
     """
     Field reflection for objects that are stored in indexd
@@ -104,21 +77,36 @@ class IndexdFile:
     # files in indexd cannot be looked up by their baseid
     latest_did = db.Column(UUID(), nullable=False)
 
-    # Fields used by indexd, but not tracked in the database
-    file_name = IndexdField('')
-    urls = IndexdField([])
+    file_name = ''
+    urls = []
     rev = None
-    hashes = IndexdField({})
-    acl = IndexdField([])
+    hashes = {}
+    acl = []
     # The metadata property is already used by sqlalchemy
-    _metadata = IndexdField({})
-    size = IndexdField(None)
+    _metadata = {}
+    size = None
 
     @reconstructor
+    def constructor(self):
+        """
+        Builds the object by initializing properties and updating them
+        from indexd.
+
+        """
+        # Fields used by indexd, but not tracked in the database
+        self.file_name = ''
+        self.urls = []
+        self.rev = None
+        self.hashes = {}
+        self.acl = []
+        # The metadata property is already used by sqlalchemy
+        self._metadata = {}
+        self.size = None
+        # Update fields from indexd
+        self.merge_indexd()
+
     def merge_indexd(self):
         """
-        Gets additional fields from indexd
-
         If the document matching this object's latest_did cannot be found in
         indexd, remove the object from the database
 
