@@ -10,6 +10,7 @@ from marshmallow import (
 )
 from flask import url_for, request
 from flask_marshmallow import Schema
+from dataservice.api.common.model import IndexdField as CommonIndexdField
 from dataservice.api.common.pagination import Pagination
 from dataservice.api.common.validation import validate_kf_id
 from dataservice.extensions import db
@@ -94,13 +95,24 @@ class BaseSchema(ma.ModelSchema):
             raise ValidationError('Unknown field', unknown)
 
 
+class IndexdField(fields.Field):
+    def _serialize(self, value, attr, obj):
+        if value is None:
+            return ''
+        if attr == 'metadata':
+            return {}
+        if not isinstance(value, CommonIndexdField):
+            return value
+        return value._value
+
+
 class IndexdFileSchema(Schema):
-    urls = ma.List(ma.Str(), required=True)
-    acl = ma.List(ma.Str(), required=False)
-    file_name = ma.Str()
-    hashes = ma.Dict(required=True)
-    metadata = ma.Dict(attribute='_metadata')
-    size = ma.Int(required=True)
+    urls = IndexdField(ma.List(ma.Str(), required=True))
+    acl = IndexdField(ma.List(ma.Str(), required=False))
+    file_name = IndexdField(ma.Str())
+    hashes = IndexdField(ma.Dict(required=True))
+    metadata = IndexdField(ma.Dict(attribute='_metadatas'))
+    size = IndexdField(ma.Int(required=True))
 
 
 class ErrorSchema(Schema):

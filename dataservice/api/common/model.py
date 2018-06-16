@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from flask import abort
 from requests.exceptions import HTTPError
@@ -44,7 +45,7 @@ class IDMixin:
 
 class IndexdField():
 
-    def __init__(self, value):
+    def __init__(self, value=None):
         self._value = value
 
     def __get__(self, instance, owner=None):
@@ -104,16 +105,6 @@ class IndexdFile:
     # files in indexd cannot be looked up by their baseid
     latest_did = db.Column(UUID(), nullable=False)
 
-    # Fields used by indexd, but not tracked in the database
-    file_name = IndexdField('')
-    urls = IndexdField([])
-    rev = None
-    hashes = IndexdField({})
-    acl = IndexdField([])
-    # The metadata property is already used by sqlalchemy
-    _metadata = IndexdField({})
-    size = IndexdField(None)
-
     @reconstructor
     def merge_indexd(self):
         """
@@ -124,6 +115,15 @@ class IndexdFile:
 
         :returns: This object, if merge was successful, otherwise None
         """
+        self.file_name = IndexdField()
+        self.urls = IndexdField()
+        self.rev = None
+        self.hashes = IndexdField()
+        self.acl = IndexdField()
+        # The _metadata property is already used by sqlalchemy
+        self._metadatas = IndexdField()
+        self.size = IndexdField()
+
         try:
             return indexd.get(self)
         except RecordNotFound as err:

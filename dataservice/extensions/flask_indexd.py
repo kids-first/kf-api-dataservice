@@ -63,7 +63,7 @@ class Indexd(object):
         for prop, v in resp.json().items():
             if hasattr(record, prop):
                 if prop == 'metadata':
-                    record._metadata = v
+                    record._metadatas = v
                 else:
                     setattr(record, prop, v)
 
@@ -108,7 +108,7 @@ class Indexd(object):
             record.latest_did = str(uuid.uuid4())
             return record
 
-        meta = record._metadata
+        meta = record._metadatas
 
         req_body = {
             "file_name": record.file_name,
@@ -158,7 +158,7 @@ class Indexd(object):
             "hashes": record.hashes,
             "acl": record.acl,
             "urls": record.urls,
-            "metadata": record._metadata
+            "metadata": record._metadatas
         }
 
         if req_body['size'] == old['size']:
