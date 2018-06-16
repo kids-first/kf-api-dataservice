@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy.exc import IntegrityError
 
 from dataservice.extensions import db
@@ -72,6 +73,7 @@ class ModelTest(IndexdTestCase):
         sf.hashes = {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'}
         # Update to a new acl
         sf.acl = ['new_acl']
+        sf.modified_at = datetime.datetime.now()
         did = sf.latest_did
         db.session.add(sf)
         db.session.commit()
@@ -99,6 +101,7 @@ class ModelTest(IndexdTestCase):
         # New content values
         sf.size = 1234
         sf.hashes = {'md5': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
+        sf.modified_at = datetime.datetime.now()
         did = sf.latest_did
         db.session.add(sf)
         db.session.commit()
