@@ -13,6 +13,8 @@ jobs:
         environment:
         - POSTGRES_USER=postgres
         - POSTGRES_DB=test
+        - PG_USER=postgres
+        - PG_NAME=test
 
     working_directory: ~/repo
 
@@ -48,6 +50,8 @@ jobs:
             python-codacy-coverage -r coverage.xml
           environment:
             - FLASK_APP: "manage"
+            - PG_USER: "postgres"
+            - PG_NAME: "test"
 
       - store_artifacts:
           path: test-reports

@@ -44,7 +44,7 @@ class TestingConfig(Config):
     SERVER_NAME = "localhost"
     TESTING = True
     WTF_CSRF_ENABLED = False
-    SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/test'
+    # SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/test'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
