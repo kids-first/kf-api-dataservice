@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base, IndexdFile, KfId
+from dataservice.api.common.model import Base, IndexdFile, KfId, IndexdField
 
 
 class StudyFile(db.Model, Base, IndexdFile):
@@ -19,6 +19,19 @@ class StudyFile(db.Model, Base, IndexdFile):
     :param availability: Indicates whether a file is available for immediate
            download, or is in cold storage
     """
+    def __init__(self, *args, file_name='', urls=[], rev=None, hashes={},
+                 acl=[], _metadata={}, size=None, **kwargs):
+        # Fields used by indexd, but not tracked in the database
+        self.file_name = IndexdField(file_name)
+        self.urls = IndexdField(urls)
+        self.rev = rev
+        self.hashes = IndexdField(hashes)
+        self.acl = IndexdField(acl)
+        # The metadata property is already used by sqlalchemy
+        self._metadatas = IndexdField(_metadata)
+        self.size = IndexdField(size)
+        return super().__init__(*args, **kwargs)
+
     __tablename__ = 'study_file'
     __prefix__ = 'SF'
 

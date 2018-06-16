@@ -179,7 +179,7 @@ def test_get_one(client, entities):
     resp = resp['results']
     # check properties from indexd
     assert resp['hashes'] == gf.hashes
-    assert resp['metadata'] == gf._metadata
+    assert resp['metadata'] == gf._metadatas
     assert 'rev' not in resp
     assert resp['size'] == gf.size
     assert resp['acl'] == gf.acl

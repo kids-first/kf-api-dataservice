@@ -1,5 +1,5 @@
 from dataservice.extensions import db
-from dataservice.api.common.model import Base, IndexdFile, KfId
+from dataservice.api.common.model import Base, IndexdFile, KfId, IndexdField
 from dataservice.api.cavatica_task.models import (
     CavaticaTaskGenomicFile
 )
@@ -28,11 +28,24 @@ class GenomicFile(db.Model, Base, IndexdFile):
     :param latest_did: UUID for the latest version of the file in indexd
     :param urls: Locations of file
     :param hashes: A dict keyed by hash type containing hashes of the file
-    :param _metadata: A dict with any additional information
+    :param _metadatas: A dict with any additional information
     :param controlled_access: whether or not the file is controlled access
     :param availability: Indicates whether a file is available for immediate
            download, or is in cold storage
     """
+    def __init__(self, *args, file_name='', urls=[], rev=None, hashes={},
+                 acl=[], _metadatas={}, size=None, **kwargs):
+        # Fields used by indexd, but not tracked in the database
+        self.file_name = IndexdField(file_name)
+        self.urls = IndexdField(urls)
+        self.rev = rev
+        self.hashes = IndexdField(hashes)
+        self.acl = IndexdField(acl)
+        # The metadata property is already used by sqlalchemy
+        self._metadatas = IndexdField(_metadatas)
+        self.size = IndexdField(size)
+        return super().__init__(*args, **kwargs)
+
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
 

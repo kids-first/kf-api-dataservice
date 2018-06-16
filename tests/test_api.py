@@ -377,6 +377,8 @@ class TestAPI:
 
         assert api_version == package
 
+        print('hi')
+        print(client.get('/swagger').data)
         docs = json.loads(client.get('/swagger').data.decode('utf-8'))
         docs_version = docs['info']['version']
 
