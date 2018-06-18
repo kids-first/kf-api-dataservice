@@ -57,6 +57,7 @@ class GenomicFile(db.Model, Base, IndexdFile):
                                nullable=True)
 
     read_group = db.relationship(ReadGroup,
+                                 uselist=False,
                                  cascade="all, delete-orphan",
                                  backref=db.backref(
                                      'genomic_file',
