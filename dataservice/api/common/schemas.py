@@ -115,11 +115,11 @@ class ErrorSchema(Schema):
                             'code': data['code']}}
 
 
-def error_response_generator(resource_name, status_code):
+def error_response_generator(status_code):
     class ErrorResponseSchema(Schema):
         _examples = {
-            404: "could not find {} <kf_id>".format(resource_name),
-            400: ("could not update {}".format(resource_name) +
+            404: "could not find <entity> <entity.kf_id>",
+            400: ("could not <create | update> <entity>"
                   " {'<field>': ['Not a valid <expected type>.']}")
         }
         description = fields.String(description='status message',
