@@ -121,7 +121,7 @@ class TestAPI:
         ('/investigators', ['studies']),
         ('/families', ['participants']),
         ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
-        ('/participants', ['diagnoses',
+        ('/participants', ['diagnoses', 'family_relationships',
                            'phenotypes', 'outcomes', 'biospecimens']),
         ('/biospecimens', ['genomic_files']),
         ('/sequencing-experiments', ['genomic_files']),
