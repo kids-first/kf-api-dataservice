@@ -89,7 +89,11 @@ class TestFilterParams:
         """
         # Setup
         endpoint = ENTITY_ENDPOINT_MAP[model]
-        filter_params = {'blabbityboo': 'foo'}
+        if model.__name__ == 'Study':
+            filter_params = {'study_id': 'SD_00001111'}
+        else:
+            filter_params = {'blabbityboo': 'foo'}
+
         expected_total = model.query.count()
 
         # Make query string

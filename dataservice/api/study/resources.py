@@ -33,6 +33,8 @@ class StudyListAPI(CRUDView):
             resource:
               Study
         """
+        filter_params.pop('study_id', None)
+
         q = (Study.query
              .filter_by(**filter_params))
 
