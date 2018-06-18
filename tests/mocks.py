@@ -32,26 +32,30 @@ class MockIndexd(MagicMock):
     - GET - get info on a document or version by did
     """
 
-    doc = {
-        "baseid": "dc51eafd-1a7a-48ea-8800-3dfef5f9bd49",
-        "created_date": "2018-02-21T00:44:27.414661",
-        "did": "",
+    doc_base = {
         "file_name": "hg38.bam",
         "form": "object",
         "hashes": {
             "md5": "dcff06ebb19bc9aa8f1aae1288d10dc2"
         },
+        "size": 7696048,
+        "urls": [
+            "s3://bucket/key"
+        ],
+    }
+
+    doc = doc_base.copy()
+    doc.update({
+        "baseid": "dc51eafd-1a7a-48ea-8800-3dfef5f9bd49",
+        "created_date": "2018-02-21T00:44:27.414661",
+        "did": "",
         "metadata": {
         },
         "acl": ["INTERNAL"],
         "rev": "39b19b2d",
-        "size": 7696048,
         "updated_date": "2018-02-21T00:44:27.414671",
-        "urls": [
-            "s3://bucket/key"
-        ],
         "version": None
-    }
+    })
 
     # Need to store docs so new docs vs new versions can be differentiated
     baseid_by_did = {}
@@ -59,7 +63,6 @@ class MockIndexd(MagicMock):
     def __init__(self, *args, status_code=200, **kwargs):
         super(MockIndexd, self).__init__(*args, **kwargs)
         self.status_code = status_code
-
 
     def post(self, url, *args, **kwargs):
         """
