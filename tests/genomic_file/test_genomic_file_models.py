@@ -126,7 +126,7 @@ class ModelTest(IndexdTestCase):
         Test update genomic file
         """
         # Create and save genomic files and dependent entities
-        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
+        _, kwargs_dict = self._create_save_genomic_files()
 
         # Update fields
         kwargs = kwargs_dict[list(kwargs_dict.keys())[0]]
@@ -142,13 +142,12 @@ class ModelTest(IndexdTestCase):
         [self.assertEqual(getattr(gf, k), v)
          for k, v in kwargs.items()]
 
-
     def test_update_indexd_only(self):
         """
         Test updating of only indexd fields
         """
         # Create and save genomic files and dependent entities
-        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
+        _, kwargs_dict = self._create_save_genomic_files()
 
         kwargs = kwargs_dict[list(kwargs_dict.keys())[1]]
 
@@ -167,20 +166,18 @@ class ModelTest(IndexdTestCase):
 
         assert self.indexd.Session().post.call_count == 3
 
-        expected = {
-            'file_name': 'hg38.bam',
-            'form': 'object',
+        expected = MockIndexd.doc_base.copy()
+        expected.update({
             'size': 1234,
             'acl': ["new_acl"],
-            'urls': ['s3://bucket/key'],
-            'metadata': {'test': 'test'}
-        }
+            'metadata': {'test': 'test'},
+        })
         self.indexd.Session().post.assert_any_call(
                 '{}?rev={}'.format(did, gf.rev), json=expected)
 
     def test_update_acl_only(self):
         """
-        Test updating of only acl field 
+        Test updating of only acl field
         """
         # Create and save genomic files and dependent entities
         biospecimen_id, kwargs_dict = self._create_save_genomic_files()

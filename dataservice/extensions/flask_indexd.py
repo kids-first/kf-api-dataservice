@@ -161,9 +161,9 @@ class Indexd(object):
             "metadata": record._metadata
         }
 
-        if req_body['size'] == old['size']:
+        if (req_body['size'] == old['size'] and
+           req_body['hashes'] == old['hashes']):
             del req_body['size']
-        if req_body['hashes'] == old['hashes']:
             del req_body['hashes']
 
         # If acl changed, update all previous version with new acl
