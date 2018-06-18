@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
+import logging
 import re
+import requests
 import subprocess
 from flask import Flask
 from alembic.config import Config
@@ -48,6 +50,10 @@ def create_app(config_name):
     register_blueprints(app)
     register_spec(app)
     prefetch_status(app)
+
+    import logging
+    import requests
+    requests.packages.urllib3.add_stderr_logger()
 
     return app
 
