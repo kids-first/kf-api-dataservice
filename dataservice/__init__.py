@@ -51,9 +51,10 @@ def create_app(config_name):
     register_spec(app)
     prefetch_status(app)
 
-    import logging
-    import requests
-    requests.packages.urllib3.add_stderr_logger()
+    if not (app.config['TESTING']):
+        import logging
+        import requests
+        requests.packages.urllib3.add_stderr_logger()
 
     return app
 
