@@ -147,7 +147,7 @@ class ReadGroupTest(IndexdTestCase):
         rg = ReadGroup(external_id='blah',
                        lane_number=3,
                        flow_cell='FL0101')
-        gf.read_group = [rg]
+        gf.read_group = rg
 
         db.session.add(rg)
         db.session.commit()

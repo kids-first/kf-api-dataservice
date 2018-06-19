@@ -25,5 +25,9 @@ class ReadGroup(db.Model, Base):
                             doc='The group\'s lane')
     quality_scale = db.Column(db.Text(),
                               doc='The scale used to encode quality scores')
-    genomic_file_id = db.Column(KfId(), db.ForeignKey('genomic_file.kf_id'),
+    # NB: Because of the way GenomicFiles may delete themselves,
+    # they do not cascade to the read-group in the ORM, so we explicitly
+    # ON DELETE CASCADE inside Postgres
+    genomic_file_id = db.Column(KfId(), db.ForeignKey('genomic_file.kf_id',
+                                                      ondelete='CASCADE'),
                                 nullable=False)
