@@ -43,7 +43,7 @@ class FamilyRelationshipListAPI(CRUDView):
         # Filter by study
         from dataservice.api.participant.models import Participant
         if study_id:
-            q = (q.join(FamilyRelationship.participant)
+            q = (q.join(FamilyRelationship.participant1)
                  .filter(Participant.study_id == study_id))
 
         return (FamilyRelationshipSchema(many=True)

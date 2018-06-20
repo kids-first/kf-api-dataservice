@@ -24,9 +24,9 @@ class FamilyRelationship(db.Model, Base):
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     :param external_id: Name given to family_relationship by contributor
-    :param participant_id: Kids first id of the first Participant in the
+    :param participant1_id: Kids first id of the first Participant in the
     relationship
-    :param relative_id: Kids first id of the second Participant (or relative)
+    :param participant2_id: Kids first id of the second Participant
     in the relationship
     :param relationship_type: Text describing the nature of the
     relationship (i.e. father, mother, sister, brother)
@@ -35,36 +35,38 @@ class FamilyRelationship(db.Model, Base):
     """
     __tablename__ = 'family_relationship'
     __prefix__ = 'FR'
-    __table_args__ = (db.UniqueConstraint('participant_id', 'relative_id',
-                                          'participant_to_relative_relation',
-                                          'relative_to_participant_relation'),)
+    __table_args__ = (db.UniqueConstraint(
+        'participant1_id', 'participant2_id',
+        'participant1_to_participant2_relation',
+        'participant2_to_participant1_relation'),)
     external_id = db.Column(db.Text(),
                             doc='external id used by contributor')
-    participant_id = db.Column(
+    participant1_id = db.Column(
         KfId(),
         db.ForeignKey('participant.kf_id'),
         nullable=False,
         doc='kf_id of one participant in the relationship')
 
-    relative_id = db.Column(
+    participant2_id = db.Column(
         KfId(),
         db.ForeignKey('participant.kf_id'),
         nullable=False,
         doc='kf_id of the other participant in the relationship')
 
-    participant_to_relative_relation = db.Column(db.Text(), nullable=False)
+    participant1_to_participant2_relation = db.Column(db.Text(),
+                                                      nullable=False)
 
-    relative_to_participant_relation = db.Column(db.Text())
+    participant2_to_participant1_relation = db.Column(db.Text())
 
-    participant = db.relationship(
+    participant1 = db.relationship(
         Participant,
-        primaryjoin=participant_id == Participant.kf_id,
+        primaryjoin=participant1_id == Participant.kf_id,
         backref=db.backref('outgoing_family_relationships',
                            cascade='all, delete-orphan'))
 
-    relative = db.relationship(
+    participant2 = db.relationship(
         Participant,
-        primaryjoin=relative_id == Participant.kf_id,
+        primaryjoin=participant2_id == Participant.kf_id,
         backref=db.backref('incoming_family_relationships',
                            cascade='all, delete-orphan'))
 
@@ -75,22 +77,26 @@ class FamilyRelationship(db.Model, Base):
         """
 
         q = cls.query.filter(or_(
-            FamilyRelationship.participant_id == participant_kf_id,
-            FamilyRelationship.relative_id == participant_kf_id))
+            FamilyRelationship.participant1_id == participant_kf_id,
+            FamilyRelationship.participant2_id == participant_kf_id))
 
         return q
 
     def __repr__(self):
-        return '<{} is {} of {}>'.format(self.participant,
-                                         self.participant_to_relative_relation,
-                                         self.relative)
+        return '<{} is {} of {}>'.format(
+            self.participant1,
+            self.participant1_to_participant2_relation,
+            self.participant2)
 
 
-@event.listens_for(FamilyRelationship.participant_to_relative_relation, 'set')
+@event.listens_for(FamilyRelationship.participant1_to_participant2_relation,
+                   'set')
 def set_reverse_relation(target, value, oldvalue, initiator):
     """
-    Listen for set 'participant_to_relative_relation' events and
-    set the reverse relationship, 'relative_to_participant_relation' attribute
+    Listen for set 'participant1_to_participant2_relation' events and
+    set the reverse relationship, 'participant2_to_participant1_relation'
+    attribute
     """
-    target.relative_to_participant_relation = REVERSE_RELS.get(value.lower(),
-                                                               None)
+    target.participant2_to_participant1_relation = REVERSE_RELS.get(
+        value.lower(),
+        None)

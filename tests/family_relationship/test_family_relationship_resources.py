@@ -30,9 +30,9 @@ class FamilyRelationshipTest(FlaskTestCase):
             (Participant.external_id == 'Pebbles',
              Participant.external_id == 'Dino'))
         kwargs = {
-            'participant_id': results[0].kf_id,
-            'relative_id': results[1].kf_id,
-            'participant_to_relative_relation': 'father'
+            'participant1_id': results[0].kf_id,
+            'participant2_id': results[1].kf_id,
+            'participant1_to_participant2_relation': 'father'
         }
         # Send get request
         response = self.client.post(url_for(FAMILY_RELATIONSHIPS_LIST_URL),
@@ -47,10 +47,10 @@ class FamilyRelationshipTest(FlaskTestCase):
         family_relationship = response['results']
         fr = FamilyRelationship.query.get(family_relationship.get('kf_id'))
         for k, v in kwargs.items():
-            if k == 'participant_id':
-                self.assertEqual(v, kwargs.get('participant_id'))
-            elif k == 'relative_id':
-                self.assertEqual(v, kwargs.get('relative_id'))
+            if k == 'participant1_id':
+                self.assertEqual(v, kwargs.get('participant1_id'))
+            elif k == 'participant2_id':
+                self.assertEqual(v, kwargs.get('participant2_id'))
             else:
                 self.assertEqual(family_relationship[k], getattr(fr, k))
         self.assertEqual(2, FamilyRelationship.query.count())
@@ -68,17 +68,17 @@ class FamilyRelationshipTest(FlaskTestCase):
         # Check response content
         response = json.loads(response.data.decode('utf-8'))
         family_relationship = response['results']
-        participant_link = response['_links']['participant']
-        participant_id = urlparse(participant_link).path.split('/')[-1]
-        relative_link = response['_links']['relative']
-        relative_id = urlparse(relative_link).path.split('/')[-1]
+        participant_link = response['_links']['participant1']
+        participant1_id = urlparse(participant_link).path.split('/')[-1]
+        participant2_link = response['_links']['participant2']
+        participant2_id = urlparse(participant2_link).path.split('/')[-1]
         for k, v in kwargs.items():
-            if k == 'participant_id':
-                self.assertEqual(participant_id,
-                                 kwargs['participant_id'])
-            elif k == 'relative_id':
-                self.assertEqual(relative_id,
-                                 kwargs['relative_id'])
+            if k == 'participant1_id':
+                self.assertEqual(participant1_id,
+                                 kwargs['participant1_id'])
+            elif k == 'participant2_id':
+                self.assertEqual(participant2_id,
+                                 kwargs['participant2_id'])
             else:
                 self.assertEqual(family_relationship[k],
                                  family_relationship[k])
@@ -106,7 +106,7 @@ class FamilyRelationshipTest(FlaskTestCase):
 
         # Update existing family_relationship
         body = {
-            'participant_to_relative_relation': 'mother'
+            'participant1_to_participant2_relation': 'mother'
         }
         response = self.client.patch(url_for(FAMILY_RELATIONSHIPS_URL,
                                              kf_id=kf_id),
@@ -126,9 +126,9 @@ class FamilyRelationshipTest(FlaskTestCase):
         for k, v in body.items():
             self.assertEqual(v, getattr(fr, k))
         # Unchanged
-        self.assertEqual(kwargs.get('relative_to_participant_relation'),
+        self.assertEqual(kwargs.get('participant2_to_participant1_relation'),
                          family_relationship.get(
-                         'relative_to_participant_relation'))
+                         'participant2_to_participant1_relation'))
         self.assertEqual(1, FamilyRelationship.query.count())
 
     def test_delete(self):
@@ -171,16 +171,16 @@ class FamilyRelationshipTest(FlaskTestCase):
 
         # Create family_relationship
         kwargs = {
-            'participant_id': p1.kf_id,
-            'relative_id': p2.kf_id,
-            'participant_to_relative_relation': 'father'
+            'participant1_id': p1.kf_id,
+            'participant2_id': p2.kf_id,
+            'participant1_to_participant2_relation': 'father'
         }
         fr = FamilyRelationship(**kwargs)
 
         db.session.add(fr)
         db.session.commit()
         kwargs['kf_id'] = fr.kf_id
-        kwargs['relative_to_participant_relation'] = \
-            fr.relative_to_participant_relation
+        kwargs['participant2_to_participant1_relation'] = \
+            fr.participant2_to_participant1_relation
 
         return kwargs

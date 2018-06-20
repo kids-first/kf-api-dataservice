@@ -25,18 +25,18 @@ class ModelTest(FlaskTestCase):
         # Check database
         for p in Participant.query.all():
             if p.external_id == 'Fred' or p.external_id == 'Wilma':
-                self.assertIn(p3, self._all_relatives(p))
+                self.assertIn(p3, self._all_participants(p))
             if p.external_id == 'Pebbles':
-                for relative in [p1, p2, p4, p5]:
-                    self.assertIn(relative, self._all_relatives(p))
+                for participant2 in [p1, p2, p4, p5]:
+                    self.assertIn(participant2, self._all_participants(p))
             if p.external_id == 'Dino':
-                self.assertIn(p3, self._all_relatives(p))
+                self.assertIn(p3, self._all_participants(p))
             if p.external_id == 'Bart':
-                self.assertIn(p3, self._all_relatives(p))
+                self.assertIn(p3, self._all_participants(p))
         for r in FamilyRelationship.query.all():
-            self.assertEqual(r.relative_to_participant_relation,
+            self.assertEqual(r.participant2_to_participant1_relation,
                              REVERSE_RELS.get(
-                                 r.participant_to_relative_relation))
+                                 r.participant1_to_participant2_relation))
 
     def test_directed_graph_and_multiple_edges(self):
         """
@@ -46,17 +46,18 @@ class ModelTest(FlaskTestCase):
         # Create relationships
         self._create_relationships()
         r = FamilyRelationship.query.first()
-        rev_rel_str = 'reversed {}'.format(r.participant_to_relative_relation)
+        rev_rel_str = 'reversed {}'.format(
+            r.participant1_to_participant2_relation)
 
         reverse_r = FamilyRelationship(
-            participant=r.relative,
-            relative=r.participant,
-            participant_to_relative_relation=rev_rel_str)
+            participant1=r.participant2,
+            participant2=r.participant1,
+            participant1_to_participant2_relation=rev_rel_str)
 
         new_r = FamilyRelationship(
-            participant_id=r.participant_id,
-            relative_id=r.relative_id,
-            participant_to_relative_relation='weirdness')
+            participant1_id=r.participant1_id,
+            participant2_id=r.participant2_id,
+            participant1_to_participant2_relation='weirdness')
 
         db.session.add(reverse_r)
         db.session.add(new_r)
@@ -64,11 +65,11 @@ class ModelTest(FlaskTestCase):
 
         self.assertEqual(
             FamilyRelationship.query.filter_by(
-                participant_to_relative_relation=rev_rel_str).first(),
+                participant1_to_participant2_relation=rev_rel_str).first(),
             reverse_r)
         self.assertEqual(
             FamilyRelationship.query.filter_by(
-                participant_to_relative_relation='weirdness').first(),
+                participant1_to_participant2_relation='weirdness').first(),
             new_r)
 
     def test_find(self):
@@ -79,8 +80,8 @@ class ModelTest(FlaskTestCase):
 
         # Find relationship starting at Fred
         p = Participant.query.filter_by(external_id='Fred').one()
-        rel = FamilyRelationship.query.filter_by(participant=p).one()
-        self.assertEqual('Fred', rel.participant.external_id)
+        rel = FamilyRelationship.query.filter_by(participant1=p).one()
+        self.assertEqual('Fred', rel.participant1.external_id)
 
     def test_update(self):
         """
@@ -96,19 +97,19 @@ class ModelTest(FlaskTestCase):
 
         # Find relationship starting at Fred
         p = Participant.query.filter_by(external_id='Fred').one()
-        rel = FamilyRelationship.query.filter_by(participant=p).one()
+        rel = FamilyRelationship.query.filter_by(participant1=p).one()
 
         # Update Fred's relationship
-        rel.relative = susy
-        rel.participant_to_relative_relation = 'daughter'
+        rel.participant2 = susy
+        rel.participant1_to_participant2_relation = 'daughter'
         db.session.commit()
 
         # Check database
-        rel = FamilyRelationship.query.filter_by(participant=p).one()
+        rel = FamilyRelationship.query.filter_by(participant1=p).one()
         pebbles = Participant.query.filter_by(external_id='Pebbles').one()
-        self.assertNotIn(pebbles, self._all_relatives(p))
-        self.assertIn(susy, self._all_relatives(p))
-        self.assertEqual('daughter', rel.participant_to_relative_relation)
+        self.assertNotIn(pebbles, self._all_participants(p))
+        self.assertIn(susy, self._all_participants(p))
+        self.assertEqual('daughter', rel.participant1_to_participant2_relation)
 
     def test_delete(self):
         """
@@ -122,8 +123,8 @@ class ModelTest(FlaskTestCase):
 
         # Save ids
         rel_kf_id = rel.kf_id
-        participant_id = rel.participant.kf_id
-        relative_id = rel.relative.kf_id
+        participant1_id = rel.participant1.kf_id
+        participant2_id = rel.participant2.kf_id
 
         # Save to database
         db.session.delete(rel)
@@ -134,10 +135,10 @@ class ModelTest(FlaskTestCase):
         # Rel deleted
         self.assertEqual(rel, None)
         # Participants still exist
-        self.assertEqual(participant_id,
-                         Participant.query.get(participant_id).kf_id)
-        self.assertEqual(relative_id,
-                         Participant.query.get(relative_id).kf_id)
+        self.assertEqual(participant1_id,
+                         Participant.query.get(participant1_id).kf_id)
+        self.assertEqual(participant2_id,
+                         Participant.query.get(participant2_id).kf_id)
 
     def test_delete_via_particpant(self):
         """
@@ -167,14 +168,16 @@ class ModelTest(FlaskTestCase):
         """
         # Create family relationship
         data = {
-            'participant_to_relative_relation': 'father',
-            'participant_id': 'non existent',
-            'relative_id': 'non existent'
+            'participant1_to_participant2_relation': 'father',
+            'participant1_id': 'FR_00000000',
+            'participant2_id': 'FR_00000001'
         }
         r = FamilyRelationship(**data)
 
         # Add to db
-        self.assertRaises(IntegrityError, db.session.add(r))
+        db.session.add(r)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_case_sensitivity(self):
         """
@@ -186,8 +189,8 @@ class ModelTest(FlaskTestCase):
         study.participants.extend([p1, p2])
 
         # Create relationships
-        r = FamilyRelationship(participant=p1, relative=p2,
-                               participant_to_relative_relation='Father')
+        r = FamilyRelationship(participant1=p1, participant2=p2,
+                               participant1_to_participant2_relation='Father')
         count = FamilyRelationship.query.count()
         db.session.add(study)
         db.session.add(r)
@@ -196,31 +199,31 @@ class ModelTest(FlaskTestCase):
         kf_id = r.kf_id
         assert count + 1 == FamilyRelationship.query.count()
         # Original value goes in as is
-        assert 'Father' == r.participant_to_relative_relation
+        assert 'Father' == r.participant1_to_participant2_relation
         # Correct reverse relation selected
-        assert 'Child' == r.relative_to_participant_relation
+        assert 'Child' == r.participant2_to_participant1_relation
 
-        r.participant_to_relative_relation = 'mother'
+        r.participant1_to_participant2_relation = 'mother'
         db.session.commit()
 
         # Original value as is, proper reverse relation selected
         r = FamilyRelationship.query.get(kf_id)
-        assert 'mother' == r.participant_to_relative_relation
-        assert 'Child' == r.relative_to_participant_relation
+        assert 'mother' == r.participant1_to_participant2_relation
+        assert 'Child' == r.participant2_to_participant1_relation
 
-        r.participant_to_relative_relation = 'Sibling'
+        r.participant1_to_participant2_relation = 'Sibling'
         db.session.commit()
 
         # Original value as is, proper reverse relation selected
         r = FamilyRelationship.query.get(kf_id)
-        assert 'Sibling' == r.participant_to_relative_relation
-        assert 'Sibling' == r.relative_to_participant_relation
+        assert 'Sibling' == r.participant1_to_participant2_relation
+        assert 'Sibling' == r.participant2_to_participant1_relation
 
     def test_not_null_constraint(self):
         """
         Test that a family relationship cannot be created without required
-        parameters such as participant_id, relative_id,
-        participant_to_relative_relation
+        parameters such as participant2, participant2_id,
+        participant1_to_participant2_relation
         """
         # Create study
         study = Study(external_id='phs001')
@@ -236,26 +239,32 @@ class ModelTest(FlaskTestCase):
         data = {}
         r = FamilyRelationship(**data)
         # Check database
-        self.assertRaises(IntegrityError, db.session.add(r))
+        db.session.add(r)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
         db.session.rollback()
 
         # Missing 1 required param
         data = {
-            'participant_id': p1.kf_id
+            'participant1_id': p1.kf_id
         }
         r = FamilyRelationship(**data)
         # Check database
-        self.assertRaises(IntegrityError, db.session.add(r))
+        db.session.add(r)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
         db.session.rollback()
 
         # Missing 2 required param
         data = {
-            'participant_id': p1.kf_id,
-            'relative_id': p2.kf_id
+            'participant1_id': p1.kf_id,
+            'participant2_id': p2.kf_id
         }
         r = FamilyRelationship(**data)
         # Check database
-        self.assertRaises(IntegrityError, db.session.add(r))
+        db.session.add(r)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def _create_relationships(self):
         """
@@ -280,26 +289,26 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         # Create relationships
-        r1 = FamilyRelationship(participant=p1, relative=p3,
-                                participant_to_relative_relation='father')
-        r2 = FamilyRelationship(participant=p2, relative=p3,
-                                participant_to_relative_relation='mother')
-        r3 = FamilyRelationship(participant=p3, relative=p4,
-                                participant_to_relative_relation='father')
+        r1 = FamilyRelationship(participant1=p1, participant2=p3,
+                                participant1_to_participant2_relation='father')
+        r2 = FamilyRelationship(participant1=p2, participant2=p3,
+                                participant1_to_participant2_relation='mother')
+        r3 = FamilyRelationship(participant1=p3, participant2=p4,
+                                participant1_to_participant2_relation='father')
 
-        r4 = FamilyRelationship(participant=p3, relative=p5,
-                                participant_to_relative_relation='cousin')
+        r4 = FamilyRelationship(participant1=p3, participant2=p5,
+                                participant1_to_participant2_relation='cousin')
 
         db.session.add_all([r1, r2, r3, r4])
         db.session.commit()
 
         return p1, p2, p3, p4, p5, study
 
-    def _all_relatives(self, p):
+    def _all_participants(self, p):
         relationships = FamilyRelationship.query_all_relationships(
             p.kf_id).all()
-        relatives = []
+        participants = []
         for rel in relationships:
-            relatives.extend([rel.participant, rel.relative])
+            participants.extend([rel.participant1, rel.participant2])
 
-        return relatives
+        return participants

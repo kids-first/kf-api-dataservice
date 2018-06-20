@@ -139,7 +139,7 @@
         },
         "/family-relationships": {
             "valid": {
-                "participant_to_relative_relation": "mother"
+                "participant1_to_participant2_relation": "mother"
             },
             "invalid": []
         },
