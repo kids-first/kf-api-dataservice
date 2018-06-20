@@ -56,7 +56,8 @@ class ModelTest(IndexdTestCase):
         Test creation of read_group without a genomic_file
         """
         rg = ReadGroup()
-        self.assertRaises(IntegrityError, db.session.add(rg))
+        db.session.add(rg)
+        self.assertRaises(IntegrityError, db.session.commit)
 
     def test_update_read_group(self):
         """
@@ -114,6 +115,44 @@ class ModelTest(IndexdTestCase):
 
         self.assertEqual(ReadGroup.query.count(), 0)
         self.assertEqual(GenomicFile.query.count(), 0)
+
+    def test_delete_cascade(self):
+        """
+        Test that db side delete cascades work
+        """
+        self._create_entities()
+        gf = GenomicFile.query.first()
+        rg = ReadGroup(genomic_file_id=gf.kf_id)
+        db.session.add(rg)
+        db.session.commit()
+
+        self.assertEqual(ReadGroup.query.count(), 1)
+        self.assertEqual(GenomicFile.query.count(), 1)
+        
+        GenomicFile.query.filter_by(kf_id=gf.kf_id).delete()
+        db.session.commit()
+
+        self.assertEqual(ReadGroup.query.count(), 0)
+        self.assertEqual(GenomicFile.query.count(), 0)
+
+    def test_delete_cascade_inverse(self):
+        """
+        Test that db side delete cascades dont work in opposite direction
+        """
+        self._create_entities()
+        gf = GenomicFile.query.first()
+        rg = ReadGroup(genomic_file_id=gf.kf_id)
+        db.session.add(rg)
+        db.session.commit()
+
+        self.assertEqual(ReadGroup.query.count(), 1)
+        self.assertEqual(GenomicFile.query.count(), 1)
+        
+        ReadGroup.query.filter_by(kf_id=rg.kf_id).delete()
+        db.session.commit()
+
+        self.assertEqual(ReadGroup.query.count(), 0)
+        self.assertEqual(GenomicFile.query.count(), 1)
 
     def _create_entities(self):
         """

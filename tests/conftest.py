@@ -168,9 +168,6 @@ def entities(client):
             is_input = True
             if i % 2 == 0:
                 is_input = False
-                rg = ReadGroup(genomic_file_id=gf.kf_id)
-                _entities[ReadGroup].append(rg)
-                db.session.add(rg)
             ctgf = CavaticaTaskGenomicFile(cavatica_task=ct,
                                            genomic_file=gf,
                                            is_input=is_input)

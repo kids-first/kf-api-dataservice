@@ -260,6 +260,7 @@ class TestPagination:
         ('/family-relationships', 101),
         ('/study-files', 101),
         ('/families', 101),
+        ('/read-groups', 102),
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 101),
         ('/cavatica-tasks', 102),
