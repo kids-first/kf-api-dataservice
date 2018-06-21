@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from dateutil import tz
 import pytest
+from collections import defaultdict
 
 from dataservice import create_app
 from dataservice.utils import iterate_pairwise, read_json
@@ -117,7 +118,7 @@ def swagger(client):
 def entities(client):
     # Create initial entities
     with db.session.no_autoflush:
-        _entities = {}
+        _entities = defaultdict(list)
         for model, endpoint in ENTITY_ENDPOINT_MAP.items():
             if model in {FamilyRelationship,
                          CavaticaTaskGenomicFile}:
