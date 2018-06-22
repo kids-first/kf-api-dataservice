@@ -50,6 +50,8 @@ class PatchedURLFor(ma.URLFor):
         for name, attr_tpl in iteritems(self.params):
             attr_name = _tpl(str(attr_tpl))
             if attr_name:
+                if not hasattr(obj, attr_name):
+                    return None
                 attribute_value = get_value(obj, attr_name, default=missing)
 
                 allow_none = self.params.get('allow_none', True)

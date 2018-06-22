@@ -2,6 +2,7 @@ import os
 import json
 from datetime import datetime
 from dateutil import tz
+from collections import defaultdict
 import pytest
 
 from dataservice import create_app
@@ -17,6 +18,7 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.study_file.models import StudyFile
@@ -44,6 +46,7 @@ ENTITY_ENDPOINT_MAP = {
     Outcome: '/outcomes',
     Biospecimen: '/biospecimens',
     GenomicFile: '/genomic-files',
+    ReadGroup: '/read-groups',
     SequencingExperiment: '/sequencing-experiments',
     CavaticaTask: '/cavatica-tasks',
     CavaticaTaskGenomicFile: '/cavatica-task-genomic-files'
@@ -117,7 +120,7 @@ def swagger(client):
 def entities(client):
     # Create initial entities
     with db.session.no_autoflush:
-        _entities = {}
+        _entities = defaultdict(list)
         for model, endpoint in ENTITY_ENDPOINT_MAP.items():
             if model in {FamilyRelationship,
                          CavaticaTaskGenomicFile}:
@@ -137,8 +140,6 @@ def entities(client):
                         {'name': _name}
                     )
                 m = model(**data)
-                if model not in _entities:
-                    _entities[model] = []
                 _entities[model].append(m)
 
                 db.session.add(m)
@@ -153,8 +154,6 @@ def entities(client):
             r = FamilyRelationship(participant=participant,
                                    relative=relative,
                                    participant_to_relative_relation=rel)
-            if model not in _entities:
-                _entities[FamilyRelationship] = []
             _entities[FamilyRelationship].append(r)
 
             ENTITY_PARAMS['fields']['/family-relationships'].update({
@@ -163,7 +162,7 @@ def entities(client):
 
             db.session.add(r)
 
-        # Cavatica task genomic files
+        # Cavatica task genomic files and read group
         for i, (ct, gf) in enumerate(zip(
                 _entities[CavaticaTask], _entities[GenomicFile])):
             is_input = True
@@ -172,8 +171,6 @@ def entities(client):
             ctgf = CavaticaTaskGenomicFile(cavatica_task=ct,
                                            genomic_file=gf,
                                            is_input=is_input)
-            if model not in _entities:
-                _entities[CavaticaTaskGenomicFile] = []
             _entities[CavaticaTaskGenomicFile].append(ctgf)
 
             ENTITY_PARAMS['fields']['/cavatica-task-genomic-files'].update({
@@ -189,6 +186,7 @@ def entities(client):
         sc0 = _entities[SequencingCenter][0]
         se0 = _entities[SequencingExperiment][0]
         ca0 = _entities[CavaticaApp][0]
+        gf0 = _entities[GenomicFile][0]
 
         # Investigator
         for inv in _entities[Investigator]:
@@ -200,6 +198,9 @@ def entities(client):
         for ent in _entities[Participant]:
             ent.study = s0
             ent.family = f0
+
+        for ent in _entities[ReadGroup]:
+            ent.genomic_file = gf0
 
         # Biospecimen, Diagnosis, Phenotype, Outcome
         participant_ents = [Biospecimen, Diagnosis, Phenotype, Outcome]
@@ -221,6 +222,9 @@ def entities(client):
         # CavaticaTask
         for ent in _entities[CavaticaApp]:
             ent.cavatica_app = ca0
+
+        for rg in _entities[ReadGroup]:
+            db.session.add(rg)
 
         db.session.commit()
 

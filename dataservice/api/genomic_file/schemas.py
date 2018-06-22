@@ -26,7 +26,7 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
 
         exclude = (BaseSchema.Meta.exclude +
                    ('biospecimen', 'sequencing_experiment',) +
-                   ('cavatica_task_genomic_files', ))
+                   ('cavatica_task_genomic_files', 'read_group',))
 
     data_type = field_for(GenomicFile, 'data_type',
                           validate=enum_validation_generator(
@@ -58,5 +58,7 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             'api.sequencing_experiments',
             kf_id='<sequencing_experiment_id>'),
         'cavatica_task_genomic_files': ma.URLFor(
-            'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>')
+            'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>'),
+        'read_group': PatchedURLFor(
+            'api.read_groups', kf_id='<read_group.kf_id>')
     }, description='Resource links and pagination')

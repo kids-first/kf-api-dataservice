@@ -87,6 +87,13 @@
             "controlled_access": false,
             "availability": "Immediate Download"
         },
+        "/read-groups": {
+            "external_id": "FL01",
+            "paired_end": 1,
+            "flow_cell": "FL123",
+            "lane_number": 4,
+            "quality_scale": "Illumina15"
+        },
         "/cavatica-apps": {
             "external_cavatica_app_id": "app1",
             "name": "App_0",
@@ -217,6 +224,21 @@
                 {"controlled_access": "hello", "size": "hello"},
                 {"availability": "availble for download"},
                 {"data_type": "read"}
+            ]
+        },
+        "/read-groups": {
+            "valid": {
+                "paired_end": 1,
+                "lane_number": 3,
+                "flow_cell": "FL123",
+                "quality_scale": "Illumina15"
+            },
+            "invalid": [
+                {"paired_end": -1},
+                {"paired_end": "one"},
+                {"lane_number": "two"},
+                {"lane_number": -1},
+                {"quality_scale": "none"}
             ]
         },
         "/cavatica-apps": {

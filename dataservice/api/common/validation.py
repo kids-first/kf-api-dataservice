@@ -39,11 +39,11 @@ def validate_kf_id(prefix, value):
         raise ValidationError('Invalid kf_id')
 
 
-def enum_validation_generator(_enum):
+def enum_validation_generator(_enum, common=True):
     from dataservice.api.common.model import COMMON_ENUM
 
-    extended_enum = _enum.union(COMMON_ENUM)
+    extended_enum = _enum.union(COMMON_ENUM) if common else _enum
     error_message = 'Not a valid choice. Must be one of: {}'.format(
-        ', '.join(list(_enum) + list(COMMON_ENUM)))
+        ', '.join([str(el) for el in extended_enum]))
 
     return OneOf(extended_enum, error=error_message)

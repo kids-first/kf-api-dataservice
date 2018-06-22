@@ -151,6 +151,7 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
     resp = client.get(url_for(GENOMICFILE_LIST_URL))
     resp = json.loads(resp.data.decode('utf-8'))
 
+    print(resp)
     assert resp['_status']['code'] == 200
     assert resp['total'] == GenomicFile.query.count()
     assert GenomicFile.query.count() == 0
