@@ -93,8 +93,7 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         db.session.add(d)
-        with self.assertRaises(IntegrityError):
-            db.session.commit()
+        self.assertRaises(IntegrityError, db.session.commit)
 
     def test_foreign_key_constraint(self):
         """
@@ -110,8 +109,7 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         db.session.add(d)
-        with self.assertRaises(IntegrityError):
-            db.session.commit()
+        self.assertRaises(IntegrityError, db.session.commit)
 
     def test_add_invalid_biospecimen(self):
         """
@@ -133,20 +131,18 @@ class ModelTest(FlaskTestCase):
 
         # Try linking through diagnosis
         d = Diagnosis.query.first()
-        with self.assertRaises(DatabaseValidationError):
-            d.biospecimen_id = b.kf_id
+        d.biospecimen_id = b.kf_id
+        self.assertRaises(DatabaseValidationError, db.session.commit)
         db.session.rollback()
 
         # Try linking through biospecimen
         b.diagnoses.append(d)
-        with self.assertRaises(DatabaseValidationError):
-            db.session.commit()
+        self.assertRaises(DatabaseValidationError, db.session.commit)
         db.session.rollback()
 
         # Try linking to a non-existent biospecimen
         d.biospecimen_id = 'BS_AAAAAAAA'
-        with self.assertRaises(IntegrityError):
-            db.session.commit()
+        self.assertRaises(IntegrityError, db.session.commit)
 
     def _create_diagnosis(self, _id, participant_id=None, biospecimen_id=None):
         """
