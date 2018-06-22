@@ -15,6 +15,26 @@ UNIQUE_COL_RE = re.compile('duplicate key value violates unique constraint ' +
                            '\((?P<value>.*)\) already exists\.\n')
 
 
+class DatabaseValidationError(Exception):
+
+    def __init__(self, target_entity, operation, message=None):
+        super().__init__(self, target_entity, operation, message)
+        self.target_entity = target_entity
+        self.operation = operation
+        self.message = message or 'error saving changes'
+
+
+def database_validation_error(e):
+    db.session.rollback()
+    data = {
+        'description': 'could not {} {}: {}'.format(e.operation,
+                                                    e.target_entity,
+                                                    e.message),
+        'code': 400
+    }
+    return ErrorSchema().jsonify(data), data['code']
+
+
 def http_error(e):
     """
     Handles all HTTPExceptions

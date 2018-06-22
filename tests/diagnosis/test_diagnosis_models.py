@@ -6,7 +6,11 @@ from sqlalchemy.exc import IntegrityError
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sequencing_center.models import SequencingCenter
+from dataservice.api.errors import DatabaseValidationError
 from dataservice.extensions import db
+
 from tests.utils import FlaskTestCase
 
 
@@ -89,8 +93,7 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         db.session.add(d)
-        with self.assertRaises(IntegrityError):
-            db.session.commit()
+        self.assertRaises(IntegrityError, db.session.commit)
 
     def test_foreign_key_constraint(self):
         """
@@ -106,10 +109,42 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         db.session.add(d)
-        with self.assertRaises(IntegrityError):
-            db.session.commit()
+        self.assertRaises(IntegrityError, db.session.commit)
 
-    def _create_diagnosis(self, _id, participant_id=None):
+    def test_add_invalid_biospecimen(self):
+        """
+        Test that a diagnosis cannot be linked with a biospecimen if
+        they refer to different participants
+        """
+
+        diagnoses, kwarg_dict = self._create_diagnoses()
+        # Get first participant
+        st = Study.query.first()
+        s = SequencingCenter.query.first()
+        # Create new participant with biospecimen
+        p1 = Participant(external_id='p1', is_proband=True, study_id=st.kf_id)
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center_id=s.kf_id,
+                        participant=p1)
+        db.session.add(b)
+        db.session.commit()
+
+        # Try linking through diagnosis
+        d = Diagnosis.query.first()
+        d.biospecimen_id = b.kf_id
+        self.assertRaises(DatabaseValidationError, db.session.commit)
+        db.session.rollback()
+
+        # Try linking through biospecimen
+        b.diagnoses.append(d)
+        self.assertRaises(DatabaseValidationError, db.session.commit)
+        db.session.rollback()
+
+        # Try linking to a non-existent biospecimen
+        d.biospecimen_id = 'BS_AAAAAAAA'
+        self.assertRaises(IntegrityError, db.session.commit)
+
+    def _create_diagnosis(self, _id, participant_id=None, biospecimen_id=None):
         """
         Create diagnosis
         """
@@ -120,12 +155,14 @@ class ModelTest(FlaskTestCase):
             'diagnosis_category': 'cancer',
             'source_text_tumor_location': 'Brain',
             'mondo_id_diagnosis': 'DOID:8469',
-            'uberon_id_tumor_location':'UBERON:0000955',
+            'uberon_id_tumor_location': 'UBERON:0000955',
             'icd_id_diagnosis': 'J10.01',
             'spatial_descriptor': 'left side'
         }
         if participant_id:
             kwargs['participant_id'] = participant_id
+        if biospecimen_id:
+            kwargs['biospecimen_id'] = biospecimen_id
         return Diagnosis(**kwargs), kwargs
 
     def _create_diagnoses(self, total=2):
@@ -139,19 +176,28 @@ class ModelTest(FlaskTestCase):
         participant_id = 'Test subject 0'
         p = Participant(external_id=participant_id, is_proband=True,
                         study=study)
+        # Create sequencing center
+        s = SequencingCenter(name='washu')
+        db.session.add(s)
+        db.session.commit()
+        # Create biospecimen
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center_id=s.kf_id,
+                        participant=p)
         db.session.add(p)
+        db.session.add(b)
         db.session.commit()
 
         # Create diagnoses
         diagnoses = []
         kwarg_dict = {}
         for i in range(total):
-            d, kwargs = self._create_diagnosis(i)
+            d, kwargs = self._create_diagnosis(i, participant_id=p.kf_id,
+                                               biospecimen_id=b.kf_id)
             kwarg_dict[d.external_id] = kwargs
             diagnoses.append(d)
 
-        p.diagnoses.extend(diagnoses)
-
+        db.session.add_all(diagnoses)
         db.session.commit()
 
         return diagnoses, kwarg_dict

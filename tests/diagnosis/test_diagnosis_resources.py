@@ -7,6 +7,8 @@ from dateutil import parser, tz
 from dataservice.extensions import db
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.participant.models import Participant
+from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
@@ -36,7 +38,8 @@ class DiagnosisTest(FlaskTestCase):
             'icd_id_diagnosis': 'J10.01',
             'uberon_id_tumor_location': 'UBERON:0000955',
             'spatial_descriptor': 'left side',
-            'participant_id': kwargs.get('participant_id')
+            'participant_id': kwargs.get('participant_id'),
+            'biospecimen_id': kwargs.get('biospecimen_id')
         }
         # Send get request
         response = self.client.post(url_for(DIAGNOSES_LIST_URL),
@@ -51,7 +54,7 @@ class DiagnosisTest(FlaskTestCase):
         diagnosis = response['results']
         dg = Diagnosis.query.get(diagnosis.get('kf_id'))
         for k, v in kwargs.items():
-            if k == 'participant_id':
+            if k == 'participant_id' or k == 'biospecimen_id':
                 continue
             self.assertEqual(diagnosis[k], getattr(dg, k))
         self.assertEqual(2, Diagnosis.query.count())
@@ -99,7 +102,7 @@ class DiagnosisTest(FlaskTestCase):
         participant_link = response['_links']['participant']
         participant_id = urlparse(participant_link).path.split('/')[-1]
         for k, v in kwargs.items():
-            if k == 'participant_id':
+            if k == 'participant_id' or k == 'biospecimen_id':
                 self.assertEqual(participant_id,
                                  kwargs['participant_id'])
             else:
@@ -161,6 +164,49 @@ class DiagnosisTest(FlaskTestCase):
 
         self.assertEqual(1, Diagnosis.query.count())
 
+    def test_invalid_biospecimen(self):
+        """
+        Test that a diagnosis cannot be linked with a biospecimen if
+        they refer to different participants
+        """
+        kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
+
+        # Create new participant with biospecimen
+        st = Study.query.first()
+        s = SequencingCenter.query.first()
+        p1 = Participant(external_id='p1', is_proband=True, study_id=st.kf_id)
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center_id=s.kf_id,
+                        participant=p1)
+        db.session.add(b)
+        db.session.commit()
+
+        # Update existing diagnosis
+        body = {
+            'source_text_diagnosis': 'hangry',
+            'diagnosis_category': 'Structural Birth Defect',
+            'participant_id': kwargs['participant_id'],
+            'biospecimen_id': b.kf_id
+        }
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 400)
+
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        assert 'could not modify diagnosis' in resp['_status']['message']
+        assert 'diagnosis {}'.format(kf_id) in resp['_status']['message']
+        assert ('participant {}'.format(kwargs.get('participant_id'))
+                in resp['_status']['message'])
+        assert ('biospecimen {}'.format(b.kf_id)
+                in resp['_status']['message'])
+        assert ('participant {}'.format(b.participant_id)
+                in resp['_status']['message'])
+
     def test_delete(self):
         """
         Test delete an existing diagnosis
@@ -210,7 +256,20 @@ class DiagnosisTest(FlaskTestCase):
         db.session.add(p)
         db.session.commit()
 
+        # Create sequencing center
+        s = SequencingCenter(name='washu')
+        db.session.add(s)
+        db.session.commit()
+        # Create biospecimen
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center_id=s.kf_id,
+                        participant=p)
+        db.session.add(s)
+        db.session.add(b)
+        db.session.commit()
+
         kwargs['participant_id'] = p.kf_id
+        kwargs['biospecimen_id'] = b.kf_id
         kwargs['kf_id'] = d.kf_id
 
         return kwargs
