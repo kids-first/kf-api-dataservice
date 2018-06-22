@@ -1,4 +1,4 @@
-from sqlalchemy import event, or_
+from sqlalchemy import event, or_, and_
 
 
 from dataservice.extensions import db
@@ -71,22 +71,59 @@ class FamilyRelationship(db.Model, Base):
                            cascade='all, delete-orphan'))
 
     @classmethod
-    def query_all_relationships(cls, participant_kf_id):
+    def query_all_relationships(cls, participant_kf_id=None,
+                                model_filter_params=None):
         """
-        Find all relationship records given a the kf_id of a particpant
-        """
+        Find all family relationships for a participant
 
-        q = cls.query.filter(or_(
-            FamilyRelationship.participant1_id == participant_kf_id,
-            FamilyRelationship.participant2_id == participant_kf_id))
+        :param participant_kf_id: Kids First ID of the participant
+        :param model_filter_params: Filter parameters to the query
+
+        Given a participant's kf_id, return all of the biological
+        family relationships of the participant and the relationships
+        of the participant's family members.
+
+        If the participant does not have a family defined, then return
+        all of the immediate/direct family relationships of the participant.
+        """
+        # Apply model property filter params
+        if model_filter_params is None:
+            model_filter_params = {}
+        q = FamilyRelationship.query.filter_by(**model_filter_params)
+
+        # Get family relationships and join with participants
+        q = q.join(Participant, or_(FamilyRelationship.participant1,
+                                    FamilyRelationship.participant2))
+
+        # Do this bc query.get() errors out if passed None
+        if participant_kf_id:
+            pt = Participant.query.get(participant_kf_id)
+
+        # Return normal get all query
+        else:
+            return q
+
+        # Use family to get all family relationships in participant's family
+        if pt and pt.family_id:
+            q = q.filter(Participant.family_id == pt.family_id)
+
+        # No family provided, use just family relationships
+        # to get only immediate family relationships for participant
+        else:
+            q = q.filter(or_(
+                FamilyRelationship.participant1_id == participant_kf_id,
+                FamilyRelationship.participant2_id == participant_kf_id))
+
+        # Don't want duplicates - return unique family relationships
+        q = q.group_by(FamilyRelationship.kf_id)
 
         return q
 
     def __repr__(self):
         return '<{} is {} of {}>'.format(
-            self.participant1,
+            self.participant1.external_id,
             self.participant1_to_participant2_relation,
-            self.participant2)
+            self.participant2.external_id)
 
 
 @event.listens_for(FamilyRelationship.participant1_to_participant2_relation,

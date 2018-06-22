@@ -1,7 +1,12 @@
 from marshmallow_sqlalchemy import field_for
+from marshmallow import (
+    fields,
+    validates
+)
 
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.validation import validate_kf_id
 from dataservice.extensions import ma
 
 
@@ -27,3 +32,12 @@ class FamilyRelationshipSchema(BaseSchema):
         'participant2': ma.URLFor('api.participants',
                                   kf_id='<participant2_id>')
     })
+
+
+class FamilyRelationshipFilterSchema(FamilyRelationshipSchema):
+
+    participant_id = fields.Str()
+
+    @validates('study_id')
+    def valid(self, value):
+        validate_kf_id('PT', value)
