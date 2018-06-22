@@ -38,6 +38,6 @@ class FamilyRelationshipFilterSchema(FamilyRelationshipSchema):
 
     participant_id = fields.Str()
 
-    @validates('study_id')
-    def valid(self, value):
+    @validates('participant_id')
+    def valid_participant_id(self, value):
         validate_kf_id('PT', value)

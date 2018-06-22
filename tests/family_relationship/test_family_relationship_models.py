@@ -314,6 +314,7 @@ class ModelTest(FlaskTestCase):
         # Get all
         q = FamilyRelationship.query_all_relationships()
         self.assertEqual(6, q.count())
+
         # Non existent participant
         q = FamilyRelationship.query_all_relationships('PT_00001111')
         self.assertEqual(0, q.count())

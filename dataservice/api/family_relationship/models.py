@@ -98,21 +98,18 @@ class FamilyRelationship(db.Model, Base):
         # Do this bc query.get() errors out if passed None
         if participant_kf_id:
             pt = Participant.query.get(participant_kf_id)
+            family_id = pt.family_id if pt else None
 
-        # Return normal get all query
-        else:
-            return q
+            # Use family to get all family relationships in participants family
+            if family_id:
+                q = q.filter(Participant.family_id == family_id)
 
-        # Use family to get all family relationships in participant's family
-        if pt and pt.family_id:
-            q = q.filter(Participant.family_id == pt.family_id)
-
-        # No family provided, use just family relationships
-        # to get only immediate family relationships for participant
-        else:
-            q = q.filter(or_(
-                FamilyRelationship.participant1_id == participant_kf_id,
-                FamilyRelationship.participant2_id == participant_kf_id))
+            # No family provided, use just family relationships
+            # to get only immediate family relationships for participant
+            else:
+                q = q.filter(or_(
+                    FamilyRelationship.participant1_id == participant_kf_id,
+                    FamilyRelationship.participant2_id == participant_kf_id))
 
         # Don't want duplicates - return unique family relationships
         q = q.group_by(FamilyRelationship.kf_id)
@@ -121,9 +118,9 @@ class FamilyRelationship(db.Model, Base):
 
     def __repr__(self):
         return '<{} is {} of {}>'.format(
-            self.participant1.external_id,
+            self.participant1.kf_id,
             self.participant1_to_participant2_relation,
-            self.participant2.external_id)
+            self.participant2.kf_id)
 
 
 @event.listens_for(FamilyRelationship.participant1_to_participant2_relation,
@@ -135,5 +132,4 @@ def set_reverse_relation(target, value, oldvalue, initiator):
     attribute
     """
     target.participant2_to_participant1_relation = REVERSE_RELS.get(
-        value.lower(),
-        None)
+        value.lower(), None)

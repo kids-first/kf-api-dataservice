@@ -141,7 +141,9 @@
             "valid": {
                 "participant1_to_participant2_relation": "mother"
             },
-            "invalid": []
+            "invalid": [
+                {"participant_id": "PA: 00001111"}
+            ]
         },
         "/participants": {
             "valid": {
