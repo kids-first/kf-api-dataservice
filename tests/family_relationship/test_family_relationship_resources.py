@@ -1,10 +1,12 @@
 import json
+from pprint import pprint
 from flask import url_for
 from urllib.parse import urlparse
 from sqlalchemy import or_
 
 from dataservice.extensions import db
 from dataservice.api.family_relationship.models import FamilyRelationship
+from dataservice.api.family.models import Family
 from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
@@ -22,7 +24,7 @@ class FamilyRelationshipTest(FlaskTestCase):
         """
         Test create a new family_relationship
         """
-        kwargs = self._create_save_to_db()
+        p1, p2, p3, p4, s1, kwargs = self._create_save_to_db()
 
         # Create new family relationship
         results = Participant.query.filter(
@@ -57,7 +59,7 @@ class FamilyRelationshipTest(FlaskTestCase):
 
     def test_get(self):
         # Create and save family_relationship to db
-        kwargs = self._create_save_to_db()
+        p1, p2, p3, p4, s1, kwargs = self._create_save_to_db()
         # Send get request
         response = self.client.get(url_for(FAMILY_RELATIONSHIPS_URL,
                                            kf_id=kwargs['kf_id']),
@@ -101,7 +103,7 @@ class FamilyRelationshipTest(FlaskTestCase):
         """
         Test updating an existing family_relationship
         """
-        kwargs = self._create_save_to_db()
+        p1, p2, p3, p4, s1, kwargs = self._create_save_to_db()
         kf_id = kwargs.get('kf_id')
 
         # Update existing family_relationship
@@ -135,7 +137,7 @@ class FamilyRelationshipTest(FlaskTestCase):
         """
         Test delete an existing family_relationship
         """
-        kwargs = self._create_save_to_db()
+        p1, p2, p3, p4, s1, kwargs = self._create_save_to_db()
         # Send get request
         response = self.client.delete(url_for(FAMILY_RELATIONSHIPS_URL,
                                               kf_id=kwargs['kf_id']),
@@ -147,6 +149,90 @@ class FamilyRelationshipTest(FlaskTestCase):
         # Check database
         fr = FamilyRelationship.query.first()
         self.assertIs(fr, None)
+
+    def test_special_filter_param(self):
+        """
+        Test special filter param participant_id
+
+        /family-relationships?participant_id
+        """
+        # Add some family relationships
+        p1, p2, p3, p4, s1, kwargs = self._create_save_to_db()
+        r2 = FamilyRelationship(participant1=p1, participant2=p4,
+                                participant1_to_participant2_relation='father')
+        r3 = FamilyRelationship(participant1=p2, participant2=p3,
+                                participant1_to_participant2_relation='mother')
+        r4 = FamilyRelationship(participant1=p2, participant2=p4,
+                                participant1_to_participant2_relation='mother')
+        db.session.add_all([r2, r3, r4])
+        db.session.commit()
+
+        # Case 1 - Participant with no family defined
+        url = (url_for(FAMILY_RELATIONSHIPS_LIST_URL) +
+               '?participant_id={}'.format(p3.kf_id))
+        response = self.client.get(url, headers=self._api_headers())
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.data.decode("utf-8"))
+        content = response.get('results')
+        # Only immediate family relationships returned
+        self.assertEqual(len(content), 2)
+
+        # Test with additional filter parameters
+        url = (url_for(FAMILY_RELATIONSHIPS_LIST_URL) +
+               '?participant_id={}'
+               '&study_id={}&participant1_to_participant2_relation={}'
+               .format(p3.kf_id, s1.kf_id, 'father'))
+        response = self.client.get(url, headers=self._api_headers())
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.data.decode("utf-8"))
+        content = response.get('results')
+        self.assertEqual(len(content), 1)
+
+        # Case 2 - Participant with a family defined
+        f0 = Family(external_id='phs001-family')
+        f0.participants.extend([p1, p2, p3, p4])
+        db.session.add(f0)
+        db.session.commit()
+
+        url = (url_for(FAMILY_RELATIONSHIPS_LIST_URL) +
+               '?participant_id={}'.format(p3.kf_id))
+        response = self.client.get(url, headers=self._api_headers())
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.data.decode("utf-8"))
+        content = response.get('results')
+        # All family relationships returned
+        self.assertEqual(len(content), 4)
+
+        # Add another study with a family and relationships
+        s2 = Study(external_id='phs002')
+        f2 = Family(external_id='phs002-family')
+        p_1 = Participant(external_id='Fred_1', is_proband=False)
+        p_2 = Participant(external_id='Wilma_1',  is_proband=False)
+        p_3 = Participant(external_id='Pebbles_1', is_proband=True)
+
+        r_1 = FamilyRelationship(
+            participant1=p_1, participant2=p_3,
+            participant1_to_participant2_relation='father')
+        r_2 = FamilyRelationship(
+            participant1=p_2, participant2=p_3,
+            participant1_to_participant2_relation='mother')
+
+        s2.participants.extend([p_1, p_2, p_3])
+        f2.participants.extend([p_1, p_2, p_3])
+        db.session.add(s2)
+        db.session.add(f2)
+        db.session.add_all([r_1, r_2])
+        db.session.commit()
+
+        # Should see same results for p3
+        url = (url_for(FAMILY_RELATIONSHIPS_LIST_URL) +
+               '?participant_id={}'.format(p3.kf_id))
+        response = self.client.get(url, headers=self._api_headers())
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.data.decode("utf-8"))
+        content = response.get('results')
+        # All family relationships returned
+        self.assertEqual(len(content), 4)
 
     def _create_save_to_db(self):
         """
@@ -161,9 +247,9 @@ class FamilyRelationshipTest(FlaskTestCase):
 
         # Create participants
         p1 = Participant(external_id='Fred', is_proband=False)
-        p2 = Participant(external_id='Pebbles',  is_proband=True)
+        p2 = Participant(external_id='Wilma',  is_proband=False)
         p3 = Participant(external_id='Pebbles', is_proband=True)
-        p4 = Participant(external_id='Dino', is_proband=False)
+        p4 = Participant(external_id='Dino', is_proband=True)
 
         study.participants.extend([p1, p2, p3, p4])
         db.session.add(study)
@@ -172,7 +258,7 @@ class FamilyRelationshipTest(FlaskTestCase):
         # Create family_relationship
         kwargs = {
             'participant1_id': p1.kf_id,
-            'participant2_id': p2.kf_id,
+            'participant2_id': p3.kf_id,
             'participant1_to_participant2_relation': 'father'
         }
         fr = FamilyRelationship(**kwargs)
@@ -183,4 +269,7 @@ class FamilyRelationshipTest(FlaskTestCase):
         kwargs['participant2_to_participant1_relation'] = \
             fr.participant2_to_participant1_relation
 
-        return kwargs
+        fr.external_id = str(fr)
+        db.session.commit()
+
+        return p1, p2, p3, p4, study, kwargs

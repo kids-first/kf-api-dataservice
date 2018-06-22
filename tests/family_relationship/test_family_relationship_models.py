@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
+from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import (
     FamilyRelationship,
     REVERSE_RELS
@@ -266,6 +267,63 @@ class ModelTest(FlaskTestCase):
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
+    def test_query_all_relationships(self):
+        """
+        Test the class method query_all_relationships on FamilyRelationship
+
+        Given a participant's kf_id, this method should return all of the
+        biological family relationships of that participant and relationships
+        of the family members.
+
+        If the participant does not have a family defined, then
+        query_all_relationships will return all of the immediate/direct family
+        relationships of the participant.
+        """
+        p1, p2, p3, p4, p5, study = self._create_relationships()
+
+        # Add 2nd first gen child to family
+        p6 = Participant(external_id='Bloo', is_proband=True,
+                         study_id=study.kf_id)
+        r5 = FamilyRelationship(participant1=p1, participant2=p6,
+                                participant1_to_participant2_relation='father')
+        r6 = FamilyRelationship(participant1=p2, participant2=p6,
+                                participant1_to_participant2_relation='mother')
+        db.session.add_all([r5, r6])
+        db.session.commit()
+
+        # Case 1 - Participant does not have a family defined
+        kf_id = p3.kf_id
+        q = FamilyRelationship.query_all_relationships(kf_id)
+        # Only immediate family relationships of p3 are returned
+        self.assertEqual(4, q.count())
+        pts = self._immediate_relationship_counts(q.all())
+        self.assertEqual(4, pts.get(kf_id))
+
+        # Case 2 - Participant has a family defined
+        f1 = Family(external_id='f1')
+        for p in Participant.query.all():
+            p.family = f1
+        db.session.commit()
+        q = FamilyRelationship.query_all_relationships(kf_id)
+        # All family relationships in p3's family are returned
+        self.assertEqual(6, q.count())
+        pts = self._immediate_relationship_counts(q.all())
+        # p3 has same # of direct/immediate relationships as before
+        self.assertEqual(4, pts.get(kf_id))
+
+        # Get all
+        q = FamilyRelationship.query_all_relationships()
+        self.assertEqual(6, q.count())
+        # Non existent participant
+        q = FamilyRelationship.query_all_relationships('PT_00001111')
+        self.assertEqual(0, q.count())
+
+        # Family but no family relationships defined
+        FamilyRelationship.query.delete()
+        db.session.commit()
+        q = FamilyRelationship.query_all_relationships(None)
+        self.assertEqual(0, q.count())
+
     def _create_relationships(self):
         """
         Create family relationships and required entities
@@ -305,6 +363,10 @@ class ModelTest(FlaskTestCase):
         return p1, p2, p3, p4, p5, study
 
     def _all_participants(self, p):
+        """
+        Get all family relationships of a participant and return
+        all of participants in those relationships
+        """
         relationships = FamilyRelationship.query_all_relationships(
             p.kf_id).all()
         participants = []
@@ -312,3 +374,22 @@ class ModelTest(FlaskTestCase):
             participants.extend([rel.participant1, rel.participant2])
 
         return participants
+
+    def _immediate_relationship_counts(self, relationships):
+        """
+        Count # of relationships a participant appears in
+        Store in dict of key=participant to value=count
+        """
+        def update_counts(kf_id, pts):
+            if kf_id not in pts:
+                pts[kf_id] = 1
+            else:
+                pts[kf_id] += 1
+            return pts
+
+        pts = {}
+        for rel in relationships:
+            pts = update_counts(rel.participant1.kf_id, pts)
+            pts = update_counts(rel.participant2.kf_id, pts)
+
+        return pts
