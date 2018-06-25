@@ -4,8 +4,6 @@ import pytest
 
 from dataservice.api.common import id_service
 
-TOPIC_ARN = 'arn:aws:sns:*:123456789012:my_topic'
-
 
 class TestEvents:
     """
@@ -27,21 +25,20 @@ class TestEvents:
         ('/family-relationships', 'GET'),
         ('/genomic-files', 'GET')
     ])
-    def test_no_message(self, app, client, mocker, endpoint, method):
+    def test_no_message(self, app, client, mocker, endpoint,
+                        method, sns_topic):
         """ Test that message is sent with right path """
-        app.config['SNS_EVENT_ARN'] = TOPIC_ARN
         mock = mocker.patch('dataservice.api.common.views.boto3.client')
         call_func = getattr(client, method.lower())
         resp = call_func(endpoint)
         assert mock().publish.call_count == 0
-        app.config['SNS_EVENT_ARN'] = None
 
     @pytest.mark.parametrize('endpoint,method,data', [
         ('/studies', 'POST', {'external_id': 'blah'}),
     ])
-    def test_message(self, app, client, mocker, endpoint, method, data):
+    def test_message(self, app, client, mocker, endpoint, method,
+                     data, sns_topic):
         """ Test that message is sent with right path """
-        app.config['SNS_EVENT_ARN'] = TOPIC_ARN
         mock = mocker.patch('dataservice.api.common.views.boto3.client')
 
         call_func = getattr(client, method.lower())
@@ -60,12 +57,11 @@ class TestEvents:
             'method': method.lower(),
             'api_version': api_version,
             'api_commit': api_commit,
-            'data': json.loads(resp.data)
+            'data': json.loads(resp.data.decode('utf-8'))
         })}
 
         args = mock().publish.call_args_list[0]
         message = json.loads(args[1]['Message'])
         assert message == expected
         assert args[1]['MessageStructure'] == 'json'
-        assert args[1]['TopicArn'] == TOPIC_ARN
-        app.config['SNS_EVENT_ARN'] = None
+        assert args[1]['TopicArn'] == 'arn:aws:sns:*:123456789012:my_topic'

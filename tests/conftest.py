@@ -78,6 +78,14 @@ def app():
     yield create_app('testing')
 
 
+@pytest.yield_fixture(scope='function')
+def sns_topic(app):
+    TOPIC_ARN = 'arn:aws:sns:*:123456789012:my_topic'
+    app.config['SNS_EVENT_ARN'] = TOPIC_ARN
+    yield create_app('testing')
+    app.config['SNS_EVENT_ARN'] = None
+
+
 @pytest.yield_fixture(scope='module')
 def client(app):
     app_context = app.app_context()
