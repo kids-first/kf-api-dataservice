@@ -1,14 +1,16 @@
 from marshmallow_sqlalchemy import field_for
 
-from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.schemas import BaseSchema, COMMON_ENUM
 from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.common.validation import (validate_positive_number,
                                                enum_validation_generator)
 from dataservice.extensions import ma
 
-PAIRED_END_ENUM = {1, 2}
-QUALITY_SCALE_ENUM = {'Illumina13', 'Illumina15', 'Illumina18',
-                      'Solexa', 'Sanger'}
+PAIRED_END_ENUM = {'1': 1, '2': 2}
+QUALITY_SCALE_ENUM = {'Illumina13': 'Illumina13', 'Illumina15': 'Illumina15',
+                      'Illumina18': 'Illumina18',
+                      'Solexa': 'Solexa', 'Sanger': 'Sanger'}
+QUALITY_SCALE_ENUM.update(COMMON_ENUM)
 
 
 class ReadGroupSchema(BaseSchema):
@@ -22,7 +24,7 @@ class ReadGroupSchema(BaseSchema):
 
     quality_scale = field_for(ReadGroup, 'quality_scale',
                               validate=enum_validation_generator(
-                                  QUALITY_SCALE_ENUM, common=False))
+                                  QUALITY_SCALE_ENUM))
 
     genomic_file_id = field_for(ReadGroup, 'genomic_file_id',
                                 required=True, load_only=True)

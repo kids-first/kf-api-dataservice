@@ -63,8 +63,11 @@ class EnumValidator(OneOf):
         value = orig_value
         choices = {v: v for v in self.choices}
         if self.ignore_case:
-            value = orig_value.lower()
-            choices = {choice.lower(): choice for choice in self.choices}
+            if type(value) is str:
+                value = orig_value.lower()
+                choices = {choice.lower(): choice for choice in self.choices}
+            else:
+                value = str(value)
         try:
             if value not in choices:
                 raise ValidationError(self._format_error(orig_value))
@@ -72,10 +75,9 @@ class EnumValidator(OneOf):
             raise ValidationError(self._format_error(orig_value))
         return choices[value]
 
-def enum_validation_generator(_enum, common=True):
-    from dataservice.api.common.model import COMMON_ENUM
 
-    extended_enum = _enum.union(COMMON_ENUM) if common else _enum
+def enum_validation_generator(_enum, common=True):
+
     error_message = 'Not a valid choice. Must be one of: {}'.format(
-        ', '.join([str(el) for el in extended_enum]))
+        ', '.join(list(_enum)))
     return EnumValidator(_enum, error=error_message)

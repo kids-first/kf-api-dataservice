@@ -29,6 +29,7 @@ class ReadGroupTest(IndexdTestCase):
             'external_id': 'RG0000',
             'lane_number': 4,
             'flow_cell': 'blah',
+            'paired_end': 1,
             'genomic_file_id': gf.kf_id
         }
 
