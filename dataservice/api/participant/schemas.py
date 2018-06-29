@@ -16,7 +16,7 @@ RACE_ENUM = {
     'White', 'American Indian or Alaska Native',
     'Black or African American', 'Asian',
     'Native Hawaiian or Other Pacific Islander',
-    'Other'}
+    'Other', 'More than One Race'}
 
 
 class ParticipantSchema(BaseSchema):
