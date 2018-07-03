@@ -1,3 +1,23 @@
+# Kids First Dataservice Release 1.2.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ✨x3 🐛x3 👷x1
+Feature Labels: [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x3 [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x2 [data-import](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data-import) x1 [devops](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/devops) x1 [documentation](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/documentation) x1
+
+### New features and changes
+
+- (#389) ✨ Add More than One Race to race enum - @parimalak
+- (#386) 🐛 Fix sns mocks - @dankolbman
+- (#384) 👷 Added new jenkinsfile - @alubneuski
+- (#359) ✨ Add relation from biospecimen to diagnosis - @dankolbman
+- (#352) ✨ Read groups - @dankolbman
+- (#373) 🐛 Fix 500 error on /studies?study_id - @znatty22
+- (#380) 🐛 Update API docs - correct version of code - @znatty22
+
+
 # Kids First Dataservice Release v1.1.0
 
 ## Features
