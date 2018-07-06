@@ -180,7 +180,7 @@ class ModelTest(FlaskTestCase):
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
-    def test_case_sensitivity(self):
+    def test_relation_types(self):
         """
         Test that relationships are created w proper label regardless of case
         """
@@ -219,6 +219,15 @@ class ModelTest(FlaskTestCase):
         r = FamilyRelationship.query.get(kf_id)
         assert 'Sibling' == r.participant1_to_participant2_relation
         assert 'Sibling' == r.participant2_to_participant1_relation
+
+        # Custom values can be set for both relation types
+        r.participant1_to_participant2_relation = 'Aunt'
+        r.participant2_to_participant1_relation = 'Niece'
+        db.session.commit()
+
+        r = FamilyRelationship.query.get(kf_id)
+        assert 'Aunt' == r.participant1_to_participant2_relation
+        assert 'Niece' == r.participant2_to_participant1_relation
 
     def test_not_null_constraint(self):
         """

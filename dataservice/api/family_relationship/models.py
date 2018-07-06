@@ -1,4 +1,4 @@
-from sqlalchemy import event, or_, and_
+from sqlalchemy import event, or_
 
 
 from dataservice.extensions import db
@@ -123,13 +123,23 @@ class FamilyRelationship(db.Model, Base):
             self.participant2.kf_id)
 
 
-@event.listens_for(FamilyRelationship.participant1_to_participant2_relation,
-                   'set')
-def set_reverse_relation(target, value, oldvalue, initiator):
+@event.listens_for(FamilyRelationship, 'before_update')
+@event.listens_for(FamilyRelationship, 'before_insert')
+def set_reverse_relation(mapper, connection, target):
     """
-    Listen for set 'participant1_to_participant2_relation' events and
-    set the reverse relationship, 'participant2_to_participant1_relation'
-    attribute
+    Set the appropriate relation types on both relation fields.
+
+    Given a relation type, look up the reverse relation in the REVERSE_RELS map
+    If a relation type is not found in the map do nothing.
     """
-    target.participant2_to_participant1_relation = REVERSE_RELS.get(
-        value.lower(), None)
+    # Participant 1 to 2 relation
+    rel = target.participant1_to_participant2_relation
+    rev = REVERSE_RELS.get(rel.lower() if rel else None)
+    if rev:
+        target.participant2_to_participant1_relation = rev
+
+    # Participant 2 to 1 relation
+    rel = target.participant2_to_participant1_relation
+    rev = REVERSE_RELS.get(rel.lower() if rel else None)
+    if rev:
+        target.participant1_to_participant2_relation = rev
