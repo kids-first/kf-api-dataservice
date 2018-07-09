@@ -153,19 +153,21 @@ def entities(client):
                 db.session.add(m)
 
         # Family relationships
-        for participant, relative in iterate_pairwise(
+        for participant, participant2 in iterate_pairwise(
                 _entities[Participant]):
             gender = participant.gender
             rel = 'mother'
             if gender == 'male':
                 rel = 'father'
-            r = FamilyRelationship(participant=participant,
-                                   relative=relative,
-                                   participant_to_relative_relation=rel)
+            r = FamilyRelationship(participant1=participant,
+                                   participant2=participant2,
+                                   participant1_to_participant2_relation=rel)
+            if model not in _entities:
+                _entities[FamilyRelationship] = []
             _entities[FamilyRelationship].append(r)
 
             ENTITY_PARAMS['fields']['/family-relationships'].update({
-                'participant_to_relative_relation': rel
+                'participant1_to_participant2_relation': rel
             })
 
             db.session.add(r)

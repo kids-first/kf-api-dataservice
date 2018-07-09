@@ -145,13 +145,14 @@ class TestPagination:
             ca.cavatica_tasks.append(ct)
 
         # Family relationships
-        for participant, relative in iterate_pairwise(participants):
-            gender = participant.gender
+        for participant1, participant2 in iterate_pairwise(participants):
+            gender = participant1.gender
             rel = 'mother'
             if gender == 'male':
                 rel = 'father'
-            r = FamilyRelationship(participant=participant, relative=relative,
-                                   participant_to_relative_relation=rel)
+            r = FamilyRelationship(participant1=participant1,
+                                   participant2=participant2,
+                                   participant1_to_participant2_relation=rel)
             db.session.add(r)
         db.session.commit()
 

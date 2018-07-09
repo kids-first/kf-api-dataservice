@@ -6,7 +6,8 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.family_relationship.schemas import (
-    FamilyRelationshipSchema
+    FamilyRelationshipSchema,
+    FamilyRelationshipFilterSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -21,7 +22,7 @@ class FamilyRelationshipListAPI(CRUDView):
     schemas = {'FamilyRelationship': FamilyRelationshipSchema}
 
     @paginated
-    @use_args(filter_schema_factory(FamilyRelationshipSchema),
+    @use_args(filter_schema_factory(FamilyRelationshipFilterSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """
@@ -35,16 +36,22 @@ class FamilyRelationshipListAPI(CRUDView):
             resource:
               FamilyRelationship
         """
-        # Get study id and remove from model filter params
+        # Get and remove special filter parameters - those which are not
+        # part of model properties
+        # Study id
         study_id = filter_params.pop('study_id', None)
+        # Participant id
+        participant_id = filter_params.pop('participant_id', None)
 
-        q = FamilyRelationship.query.filter_by(**filter_params)
+        # Get family relationships joined w participants
+        q = FamilyRelationship.query_all_relationships(
+            participant_kf_id=participant_id,
+            model_filter_params=filter_params)
 
         # Filter by study
-        from dataservice.api.participant.models import Participant
         if study_id:
-            q = (q.join(FamilyRelationship.participant)
-                 .filter(Participant.study_id == study_id))
+            from dataservice.api.participant.models import Participant
+            q = (q.filter(Participant.study_id == study_id))
 
         return (FamilyRelationshipSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

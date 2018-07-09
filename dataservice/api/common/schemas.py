@@ -191,7 +191,7 @@ class FilterSchemaMixin(ma.Schema):
         dump_only = ()
 
     @validates('study_id')
-    def valid(self, value):
+    def valid_study_id(self, value):
         validate_kf_id('SD', value)
 
     @post_load

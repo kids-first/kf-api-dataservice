@@ -24,9 +24,9 @@ class FamilyRelationship(db.Model, Base):
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     :param external_id: Name given to family_relationship by contributor
-    :param participant_id: Kids first id of the first Participant in the
+    :param participant1_id: Kids first id of the first Participant in the
     relationship
-    :param relative_id: Kids first id of the second Participant (or relative)
+    :param participant2_id: Kids first id of the second Participant
     in the relationship
     :param relationship_type: Text describing the nature of the
     relationship (i.e. father, mother, sister, brother)
@@ -35,62 +35,111 @@ class FamilyRelationship(db.Model, Base):
     """
     __tablename__ = 'family_relationship'
     __prefix__ = 'FR'
-    __table_args__ = (db.UniqueConstraint('participant_id', 'relative_id',
-                                          'participant_to_relative_relation',
-                                          'relative_to_participant_relation'),)
+    __table_args__ = (db.UniqueConstraint(
+        'participant1_id', 'participant2_id',
+        'participant1_to_participant2_relation',
+        'participant2_to_participant1_relation'),)
     external_id = db.Column(db.Text(),
                             doc='external id used by contributor')
-    participant_id = db.Column(
+    participant1_id = db.Column(
         KfId(),
         db.ForeignKey('participant.kf_id'),
         nullable=False,
         doc='kf_id of one participant in the relationship')
 
-    relative_id = db.Column(
+    participant2_id = db.Column(
         KfId(),
         db.ForeignKey('participant.kf_id'),
         nullable=False,
         doc='kf_id of the other participant in the relationship')
 
-    participant_to_relative_relation = db.Column(db.Text(), nullable=False)
+    participant1_to_participant2_relation = db.Column(db.Text(),
+                                                      nullable=False)
 
-    relative_to_participant_relation = db.Column(db.Text())
+    participant2_to_participant1_relation = db.Column(db.Text())
 
-    participant = db.relationship(
+    participant1 = db.relationship(
         Participant,
-        primaryjoin=participant_id == Participant.kf_id,
+        primaryjoin=participant1_id == Participant.kf_id,
         backref=db.backref('outgoing_family_relationships',
                            cascade='all, delete-orphan'))
 
-    relative = db.relationship(
+    participant2 = db.relationship(
         Participant,
-        primaryjoin=relative_id == Participant.kf_id,
+        primaryjoin=participant2_id == Participant.kf_id,
         backref=db.backref('incoming_family_relationships',
                            cascade='all, delete-orphan'))
 
     @classmethod
-    def query_all_relationships(cls, participant_kf_id):
+    def query_all_relationships(cls, participant_kf_id=None,
+                                model_filter_params=None):
         """
-        Find all relationship records given a the kf_id of a particpant
-        """
+        Find all family relationships for a participant
 
-        q = cls.query.filter(or_(
-            FamilyRelationship.participant_id == participant_kf_id,
-            FamilyRelationship.relative_id == participant_kf_id))
+        :param participant_kf_id: Kids First ID of the participant
+        :param model_filter_params: Filter parameters to the query
+
+        Given a participant's kf_id, return all of the biological
+        family relationships of the participant and the relationships
+        of the participant's family members.
+
+        If the participant does not have a family defined, then return
+        all of the immediate/direct family relationships of the participant.
+        """
+        # Apply model property filter params
+        if model_filter_params is None:
+            model_filter_params = {}
+        q = FamilyRelationship.query.filter_by(**model_filter_params)
+
+        # Get family relationships and join with participants
+        q = q.join(Participant, or_(FamilyRelationship.participant1,
+                                    FamilyRelationship.participant2))
+
+        # Do this bc query.get() errors out if passed None
+        if participant_kf_id:
+            pt = Participant.query.get(participant_kf_id)
+            family_id = pt.family_id if pt else None
+
+            # Use family to get all family relationships in participants family
+            if family_id:
+                q = q.filter(Participant.family_id == family_id)
+
+            # No family provided, use just family relationships
+            # to get only immediate family relationships for participant
+            else:
+                q = q.filter(or_(
+                    FamilyRelationship.participant1_id == participant_kf_id,
+                    FamilyRelationship.participant2_id == participant_kf_id))
+
+        # Don't want duplicates - return unique family relationships
+        q = q.group_by(FamilyRelationship.kf_id)
 
         return q
 
     def __repr__(self):
-        return '<{} is {} of {}>'.format(self.participant,
-                                         self.participant_to_relative_relation,
-                                         self.relative)
+        return '<{} is {} of {}>'.format(
+            self.participant1.kf_id,
+            self.participant1_to_participant2_relation,
+            self.participant2.kf_id)
 
 
-@event.listens_for(FamilyRelationship.participant_to_relative_relation, 'set')
-def set_reverse_relation(target, value, oldvalue, initiator):
+@event.listens_for(FamilyRelationship, 'before_update')
+@event.listens_for(FamilyRelationship, 'before_insert')
+def set_reverse_relation(mapper, connection, target):
     """
-    Listen for set 'participant_to_relative_relation' events and
-    set the reverse relationship, 'relative_to_participant_relation' attribute
+    Set the appropriate relation types on both relation fields.
+
+    Given a relation type, look up the reverse relation in the REVERSE_RELS map
+    If a relation type is not found in the map do nothing.
     """
-    target.relative_to_participant_relation = REVERSE_RELS.get(value.lower(),
-                                                               None)
+    # Participant 1 to 2 relation
+    rel = target.participant1_to_participant2_relation
+    rev = REVERSE_RELS.get(rel.lower() if rel else None)
+    if rev:
+        target.participant2_to_participant1_relation = rev
+
+    # Participant 2 to 1 relation
+    rel = target.participant2_to_participant1_relation
+    rev = REVERSE_RELS.get(rel.lower() if rel else None)
+    if rev:
+        target.participant1_to_participant2_relation = rev
