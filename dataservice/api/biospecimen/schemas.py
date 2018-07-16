@@ -52,5 +52,7 @@ class BiospecimenSchema(BaseSchema):
         'genomic_files': ma.URLFor('api.genomic_files_list',
                                    biospecimen_id='<kf_id>'),
         'diagnoses': ma.URLFor('api.diagnoses_list',
-                               biospecimen_id='<kf_id>')
+                               biospecimen_id='<kf_id>'),
+        'biospecimen_genomic_files': ma.URLFor(
+            'api.biospecimen_genomic_files_list', biospecimen_id='<kf_id>')
     })
