@@ -300,7 +300,6 @@ class ModelTest(FlaskTestCase):
             'file_format': '.cram',
             'urls': ['s3://file_{}'.format(_id)],
             'hashes': {'md5': str(uuid.uuid4())},
-            'biospecimen_id': biospec_id,
             'sequencing_experiment_id': sequencing_experiment_id
         }
         return GenomicFile(**data)
@@ -350,13 +349,11 @@ class ModelTest(FlaskTestCase):
             # Input GF
             gf_in = self._create_genomic_file(
                 'gf_{}_in'.format(i),
-                biospec_id=s.kf_id,
                 sequencing_experiment_id=se.kf_id)
             # Output GF
             gf_out = self._create_genomic_file(
                 'gf_{}_out'.format(i),
                 data_type='aligned read',
-                biospec_id=s.kf_id,
                 sequencing_experiment_id=se.kf_id)
 
             s.genomic_files = [gf_in, gf_out]

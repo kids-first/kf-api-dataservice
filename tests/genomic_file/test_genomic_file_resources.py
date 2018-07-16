@@ -8,7 +8,7 @@ from flask import url_for
 
 from dataservice.extensions import db
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.biospecimen.models import Biospecimen
+# from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.conftest import entities as ent
 from tests.conftest import ENTITY_TOTAL
@@ -18,7 +18,7 @@ from tests.mocks import MockIndexd
 
 GENOMICFILE_URL = 'api.genomic_files'
 GENOMICFILE_LIST_URL = 'api.genomic_files_list'
-EXPECTED_TOTAL = ENTITY_TOTAL + 102*2
+EXPECTED_TOTAL = ENTITY_TOTAL + 1*2
 
 
 @pytest.fixture(scope='function')
@@ -67,7 +67,6 @@ def genomic_files(client, entities):
         'file_name': 'hg38.bam',
         'data_type': 'Aligned Reads',
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
-        'biospecimen_id': Biospecimen.query.first().kf_id,
         'file_format': 'bam'
     }
     gfs = [GenomicFile(**props) for _ in range(EXPECTED_TOTAL - ENTITY_TOTAL)]
@@ -107,7 +106,6 @@ def test_new_indexd_error(client, entities):
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'sequencing_experiment_id': 'SE_AAAAAAAA',
-        'biospecimen_id': Biospecimen.query.first().kf_id,
         'controlled_access': False
     }
     init_count = GenomicFile.query.count()
@@ -151,7 +149,6 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
     resp = client.get(url_for(GENOMICFILE_LIST_URL))
     resp = json.loads(resp.data.decode('utf-8'))
 
-    print(resp)
     assert resp['_status']['code'] == 200
     assert resp['total'] == GenomicFile.query.count()
     assert GenomicFile.query.count() == 0
@@ -161,7 +158,7 @@ def test_get_list_with_missing_files(client, indexd, genomic_files):
     for res in resp['results']:
         assert 'kf_id' in res
     expected = EXPECTED_TOTAL
-    assert indexd.get.call_count == expected 
+    assert indexd.get.call_count == expected
 
 
 def test_get_one(client, entities):
@@ -301,7 +298,6 @@ def _new_genomic_file(client):
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'availability': 'Immediate Download',
         'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
-        'biospecimen_id': Biospecimen.query.first().kf_id,
         'controlled_access': False
     }
     response = client.post(url_for(GENOMICFILE_LIST_URL),

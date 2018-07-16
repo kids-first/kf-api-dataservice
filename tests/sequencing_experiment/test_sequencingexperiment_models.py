@@ -198,7 +198,7 @@ class ModelTest(FlaskTestCase):
                 'is_harmonized': True,
                 'reference_genome': 'Test01'
             }
-            gf = GenomicFile(**kwargs, biospecimen_id=bs.kf_id,
+            gf = GenomicFile(**kwargs,
                              sequencing_experiment_id=se1.kf_id)
             if i % 2:
                 se1.genomic_files.append(gf)
