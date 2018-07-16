@@ -45,10 +45,14 @@ class ReadGroupListAPI(CRUDView):
         from dataservice.api.participant.models import Participant
         from dataservice.api.biospecimen.models import Biospecimen
         from dataservice.api.genomic_file.models import GenomicFile
+        from dataservice.api.biospecimen_genomic_file.models import (
+            BiospecimenGenomicFile
+        )
 
         if study_id:
             q = (q.join(ReadGroup.genomic_file)
-                 .join(GenomicFile.biospecimen)
+                 .join(GenomicFile.biospecimen_genomic_files)
+                 .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
                  .filter(Participant.study_id == study_id))
 

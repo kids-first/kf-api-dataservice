@@ -48,12 +48,16 @@ class CavaticaAppListAPI(CRUDView):
             CavaticaTask,
             CavaticaTaskGenomicFile
         )
+        from dataservice.api.biospecimen_genomic_file.models import (
+            BiospecimenGenomicFile
+        )
 
         if study_id:
             q = (q.join(CavaticaApp.cavatica_tasks)
                  .join(CavaticaTask.cavatica_task_genomic_files)
                  .join(CavaticaTaskGenomicFile.genomic_file)
-                 .join(GenomicFile.biospecimen)
+                 .join(GenomicFile.biospecimen_genomic_files)
+                 .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
                  .filter(Participant.study_id == study_id)
                  .group_by(CavaticaApp.kf_id))
