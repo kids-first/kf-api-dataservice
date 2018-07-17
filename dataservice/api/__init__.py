@@ -38,6 +38,10 @@ from dataservice.api.study_file import StudyFileAPI
 from dataservice.api.study_file import StudyFileListAPI
 from dataservice.api.genomic_file import GenomicFileAPI
 from dataservice.api.genomic_file import GenomicFileListAPI
+from dataservice.api.biospecimen_genomic_file import (
+    BiospecimenGenomicFileAPI,
+    BiospecimenGenomicFileListAPI
+)
 
 from dataservice.api.study.models import Study
 
