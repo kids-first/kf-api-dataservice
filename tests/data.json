@@ -87,6 +87,7 @@
             "controlled_access": false,
             "availability": "Immediate Download"
         },
+         "/biospecimen-genomic-files": {},
         "/read-groups": {
             "external_id": "FL01",
             "paired_end": 1,
@@ -227,6 +228,11 @@
                 {"availability": "availble for download"},
                 {"data_type": "read"}
             ]
+        },
+        "/biospecimen-genomic-files": {
+           "valid": {
+                 },
+           "invalid": []
         },
         "/read-groups": {
             "valid": {
