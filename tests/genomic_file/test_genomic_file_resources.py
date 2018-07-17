@@ -18,7 +18,7 @@ from tests.mocks import MockIndexd
 
 GENOMICFILE_URL = 'api.genomic_files'
 GENOMICFILE_LIST_URL = 'api.genomic_files_list'
-EXPECTED_TOTAL = ENTITY_TOTAL + 1*2
+EXPECTED_TOTAL = ENTITY_TOTAL + 102*2
 
 
 @pytest.fixture(scope='function')

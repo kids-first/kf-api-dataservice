@@ -1,5 +1,5 @@
 """
-1.2.0- Add biospecimen_genomic_file association table
+1.2.0 - Add biospecimen_genomic_file association table
 
 Revision ID: 088f00b10226
 Revises: ce359a457d3d
