@@ -2,6 +2,9 @@ from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.biospecimen_genomic_file.models import (
+    BiospecimenGenomicFile)
+from sqlalchemy.ext.associationproxy import association_proxy
 
 
 class Biospecimen(db.Model, Base):
@@ -106,3 +109,11 @@ class Biospecimen(db.Model, Base):
     diagnoses = db.relationship(Diagnosis,
                                 backref=db.backref('biospecimen',
                                                    lazy=True))
+    # Adding mtom_ prefix to differentiate association table attributes
+    mtom_genomic_files = association_proxy(
+        'biospecimen_genomic_files', 'genomic_file',
+        creator=lambda genomic_file:
+        BiospecimenGenomicFile(genomic_file=genomic_file))
+    biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
+                                                backref='biospecimen',
+                                                cascade='all, delete-orphan')

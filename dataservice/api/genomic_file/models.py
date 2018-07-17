@@ -4,6 +4,9 @@ from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.cavatica_task.models import (
     CavaticaTaskGenomicFile
 )
+from dataservice.api.biospecimen_genomic_file.models import (
+    BiospecimenGenomicFile
+)
 
 
 class GenomicFile(db.Model, Base, IndexdFile):
@@ -66,3 +69,6 @@ class GenomicFile(db.Model, Base, IndexdFile):
     cavatica_task_genomic_files = db.relationship(CavaticaTaskGenomicFile,
                                                   backref='genomic_file',
                                                   cascade='all, delete-orphan')
+    biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
+                                                backref='genomic_file',
+                                                cascade='all, delete-orphan')
