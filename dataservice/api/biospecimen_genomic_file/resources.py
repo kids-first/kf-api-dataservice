@@ -66,18 +66,18 @@ class BiospecimenGenomicFileListAPI(CRUDView):
         """
         body = request.get_json(force=True)
         try:
-            app = (BiospecimenGenomicFileSchema(strict=True)
-                   .load(body).data)
+            bs_gf = (BiospecimenGenomicFileSchema(strict=True)
+                     .load(body).data)
         except ValidationError as err:
             abort(400,
                   'could not create biospecimen_genomic_file: {}'
                   .format(err.messages))
 
-        db.session.add(app)
+        db.session.add(bs_gf)
         db.session.commit()
         return BiospecimenGenomicFileSchema(
-            201, 'biospecimen_genomic_file {} created'.format(app.kf_id)
-        ).jsonify(app), 201
+            201, 'biospecimen_genomic_file {} created'.format(bs_gf.kf_id)
+        ).jsonify(bs_gf), 201
 
 
 class BiospecimenGenomicFileAPI(CRUDView):
@@ -99,12 +99,12 @@ class BiospecimenGenomicFileAPI(CRUDView):
             resource:
               BiospecimenGenomicFile
         """
-        app = BiospecimenGenomicFile.query.get(kf_id)
-        if app is None:
+        bs_gf = BiospecimenGenomicFile.query.get(kf_id)
+        if bs_gf is None:
             abort(404, 'could not find {} `{}`'
                   .format('biospecimen_genomic_file', kf_id))
 
-        return BiospecimenGenomicFileSchema().jsonify(app)
+        return BiospecimenGenomicFileSchema().jsonify(bs_gf)
 
     def patch(self, kf_id):
         """
@@ -117,27 +117,27 @@ class BiospecimenGenomicFileAPI(CRUDView):
             resource:
               BiospecimenGenomicFile
         """
-        app = BiospecimenGenomicFile.query.get(kf_id)
-        if app is None:
+        bs_gf = BiospecimenGenomicFile.query.get(kf_id)
+        if bs_gf is None:
             abort(404, 'could not find {} `{}`'
                   .format('biospecimen_genomic_file', kf_id))
 
         # Partial update - validate but allow missing required fields
         body = request.get_json(force=True) or {}
         try:
-            app = (BiospecimenGenomicFileSchema(strict=True)
-                   .load(body, instance=app, partial=True).data)
+            bs_gf = (BiospecimenGenomicFileSchema(strict=True)
+                     .load(body, instance=bs_gf, partial=True).data)
         except ValidationError as err:
             abort(400,
                   'could not update biospecimen_genomic_file: {}'
                   .format(err.messages))
 
-        db.session.add(app)
+        db.session.add(bs_gf)
         db.session.commit()
 
         return BiospecimenGenomicFileSchema(
-            200, 'biospecimen_genomic_file {} updated'.format(app.kf_id)
-        ).jsonify(app), 200
+            200, 'biospecimen_genomic_file {} updated'.format(bs_gf.kf_id)
+        ).jsonify(bs_gf), 200
 
     def delete(self, kf_id):
         """
@@ -150,14 +150,14 @@ class BiospecimenGenomicFileAPI(CRUDView):
             resource:
               BiospecimenGenomicFile
         """
-        app = BiospecimenGenomicFile.query.get(kf_id)
-        if app is None:
+        bs_gf = BiospecimenGenomicFile.query.get(kf_id)
+        if bs_gf is None:
             abort(404, 'could not find {} `{}`'
                   .format('biospecimen_genomic_file', kf_id))
 
-        db.session.delete(app)
+        db.session.delete(bs_gf)
         db.session.commit()
 
         return BiospecimenGenomicFileSchema(
-            200, 'biospecimen_genomic_file {} deleted'.format(app.kf_id)
-        ).jsonify(app), 200
+            200, 'biospecimen_genomic_file {} deleted'.format(bs_gf.kf_id)
+        ).jsonify(bs_gf), 200
