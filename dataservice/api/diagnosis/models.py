@@ -3,6 +3,8 @@ from sqlalchemy import event
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
+from dataservice.api.biospecimen_diagnosis.models import (
+    BiospecimenDiagnosis)
 
 
 class Diagnosis(db.Model, Base):
@@ -69,65 +71,68 @@ class Diagnosis(db.Model, Base):
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
                                nullable=False)
-    biospecimen_id = db.Column(KfId(),
-                               db.ForeignKey('biospecimen.kf_id'),
-                               doc='the biospecimen which recieved the '
-                               'diagnosis',
-                               nullable=True)
+    # biospecimen_id = db.Column(KfId(),
+    #                            db.ForeignKey('biospecimen.kf_id'),
+    #                            doc='the biospecimen which recieved the '
+    #                            'diagnosis',
+    #                            nullable=True)
+    biospecimen_diagnoses = db.relationship(BiospecimenDiagnosis,
+                                            backref='biospecimen',
+                                            cascade='all, delete-orphan')
 
 
-def validate_diagnosis_biospecimen(target):
-    """
-    Ensure that both the diagnosis and biospecimen
-    (referred to by biospecimen_id) have the same participant
-
-    If this is not the case then raise DatabaseValidationError
-    """
-    from dataservice.api.biospecimen.models import Biospecimen
-    from dataservice.api.errors import DatabaseValidationError
-
-    # Return if diagnosis is None
-    if not target:
-        return
-
-    # Get biospecimen by id
-    bsp = None
-    if target.biospecimen_id:
-        bsp = Biospecimen.query.get(target.biospecimen_id)
-
-    # If biospecimen doesn't exist, return and
-    # let ORM handle non-existent foreign key
-    if bsp is None:
-        return
-
-    # Check if this diagnosis and biospecimen refer to same participant
-    if target.participant_id != bsp.participant_id:
-        operation = 'modify'
-        target_entity = Diagnosis.__tablename__
-        kf_id = target.kf_id or ''
-        message = (
-            ('a diagnosis cannot be linked with a biospecimen if they '
-             'refer to different participants. diagnosis {} '
-             'refers to participant {} and '
-             'biospecimen {} refers to participant {}')
-            .format(kf_id,
-                    target.participant_id,
-                    bsp.kf_id,
-                    bsp.participant_id))
-        raise DatabaseValidationError(target_entity, operation, message)
-
-
-@event.listens_for(Diagnosis, 'before_insert')
-def diagnosis_on_insert(mapper, connection, target):
-    """
-    Run preprocessing/validation of diagnosis before insert
-    """
-    validate_diagnosis_biospecimen(target)
-
-
-@event.listens_for(Diagnosis, 'before_update')
-def diagnosis_on_update(mapper, connection, target):
-    """
-    Run preprocessing/validation of diagnosis before update
-    """
-    validate_diagnosis_biospecimen(target)
+# def validate_diagnosis_biospecimen(target):
+#     """
+#     Ensure that both the diagnosis and biospecimen
+#     (referred to by biospecimen_id) have the same participant
+#
+#     If this is not the case then raise DatabaseValidationError
+#     """
+#     from dataservice.api.biospecimen.models import Biospecimen
+#     from dataservice.api.errors import DatabaseValidationError
+#
+#     # Return if diagnosis is None
+#     if not target:
+#         return
+#
+#     # Get biospecimen by id
+#     bsp = None
+#     if target.biospecimen_id:
+#         bsp = Biospecimen.query.get(target.biospecimen_id)
+#
+#     # If biospecimen doesn't exist, return and
+#     # let ORM handle non-existent foreign key
+#     if bsp is None:
+#         return
+#
+#     # Check if this diagnosis and biospecimen refer to same participant
+#     if target.participant_id != bsp.participant_id:
+#         operation = 'modify'
+#         target_entity = Diagnosis.__tablename__
+#         kf_id = target.kf_id or ''
+#         message = (
+#             ('a diagnosis cannot be linked with a biospecimen if they '
+#              'refer to different participants. diagnosis {} '
+#              'refers to participant {} and '
+#              'biospecimen {} refers to participant {}')
+#             .format(kf_id,
+#                     target.participant_id,
+#                     bsp.kf_id,
+#                     bsp.participant_id))
+#         raise DatabaseValidationError(target_entity, operation, message)
+#
+#
+# @event.listens_for(Diagnosis, 'before_insert')
+# def diagnosis_on_insert(mapper, connection, target):
+#     """
+#     Run preprocessing/validation of diagnosis before insert
+#     """
+#     validate_diagnosis_biospecimen(target)
+#
+#
+# @event.listens_for(Diagnosis, 'before_update')
+# def diagnosis_on_update(mapper, connection, target):
+#     """
+#     Run preprocessing/validation of diagnosis before update
+#     """
+#     validate_diagnosis_biospecimen(target)

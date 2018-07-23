@@ -1,8 +1,10 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
-from dataservice.api.diagnosis.models import Diagnosis
+# from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile)
+from dataservice.api.biospecimen_diagnosis.models import (
+    BiospecimenDiagnosis)
 from sqlalchemy.ext.associationproxy import association_proxy
 
 
@@ -100,9 +102,9 @@ class Biospecimen(db.Model, Base):
     dbgap_consent_code = db.Column(db.Text(),
                                    doc='Consent classification code from dbgap'
                                    )
-    diagnoses = db.relationship(Diagnosis,
-                                backref=db.backref('biospecimen',
-                                                   lazy=True))
+    # diagnoses = db.relationship(Diagnosis,
+    #                             backref=db.backref('biospecimen',
+    #                                                lazy=True))
     genomic_files = association_proxy(
         'biospecimen_genomic_files', 'genomic_file',
         creator=lambda genomic_file:
@@ -111,3 +113,10 @@ class Biospecimen(db.Model, Base):
     biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
                                                 backref='biospecimen',
                                                 cascade='all, delete-orphan')
+    diagnoses = association_proxy(
+        'biospecimen_diagnoses', 'diagnosis',
+        creator=lambda diagnosis:
+        BiospecimenDiagnosis(diagnosis=diagnosis))
+    biospecimen_diagnoses = db.relationship(BiospecimenDiagnosis,
+                                            backref='biospecimen_dg',
+                                            cascade='all, delete-orphan')

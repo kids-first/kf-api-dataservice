@@ -16,8 +16,8 @@ DIAGNOSIS_CATEGORY_ENUM = {'Structural Birth Defect',
 class DiagnosisSchema(BaseSchema):
     participant_id = field_for(Diagnosis, 'participant_id', required=True,
                                load_only=True, example='PT_DZB048J5')
-    biospecimen_id = field_for(Diagnosis, 'biospecimen_id', required=False,
-                               load_only=True, example='BS_DZB048J5')
+    # biospecimen_id = field_for(Diagnosis, 'biospecimen_id', required=False,
+    #                            load_only=True, example='BS_DZB048J5')
     age_at_event_days = field_for(Diagnosis, 'age_at_event_days',
                                   validate=validate_age, example=232)
     diagnosis_category = field_for(Diagnosis, 'diagnosis_category',
@@ -33,6 +33,8 @@ class DiagnosisSchema(BaseSchema):
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
-        'biospecimen': PatchedURLFor('api.biospecimens',
-                                     kf_id='<biospecimen_id>')
+        # 'biospecimen': PatchedURLFor('api.biospecimens',
+        #                              kf_id='<biospecimen_id>')
+        'biospecimen_diagnoses': ma.URLFor(
+            'api.biospecimen_diagnoses_list', biospecimen_id='<kf_id>')
     })

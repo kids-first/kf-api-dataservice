@@ -41,7 +41,8 @@ class BiospecimenSchema(BaseSchema):
         collection_url = 'api.biospecimens_list'
         exclude = (BaseSchema.Meta.exclude +
                    ('participant', 'sequencing_center') +
-                   ('genomic_files', 'biospecimen_genomic_files'))
+                   ('genomic_files', 'biospecimen_genomic_files',
+                    'biospecimen_diagnoses'))
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
@@ -54,5 +55,7 @@ class BiospecimenSchema(BaseSchema):
         'diagnoses': ma.URLFor('api.diagnoses_list',
                                biospecimen_id='<kf_id>'),
         'biospecimen_genomic_files': ma.URLFor(
-            'api.biospecimen_genomic_files_list', biospecimen_id='<kf_id>')
+            'api.biospecimen_genomic_files_list', biospecimen_id='<kf_id>'),
+        'biospecimen_diagnoses': ma.URLFor(
+            'api.biospecimen_diagnoses_list', biospecimen_id='<kf_id>')
     })
