@@ -81,7 +81,7 @@ class TestAPI:
         ('/family-relationships', ['participant1', 'participant2']),
         ('/phenotypes', ['participant']),
         ('/outcomes', ['participant']),
-        ('/diagnoses', ['participant', 'biospecimen']),
+        ('/diagnoses', ['participant']),
         ('/biospecimens', ['participant', 'sequencing_center']),
         ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['sequencing_experiment',
@@ -89,7 +89,8 @@ class TestAPI:
         ('/read-groups', ['genomic_file']),
         ('/cavatica-tasks', ['cavatica_app']),
         ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file']),
-        ('/biospecimen-genomic-files', ['biospecimen', 'genomic_file'])
+        ('/biospecimen-genomic-files', ['biospecimen', 'genomic_file']),
+        ('/biospecimen-diagnoses', ['biospecimen', 'diagnosis'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
@@ -126,10 +127,13 @@ class TestAPI:
         ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
         ('/participants', ['diagnoses', 'phenotypes', 'outcomes',
                            'biospecimens']),
-        ('/biospecimens', ['diagnoses', 'biospecimen_genomic_files']),
+        ('/diagnoses', ['biospecimen_diagnoses']),
+        ('/biospecimens', ['biospecimen_genomic_files',
+                           'biospecimen_diagnoses']),
         ('/sequencing-experiments', ['genomic_files']),
         ('/genomic-files', ['cavatica_task_genomic_files',
-                            'biospecimen_genomic_files']),
+                            'biospecimen_genomic_files'
+                            ]),
         ('/cavatica-apps', ['cavatica_tasks']),
         ('/cavatica-tasks', ['cavatica_task_genomic_files']),
     ])
@@ -327,7 +331,6 @@ class TestAPI:
                               ('/family-relationships', 'participant2_id'),
                               ('/study-files', 'study_id'),
                               ('/diagnoses', 'participant_id'),
-                              ('/diagnoses', 'biospecimen_id'),
                               ('/biospecimens', 'participant_id'),
                               ('/genomic-files', 'sequencing_experiment_id'),
                               ('/read-groups', 'genomic_file_id'),
@@ -339,7 +342,11 @@ class TestAPI:
                               ('/biospecimen-genomic-files',
                                'biospecimen_id'),
                               ('/biospecimen-genomic-files',
-                               'genomic_file_id')
+                               'genomic_file_id'),
+                              ('/biospecimen-diagnoses',
+                               'biospecimen_id'),
+                              ('/biospecimen-diagnoses',
+                               'diagnosis_id')
                               ])
     def test_bad_foreign_key(self, client, entities, endpoint, method, field):
         """
