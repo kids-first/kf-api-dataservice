@@ -113,7 +113,6 @@ class BiospecimenGenomicFileTest(FlaskTestCase):
         biospecimen_genomic_file = resp['results']
         kf_id = biospecimen_genomic_file['kf_id']
         body = {
-            # 'is_input': not biospecimen_genomic_file['is_input'],
         }
         self.assertEqual(orig, BiospecimenGenomicFile.query.count())
         response = self.client.patch(url_for(BS_GF_URL,

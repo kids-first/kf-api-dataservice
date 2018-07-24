@@ -8,7 +8,6 @@ from flask import url_for
 
 from dataservice.extensions import db
 from dataservice.api.genomic_file.models import GenomicFile
-# from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.conftest import entities as ent
 from tests.conftest import ENTITY_TOTAL

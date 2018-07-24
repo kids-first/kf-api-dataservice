@@ -188,6 +188,47 @@ class ModelTest(IndexdTestCase):
         biospecimen = Biospecimen.query.first()
         self.assertEqual(len(biospecimen.genomic_files), 0)
 
+    def test_cascade_delete_via_biospecimen(self):
+        """
+        Test delete existing genomic file
+        Delete biospecimen to which genomic file belongs
+        """
+        # Create and save genomic files and dependent entities
+        kwargs_dict = self._create_save_genomic_files()
+
+        # Get biospecimen
+        biospecimen = Biospecimen.query.first()
+
+        # Delete biospecimen
+        db.session.delete(biospecimen)
+        db.session.commit()
+
+        # Check database
+        assert BiospecimenGenomicFile.query.count() == 0
+
+        for kf_id in kwargs_dict.keys():
+            gf = GenomicFile.query.get(kf_id)
+            assert gf is not None
+
+    def test_cascade_delete_via_genomic_file(self):
+        """
+        Test delete existing biospecimen
+        Delete genomic file to which biospecimen belongs
+        """
+        # Create and save genomic files and dependent entities
+        kwargs_dict = self._create_save_genomic_files()
+
+        assert GenomicFile.query.count() == 2
+        # Get genomic_file
+        gf = GenomicFile.query.first()
+
+        # Delete biospecimen
+        db.session.delete(gf)
+        db.session.commit()
+
+        # Check database
+        assert BiospecimenGenomicFile.query.count() == 1
+
     # TODO Check that file is not deleted if deletion on indexd fails
 
     def _create_save_genomic_files(self):
@@ -224,7 +265,6 @@ class ModelTest(IndexdTestCase):
             kwargs_dict[gf.kf_id] = kwargs
         db.session.commit()
 
-        # return biospecimen.kf_id, kwargs_dict
         return kwargs_dict
 
     def _create_save_dependents(self):
