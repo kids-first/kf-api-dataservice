@@ -68,6 +68,7 @@ class BiospecimenDiagnosisListAPI(CRUDView):
         try:
             bs_ds = (BiospecimenDiagnosisSchema(strict=True)
                      .load(body).data)
+            print(bs_ds)
         except ValidationError as err:
             abort(400,
                   'could not create biospecimen_diagnosis: {}'
@@ -84,7 +85,7 @@ class BiospecimenDiagnosisAPI(CRUDView):
     """
     BiospecimenDiagnosis API
     """
-    endpoint = 'biospecimen_diagnosis'
+    endpoint = 'biospecimen_diagnoses'
     rule = '/biospecimen-diagnoses/<string:kf_id>'
     schemas = {'BiospecimenDiagnosis': BiospecimenDiagnosisSchema}
 

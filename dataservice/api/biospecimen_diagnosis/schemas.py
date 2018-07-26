@@ -13,7 +13,7 @@ class BiospecimenDiagnosisSchema(BaseSchema):
                                example='BS_ABC2C104')
     diagnosis_id = field_for(BiospecimenDiagnosis, 'diagnosis_id',
                              required=True, load_only=True,
-                             example='GF_ABB2C104')
+                             example='DG_ABB2C104')
 
     class Meta(BaseSchema.Meta):
         model = BiospecimenDiagnosis

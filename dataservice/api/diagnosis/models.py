@@ -77,7 +77,7 @@ class Diagnosis(db.Model, Base):
     #                            'diagnosis',
     #                            nullable=True)
     biospecimen_diagnoses = db.relationship(BiospecimenDiagnosis,
-                                            backref='biospecimen',
+                                            backref='diagnosis',
                                             cascade='all, delete-orphan')
 
 

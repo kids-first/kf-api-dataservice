@@ -1,6 +1,5 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
-# from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile)
 from dataservice.api.biospecimen_diagnosis.models import (
@@ -102,9 +101,6 @@ class Biospecimen(db.Model, Base):
     dbgap_consent_code = db.Column(db.Text(),
                                    doc='Consent classification code from dbgap'
                                    )
-    # diagnoses = db.relationship(Diagnosis,
-    #                             backref=db.backref('biospecimen',
-    #                                                lazy=True))
     genomic_files = association_proxy(
         'biospecimen_genomic_files', 'genomic_file',
         creator=lambda genomic_file:
@@ -118,5 +114,5 @@ class Biospecimen(db.Model, Base):
         creator=lambda diagnosis:
         BiospecimenDiagnosis(diagnosis=diagnosis))
     biospecimen_diagnoses = db.relationship(BiospecimenDiagnosis,
-                                            backref='biospecimen_dg',
+                                            backref='biospecimen',
                                             cascade='all, delete-orphan')

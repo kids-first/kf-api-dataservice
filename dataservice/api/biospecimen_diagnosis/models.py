@@ -29,40 +29,43 @@ class BiospecimenDiagnosis(db.Model, Base):
 def validate_diagnosis_biospecimen(target):
     """
     Ensure that both the diagnosis and biospecimen
-    (referred to by biospecimen_id) have the same participant
+    have the same participant
 
     If this is not the case then raise DatabaseValidationError
     """
-    from dataservice.api.biospecimen_diagnosis.models import (
-        BiospecimenDiagnosis)
+    # from dataservice.api.biospecimen_diagnosis.models import (
+    #     BiospecimenDiagnosis)
     from dataservice.api.errors import DatabaseValidationError
+    from dataservice.api.biospecimen.models import Biospecimen
+    from dataservice.api.diagnosis.models import Diagnosis
 
-    # Return if diagnosis is None
+    # Return if biospecimen_diagnosis is None
     if not target:
         return
 
-    # Get biospecimen by id
+    # Get biospecimen and diagnosis by id
     bsp = None
-    if target.biospecimen_id:
-        bsp = BiospecimenDiagnosis.query.get(target.biospecimen_id)
+    ds = None
+    if target.biospecimen_id and target.diagnosis_id:
+        bsp = Biospecimen.query.get(target.biospecimen_id)
+        ds = Diagnosis.query.get(target.diagnosis_id)
 
-    # If biospecimen doesn't exist, return and
+    # If biospecimen and diagnosis doesn't exist, return and
     # let ORM handle non-existent foreign key
-    if bsp is None:
+    if bsp is None or ds is None:
         return
 
     # Check if this diagnosis and biospecimen refer to same participant
-    if target.participant_id != bsp.participant_id:
+    if ds.participant_id != bsp.participant_id:
         operation = 'modify'
         target_entity = BiospecimenDiagnosis.__tablename__
-        kf_id = target.kf_id or ''
         message = (
             ('a diagnosis cannot be linked with a biospecimen if they '
              'refer to different participants. diagnosis {} '
              'refers to participant {} and '
              'biospecimen {} refers to participant {}')
-            .format(kf_id,
-                    target.participant_id,
+            .format(ds.kf_id,
+                    ds.participant_id,
                     bsp.kf_id,
                     bsp.participant_id))
         raise DatabaseValidationError(target_entity, operation, message)
