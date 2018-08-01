@@ -8,6 +8,7 @@ import pytest
 from dataservice import create_app
 from dataservice.utils import iterate_pairwise, read_json
 from dataservice.extensions import db
+from sqlalchemy import exc
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
@@ -18,6 +19,8 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.biospecimen_genomic_file.models import (
+    BiospecimenGenomicFile)
 from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
@@ -46,6 +49,7 @@ ENTITY_ENDPOINT_MAP = {
     Outcome: '/outcomes',
     Biospecimen: '/biospecimens',
     GenomicFile: '/genomic-files',
+    BiospecimenGenomicFile: '/biospecimen-genomic-files',
     ReadGroup: '/read-groups',
     SequencingExperiment: '/sequencing-experiments',
     CavaticaTask: '/cavatica-tasks',
@@ -64,7 +68,8 @@ def _create_entity_params(filepath):
     data['fields']['/biospecimens']['shipment_date'] = d
     data['fields']['/sequencing-experiments']['experiment_date'] = d
     data['filter_params']['/biospecimens']['valid']['shipment_date'] = d
-    data['filter_params']['/sequencing-experiments']['valid']['experiment_date'] = d
+    data['filter_params']['/sequencing-experiments'][
+        'valid']['experiment_date'] = d
     return data
 
 
@@ -116,6 +121,7 @@ def client(app):
     mock.stop()
     # Need to make sure we close all connections so pg won't lock tables
     db.session.close()
+    db.session.remove()
     db.drop_all()
 
 
@@ -131,7 +137,8 @@ def entities(client):
         _entities = defaultdict(list)
         for model, endpoint in ENTITY_ENDPOINT_MAP.items():
             if model in {FamilyRelationship,
-                         CavaticaTaskGenomicFile}:
+                         CavaticaTaskGenomicFile,
+                         BiospecimenGenomicFile}:
                 continue
             for i in range(ENTITY_TOTAL):
                 data = ENTITY_PARAMS['fields'][endpoint].copy()
@@ -189,6 +196,14 @@ def entities(client):
 
             db.session.add(ctgf)
 
+        # Biospecimen genomic files
+        for i, (bs, gf) in enumerate(zip(
+                _entities[Biospecimen], _entities[GenomicFile])):
+            bsgf = BiospecimenGenomicFile(biospecimen=bs,
+                                          genomic_file=gf)
+            _entities[BiospecimenGenomicFile].append(bsgf)
+            db.session.add(bsgf)
+
         # Add relations
         s0 = _entities[Study][0]
         f0 = _entities[Family][0]
@@ -224,10 +239,8 @@ def entities(client):
             ent.sequencing_center = sc0
 
         # GenomicFiles
-        bs0 = _entities[Biospecimen][0]
         for ent in _entities[GenomicFile]:
             ent.sequencing_experiment = se0
-            ent.biospecimen = bs0
 
         # CavaticaTask
         for ent in _entities[CavaticaApp]:

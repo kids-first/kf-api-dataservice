@@ -13,6 +13,7 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.biospecimen.models import BiospecimenGenomicFile
 
 from tests.utils import IndexdTestCase
 from tests.mocks import MockIndexd, MockResp
@@ -39,9 +40,7 @@ class ModelTest(IndexdTestCase):
         self.assertEqual(Biospecimen.query.count(), 2)
 
         se = SequencingExperiment.query.all()[0]
-        # Create genomic genomic files for just one biospecimen
-        biospecimen = Biospecimen.query.all()[0]
-        kf_id = biospecimen.kf_id
+
         # Properties keyed on kf_id
         kwargs_dict = {}
         for i in range(2):
@@ -56,7 +55,6 @@ class ModelTest(IndexdTestCase):
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
                 'availability': 'Immediate Download',
-                'biospecimen_id': biospecimen.kf_id,
                 'sequencing_experiment_id': se.kf_id
             }
             # Add genomic file to db session
@@ -66,11 +64,6 @@ class ModelTest(IndexdTestCase):
             kwargs['kf_id'] = gf.kf_id
             kwargs_dict[kwargs['kf_id']] = kwargs
         db.session.commit()
-
-        # Check database
-        biospecimen = Biospecimen.query.filter_by(
-            kf_id=kf_id).one()
-        self.assertEqual(len(biospecimen.genomic_files), 2)
 
         # Check all input field values with persisted field values
         # for each genomic file
@@ -89,44 +82,12 @@ class ModelTest(IndexdTestCase):
             for k, v in kwargs.items():
                 self.assertEqual(getattr(gf, k), v)
 
-    def test_create_via_biospecimen(self):
-        """
-        Test create genomic file
-        """
-        # Create and save genomic files and dependent entities
-        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
-
-        # Check database
-        biospecimen = Biospecimen.query.filter_by(
-            kf_id=biospecimen_id).one()
-
-        # Check number created files
-        self.assertEqual(len(biospecimen.genomic_files), 2)
-
-        # Check all input field values with persisted field values
-        # for each genomic file
-        self.indexd.Session().get.side_effect = None
-        for kf_id, kwargs in kwargs_dict.items():
-            # Mock out the response from indexd for the file
-            mock_file = {
-                'file_name': kwargs['file_name'],
-                'urls': kwargs['urls'],
-                'hashes': kwargs['hashes'],
-                'size': kwargs['size']
-            }
-            self.indexd.Session().get.return_value = MockResp(resp=mock_file)
-            gf = GenomicFile.query.get(kf_id)
-            gf.merge_indexd()
-
-            for k, v in kwargs.items():
-                self.assertEqual(getattr(gf, k), v)
-
     def test_update(self):
         """
         Test update genomic file
         """
         # Create and save genomic files and dependent entities
-        _, kwargs_dict = self._create_save_genomic_files()
+        kwargs_dict = self._create_save_genomic_files()
 
         # Update fields
         kwargs = kwargs_dict[list(kwargs_dict.keys())[0]]
@@ -147,7 +108,7 @@ class ModelTest(IndexdTestCase):
         Test updating of only indexd fields
         """
         # Create and save genomic files and dependent entities
-        _, kwargs_dict = self._create_save_genomic_files()
+        kwargs_dict = self._create_save_genomic_files()
 
         kwargs = kwargs_dict[list(kwargs_dict.keys())[1]]
 
@@ -173,14 +134,14 @@ class ModelTest(IndexdTestCase):
             'metadata': {'test': 'test'},
         })
         self.indexd.Session().post.assert_any_call(
-                '{}?rev={}'.format(did, gf.rev), json=expected)
+            '{}?rev={}'.format(did, gf.rev), json=expected)
 
     def test_update_acl_only(self):
         """
         Test updating of only acl field
         """
         # Create and save genomic files and dependent entities
-        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
+        kwargs_dict = self._create_save_genomic_files()
 
         kwargs = kwargs_dict[list(kwargs_dict.keys())[1]]
 
@@ -206,66 +167,69 @@ class ModelTest(IndexdTestCase):
             'metadata': {}
         }
         self.indexd.Session().put.assert_any_call(
-                '{}?rev={}'.format(did, gf.rev), json=expected)
+            '{}?rev={}'.format(did, gf.rev), json=expected)
 
     def test_delete(self):
         """
         Test delete existing genomic file
         """
         # Create and save genomic files and dependent entities
-        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
+        kwargs_dict = self._create_save_genomic_files()
 
         # Get genomic files for biospecimen
-        biospecimen = Biospecimen.query.filter_by(
-            kf_id=biospecimen_id).one()
-
+        biospecimen = Biospecimen.query.first()
         # Delete genomic files
         for gf in biospecimen.genomic_files:
             db.session.delete(gf)
         db.session.commit()
 
         # Check database
-        biospecimen = Biospecimen.query.filter_by(
-            kf_id=biospecimen_id).one()
+
+        biospecimen = Biospecimen.query.first()
         self.assertEqual(len(biospecimen.genomic_files), 0)
 
-    def test_delete_via_biospecimen(self):
+    def test_cascade_delete_via_biospecimen(self):
         """
         Test delete existing genomic file
-
         Delete biospecimen to which genomic file belongs
         """
         # Create and save genomic files and dependent entities
-        biospecimen_id, kwargs_dict = self._create_save_genomic_files()
+        kwargs_dict = self._create_save_genomic_files()
 
-        # Get genomic files for biospecimen
-        biospecimen = Biospecimen.query.filter_by(
-            kf_id=biospecimen_id).one()
+        # Get biospecimen
+        biospecimen = Biospecimen.query.first()
 
         # Delete biospecimen
         db.session.delete(biospecimen)
         db.session.commit()
 
         # Check database
-        assert GenomicFile.query.count() == 0
+        assert BiospecimenGenomicFile.query.count() == 0
 
         for kf_id in kwargs_dict.keys():
             gf = GenomicFile.query.get(kf_id)
-            assert gf is None
+            assert gf is not None
 
-        # Check that indexd was called successfully
-        assert self.indexd.Session().delete.call_count == 2
+    def test_cascade_delete_via_genomic_file(self):
+        """
+        Test delete existing biospecimen
+        Delete genomic file to which biospecimen belongs
+        """
+        # Create and save genomic files and dependent entities
+        kwargs_dict = self._create_save_genomic_files()
+
+        assert GenomicFile.query.count() == 2
+        # Get genomic_file
+        gf = GenomicFile.query.first()
+
+        # Delete biospecimen
+        db.session.delete(gf)
+        db.session.commit()
+
+        # Check database
+        assert BiospecimenGenomicFile.query.count() == 1
 
     # TODO Check that file is not deleted if deletion on indexd fails
-
-    def test_foreign_key_constraint(self):
-        """
-        Test that a genomic file cannot be created without an existing
-        biospecimen
-        """
-        # Create genomic file without foreign key_
-        gf = GenomicFile(**{'biospecimen_id': ''})
-        self.assertRaises(IntegrityError, db.session.add(gf))
 
     def _create_save_genomic_files(self):
         """
@@ -295,12 +259,13 @@ class ModelTest(IndexdTestCase):
             # Add genomic file to list in biospecimen
             gf = GenomicFile(**kwargs, sequencing_experiment_id=se.kf_id)
             biospecimen.genomic_files.append(gf)
+            db.session.add(gf)
             db.session.flush()
             kwargs['kf_id'] = gf.kf_id
             kwargs_dict[gf.kf_id] = kwargs
         db.session.commit()
 
-        return biospecimen.kf_id, kwargs_dict
+        return kwargs_dict
 
     def _create_save_dependents(self):
         """

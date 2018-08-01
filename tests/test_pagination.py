@@ -130,9 +130,9 @@ class TestPagination:
             p.biospecimens = [samp]
 
             gf = GenomicFile(**gf_kwargs,
-                             biospecimen_id=samp.kf_id,
                              sequencing_experiment_id=seq_exp.kf_id)
             db.session.add(gf)
+            samp.genomic_files.append(gf)
 
             db.session.flush()
             rg = ReadGroup(lane_number=4,
@@ -172,7 +172,8 @@ class TestPagination:
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 1),
         ('/cavatica-tasks', 50),
-        ('/cavatica-task-genomic-files', 50)
+        ('/cavatica-task-genomic-files', 50),
+        ('/biospecimen-genomic-files', 50)
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):

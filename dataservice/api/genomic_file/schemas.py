@@ -26,7 +26,9 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
 
         exclude = (BaseSchema.Meta.exclude +
                    ('biospecimen', 'sequencing_experiment',) +
-                   ('cavatica_task_genomic_files', 'read_group',))
+                   ('cavatica_task_genomic_files',
+                    'biospecimen_genomic_files',
+                    'read_group',))
 
     data_type = field_for(GenomicFile, 'data_type',
                           validate=enum_validation_generator(
@@ -39,10 +41,6 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
                                          'sequencing_experiment_id',
                                          load_only=True)
 
-    biospecimen_id = field_for(GenomicFile,
-                               'biospecimen_id',
-                               load_only=True)
-
     latest_did = field_for(GenomicFile,
                            'latest_did',
                            required=False,
@@ -51,14 +49,13 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
-        'biospecimen': PatchedURLFor(
-            'api.biospecimens',
-            kf_id='<biospecimen_id>'),
         'sequencing_experiment': PatchedURLFor(
             'api.sequencing_experiments',
             kf_id='<sequencing_experiment_id>'),
         'cavatica_task_genomic_files': ma.URLFor(
             'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>'),
+        'biospecimen_genomic_files': ma.URLFor(
+            'api.biospecimen_genomic_files_list', genomic_file_id='<kf_id>'),
         'read_group': PatchedURLFor(
             'api.read_groups', kf_id='<read_group.kf_id>')
     }, description='Resource links and pagination')

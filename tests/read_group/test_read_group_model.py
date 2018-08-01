@@ -9,6 +9,8 @@ from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.biospecimen_genomic_file.models import (
+    BiospecimenGenomicFile)
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
@@ -20,6 +22,7 @@ class ModelTest(IndexdTestCase):
     """
     Test database model
     """
+
     def create_read_group(self):
         """
         create sequencing_center and
@@ -39,7 +42,7 @@ class ModelTest(IndexdTestCase):
 
     def test_create_and_find_read_group(self):
         """
-        Test creation of read_group 
+        Test creation of read_group
         """
         self._create_entities()
         gf = GenomicFile.query.first()
@@ -61,7 +64,7 @@ class ModelTest(IndexdTestCase):
 
     def test_update_read_group(self):
         """
-        Test Updating read_group 
+        Test Updating read_group
         """
         self._create_entities()
         gf = GenomicFile.query.first()
@@ -109,7 +112,7 @@ class ModelTest(IndexdTestCase):
 
         self.assertEqual(ReadGroup.query.count(), 1)
         self.assertEqual(GenomicFile.query.count(), 1)
-        
+
         db.session.delete(gf)
         db.session.commit()
 
@@ -126,9 +129,12 @@ class ModelTest(IndexdTestCase):
         db.session.add(rg)
         db.session.commit()
 
+        bs = BiospecimenGenomicFile.query.first()
+        self.assertEqual(BiospecimenGenomicFile.query.count(), 1)
         self.assertEqual(ReadGroup.query.count(), 1)
         self.assertEqual(GenomicFile.query.count(), 1)
-        
+
+        BiospecimenGenomicFile.query.filter_by(kf_id=bs.kf_id).delete()
         GenomicFile.query.filter_by(kf_id=gf.kf_id).delete()
         db.session.commit()
 
@@ -147,7 +153,7 @@ class ModelTest(IndexdTestCase):
 
         self.assertEqual(ReadGroup.query.count(), 1)
         self.assertEqual(GenomicFile.query.count(), 1)
-        
+
         ReadGroup.query.filter_by(kf_id=rg.kf_id).delete()
         db.session.commit()
 
@@ -207,7 +213,7 @@ class ModelTest(IndexdTestCase):
             'is_harmonized': False,
             'reference_genome': None
         }
-        gf = GenomicFile(**kwargs, biospecimen_id=bs.kf_id,
+        gf = GenomicFile(**kwargs,
                          sequencing_experiment_id=se1.kf_id)
         bs.genomic_files = [gf]
         p.biospecimens = [bs]
