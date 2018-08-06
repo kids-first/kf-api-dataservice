@@ -30,6 +30,6 @@ class DiagnosisSchema(BaseSchema):
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
-        'biospecimen_diagnoses': ma.URLFor(
-            'api.biospecimen_diagnoses_list', biospecimen_id='<kf_id>')
+        'biospecimens': ma.URLFor(
+            'api.biospecimens_list', biospecimen_id='<kf_id>')
     })

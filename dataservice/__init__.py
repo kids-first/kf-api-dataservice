@@ -16,13 +16,13 @@ from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
-from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.biospecimen_diagnosis.models import (
-    BiospecimenDiagnosis
-)
+from dataservice.api.diagnosis.models import Diagnosis
+# from dataservice.api.biospecimen_diagnosis.models import (
+#     BiospecimenDiagnosis
+# )
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile
