@@ -8,21 +8,18 @@ import pytest
 from dataservice import create_app
 from dataservice.utils import iterate_pairwise, read_json
 from dataservice.extensions import db
-from sqlalchemy import inspect
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
-from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile)
-from dataservice.api.biospecimen_diagnosis.models import (
-    BiospecimenDiagnosis)
 from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
@@ -52,7 +49,6 @@ ENTITY_ENDPOINT_MAP = {
     Biospecimen: '/biospecimens',
     GenomicFile: '/genomic-files',
     BiospecimenGenomicFile: '/biospecimen-genomic-files',
-    BiospecimenDiagnosis: '/biospecimen-diagnoses',
     ReadGroup: '/read-groups',
     SequencingExperiment: '/sequencing-experiments',
     CavaticaTask: '/cavatica-tasks',
@@ -141,8 +137,7 @@ def entities(client):
         for model, endpoint in ENTITY_ENDPOINT_MAP.items():
             if model in {FamilyRelationship,
                          CavaticaTaskGenomicFile,
-                         BiospecimenGenomicFile,
-                         BiospecimenDiagnosis}:
+                         BiospecimenGenomicFile}:
                 continue
             for i in range(ENTITY_TOTAL):
                 data = ENTITY_PARAMS['fields'][endpoint].copy()
@@ -200,12 +195,6 @@ def entities(client):
 
             db.session.add(ctgf)
 
-        for i, (bs, ds) in enumerate(zip(
-                _entities[Biospecimen], _entities[Diagnosis])):
-            bsds = BiospecimenDiagnosis(biospecimen=bs, diagnosis=ds)
-            _entities[BiospecimenDiagnosis].append(bsds)
-            db.session.add(bsds)
-
         # Biospecimen genomic files
         for i, (bs, gf) in enumerate(zip(
                 _entities[Biospecimen], _entities[GenomicFile])):
@@ -213,8 +202,6 @@ def entities(client):
                                           genomic_file=gf)
             _entities[BiospecimenGenomicFile].append(bsgf)
             db.session.add(bsgf)
-
-        # Biospecimen diagnoses
 
         # Add relations
         s0 = _entities[Study][0]

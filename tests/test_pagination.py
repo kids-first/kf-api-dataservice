@@ -175,8 +175,7 @@ class TestPagination:
         ('/cavatica-apps', 1),
         ('/cavatica-tasks', 50),
         ('/cavatica-task-genomic-files', 50),
-        ('/biospecimen-genomic-files', 50),
-        ('/biospecimen-diagnoses', 50)
+        ('/biospecimen-genomic-files', 50)
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):

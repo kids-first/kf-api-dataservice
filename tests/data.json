@@ -93,7 +93,6 @@
             "availability": "Immediate Download",
             "visible": true
         },
-        "/biospecimen-diagnoses": {},
         "/biospecimen-genomic-files": {},
         "/read-groups": {
             "external_id": "FL01",
@@ -239,11 +238,6 @@
                 {"availability": "availble for download"},
                 {"data_type": "read"}
             ]
-        },
-        "/biospecimen-diagnoses": {
-            "valid": {
-            },
-            "invalid": []
         },
         "/biospecimen-genomic-files": {
             "valid": {

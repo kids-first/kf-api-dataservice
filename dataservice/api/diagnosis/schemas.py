@@ -4,6 +4,7 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.validation import (validate_age,
                                                enum_validation_generator)
+from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
 
 
@@ -30,6 +31,6 @@ class DiagnosisSchema(BaseSchema):
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
-        'biospecimens': ma.URLFor(
+        'biospecimens': PatchedURLFor(
             'api.biospecimens_list', biospecimen_id='<kf_id>')
     })

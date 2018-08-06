@@ -182,19 +182,13 @@ def validate_biospecimen(target):
     If this is not the case then raise DatabaseValidationError
     """
     from dataservice.api.errors import DatabaseValidationError
-    # Return if biospecimen is None
-    if not target:
-        return
-    print(target.diagnoses)
-    # Get diagnosis by id
-    ds = None
-    if target.diagnoses:
-        ds = Diagnosis.query.get(target.diagnoses[0].kf_id)
-
-    # If biospecimen and diagnosis doesn't exist, return and
+    # Return if biospecimen is None or
+    # if diagnosis doesn't exist, return and
     # let ORM handle non-existent foreign key
-    if ds is None:
+    if not target or not target.diagnoses:
         return
+    # Get diagnosis by id
+    ds = Diagnosis.query.get(target.diagnoses[0].kf_id)
 
     # Check if this diagnosis and biospecimen refer to same participant
     if ds.participant_id != target.participant_id:
