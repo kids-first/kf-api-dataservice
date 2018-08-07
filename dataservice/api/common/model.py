@@ -29,6 +29,7 @@ class KfId(types.TypeDecorator):
 class IDMixin:
     """
     Defines base ID columns common on all Kids First tables
+    :param visible: Flags visibility of data from the dataservice
     """
     __prefix__ = '__'
 
@@ -46,7 +47,7 @@ class IndexdFile:
     """
     Field reflection for objects that are stored in indexd
 
-    ### Creation
+    # Creation
 
     When an indexd file is created, an instance of the orm model here is
     created, and when persisted to the database, a request is sent to Gen3
@@ -55,14 +56,14 @@ class IndexdFile:
     recieved. The IndexdFile will then be inserted into the database using
     the baseid as its uuid.
 
-    ### Update
+    # Update
 
     When a file is updated in indexd, a new version with a new did is created.
     The document still shares a base_id with the older versions, but a document
     may not be retrieved with the base_id alone. Because of this, the
     latest_did is stored on the file.
 
-    ### Deletion
+    # Deletion
 
     A file deleted through a DELETE on the dataservice api will immediately
     delete that file from the dataservice's database, as well as send
@@ -179,4 +180,7 @@ class Base(IDMixin, TimestampMixin):
     """
     Defines base SQlAlchemy model class
     """
-    pass
+    visible = db.Column(db.Boolean(),
+                        nullable=False,
+                        server_default='true',
+                        doc='Flags visibility of data from the dataservice')
