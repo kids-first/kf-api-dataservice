@@ -24,7 +24,8 @@
             "race": "Asian",
             "ethnicity": "Hispanic or Latino",
             "gender": "Male",
-            "visible": true
+            "visible": true,
+            "affected_status": false
         },
         "/biospecimens": {
             "external_sample_id": "Biospecimen_0",

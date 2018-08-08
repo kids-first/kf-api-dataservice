@@ -42,6 +42,7 @@ class Participant(db.Model, Base):
     :param race: Race of participant
     :param ethnicity: Ethnicity of participant
     :param gender: Self reported gender of participant
+    :param affected_status: Denotes whether participant is affected
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     """
@@ -55,7 +56,6 @@ class Participant(db.Model, Base):
                           doc='Id for the participants grouped by family')
     is_proband = db.Column(
         db.Boolean(),
-        nullable=False,
         doc='Denotes whether participant is proband of study')
     consent_type = db.Column(db.Text(),
                              doc='Type of the consent participant belongs to')
@@ -65,6 +65,9 @@ class Participant(db.Model, Base):
                           doc='The ethnicity of the participant')
     gender = db.Column(db.Text(),
                        doc='The gender of the participant')
+    affected_status = db.Column(
+        db.Boolean(),
+        doc='Denotes whether participant is affected')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
                                 backref=db.backref('participant',

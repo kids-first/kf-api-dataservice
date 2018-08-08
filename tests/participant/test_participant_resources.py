@@ -59,6 +59,7 @@ class ParticipantTest(FlaskTestCase):
             'race': 'Asian',
             'ethnicity': 'Hispanic or Latino',
             'gender': 'Female',
+            'affected_status': False,
             'study_id': s.kf_id
         }
 
@@ -271,6 +272,7 @@ class ParticipantTest(FlaskTestCase):
             'race': 'Asian',
             'ethnicity': 'Not Hispanic or Latino',
             'gender': 'Male',
+            'affected_status': False,
             'study_id': s.kf_id
         }
         if include_nullables:
