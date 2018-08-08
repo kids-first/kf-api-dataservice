@@ -34,7 +34,8 @@ class FamilyRelationshipTest(FlaskTestCase):
         kwargs = {
             'participant1_id': results[0].kf_id,
             'participant2_id': results[1].kf_id,
-            'participant1_to_participant2_relation': 'father'
+            'participant1_to_participant2_relation': 'father',
+            'source_text_notes': 'Notes 1'
         }
         # Send get request
         response = self.client.post(url_for(FAMILY_RELATIONSHIPS_LIST_URL),
@@ -259,7 +260,8 @@ class FamilyRelationshipTest(FlaskTestCase):
         kwargs = {
             'participant1_id': p1.kf_id,
             'participant2_id': p3.kf_id,
-            'participant1_to_participant2_relation': 'father'
+            'participant1_to_participant2_relation': 'father',
+            'source_text_notes': 'Notes 1'
         }
         fr = FamilyRelationship(**kwargs)
 

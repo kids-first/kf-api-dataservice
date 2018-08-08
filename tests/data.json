@@ -17,7 +17,7 @@
         },
         "/families": {"external_id": "Family_0",
           "family_type": "Trio"},
-        "/family-relationships": {},
+        "/family-relationships": {"source_text_notes": "Notes 1"},
         "/sequencing-centers": {},
         "/participants": {
             "is_proband": true,
