@@ -15,7 +15,8 @@
             "urls": ["s3://bucket/key"],
             "hashes": {"md5": "1ab12165-7351-4744-921c-a97a19b84773"}
         },
-        "/families": {"external_id": "Family_0"},
+        "/families": {"external_id": "Family_0",
+          "family_type": "Trio"},
         "/family-relationships": {},
         "/sequencing-centers": {},
         "/participants": {
@@ -138,9 +139,10 @@
         },
         "/families": {
             "valid": {
-                "external_id": "Family_1"
+                "external_id": "Family_1",
+                "family_type": "Trio"
             },
-            "invalid": []
+            "invalid": [{"family_type": "Tio"}]
         },
         "/family-relationships": {
             "valid": {

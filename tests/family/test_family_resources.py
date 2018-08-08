@@ -20,7 +20,7 @@ class FamilyTest(FlaskTestCase):
 
     def test_post_family(self):
         """
-        Test creating a new family 
+        Test creating a new family
         """
         response = self._make_family(external_id='TEST000')
         resp = json.loads(response.data.decode('utf-8'))
@@ -56,7 +56,7 @@ class FamilyTest(FlaskTestCase):
 
     def test_get_all_families(self):
         """
-        Test retrieving all families 
+        Test retrieving all families
         """
         self._make_family(external_id='TEST')
 
@@ -71,7 +71,7 @@ class FamilyTest(FlaskTestCase):
 
     def test_patch_family(self):
         """
-        Test updating an existing family 
+        Test updating an existing family
         """
         orig = Family.query.count()
         response = self._make_family(external_id='TEST')
@@ -130,6 +130,7 @@ class FamilyTest(FlaskTestCase):
         # Make required entities first
         body = {
             'external_id': external_id,
+            'family_type': 'Duo+'
         }
         response = self.client.post(url_for(FAMILY_LIST_URL),
                                     headers=self._api_headers(),
