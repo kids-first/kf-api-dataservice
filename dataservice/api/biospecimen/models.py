@@ -133,7 +133,8 @@ class Biospecimen(db.Model, Base):
                                                 cascade='all, delete-orphan')
     diagnoses = db.relationship('Diagnosis', secondary='biospecimen_diagnosis',
                                 backref=db.backref(
-                                    'biospecimens'))
+                                    'biospecimens'),
+                                lazy='select')
 
 
 def validate_diagnosis_biospecimen(target):

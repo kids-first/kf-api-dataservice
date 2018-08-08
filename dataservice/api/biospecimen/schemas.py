@@ -28,9 +28,6 @@ class BiospecimenSchema(BaseSchema):
 
     shipment_date = field_for(Biospecimen, 'shipment_date',
                               field_class=DateOrDatetime)
-
-    sequencing_center_id = field_for(Biospecimen, 'sequencing_center_id',
-                                     required=True, load_only=True)
     analyte_type = field_for(Biospecimen, 'analyte_type',
                              validate=enum_validation_generator(
                                  ANALYTE_TYPE_ENUM))
@@ -42,7 +39,7 @@ class BiospecimenSchema(BaseSchema):
         exclude = (BaseSchema.Meta.exclude +
                    ('participant', 'sequencing_center') +
                    ('genomic_files', 'biospecimen_genomic_files',
-                    'diagnoses'))
+                    ))
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
@@ -50,10 +47,9 @@ class BiospecimenSchema(BaseSchema):
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>'),
-        'genomic_files': ma.URLFor('api.genomic_files_list',
-                                   biospecimen_id='<kf_id>'),
         'diagnoses': PatchedURLFor('api.diagnoses_list',
-                                   biospecimen_id='<kf_id>'),
+                                   kf_id='<kf_id>'
+                                   ),
         'biospecimen_genomic_files': ma.URLFor(
             'api.biospecimen_genomic_files_list', biospecimen_id='<kf_id>')
     })

@@ -40,7 +40,6 @@ class DiagnosisListAPI(CRUDView):
 
         # Apply entity filter params
         q = Diagnosis.query.filter_by(**filter_params)
-
         # Apply study_id filter
         from dataservice.api.participant.models import Participant
         if study_id:

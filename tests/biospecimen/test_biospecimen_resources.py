@@ -7,7 +7,9 @@ from flask import url_for
 
 from dataservice.extensions import db
 from dataservice.api.common import id_service
-from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.biospecimen.models import (
+    Biospecimen, BiospecimenDiagnosis)
+from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
@@ -334,3 +336,49 @@ class BiospecimenTest(FlaskTestCase):
         kwargs['kf_id'] = d.kf_id
 
         return kwargs
+
+    def _create_diagnosis(self, _id, participant_id=None):
+        """
+        Create diagnosis
+        """
+        kwargs = {
+            'external_id': 'id_{}'.format(_id),
+            'source_text_diagnosis': 'diagnosis {}'.format(_id),
+            'age_at_event_days': 365,
+            'diagnosis_category': 'cancer',
+            'source_text_tumor_location': 'Brain',
+            'mondo_id_diagnosis': 'DOID:8469',
+            'uberon_id_tumor_location': 'UBERON:0000955',
+            'icd_id_diagnosis': 'J10.01',
+            'spatial_descriptor': 'left side'
+        }
+        if participant_id:
+            kwargs['participant_id'] = participant_id
+        d = Diagnosis(**kwargs)
+        db.session.add(d)
+        db.session.commit()
+        return d, kwargs
+
+    def test_patch_diagnosis(self):
+        """
+        Test create a new biospecimen with diagnosis
+        """
+        kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
+        d, d_args = self._create_diagnosis(
+            1, participant_id=kwargs['participant_id'])
+        d_args['kf_id'] = d.kf_id
+        body = {
+            'diagnoses': [d_args]
+        }
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 200)
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertIn('biospecimen', resp['_status']['message'])
+        self.assertIn('updated', resp['_status']['message'])
+        self.assertEqual(1, Biospecimen.query.count())

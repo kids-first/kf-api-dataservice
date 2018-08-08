@@ -80,6 +80,22 @@ class ModelTest(FlaskTestCase):
         # Check that diagnoses have been deleted
         self.assertEqual(0, Diagnosis.query.count())
 
+    def test_add_valid_biospecimen(self):
+        """
+        Test that a diagnosis can be linked with a biospecimen if
+        they refer to same participants
+        """
+
+        diagnoses, kwarg_dict = self._create_diagnoses()
+        b = Biospecimen.query.first()
+        # Try linking through diagnosis
+        d = Diagnosis.query.first()
+        d.biospecimens = [b]
+        db.session.commit()
+        # check updated values
+        d = Diagnosis.query.get(d.kf_id)
+        self.assertIs(d.biospecimens[0].kf_id, b.kf_id)
+
     def test_add_invalid_biospecimen(self):
         """
         Test that a diagnosis cannot be linked with a biospecimen if
@@ -91,7 +107,8 @@ class ModelTest(FlaskTestCase):
         st = Study.query.first()
         s = SequencingCenter.query.first()
         # Create new participant with biospecimen
-        p1 = Participant(external_id='p1', is_proband=True, study_id=st.kf_id)
+        p1 = Participant(external_id='p1', is_proband=True,
+                         study_id=st.kf_id)
         b = Biospecimen(analyte_type='DNA',
                         sequencing_center_id=s.kf_id,
                         participant=p1)
