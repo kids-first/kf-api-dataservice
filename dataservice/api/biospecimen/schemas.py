@@ -6,8 +6,13 @@ from dataservice.api.common.validation import validate_age
 from dataservice.api.common.custom_fields import (DateOrDatetime,
                                                   PatchedURLFor)
 from dataservice.api.common.validation import (validate_positive_number,
-                                               enum_validation_generator)
+                                               enum_validation_generator,
+                                               validate_kf_id)
 from dataservice.extensions import ma
+from marshmallow import (
+    fields,
+    validates
+)
 
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other"}
 
@@ -38,8 +43,7 @@ class BiospecimenSchema(BaseSchema):
         collection_url = 'api.biospecimens_list'
         exclude = (BaseSchema.Meta.exclude +
                    ('participant', 'sequencing_center') +
-                   ('genomic_files', 'biospecimen_genomic_files',
-                    ))
+                   ('genomic_files', 'biospecimen_genomic_files'))
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
@@ -48,8 +52,17 @@ class BiospecimenSchema(BaseSchema):
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>'),
         'diagnoses': PatchedURLFor('api.diagnoses_list',
-                                   kf_id='<kf_id>'
+                                   biospecimen_id='<kf_id>'
                                    ),
         'biospecimen_genomic_files': ma.URLFor(
             'api.biospecimen_genomic_files_list', biospecimen_id='<kf_id>')
     })
+
+
+class BiospecimenFilterSchema(BiospecimenSchema):
+
+    diagnosis_id = fields.Str()
+
+    @validates('diagnosis_id')
+    def valid_diagnosis_id(self, value):
+        validate_kf_id('DG', value)

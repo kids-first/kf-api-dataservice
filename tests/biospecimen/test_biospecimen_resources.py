@@ -369,7 +369,7 @@ class BiospecimenTest(FlaskTestCase):
             1, participant_id=kwargs['participant_id'])
         d_args['kf_id'] = d.kf_id
         body = {
-            'diagnoses': [d_args]
+            'diagnoses': [d_args['kf_id']]
         }
         response = self.client.patch(url_for(BIOSPECIMENS_URL,
                                              kf_id=kf_id),

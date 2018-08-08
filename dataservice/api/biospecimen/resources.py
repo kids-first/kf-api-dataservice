@@ -7,7 +7,8 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.biospecimen.schemas import (
-    BiospecimenSchema
+    BiospecimenSchema,
+    BiospecimenFilterSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -22,7 +23,7 @@ class BiospecimenListAPI(CRUDView):
     schemas = {'Biospecimen': BiospecimenSchema}
 
     @paginated
-    @use_args(filter_schema_factory(BiospecimenSchema),
+    @use_args(filter_schema_factory(BiospecimenFilterSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """
@@ -38,6 +39,9 @@ class BiospecimenListAPI(CRUDView):
         """
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
+
+        # diagnosis id
+        diagnosis_id = filter_params.pop('diagnosis_id', None)
 
         # Apply filter params
         q = (Biospecimen.query

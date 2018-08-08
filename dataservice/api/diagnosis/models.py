@@ -1,4 +1,4 @@
-from sqlalchemy import event
+from sqlalchemy import event, or_
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
@@ -68,6 +68,31 @@ class Diagnosis(db.Model, Base):
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
                                nullable=False)
+
+    @classmethod
+    def query_all_relationships(cls, biospecimen_id=None,
+                                model_filter_params=None):
+        """
+        Find all biospecimens for a diagnosis
+
+        :param biospecimen_id: Kids First ID of the biospecimen
+        :param model_filter_params: Filter parameters to the query
+
+        Given a biospecimen's kf_id, return all of the biospecimens of
+        the diagnosis.
+        """
+        from dataservice.api.biospecimen.models import (
+            Biospecimen, BiospecimenDiagnosis)
+        # Apply model property filter params
+        if model_filter_params is None:
+            model_filter_params = {}
+        q = Diagnosis.query.filter_by(**model_filter_params)
+
+        # Get biospecimens and join with participants
+        q = q.join(BiospecimenDiagnosis, or_(Diagnosis.biospecimen_id))
+        q = q.group_by(Diagnosis.kf_id)
+
+        return q
 
 
 def validate_diagnosis(target):
