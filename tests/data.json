@@ -23,7 +23,8 @@
             "consent_type": "GRU-IRB",
             "race": "Asian",
             "ethnicity": "Hispanic or Latino",
-            "gender": "Male"
+            "gender": "Male",
+            "visible": true
         },
         "/biospecimens": {
             "external_sample_id": "Biospecimen_0",
@@ -42,7 +43,8 @@
             "spatial_descriptor": "left side",
             "ncit_id_tissue_type": "Test",
             "ncit_id_anatomical_site": "C12439",
-            "dbgap_consent_code": "phs00000.c1"
+            "dbgap_consent_code": "phs00000.c1",
+            "visible": true
         },
         "/diagnoses": {
             "external_id": "d0",
@@ -85,7 +87,8 @@
             "urls": ["s3://bucket/key"],
             "hashes": {"md5": "1ab12165-7351-4744-921c-a97a19b84773"},
             "controlled_access": false,
-            "availability": "Immediate Download"
+            "availability": "Immediate Download",
+            "visible": true
         },
         "/biospecimen-genomic-files": {},
         "/read-groups": {
