@@ -230,7 +230,8 @@
         "/genomic-files": {
             "valid": {
                 "external_id": "GenomicFile_1",
-                "controlled_access": true
+                "controlled_access": true,
+                "data_type": "Expression"
             },
             "invalid": [
                 {"controlled_access": "hello", "size": "hello"},
