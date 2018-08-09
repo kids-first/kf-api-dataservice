@@ -43,6 +43,7 @@ class Participant(db.Model, Base):
     :param ethnicity: Ethnicity of participant
     :param gender: Self reported gender of participant
     :param affected_status: Denotes whether participant is affected
+    :param diagnosis_category: High level diagnosis categorization
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     """
@@ -68,6 +69,8 @@ class Participant(db.Model, Base):
     affected_status = db.Column(
         db.Boolean(),
         doc='Denotes whether participant is affected')
+    diagnosis_category = db.Column(db.Text(),
+                                   doc='High level diagnosis categorization')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
                                 backref=db.backref('participant',

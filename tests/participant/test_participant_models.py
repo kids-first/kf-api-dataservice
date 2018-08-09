@@ -25,7 +25,8 @@ class ModelTest(FlaskTestCase):
             'race': 'asian',
             'ethnicity': 'not hispanic',
             'gender': 'female',
-            'affected_status': False
+            'affected_status': False,
+            'diagnosis_category': 'Cancer'
         }
         p = Participant(**data)
         s.participants.append(p)

@@ -17,6 +17,9 @@ RACE_ENUM = {
     'Black or African American', 'Asian',
     'Native Hawaiian or Other Pacific Islander',
     'Other', 'More Than One Race'}
+DIAGNOSIS_CATEGORY_ENUM = {'Structural Birth Defect', 'Cancer',
+                           'Structural Birth Defect and Cancer',
+                           'Other', 'None'}
 
 
 class ParticipantSchema(BaseSchema):
@@ -34,6 +37,9 @@ class ParticipantSchema(BaseSchema):
     race = field_for(Participant, 'race',
                      validate=enum_validation_generator(
                          RACE_ENUM))
+    diagnosis_category = field_for(Participant, 'diagnosis_category',
+                                   validate=enum_validation_generator(
+                                       DIAGNOSIS_CATEGORY_ENUM))
 
     class Meta(BaseSchema.Meta):
         model = Participant

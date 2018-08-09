@@ -60,6 +60,7 @@ class ParticipantTest(FlaskTestCase):
             'ethnicity': 'Hispanic or Latino',
             'gender': 'Female',
             'affected_status': False,
+            'diagnosis_category': None,
             'study_id': s.kf_id
         }
 
@@ -273,6 +274,7 @@ class ParticipantTest(FlaskTestCase):
             'ethnicity': 'Not Hispanic or Latino',
             'gender': 'Male',
             'affected_status': False,
+            'diagnosis_category': 'Cancer',
             'study_id': s.kf_id
         }
         if include_nullables:

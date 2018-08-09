@@ -26,6 +26,7 @@
             "ethnicity": "Hispanic or Latino",
             "gender": "Male",
             "visible": true,
+            "diagnosis_category": "Cancer",
             "affected_status": false
         },
         "/biospecimens": {
@@ -155,11 +156,13 @@
         "/participants": {
             "valid": {
                 "is_proband": false,
-                "gender": "Female"
+                "gender": "Female",
+                "diagnosis_category": "Cancer"
             },
             "invalid": [
                 {"is_proband": "hello"},
-                {"gender": "test", "race": "test", "ethnicity": "test"}
+                {"gender": "test", "race": "test", "ethnicity": "test",
+                "diagnosis_category": "ancer"}
             ]
         },
         "/biospecimens": {
