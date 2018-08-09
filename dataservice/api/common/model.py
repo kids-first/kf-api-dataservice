@@ -29,7 +29,6 @@ class KfId(types.TypeDecorator):
 class IDMixin:
     """
     Defines base ID columns common on all Kids First tables
-    :param visible: Flags visibility of data from the dataservice
     """
     __prefix__ = '__'
 
@@ -179,6 +178,7 @@ class TimestampMixin:
 class Base(IDMixin, TimestampMixin):
     """
     Defines base SQlAlchemy model class
+    :param visible: Flags visibility of data from the dataservice
     """
     visible = db.Column(db.Boolean(),
                         nullable=False,
