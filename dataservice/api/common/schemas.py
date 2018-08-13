@@ -90,8 +90,8 @@ class BaseSchema(ma.ModelSchema):
         if data is None:
             return
         if type(original_data) is list:
-            unknown = (set([o for obj in original_data for o in obj])
-                       - set(self.fields))
+            unknown = (set([o for obj in original_data for o in obj]) -
+                       set(self.fields))
         else:
             unknown = set(original_data) - set(self.fields)
         if unknown:

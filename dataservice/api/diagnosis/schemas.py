@@ -2,7 +2,6 @@ from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.common.schemas import BaseSchema
-# from dataservice.api.biospecimen.schemas import BiospecimenSchema
 from dataservice.api.common.validation import (validate_age,
                                                enum_validation_generator,
                                                validate_kf_id)
@@ -34,7 +33,6 @@ class DiagnosisSchema(BaseSchema):
         model = Diagnosis
         resource_url = 'api.diagnoses'
         collection_url = 'api.diagnoses_list'
-
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),

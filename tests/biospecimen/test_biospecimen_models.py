@@ -4,7 +4,9 @@ import uuid
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
-from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.biospecimen.models import (
+    Biospecimen, BiospecimenDiagnosis)
+from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from tests.utils import FlaskTestCase
@@ -280,6 +282,40 @@ class ModelTest(FlaskTestCase):
         db.session.delete(s)
         db.session.commit()
         self.assertEqual(Biospecimen.query.count(), 1)
+
+    def test_link_biospecimen_diagnosis(self):
+        """
+        Test Deleting one of the biospecimens
+        """
+        # create a participant with a biospecimen
+        (participant_id,
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
+        p = Participant.query.first()
+        # Create diagnosis
+        kwargs = {
+            'external_id': 'id_1',
+            'source_text_diagnosis': 'diagnosis_1',
+            'age_at_event_days': 365,
+            'diagnosis_category': 'cancer',
+            'source_text_tumor_location': 'Brain',
+            'mondo_id_diagnosis': 'DOID:8469',
+            'uberon_id_tumor_location': 'UBERON:0000955',
+            'icd_id_diagnosis': 'J10.01',
+            'spatial_descriptor': 'left side',
+            'participant_id': p.kf_id
+        }
+        dg = Diagnosis(**kwargs)
+        db.session.add(dg)
+        biospecimen = Biospecimen.query.first()
+        # create link btn bs and ds
+        bs_ds = BiospecimenDiagnosis(biospecimen_id=biospecimen.kf_id,
+                                     diagnosis_id=dg.kf_id)
+        db.session.add(bs_ds)
+        db.session.commit()
+        self.assertEqual(BiospecimenDiagnosis.query.count(), 1)
+        self.assertEqual(bs_ds.biospecimen_id, biospecimen.kf_id)
+        self.assertEqual(bs_ds.diagnosis_id, dg.kf_id)
 
     def _make_biospecimen(self, external_sample_id=None,
                           external_aliquot_id=None):

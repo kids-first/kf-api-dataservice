@@ -180,6 +180,104 @@ class DiagnosisTest(FlaskTestCase):
         d = Diagnosis.query.first()
         self.assertIs(d, None)
 
+    def test_patch_biospecimen(self):
+        """
+        Test update diagnosis with biospecimen
+        """
+        kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
+        biospecimen = Biospecimen.query.first()
+        # Update existing diagnosis
+        body = {
+            'biospecimens': [{'kf_id': biospecimen.kf_id}]
+        }
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 200)
+
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertIn('diagnosis', resp['_status']['message'])
+        self.assertIn('updated', resp['_status']['message'])
+
+        # Update existing diagnosis with wrong format
+        # biospecimens takes dictionary with key as kf_id
+        body = {
+            'biospecimens': [biospecimen.kf_id]
+        }
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        resp = json.loads(response.data.decode("utf-8"))
+        # Status code
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('could not update diagnosis', resp['_status']['message'])
+
+        # Update existing diagnosis with non existing bisopecimen id
+        # biospecimens takes dictionary with key as kf_id
+        body = {
+            'biospecimens': [{'kf_id': 'BS_00000000'}]
+        }
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        resp = json.loads(response.data.decode("utf-8"))
+        # Status code
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('could not modify', resp['_status']['message'])
+        self.assertIn('does not exist', resp['_status']['message'])
+
+        sequencing_center_id = SequencingCenter.query.first()
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center_id=sequencing_center_id.kf_id,
+                        participant_id=kwargs['participant_id'])
+        db.session.add(b)
+        db.session.commit()
+
+        # Update existing diagnosis with multiple bisopecimens
+        # biospecimens takes dictionary with key as kf_id
+        body = {
+            'biospecimens': [{'kf_id': biospecimen.kf_id},
+                             {'kf_id': b.kf_id}]
+        }
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 200)
+
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertIn('diagnosis', resp['_status']['message'])
+        self.assertIn('updated', resp['_status']['message'])
+        self.assertEqual(1, Diagnosis.query.count())
+        self.assertEqual(2, Biospecimen.query.count())
+        self.assertEqual([biospecimen, b],
+                         Diagnosis.query.first().biospecimens)
+
+        body = {
+            'biospecimens': []
+        }
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 200)
+
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(1, Diagnosis.query.count())
+        self.assertEqual(2, Biospecimen.query.count())
+        self.assertEqual([],
+                         Diagnosis.query.first().biospecimens)
+
     def _create_save_to_db(self):
         """
         Create and save diagnosis

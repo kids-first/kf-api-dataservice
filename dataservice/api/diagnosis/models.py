@@ -1,7 +1,7 @@
-from sqlalchemy import event, or_
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
+from sqlalchemy import event
 
 
 class Diagnosis(db.Model, Base):
@@ -69,31 +69,6 @@ class Diagnosis(db.Model, Base):
                                doc='the participant who was diagnosed',
                                nullable=False)
 
-    @classmethod
-    def query_all_relationships(cls, biospecimen_id=None,
-                                model_filter_params=None):
-        """
-        Find all biospecimens for a diagnosis
-
-        :param biospecimen_id: Kids First ID of the biospecimen
-        :param model_filter_params: Filter parameters to the query
-
-        Given a biospecimen's kf_id, return all of the biospecimens of
-        the diagnosis.
-        """
-        from dataservice.api.biospecimen.models import (
-            Biospecimen, BiospecimenDiagnosis)
-        # Apply model property filter params
-        if model_filter_params is None:
-            model_filter_params = {}
-        q = Diagnosis.query.filter_by(**model_filter_params)
-
-        # Get biospecimens and join with participants
-        q = q.join(BiospecimenDiagnosis, or_(Diagnosis.biospecimen_id))
-        q = q.group_by(Diagnosis.kf_id)
-
-        return q
-
 
 def validate_diagnosis(target):
     """
@@ -104,24 +79,23 @@ def validate_diagnosis(target):
     from dataservice.api.errors import DatabaseValidationError
     from dataservice.api.biospecimen.models import Biospecimen
     # Return if biospecimen is None or
-    # if biospecimen doesn't exist, return and
+    # if diagnosis doesn't exist, return and
     # let ORM handle non-existent foreign key
     if not target or not target.biospecimens:
         return
-    # Get biospecimen by id
+    # Get diagnosis by id and bisopecimen by id
     bsp = Biospecimen.query.get(target.biospecimens[0].kf_id)
-    dg = Diagnosis.query.get(target.kf_id)
-
-    if dg is None:
+    ds = Diagnosis.query.get(target.kf_id)
+    if bsp is None:
+        operation = 'modify'
+        target_entity = Biospecimen.__tablename__
+        message = ('Biospecimen {} does not exist').format(
+            target.biospecimens[0].kf_id)
+        raise DatabaseValidationError(target_entity, operation, message)
+    elif ds is None:
         operation = 'modify'
         target_entity = Diagnosis.__tablename__
         message = ('Diagnosis {} does not exist').format(target.kf_id)
-        raise DatabaseValidationError(target_entity, operation, message)
-    elif bsp is None:
-        operation = 'modify'
-        target_entity = Biospecimen.__tablename__
-        message = ('Biospeciemn {} does not exist').format(
-            target.biospecimens[0].kf_id)
         raise DatabaseValidationError(target_entity, operation, message)
     # Check if this diagnosis and biospecimen refer to same participant
     if bsp.participant_id != target.participant_id:
@@ -132,24 +106,19 @@ def validate_diagnosis(target):
              'refer to different participants. diagnosis {} '
              'refers to participant {} and '
              'biospecimen {} refers to participant {}')
-            .format(target.kf_id,
-                    target.participant_id,
-                    bsp.kf_id,
-                    bsp.participant_id))
+            .format(
+                target.kf_id,
+                target.participant_id,
+                bsp.kf_id,
+                bsp.participant_id
+            ))
         raise DatabaseValidationError(target_entity, operation, message)
 
 
 @event.listens_for(Diagnosis, 'before_insert')
+@event.listens_for(Diagnosis, 'before_update')
 def diagnosis_on_insert(mapper, connection, target):
     """
     Run preprocessing/validation of diagnosis before insert
-    """
-    validate_diagnosis(target)
-
-
-@event.listens_for(Diagnosis, 'before_update')
-def diagnosis_on_update(mapper, connection, target):
-    """
-    Run preprocessing/validation of diagnosis before update
     """
     validate_diagnosis(target)

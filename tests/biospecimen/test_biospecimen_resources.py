@@ -361,7 +361,7 @@ class BiospecimenTest(FlaskTestCase):
 
     def test_patch_diagnosis(self):
         """
-        Test create a new biospecimen with diagnosis
+        Test update biospecimen with diagnosis
         """
         kwargs = self._create_save_to_db()
         kf_id = kwargs.get('kf_id')
@@ -369,7 +369,7 @@ class BiospecimenTest(FlaskTestCase):
             1, participant_id=kwargs['participant_id'])
         d_args['kf_id'] = d.kf_id
         body = {
-            'diagnoses': [d_args['kf_id']]
+            'diagnoses': [{'kf_id': d_args['kf_id']}]
         }
         response = self.client.patch(url_for(BIOSPECIMENS_URL,
                                              kf_id=kf_id),
@@ -382,3 +382,68 @@ class BiospecimenTest(FlaskTestCase):
         self.assertIn('biospecimen', resp['_status']['message'])
         self.assertIn('updated', resp['_status']['message'])
         self.assertEqual(1, Biospecimen.query.count())
+
+        # Update existing biospecimen with wrong format
+        # diagnoses takes dictionary with key as kf_id
+        body = {
+            'diagnoses': [d_args['kf_id']]
+        }
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        resp = json.loads(response.data.decode("utf-8"))
+        # Status code
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('could not update biospecimen',
+                      resp['_status']['message'])
+
+        # Update existing biospecimen with non existing diagnosis id
+        # diagnoses takes dictionary with key as kf_id
+        body = {
+            'diagnoses': [{'kf_id': 'DG_00000000'}]
+        }
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        resp = json.loads(response.data.decode("utf-8"))
+        # Status code
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('could not modify', resp['_status']['message'])
+        self.assertIn('does not exist', resp['_status']['message'])
+
+        # check multiple objects patching
+        body = {
+            'diagnoses': [{'kf_id': d_args['kf_id']},
+                          {'kf_id': 'DG_00000000'}]
+        }
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        self.assertEqual(1, Biospecimen.query.count())
+        self.assertEqual(1, Diagnosis.query.count())
+
+        # Create another diagnosis
+        d1, d_args1 = self._create_diagnosis(
+            1, participant_id=kwargs['participant_id'])
+        d_args1['kf_id'] = d1.kf_id
+        body = {
+            'diagnoses': [{'kf_id': d_args['kf_id']},
+                          {'kf_id': d_args1['kf_id']}]
+        }
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 200)
+        # Message
+        resp = json.loads(response.data.decode("utf-8"))
+        self.assertIn('biospecimen', resp['_status']['message'])
+        self.assertIn('updated', resp['_status']['message'])
+        self.assertEqual(1, Biospecimen.query.count())
+        self.assertEqual(2, Diagnosis.query.count())
+        self.assertEqual([d, d1],
+                         Biospecimen.query.first().diagnoses)

@@ -40,9 +40,6 @@ class BiospecimenListAPI(CRUDView):
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
 
-        # diagnosis id
-        diagnosis_id = filter_params.pop('diagnosis_id', None)
-
         # Apply filter params
         q = (Biospecimen.query
              .filter_by(**filter_params))
