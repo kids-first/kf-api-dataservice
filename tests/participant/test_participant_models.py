@@ -24,7 +24,9 @@ class ModelTest(FlaskTestCase):
             'consent_type': 'GRU-IRB',
             'race': 'asian',
             'ethnicity': 'not hispanic',
-            'gender': 'female'
+            'gender': 'female',
+            'affected_status': False,
+            'diagnosis_category': 'Cancer'
         }
         p = Participant(**data)
         s.participants.append(p)
@@ -58,7 +60,6 @@ class ModelTest(FlaskTestCase):
 
         diff = (p.modified_at - p.created_at)
         assert diff > timedelta(seconds=0.50)
-
 
     def test_create_participant(self):
         """

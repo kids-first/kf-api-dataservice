@@ -21,7 +21,7 @@ class FamilyModelTest(FlaskTestCase):
                          is_proband=False, consent_type="GRU-IRB")
         s.participants.extend([p1, p2])
 
-        f = Family(external_id=external_id)
+        f = Family(external_id=external_id, family_type='Duo+')
         f.participants.extend([p1, p2])
         db.session.add(s)
         db.session.commit()

@@ -1,9 +1,16 @@
+from marshmallow_sqlalchemy import field_for
 from dataservice.api.family.models import Family
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.extensions import ma
+from dataservice.api.common.validation import (enum_validation_generator)
+FAMILY_TYPE_ENUM = {"Proband Only", "Duo", "Duo+",
+                    "Trio", "Trio+", "Other", }
 
 
 class FamilySchema(BaseSchema):
+    family_type = field_for(Family, 'family_type',
+                            validate=enum_validation_generator(
+                                FAMILY_TYPE_ENUM))
 
     class Meta(BaseSchema.Meta):
         model = Family

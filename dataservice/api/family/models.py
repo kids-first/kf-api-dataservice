@@ -11,6 +11,7 @@ class Family(db.Model, Base):
 
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_id: Name given to the family by contributor
+    :param family_type: Denotes type of family examples: duo, trio etc.
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
     """
@@ -18,7 +19,7 @@ class Family(db.Model, Base):
     __prefix__ = 'FM'
 
     external_id = db.Column(db.Text(), doc='ID used by external study')
-
+    family_type = db.Column(db.Text(), doc='Denotes type of family')
     participants = db.relationship(Participant, backref='family')
 
 

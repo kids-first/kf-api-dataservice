@@ -83,6 +83,7 @@ class TestPagination:
                 'consent_type': 'GRU-IRB',
                 'race': 'Asian',
                 'ethnicity': 'Hispanic or Latino',
+                'diagnosis_category': 'Cancer',
                 'gender': 'Male'
             }
             p = Participant(**data, study_id=s.kf_id, family_id=f.kf_id)

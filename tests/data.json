@@ -15,8 +15,9 @@
             "urls": ["s3://bucket/key"],
             "hashes": {"md5": "1ab12165-7351-4744-921c-a97a19b84773"}
         },
-        "/families": {"external_id": "Family_0"},
-        "/family-relationships": {},
+        "/families": {"external_id": "Family_0",
+          "family_type": "Trio"},
+        "/family-relationships": {"source_text_notes": "Notes 1"},
         "/sequencing-centers": {},
         "/participants": {
             "is_proband": true,
@@ -24,7 +25,9 @@
             "race": "Asian",
             "ethnicity": "Hispanic or Latino",
             "gender": "Male",
-            "visible": true
+            "visible": true,
+            "diagnosis_category": "Cancer",
+            "affected_status": false
         },
         "/biospecimens": {
             "external_sample_id": "Biospecimen_0",
@@ -137,9 +140,10 @@
         },
         "/families": {
             "valid": {
-                "external_id": "Family_1"
+                "external_id": "Family_1",
+                "family_type": "Trio"
             },
-            "invalid": []
+            "invalid": [{"family_type": "Tio"}]
         },
         "/family-relationships": {
             "valid": {
@@ -152,11 +156,13 @@
         "/participants": {
             "valid": {
                 "is_proband": false,
-                "gender": "Female"
+                "gender": "Female",
+                "diagnosis_category": "Cancer"
             },
             "invalid": [
                 {"is_proband": "hello"},
-                {"gender": "test", "race": "test", "ethnicity": "test"}
+                {"gender": "test", "race": "test", "ethnicity": "test",
+                "diagnosis_category": "ancer"}
             ]
         },
         "/biospecimens": {
@@ -224,7 +230,8 @@
         "/genomic-files": {
             "valid": {
                 "external_id": "GenomicFile_1",
-                "controlled_access": true
+                "controlled_access": true,
+                "data_type": "Expression"
             },
             "invalid": [
                 {"controlled_access": "hello", "size": "hello"},

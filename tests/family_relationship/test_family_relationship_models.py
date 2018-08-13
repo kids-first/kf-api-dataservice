@@ -171,7 +171,8 @@ class ModelTest(FlaskTestCase):
         data = {
             'participant1_to_participant2_relation': 'father',
             'participant1_id': 'FR_00000000',
-            'participant2_id': 'FR_00000001'
+            'participant2_id': 'FR_00000001',
+            'source_text_notes': 'Notes 1'
         }
         r = FamilyRelationship(**data)
 
