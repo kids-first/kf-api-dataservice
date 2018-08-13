@@ -110,7 +110,19 @@ def validate_diagnosis(target):
         return
     # Get biospecimen by id
     bsp = Biospecimen.query.get(target.biospecimens[0].kf_id)
+    dg = Diagnosis.query.get(target.kf_id)
 
+    if dg is None:
+        operation = 'modify'
+        target_entity = Diagnosis.__tablename__
+        message = ('Diagnosis {} does not exist').format(target.kf_id)
+        raise DatabaseValidationError(target_entity, operation, message)
+    elif bsp is None:
+        operation = 'modify'
+        target_entity = Biospecimen.__tablename__
+        message = ('Biospeciemn {} does not exist').format(
+            target.biospecimens[0].kf_id)
+        raise DatabaseValidationError(target_entity, operation, message)
     # Check if this diagnosis and biospecimen refer to same participant
     if bsp.participant_id != target.participant_id:
         operation = 'modify'

@@ -133,8 +133,7 @@ class Biospecimen(db.Model, Base):
                                                 cascade='all, delete-orphan')
     diagnoses = db.relationship('Diagnosis', secondary='biospecimen_diagnosis',
                                 backref=db.backref(
-                                    'biospecimens'),
-                                lazy='select')
+                                    'biospecimens'))
 
 
 def validate_diagnosis_biospecimen(target):
@@ -190,7 +189,18 @@ def validate_biospecimen(target):
         return
     # Get diagnosis by id
     ds = Diagnosis.query.get(target.diagnoses[0].kf_id)
-
+    bsp = Biospecimen.query.get(target.kf_id)
+    if ds is None:
+        operation = 'modify'
+        target_entity = Diagnosis.__tablename__
+        message = ('Diagnosis {} does not exist').format(
+            target.diagnoses[0].kf_id)
+        raise DatabaseValidationError(target_entity, operation, message)
+    elif bsp is None:
+        operation = 'modify'
+        target_entity = Biospecimen.__tablename__
+        message = ('Biospeciemn {} does not exist').format(target.kf_id)
+        raise DatabaseValidationError(target_entity, operation, message)
     # Check if this diagnosis and biospecimen refer to same participant
     if ds.participant_id != target.participant_id:
         operation = 'modify'

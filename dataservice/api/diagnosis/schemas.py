@@ -2,6 +2,7 @@ from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.common.schemas import BaseSchema
+# from dataservice.api.biospecimen.schemas import BiospecimenSchema
 from dataservice.api.common.validation import (validate_age,
                                                enum_validation_generator,
                                                validate_kf_id)
@@ -26,6 +27,8 @@ class DiagnosisSchema(BaseSchema):
     diagnosis_category = field_for(Diagnosis, 'diagnosis_category',
                                    validate=enum_validation_generator(
                                        DIAGNOSIS_CATEGORY_ENUM))
+    biospecimens = fields.Nested('BiospecimenSchema',
+                                 many=True, only=['kf_id'], load_only=True)
 
     class Meta(BaseSchema.Meta):
         model = Diagnosis

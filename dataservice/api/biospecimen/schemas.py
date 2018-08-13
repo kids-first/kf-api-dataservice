@@ -2,6 +2,7 @@ from marshmallow_sqlalchemy import field_for
 
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.diagnosis.schemas import DiagnosisSchema
 from dataservice.api.common.validation import validate_age
 from dataservice.api.common.custom_fields import (DateOrDatetime,
                                                   PatchedURLFor)
@@ -36,6 +37,8 @@ class BiospecimenSchema(BaseSchema):
     analyte_type = field_for(Biospecimen, 'analyte_type',
                              validate=enum_validation_generator(
                                  ANALYTE_TYPE_ENUM))
+    diagnoses = fields.Nested(DiagnosisSchema, many=True, only=['kf_id'],
+                              load_only=True)
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen
