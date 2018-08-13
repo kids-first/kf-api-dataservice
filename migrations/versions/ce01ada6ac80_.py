@@ -2,7 +2,7 @@
 1.3.0 - Add biospecimen_diagnosis association table
 
 Revision ID: ce01ada6ac80
-Revises: 088f00b10226
+Revises: 9d1b39dd9af5
 Create Date: 2018-07-25 11:55:35.583312
 
 """
@@ -13,7 +13,7 @@ import dataservice
 
 # revision identifiers, used by Alembic.
 revision = 'ce01ada6ac80'
-down_revision = '088f00b10226'
+down_revision = '9d1b39dd9af5'
 branch_labels = None
 depends_on = None
 
