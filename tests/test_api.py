@@ -86,7 +86,6 @@ class TestAPI:
         ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['sequencing_experiment',
                             'read_group']),
-        ('/read-groups', ['genomic_file']),
         ('/cavatica-tasks', ['cavatica_app']),
         ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file']),
         ('/biospecimen-genomic-files', ['biospecimen', 'genomic_file'])
@@ -132,6 +131,7 @@ class TestAPI:
                            'biospecimens']),
         ('/biospecimens', ['biospecimen_genomic_files']),
         ('/sequencing-experiments', ['genomic_files']),
+        ('/read-groups', ['genomic_files']),
         ('/genomic-files', ['cavatica_task_genomic_files',
                             'biospecimen_genomic_files'
                             ]),
@@ -295,7 +295,6 @@ class TestAPI:
                                  ('/study-files', 'size'),
                                  ('/genomic-files', 'urls'),
                                  ('/genomic-files', 'hashes'),
-                                 ('/read-groups', 'genomic_file_id'),
                                  ('/diagnoses', 'participant_id'),
                                  ('/sequencing-centers', 'name')
                              ])
@@ -334,7 +333,6 @@ class TestAPI:
                               ('/diagnoses', 'participant_id'),
                               ('/biospecimens', 'participant_id'),
                               ('/genomic-files', 'sequencing_experiment_id'),
-                              ('/read-groups', 'genomic_file_id'),
                               ('/cavatica-tasks', 'cavatica_app_id'),
                               ('/cavatica-task-genomic-files',
                                'cavatica_task_id'),
@@ -374,7 +372,7 @@ class TestAPI:
         status = json.loads(client.get('/status').data.decode('utf-8'))
         status = status['_status']
         assert 'commit' in status
-        assert len(status['commit']) == 7
+        assert len(status['commit']) == 8
         assert 'branch' in status
         assert 'version' in status
         assert status['version'].count('.') == 2

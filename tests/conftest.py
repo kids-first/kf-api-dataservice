@@ -211,6 +211,7 @@ def entities(client):
         se0 = _entities[SequencingExperiment][0]
         ca0 = _entities[CavaticaApp][0]
         gf0 = _entities[GenomicFile][0]
+        rg0 = _entities[ReadGroup][0]
 
         # Investigator
         for inv in _entities[Investigator]:
@@ -240,6 +241,7 @@ def entities(client):
         # GenomicFiles
         for ent in _entities[GenomicFile]:
             ent.sequencing_experiment = se0
+            ent.read_group = rg0
 
         # CavaticaTask
         for ent in _entities[CavaticaApp]:

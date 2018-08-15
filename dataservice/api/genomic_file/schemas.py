@@ -20,6 +20,8 @@ DATA_TYPE_ENUM = {'Aligned Reads',
                   'Histology Images', 'Radiology Images', 'Pathology Reports',
                   'Operation Reports', 'Radiology Reports'}
 
+PAIRED_END_ENUM = {1, 2}
+
 
 class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     class Meta(BaseSchema.Meta, IndexdFileSchema.Meta):
@@ -31,7 +33,11 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
                    ('biospecimen', 'sequencing_experiment',) +
                    ('cavatica_task_genomic_files',
                     'biospecimen_genomic_files',
-                    'read_group',))
+                    'read_groups',))
+
+    paired_end = field_for(GenomicFile, 'paired_end',
+                           validate=enum_validation_generator(
+                               PAIRED_END_ENUM))
 
     data_type = field_for(GenomicFile, 'data_type',
                           validate=enum_validation_generator(
@@ -59,6 +65,6 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>'),
         'biospecimen_genomic_files': ma.URLFor(
             'api.biospecimen_genomic_files_list', genomic_file_id='<kf_id>'),
-        'read_group': PatchedURLFor(
-            'api.read_groups', kf_id='<read_group.kf_id>')
+        # 'read_groups': PatchedURLFor(
+        #     'api.read_groups', genomic_file_id='<kf_id>')
     }, description='Resource links and pagination')

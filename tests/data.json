@@ -87,6 +87,7 @@
             "data_type": "Aligned Reads",
             "file_format": "fastq",
             "size": 1000,
+            "paired_end": 1,
             "urls": ["s3://bucket/key"],
             "hashes": {"md5": "1ab12165-7351-4744-921c-a97a19b84773"},
             "controlled_access": false,
@@ -96,7 +97,6 @@
         "/biospecimen-genomic-files": {},
         "/read-groups": {
             "external_id": "FL01",
-            "paired_end": 1,
             "flow_cell": "FL123",
             "lane_number": 4,
             "quality_scale": "Illumina15"
@@ -231,9 +231,12 @@
             "valid": {
                 "external_id": "GenomicFile_1",
                 "controlled_access": true,
+                "paired_end": 1,
                 "data_type": "Expression"
             },
             "invalid": [
+                {"paired_end": -1},
+                {"paired_end": "one"},
                 {"controlled_access": "hello", "size": "hello"},
                 {"availability": "availble for download"},
                 {"data_type": "read"}
@@ -246,14 +249,11 @@
         },
         "/read-groups": {
             "valid": {
-                "paired_end": 1,
                 "lane_number": 3,
                 "flow_cell": "FL123",
                 "quality_scale": "Illumina15"
             },
             "invalid": [
-                {"paired_end": -1},
-                {"paired_end": "one"},
                 {"lane_number": "two"},
                 {"lane_number": -1},
                 {"quality_scale": "none"}

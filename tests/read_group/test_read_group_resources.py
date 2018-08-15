@@ -23,14 +23,10 @@ class ReadGroupTest(IndexdTestCase):
         """
         Test create a new read_group
         """
-        self._create_save_to_db()
-        gf = GenomicFile.query.first()
-        kwargs = {
-            'external_id': 'RG0000',
-            'lane_number': 4,
-            'flow_cell': 'blah',
-            'genomic_file_id': gf.kf_id
-        }
+        kwargs = {'external_id': 'blah',
+                  'lane_number': 3,
+                  'flow_cell': 'FL0101'
+                  }
 
         # Send get request
         response = self.client.post(url_for(READ_GROUPS_LIST_URL),
@@ -44,11 +40,9 @@ class ReadGroupTest(IndexdTestCase):
         response = json.loads(response.data.decode('utf-8'))
         read_group = response['results']
         for k, v in kwargs.items():
-            if k == 'genomic_file_id':
-                continue
             self.assertEqual(read_group[k], v)
 
-        self.assertEqual(2, ReadGroup.query.count())
+        self.assertEqual(1, ReadGroup.query.count())
 
     def test_get(self):
         """
@@ -151,4 +145,5 @@ class ReadGroupTest(IndexdTestCase):
 
         db.session.add(rg)
         db.session.commit()
+
         return rg

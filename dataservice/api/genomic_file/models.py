@@ -1,6 +1,5 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, IndexdFile, KfId
-from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.cavatica_task.models import (
     CavaticaTaskGenomicFile
 )
@@ -53,16 +52,11 @@ class GenomicFile(db.Model, Base, IndexdFile):
     availability = db.Column(db.Text(), doc='Indicates whether a file is '
                              'available for immediate download, or is in '
                              'cold storage')
+    paired_end = db.Column(db.Integer(), doc='The direction of the read')
+
     sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'))
-
-    read_group = db.relationship(ReadGroup,
-                                 uselist=False,
-                                 cascade="all, delete-orphan",
-                                 backref=db.backref(
-                                     'genomic_file',
-                                     lazy=True))
 
     cavatica_task_genomic_files = db.relationship(CavaticaTaskGenomicFile,
                                                   backref='genomic_file',

@@ -130,16 +130,18 @@ class TestPagination:
             db.session.add(samp)
             p.biospecimens = [samp]
 
+            rg = ReadGroup(lane_number=4,
+                           flow_cell='FL0123')
+            db.session.add(rg)
+
             gf = GenomicFile(**gf_kwargs,
                              sequencing_experiment_id=seq_exp.kf_id)
             db.session.add(gf)
             samp.genomic_files.append(gf)
+
             samp.diagnoses.append(diag)
+
             db.session.flush()
-            rg = ReadGroup(lane_number=4,
-                           flow_cell='FL0123',
-                           genomic_file_id=gf.kf_id)
-            db.session.add(rg)
 
             ct = CavaticaTask(name='task_{}'.format(i))
             ct.genomic_files.append(gf)

@@ -50,7 +50,7 @@ class ReadGroupListAPI(CRUDView):
         )
 
         if study_id:
-            q = (q.join(ReadGroup.genomic_file)
+            q = (q.join(ReadGroup.genomic_files)
                  .join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
@@ -75,19 +75,19 @@ class ReadGroupListAPI(CRUDView):
 
         # Deserialize
         try:
-            se = ReadGroupSchema(strict=True).load(body).data
+            rg = ReadGroupSchema(strict=True).load(body).data
         # Request body not valid
         except ValidationError as e:
             abort(400, 'could not create read_group: {}'
                   .format(e.messages))
 
         # Add to and save in database
-        db.session.add(se)
+        db.session.add(rg)
         db.session.commit()
 
         return ReadGroupSchema(201,
                                'read_group {} created'
-                               .format(se.kf_id)).jsonify(se), 201
+                               .format(rg.kf_id)).jsonify(rg), 201
 
 
 class ReadGroupAPI(CRUDView):
@@ -110,11 +110,11 @@ class ReadGroupAPI(CRUDView):
               ReadGroup
         """
         # Get one
-        se = ReadGroup.query.get(kf_id)
-        if se is None:
+        rg = ReadGroup.query.get(kf_id)
+        if rg is None:
             abort(404, 'could not find {} `{}`'
                   .format('read_group', kf_id))
-        return ReadGroupSchema().jsonify(se)
+        return ReadGroupSchema().jsonify(rg)
 
     def patch(self, kf_id):
         """
@@ -129,27 +129,27 @@ class ReadGroupAPI(CRUDView):
             resource:
               ReadGroup
         """
-        se = ReadGroup.query.get(kf_id)
-        if se is None:
+        rg = ReadGroup.query.get(kf_id)
+        if rg is None:
             abort(404, 'could not find {} `{}`'
                   .format('read_group', kf_id))
 
         # Partial update - validate but allow missing required fields
         body = request.get_json(force=True) or {}
         try:
-            se = (ReadGroupSchema(strict=True).
-                  load(body, instance=se,
+            rg = (ReadGroupSchema(strict=True).
+                  load(body, instance=rg,
                        partial=True).data)
         except ValidationError as err:
             abort(400, 'could not update read_group: {}'
                   .format(err.messages))
 
-        db.session.add(se)
+        db.session.add(rg)
         db.session.commit()
 
         return ReadGroupSchema(
-            200, 'read_group {} updated'.format(se.kf_id)
-        ).jsonify(se), 200
+            200, 'read_group {} updated'.format(rg.kf_id)
+        ).jsonify(rg), 200
 
     def delete(self, kf_id):
         """
@@ -166,15 +166,15 @@ class ReadGroupAPI(CRUDView):
         """
 
         # Check if read_group exists
-        se = ReadGroup.query.get(kf_id)
-        if se is None:
+        rg = ReadGroup.query.get(kf_id)
+        if rg is None:
             abort(404, 'could not find {} `{}`'
                   .format('read_group', kf_id))
 
         # Save in database
-        db.session.delete(se)
+        db.session.delete(rg)
         db.session.commit()
 
         return ReadGroupSchema(200,
                                'read_group {} deleted'
-                               .format(se.kf_id)).jsonify(se), 200
+                               .format(rg.kf_id)).jsonify(rg), 200
