@@ -10,6 +10,7 @@ from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from tests.utils import FlaskTestCase
+from dataservice.api.errors import DatabaseValidationError
 
 from sqlalchemy.exc import IntegrityError
 
@@ -170,9 +171,10 @@ class ModelTest(FlaskTestCase):
         # With Missing Kf_id
         data = self._make_biospecimen(external_sample_id=sample_id)
         s = Biospecimen(**data)
-
+        db.session.add(s)
         # Add Biospecimen to db
-        self.assertRaises(IntegrityError, db.session.add(s))
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_foreign_key_constraint(self):
         """
@@ -185,9 +187,10 @@ class ModelTest(FlaskTestCase):
         # With Empty Kf_id
         data = self._make_biospecimen(external_sample_id=biospecimen_id)
         s = Biospecimen(**data, participant_id='')
-
+        db.session.add(s)
         # Add Biospecimen to db
-        self.assertRaises(IntegrityError, db.session.add(s))
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_one_to_many_relationship_create(self):
         """
@@ -316,6 +319,20 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(BiospecimenDiagnosis.query.count(), 1)
         self.assertEqual(bs_ds.biospecimen_id, biospecimen.kf_id)
         self.assertEqual(bs_ds.diagnosis_id, dg.kf_id)
+        s = Study(external_id="study")
+        sc = SequencingCenter.query.first()
+        p1 = Participant(external_id='p1', study=s)
+        b1 = Biospecimen(analyte_type='RNA', participant=p1,
+                         sequencing_center_id=sc.kf_id)
+        db.session.add(s)
+        db.session.commit()
+        # Participant 1 - Link their biop b1 to Participant 0 diagnosis d0
+        bd1 = BiospecimenDiagnosis(biospecimen_id=b1.kf_id,
+                                   diagnosis_id=dg.kf_id)
+        db.session.add(bd1)
+        with self.assertRaises(DatabaseValidationError):
+            db.session.commit()
+        db.session.rollback()
 
     def _make_biospecimen(self, external_sample_id=None,
                           external_aliquot_id=None):

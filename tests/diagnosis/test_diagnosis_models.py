@@ -118,12 +118,14 @@ class ModelTest(FlaskTestCase):
         # Try linking through diagnosis
         d = Diagnosis.query.first()
         d.biospecimens = [b]
-        self.assertRaises(DatabaseValidationError, db.session.commit)
+        with self.assertRaises(DatabaseValidationError):
+            db.session.commit()
         db.session.rollback()
 
         # Try linking through biospecimen
         b.diagnoses.append(d)
-        self.assertRaises(DatabaseValidationError, db.session.commit)
+        with self.assertRaises(DatabaseValidationError):
+            db.session.commit()
         db.session.rollback()
 
     def test_cascade_delete_via_biospecimen(self):
@@ -161,7 +163,8 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         db.session.add(d)
-        self.assertRaises(IntegrityError, db.session.commit)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_foreign_key_constraint(self):
         """
@@ -177,7 +180,9 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         db.session.add(d)
-        self.assertRaises(IntegrityError, db.session.commit)
+
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def _create_diagnosis(self, _id, participant_id=None):
         """

@@ -416,22 +416,33 @@ class BiospecimenTest(FlaskTestCase):
         # check multiple objects patching
         body = {
             'diagnoses': [{'kf_id': d_args['kf_id']},
-                          {'kf_id': 'DG_00000000'}]
+                          {'kf_id': 'DG_00000000'}
+                          ]
         }
         response = self.client.patch(url_for(BIOSPECIMENS_URL,
                                              kf_id=kf_id),
                                      headers=self._api_headers(),
                                      data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 400)
         self.assertEqual(1, Biospecimen.query.count())
         self.assertEqual(1, Diagnosis.query.count())
-
+        self.assertEqual([d],
+                         Biospecimen.query.first().diagnoses)
         # Create another diagnosis
         d1, d_args1 = self._create_diagnosis(
             1, participant_id=kwargs['participant_id'])
         d_args1['kf_id'] = d1.kf_id
+
+        # Create another diagnosis
+        d2, d_args2 = self._create_diagnosis(
+            3, participant_id=kwargs['participant_id'])
+        d_args2['kf_id'] = d2.kf_id
         body = {
             'diagnoses': [{'kf_id': d_args['kf_id']},
-                          {'kf_id': d_args1['kf_id']}]
+                          {'kf_id': d_args1['kf_id']},
+                          {'kf_id': d_args2['kf_id']}
+                          ]
         }
         response = self.client.patch(url_for(BIOSPECIMENS_URL,
                                              kf_id=kf_id),
@@ -444,6 +455,6 @@ class BiospecimenTest(FlaskTestCase):
         self.assertIn('biospecimen', resp['_status']['message'])
         self.assertIn('updated', resp['_status']['message'])
         self.assertEqual(1, Biospecimen.query.count())
-        self.assertEqual(2, Diagnosis.query.count())
-        self.assertEqual([d, d1],
+        self.assertEqual(3, Diagnosis.query.count())
+        self.assertEqual([d, d1, d2],
                          Biospecimen.query.first().diagnoses)

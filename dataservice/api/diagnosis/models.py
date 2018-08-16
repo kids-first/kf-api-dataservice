@@ -84,35 +84,36 @@ def validate_diagnosis(target):
     if not target or not target.biospecimens:
         return
     # Get diagnosis by id and bisopecimen by id
-    bsp = Biospecimen.query.get(target.biospecimens[0].kf_id)
-    ds = Diagnosis.query.get(target.kf_id)
-    if bsp is None:
-        operation = 'modify'
-        target_entity = Biospecimen.__tablename__
-        message = ('Biospecimen {} does not exist').format(
-            target.biospecimens[0].kf_id)
-        raise DatabaseValidationError(target_entity, operation, message)
-    elif ds is None:
-        operation = 'modify'
-        target_entity = Diagnosis.__tablename__
-        message = ('Diagnosis {} does not exist').format(target.kf_id)
-        raise DatabaseValidationError(target_entity, operation, message)
-    # Check if this diagnosis and biospecimen refer to same participant
-    if bsp.participant_id != target.participant_id:
-        operation = 'modify'
-        target_entity = Diagnosis.__tablename__
-        message = (
-            ('a diagnosis cannot be linked with a biospecimen if they '
-             'refer to different participants. diagnosis {} '
-             'refers to participant {} and '
-             'biospecimen {} refers to participant {}')
-            .format(
-                target.kf_id,
-                target.participant_id,
-                bsp.kf_id,
-                bsp.participant_id
-            ))
-        raise DatabaseValidationError(target_entity, operation, message)
+    for biospecimen in target.biospecimens:
+        bsp = Biospecimen.query.get(biospecimen.kf_id)
+        ds = Diagnosis.query.get(target.kf_id)
+        if bsp is None:
+            operation = 'modify'
+            target_entity = Biospecimen.__tablename__
+            message = ('Biospecimen {} does not exist').format(
+                biospecimen.kf_id)
+            raise DatabaseValidationError(target_entity, operation, message)
+        elif ds is None:
+            operation = 'modify'
+            target_entity = Diagnosis.__tablename__
+            message = ('Diagnosis {} does not exist').format(target.kf_id)
+            raise DatabaseValidationError(target_entity, operation, message)
+        # Check if this diagnosis and biospecimen refer to same participant
+        if bsp.participant_id != target.participant_id:
+            operation = 'modify'
+            target_entity = Diagnosis.__tablename__
+            message = (
+                ('a diagnosis cannot be linked with a biospecimen if they '
+                 'refer to different participants. diagnosis {} '
+                 'refers to participant {} and '
+                 'biospecimen {} refers to participant {}')
+                .format(
+                    target.kf_id,
+                    target.participant_id,
+                    bsp.kf_id,
+                    bsp.participant_id
+                ))
+            raise DatabaseValidationError(target_entity, operation, message)
 
 
 @event.listens_for(Diagnosis, 'before_insert')
