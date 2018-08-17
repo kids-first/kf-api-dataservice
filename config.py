@@ -65,16 +65,18 @@ class ProductionConfig(Config):
         vault_url = os.environ.get('VAULT_URL', 'https://vault:8200/')
         # Role to authenticate with
         vault_role = os.environ.get('VAULT_ROLE', 'DataserviceRole')
-        # Path for secrets in vault
+        # Paths for secrets in vault
         pg_secret = os.environ.get('DB_SECRET', 'secret/postgres')
         indexd_secret = os.environ.get('INDEXD_SECRET', 'secret/indexd')
-        bucket_secret = os.environ.get('BUCKET_SECRET', None)
+        bucket_token = os.environ.get('BUCKET_SERVICE_TOKEN_SECRET', None)
+        bucket_url = os.environ.get('BUCKET_SERVICE_URL_SECRET', None)
         # Retrieve secrets
         client = hvac.Client(url=vault_url)
         client.auth_iam(vault_role)
         pg_secrets = client.read(pg_secret)
         indexd_secrets = client.read(indexd_secret)
-        bucket_secrets = client.read(bucket_secret) if bucket_secret else None
+        bucket_token = client.read(bucket_token) if bucket_token else None
+        bucket_url = client.read(bucket_url) if bucket_url else None
         client.logout()
 
         # Construct postgres connection string
@@ -93,11 +95,20 @@ class ProductionConfig(Config):
         app.config['INDEXD_USER'] = indexd_secrets['data']['user']
         app.config['INDEXD_PASS'] = indexd_secrets['data']['password']
 
-        if (bucket_secrets and
-            'data' in bucket_secrets and
-            'token' in bucket_secrets['data']):
+        # Get the bucket service's token for auth
+        if (bucket_token and
+            'data' in bucket_token and
+            'token' in bucket_token ['data']):
             app.config['BUCKET_SERVICE_TOKEN'] = \
-                    bucket_secrets['data']['token']
+                    bucket_token['data']['token']
+
+        # Get the bucket service's url
+        if (bucket_url and
+            'data' in bucket_url and
+            'invoke_url' in bucket_url['data']):
+            # All environments use the /api stage in api gateway
+            app.config['BUCKET_SERVICE_URL'] = \
+                    bucket_url['data']['invoke_url'] + 'api'
 
 
 class UnixConfig(ProductionConfig):
