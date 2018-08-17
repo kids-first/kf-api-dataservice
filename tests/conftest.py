@@ -8,14 +8,13 @@ import pytest
 from dataservice import create_app
 from dataservice.utils import iterate_pairwise, read_json
 from dataservice.extensions import db
-from sqlalchemy import exc
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
-from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.genomic_file.models import GenomicFile

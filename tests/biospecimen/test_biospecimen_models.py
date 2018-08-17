@@ -4,10 +4,13 @@ import uuid
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
-from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.biospecimen.models import (
+    Biospecimen, BiospecimenDiagnosis)
+from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from tests.utils import FlaskTestCase
+from dataservice.api.errors import DatabaseValidationError
 
 from sqlalchemy.exc import IntegrityError
 
@@ -168,9 +171,10 @@ class ModelTest(FlaskTestCase):
         # With Missing Kf_id
         data = self._make_biospecimen(external_sample_id=sample_id)
         s = Biospecimen(**data)
-
+        db.session.add(s)
         # Add Biospecimen to db
-        self.assertRaises(IntegrityError, db.session.add(s))
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_foreign_key_constraint(self):
         """
@@ -183,9 +187,10 @@ class ModelTest(FlaskTestCase):
         # With Empty Kf_id
         data = self._make_biospecimen(external_sample_id=biospecimen_id)
         s = Biospecimen(**data, participant_id='')
-
+        db.session.add(s)
         # Add Biospecimen to db
-        self.assertRaises(IntegrityError, db.session.add(s))
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_one_to_many_relationship_create(self):
         """
@@ -280,6 +285,54 @@ class ModelTest(FlaskTestCase):
         db.session.delete(s)
         db.session.commit()
         self.assertEqual(Biospecimen.query.count(), 1)
+
+    def test_link_biospecimen_diagnosis(self):
+        """
+        Test Deleting one of the biospecimens
+        """
+        # create a participant with a biospecimen
+        (participant_id,
+         sample_id,
+         aliquot_id) = self.create_participant_biospecimen()
+        p = Participant.query.first()
+        # Create diagnosis
+        kwargs = {
+            'external_id': 'id_1',
+            'source_text_diagnosis': 'diagnosis_1',
+            'age_at_event_days': 365,
+            'diagnosis_category': 'cancer',
+            'source_text_tumor_location': 'Brain',
+            'mondo_id_diagnosis': 'DOID:8469',
+            'uberon_id_tumor_location': 'UBERON:0000955',
+            'icd_id_diagnosis': 'J10.01',
+            'spatial_descriptor': 'left side',
+            'participant_id': p.kf_id
+        }
+        dg = Diagnosis(**kwargs)
+        db.session.add(dg)
+        biospecimen = Biospecimen.query.first()
+        # create link btn bs and ds
+        bs_ds = BiospecimenDiagnosis(biospecimen_id=biospecimen.kf_id,
+                                     diagnosis_id=dg.kf_id)
+        db.session.add(bs_ds)
+        db.session.commit()
+        self.assertEqual(BiospecimenDiagnosis.query.count(), 1)
+        self.assertEqual(bs_ds.biospecimen_id, biospecimen.kf_id)
+        self.assertEqual(bs_ds.diagnosis_id, dg.kf_id)
+        s = Study(external_id="study")
+        sc = SequencingCenter.query.first()
+        p1 = Participant(external_id='p1', study=s)
+        b1 = Biospecimen(analyte_type='RNA', participant=p1,
+                         sequencing_center_id=sc.kf_id)
+        db.session.add(s)
+        db.session.commit()
+        # Participant 1 - Link their biop b1 to Participant 0 diagnosis d0
+        bd1 = BiospecimenDiagnosis(biospecimen_id=b1.kf_id,
+                                   diagnosis_id=dg.kf_id)
+        db.session.add(bd1)
+        with self.assertRaises(DatabaseValidationError):
+            db.session.commit()
+        db.session.rollback()
 
     def _make_biospecimen(self, external_sample_id=None,
                           external_aliquot_id=None):

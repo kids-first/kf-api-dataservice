@@ -134,6 +134,7 @@ class TestPagination:
                              sequencing_experiment_id=seq_exp.kf_id)
             db.session.add(gf)
             samp.genomic_files.append(gf)
+            samp.diagnoses.append(diag)
 
             db.session.flush()
             rg = ReadGroup(lane_number=4,

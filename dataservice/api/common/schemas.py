@@ -89,7 +89,11 @@ class BaseSchema(ma.ModelSchema):
     def check_unknown_fields(self, data, original_data):
         if data is None:
             return
-        unknown = set(original_data) - set(self.fields)
+        if type(original_data) is list:
+            unknown = (set([o for obj in original_data for o in obj]) -
+                       set(self.fields))
+        else:
+            unknown = set(original_data) - set(self.fields)
         if unknown:
             raise ValidationError('Unknown field', unknown)
 

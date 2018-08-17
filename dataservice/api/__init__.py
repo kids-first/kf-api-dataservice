@@ -22,10 +22,10 @@ from dataservice.api.cavatica_task_genomic_file import (
 )
 from dataservice.api.family_relationship import FamilyRelationshipAPI
 from dataservice.api.family_relationship import FamilyRelationshipListAPI
-from dataservice.api.diagnosis import DiagnosisAPI
-from dataservice.api.diagnosis import DiagnosisListAPI
 from dataservice.api.biospecimen import BiospecimenAPI
 from dataservice.api.biospecimen import BiospecimenListAPI
+from dataservice.api.diagnosis import DiagnosisAPI
+from dataservice.api.diagnosis import DiagnosisListAPI
 from dataservice.api.outcome import OutcomeAPI
 from dataservice.api.outcome import OutcomeListAPI
 from dataservice.api.phenotype import PhenotypeAPI

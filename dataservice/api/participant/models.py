@@ -4,8 +4,8 @@ from sqlalchemy import and_, event
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
-from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 

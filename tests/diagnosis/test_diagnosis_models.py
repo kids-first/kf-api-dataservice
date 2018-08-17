@@ -6,7 +6,8 @@ from sqlalchemy.exc import IntegrityError
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.diagnosis.models import Diagnosis
-from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.biospecimen.models import (Biospecimen,
+                                                BiospecimenDiagnosis)
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.errors import DatabaseValidationError
 from dataservice.extensions import db
@@ -79,6 +80,75 @@ class ModelTest(FlaskTestCase):
         # Check that diagnoses have been deleted
         self.assertEqual(0, Diagnosis.query.count())
 
+    def test_add_valid_biospecimen(self):
+        """
+        Test that a diagnosis can be linked with a biospecimen if
+        they refer to same participants
+        """
+
+        diagnoses, kwarg_dict = self._create_diagnoses()
+        b = Biospecimen.query.first()
+        # Try linking through diagnosis
+        d = Diagnosis.query.first()
+        d.biospecimens = [b]
+        db.session.commit()
+        # check updated values
+        d = Diagnosis.query.get(d.kf_id)
+        self.assertIs(d.biospecimens[0].kf_id, b.kf_id)
+
+    def test_add_invalid_biospecimen(self):
+        """
+        Test that a diagnosis cannot be linked with a biospecimen if
+        they refer to different participants
+        """
+
+        diagnoses, kwarg_dict = self._create_diagnoses()
+        # Get first participant
+        st = Study.query.first()
+        s = SequencingCenter.query.first()
+        # Create new participant with biospecimen
+        p1 = Participant(external_id='p1', is_proband=True,
+                         study_id=st.kf_id)
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center_id=s.kf_id,
+                        participant=p1)
+        db.session.add(b)
+        db.session.commit()
+
+        # Try linking through diagnosis
+        d = Diagnosis.query.first()
+        d.biospecimens = [b]
+        with self.assertRaises(DatabaseValidationError):
+            db.session.commit()
+        db.session.rollback()
+
+        # Try linking through biospecimen
+        b.diagnoses.append(d)
+        with self.assertRaises(DatabaseValidationError):
+            db.session.commit()
+        db.session.rollback()
+
+    def test_cascade_delete_via_biospecimen(self):
+        """
+        Test delete existing diagnosis
+        Delete biospecimen to which diagnosis belongs
+        """
+        # Create and save genomic files and dependent entities
+        kwargs_dict, diagnoses = self._create_diagnoses(total=1)
+
+        # Get biospecimen
+        biospecimen = Biospecimen.query.first()
+        bsds = BiospecimenDiagnosis(biospecimen_id=biospecimen.kf_id,
+                                    diagnosis_id=kwargs_dict[0].kf_id)
+
+        # Delete biospecimen
+        db.session.delete(biospecimen)
+        db.session.commit()
+
+        # Check database
+        assert BiospecimenDiagnosis.query.count() == 0
+        assert Diagnosis.query.count() == 1
+
     def test_not_null_constraint(self):
         """
         Test that a diagnosis cannot be created without required
@@ -93,7 +163,8 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         db.session.add(d)
-        self.assertRaises(IntegrityError, db.session.commit)
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
     def test_foreign_key_constraint(self):
         """
@@ -109,42 +180,11 @@ class ModelTest(FlaskTestCase):
 
         # Add to db
         db.session.add(d)
-        self.assertRaises(IntegrityError, db.session.commit)
 
-    def test_add_invalid_biospecimen(self):
-        """
-        Test that a diagnosis cannot be linked with a biospecimen if
-        they refer to different participants
-        """
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
-        diagnoses, kwarg_dict = self._create_diagnoses()
-        # Get first participant
-        st = Study.query.first()
-        s = SequencingCenter.query.first()
-        # Create new participant with biospecimen
-        p1 = Participant(external_id='p1', is_proband=True, study_id=st.kf_id)
-        b = Biospecimen(analyte_type='DNA',
-                        sequencing_center_id=s.kf_id,
-                        participant=p1)
-        db.session.add(b)
-        db.session.commit()
-
-        # Try linking through diagnosis
-        d = Diagnosis.query.first()
-        d.biospecimen_id = b.kf_id
-        self.assertRaises(DatabaseValidationError, db.session.commit)
-        db.session.rollback()
-
-        # Try linking through biospecimen
-        b.diagnoses.append(d)
-        self.assertRaises(DatabaseValidationError, db.session.commit)
-        db.session.rollback()
-
-        # Try linking to a non-existent biospecimen
-        d.biospecimen_id = 'BS_AAAAAAAA'
-        self.assertRaises(IntegrityError, db.session.commit)
-
-    def _create_diagnosis(self, _id, participant_id=None, biospecimen_id=None):
+    def _create_diagnosis(self, _id, participant_id=None):
         """
         Create diagnosis
         """
@@ -161,8 +201,6 @@ class ModelTest(FlaskTestCase):
         }
         if participant_id:
             kwargs['participant_id'] = participant_id
-        if biospecimen_id:
-            kwargs['biospecimen_id'] = biospecimen_id
         return Diagnosis(**kwargs), kwargs
 
     def _create_diagnoses(self, total=2):
@@ -192,8 +230,7 @@ class ModelTest(FlaskTestCase):
         diagnoses = []
         kwarg_dict = {}
         for i in range(total):
-            d, kwargs = self._create_diagnosis(i, participant_id=p.kf_id,
-                                               biospecimen_id=b.kf_id)
+            d, kwargs = self._create_diagnosis(i, participant_id=p.kf_id)
             kwarg_dict[d.external_id] = kwargs
             diagnoses.append(d)
 
