@@ -135,7 +135,6 @@ class TestPagination:
             db.session.add(gf)
             samp.genomic_files.append(gf)
             samp.diagnoses.append(diag)
-
             db.session.flush()
             rg = ReadGroup(lane_number=4,
                            flow_cell='FL0123',
@@ -397,3 +396,27 @@ class TestPagination:
         assert float(q_params.get('after')[0])
         for k, v in params.items():
             assert q_params.get(k)[0] == v
+
+    @pytest.mark.parametrize('endpoint,expected_total', [
+        ('/biospecimens', 1),
+        ('/diagnoses', 1),
+    ])
+    def test_all_filter(self, client, participants,
+                        endpoint, expected_total):
+        """
+        Test pagination of resources with a study filter and
+        biospeciemn_id or diagnosis id
+        """
+        s = Study.query.filter_by(external_id='Study_0').one()
+        bs = Biospecimen.query.first()
+        dg = Diagnosis.query.first()
+        if endpoint == '/biospecimens':
+            endpoint = '{}?study_id={}&diagnosis_id={}'.format(
+                endpoint, s.kf_id, dg.kf_id)
+        else:
+            endpoint = '{}?study_id={}&biospecimen_id={}'.format(
+                endpoint, s.kf_id, bs.kf_id)
+        resp = client.get(endpoint)
+        resp = json.loads(resp.data.decode('utf-8'))
+        assert len(resp['results']) == min(expected_total, 10)
+        assert resp['limit'] == 10
