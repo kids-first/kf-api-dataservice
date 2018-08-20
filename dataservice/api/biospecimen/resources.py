@@ -5,7 +5,8 @@ from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
-from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.biospecimen.models import (
+    Biospecimen, BiospecimenDiagnosis)
 from dataservice.api.biospecimen.schemas import (
     BiospecimenSchema,
     BiospecimenFilterSchema
@@ -39,10 +40,14 @@ class BiospecimenListAPI(CRUDView):
         """
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
-
+        diagnosis_id = filter_params.pop('diagnosis_id', None)
         # Apply filter params
         q = (Biospecimen.query
              .filter_by(**filter_params))
+
+        if diagnosis_id:
+            q = q.join(Biospecimen.diagnoses).\
+                filter(BiospecimenDiagnosis.diagnosis_id == diagnosis_id)
 
         # Apply study filter param
         from dataservice.api.participant.models import Participant
