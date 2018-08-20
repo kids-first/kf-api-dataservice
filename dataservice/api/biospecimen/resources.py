@@ -38,22 +38,22 @@ class BiospecimenListAPI(CRUDView):
             resource:
               Biospecimen
         """
-        # Get study id and remove from model filter params
+        # Get study id, diagnosis_id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
         diagnosis_id = filter_params.pop('diagnosis_id', None)
         # Apply filter params
         q = (Biospecimen.query
              .filter_by(**filter_params))
 
-        if diagnosis_id:
-            q = q.join(Biospecimen.diagnoses).\
-                filter(BiospecimenDiagnosis.diagnosis_id == diagnosis_id)
-
-        # Apply study filter param
         from dataservice.api.participant.models import Participant
+        # Apply study_id filter and diagnosis_id filter
+        # Apply study filter param
         if study_id:
             q = (q.join(Participant.biospecimens)
                  .filter(Participant.study_id == study_id))
+        if diagnosis_id:
+            q = q.join(Biospecimen.diagnoses).\
+                filter(BiospecimenDiagnosis.diagnosis_id == diagnosis_id)
 
         return (BiospecimenSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
