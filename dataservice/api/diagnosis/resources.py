@@ -38,7 +38,7 @@ class DiagnosisListAPI(CRUDView):
         """
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
-
+        from dataservice.api.participant.models import Participant
         from dataservice.api.biospecimen.models import BiospecimenDiagnosis
         biospecimen_id = filter_params.pop('biospecimen_id', None)
         # # Apply entity filter params
@@ -47,12 +47,17 @@ class DiagnosisListAPI(CRUDView):
             q = q.join(Diagnosis.biospecimens).\
                 filter(BiospecimenDiagnosis.biospecimen_id == biospecimen_id)
 
-        # Apply study_id filter
-        from dataservice.api.participant.models import Participant
-        if study_id:
+        # Apply study_id filter and biospecimen_id filter
+        if biospecimen_id and study_id:
+            q = q.join(Diagnosis.biospecimens).\
+                filter(BiospecimenDiagnosis.biospecimen_id == biospecimen_id).\
+                filter(Participant.study_id == study_id)
+        elif study_id and not biospecimen_id:
             q = (q.join(Participant.diagnoses)
                  .filter(Participant.study_id == study_id))
-
+        elif biospecimen_id and not study_id:
+            q = q.join(Diagnosis.biospecimens).\
+                filter(BiospecimenDiagnosis.biospecimen_id == biospecimen_id)
         return (DiagnosisSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
 
