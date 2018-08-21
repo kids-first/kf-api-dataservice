@@ -81,8 +81,8 @@ class TestAPI:
         ('/family-relationships', ['participant1', 'participant2']),
         ('/phenotypes', ['participant']),
         ('/outcomes', ['participant']),
-        ('/diagnoses', ['participant']),
-        ('/biospecimens', ['participant', 'sequencing_center']),
+        ('/diagnoses', ['participant', 'biospecimens']),
+        ('/biospecimens', ['participant', 'sequencing_center', 'diagnoses']),
         ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['sequencing_experiment',
                             'read_group']),
@@ -107,7 +107,11 @@ class TestAPI:
             assert parent in body['_links']
             link = body['_links'][parent]
             if link:
-                assert len(link.split('/')[-1]) == 11
+                assert len(link.split('/')[-1].split('=')[-1]) == 11
+                # test that link responds ok
+                resp = client.get(link,
+                          headers={'Content-Type': 'application/json'})
+                assert resp.status_code == 200
 
         # Test self and collection links
         assert 'collection' in body['_links']
