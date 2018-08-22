@@ -1,6 +1,15 @@
+import copy
 import json
+import re
+
 import pytest
 
+from tests.conftest import (ENDPOINT_ENTITY_MAP, ENTITY_PARAMS,
+                            _add_foreign_keys)
+
+CONSTRAINT_ERR_RE = re.compile(
+    'could not create (\w+)\. one with \(.+\) = \(.+\) already exists\.'
+)
 
 class TestErrors:
     """ Test general error handling """
@@ -31,3 +40,25 @@ class TestErrors:
         else:
             message = 'Longer than maximum length 11'
             assert message in response['_status']['message']
+
+    @pytest.mark.parametrize('endpoint', [
+        '/sequencing-centers', '/biospecimen-genomic-files', 
+        '/family-relationships'
+    ])
+    def test_uniqueness_constraints(self, client, entities, endpoint):
+        """ Test integrity error from uniqueness violations """
+        # _add_foreign_keys is destructive to ENTITY_PARAMS['fields'][endpoint]
+        # state used by other tests, so deepcopy it here to prevent side
+        # effects.
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
+        response = client.post(
+            endpoint, data=json.dumps(inputs),
+            headers={'Content-Type': 'application/json'}
+        )
+
+        assert response.status_code == 400
+        response = json.loads(response.data.decode("utf-8"))
+        assert CONSTRAINT_ERR_RE.match(response['_status']['message'])

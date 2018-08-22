@@ -9,10 +9,8 @@ FOREIGN_KEY_RE = re.compile('.*\nDETAIL:.*\((?P<kf_id>.*)\)' +
 UNIQUE_RE = re.compile('^.*"(?P<key>.*)_key"\n' +
                        'DETAIL:.*\((?P<entity>\w+)_id\)=' +
                        '\((?P<kf_id>.*)\) already exists\.')
-UNIQUE_COL_RE = re.compile('duplicate key value violates unique constraint ' +
-                           '"(?P<table>\w+)"\n' +
-                           'DETAIL:.*\((?P<column>\w+)\)=' +
-                           '\((?P<value>.*)\) already exists\.\n')
+UNIQUE_COL_RE = re.compile('^.*\((?P<columns>[^)]+)\)='
+                           '\((?P<values>[^)]+)\) already exists\.')
 
 
 class DatabaseValidationError(Exception):
@@ -95,20 +93,17 @@ def integrity_error(e):
         message = '{} "{}" may only have one {}'.format(m.group('entity'),
                                                         m.group('kf_id'),
                                                         key)
-    # Tried to create row with same value in column
-    m = re.findall(UNIQUE_COL_RE, error)
-    if m:
-        table = m[0][0]
-        l = table.split('_')
-        # The last two elements in list are column_name and key
-        if len(l) == 4:
-            table = '_'.join(l[:2])
-        else:
-            table = l[:1]
-        column = m[0][1]
-        value = m[0][2]
-        message = ("could not create {0}. {0} with {1} = '{2}' already exists."
-                   .format(table, column, value))
+
+    # Violates column uniqueness constraint
+    if e.orig.pgcode == '23505':
+        m = UNIQUE_COL_RE.match(e.orig.diag.message_detail)
+        columns = m.group('columns')
+        values = m.group('values')
+
+        message = (
+            "could not create {0}. one with ({1}) = ({2}) already exists."
+            .format(e.orig.diag.table_name, columns, values)
+        )
 
     resp = {'code': 400, 'description': message}
     return ErrorSchema().jsonify(resp), 400
