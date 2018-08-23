@@ -19,8 +19,12 @@ from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.biospecimen_genomic_file.models import (
-    BiospecimenGenomicFile)
-from dataservice.api.read_group.models import ReadGroup
+    BiospecimenGenomicFile
+)
+from dataservice.api.read_group.models import (
+    ReadGroup,
+    ReadGroupGenomicFile
+)
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.study_file.models import StudyFile
@@ -137,7 +141,8 @@ def entities(client):
         for model, endpoint in ENTITY_ENDPOINT_MAP.items():
             if model in {FamilyRelationship,
                          CavaticaTaskGenomicFile,
-                         BiospecimenGenomicFile}:
+                         BiospecimenGenomicFile,
+                         ReadGroupGenomicFile}:
                 continue
             for i in range(ENTITY_TOTAL):
                 data = ENTITY_PARAMS['fields'][endpoint].copy()
@@ -178,7 +183,7 @@ def entities(client):
 
             db.session.add(r)
 
-        # Cavatica task genomic files and read group
+        # Cavatica task genomic files
         for i, (ct, gf) in enumerate(zip(
                 _entities[CavaticaTask], _entities[GenomicFile])):
             is_input = True
@@ -203,6 +208,14 @@ def entities(client):
             _entities[BiospecimenGenomicFile].append(bsgf)
             db.session.add(bsgf)
 
+        # Read Group Genomic Files
+        for i, (rg, gf) in enumerate(zip(
+                _entities[ReadGroup], _entities[GenomicFile])):
+            rggf = ReadGroupGenomicFile(read_group=rg,
+                                        genomic_file=gf)
+            _entities[ReadGroupGenomicFile].append(rggf)
+            db.session.add(rggf)
+
         # Add relations
         s0 = _entities[Study][0]
         f0 = _entities[Family][0]
@@ -210,8 +223,6 @@ def entities(client):
         sc0 = _entities[SequencingCenter][0]
         se0 = _entities[SequencingExperiment][0]
         ca0 = _entities[CavaticaApp][0]
-        gf0 = _entities[GenomicFile][0]
-        rg0 = _entities[ReadGroup][0]
 
         # Investigator
         for inv in _entities[Investigator]:
@@ -223,9 +234,6 @@ def entities(client):
         for ent in _entities[Participant]:
             ent.study = s0
             ent.family = f0
-
-        for ent in _entities[ReadGroup]:
-            ent.genomic_file = gf0
 
         # Biospecimen, Diagnosis, Phenotype, Outcome
         participant_ents = [Biospecimen, Diagnosis, Phenotype, Outcome]
@@ -241,14 +249,10 @@ def entities(client):
         # GenomicFiles
         for ent in _entities[GenomicFile]:
             ent.sequencing_experiment = se0
-            ent.read_group = rg0
 
         # CavaticaTask
         for ent in _entities[CavaticaApp]:
             ent.cavatica_app = ca0
-
-        for rg in _entities[ReadGroup]:
-            db.session.add(rg)
 
         db.session.commit()
 
