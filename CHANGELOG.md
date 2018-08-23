@@ -1,3 +1,31 @@
+# Kids First Dataservice Release 1.3.0
+
+## Features
+
+Adds several new fields in the datamodel in #408:
+
+- `family_type` on Family
+- `source_text_notes` on FamilyRelationship
+- `affected_status` on Participant
+- `diagnosis_category` on Participant
+- `visible` on all tables
+
+### Summary
+
+Feature Emojis: ✨x4 👷x1 🔧x1 🐛x1
+Feature Labels: [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x4 [devops](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/devops) x3 [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x3
+
+### New features and changes
+
+- (#416) 🐛 Fix biospecimens and diagnoses links by diagnosis_id and biospecimen_id - @parimalak
+- (#413) 👷 Load bucket url from vault - @dankolbman
+- (#401) ✨ Add biospecimen_diagnosis association table - @parimalak
+- (#410) 🔧 Increase nginx proxy_buffer size to stop truncating repsonses - @dankolbman
+- (#408) ✨Data model changes - @parimalak
+- (#407) ✨ Add visible to base model - @parimalak
+- (#394) ✨ Add biospecimen_genomic_file association table and endpoints - @parimalak
+
+
 # Kids First Dataservice Release 1.2.0
 
 ## Features
