@@ -21,7 +21,10 @@ from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.read_group.models import ReadGroup
+from dataservice.api.read_group.models import (
+    ReadGroup,
+    ReadGroupGenomicFile
+)
 from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile
 )
