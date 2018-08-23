@@ -278,6 +278,35 @@ class DiagnosisTest(FlaskTestCase):
         self.assertEqual([],
                          Diagnosis.query.first().biospecimens)
 
+    def test_all_filter(self):
+        """
+        Test diagnoses with a study filter and
+        biospecimen id
+        """
+        expected_total = 1
+        # create and save biospecimens and diagnosis to db
+        kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
+        biospecimen = Biospecimen.query.first()
+        # Update existing diagnosis
+        body = {
+            'biospecimens': [{'kf_id': biospecimen.kf_id}]
+        }
+        response = self.client.patch(url_for(DIAGNOSES_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 200)
+        s = Study.query.first()
+        bs = Biospecimen.query.first()
+        endpoint = '/diagnoses?study_id={}&biospecimen_id={}'.format(
+            s.kf_id, bs.kf_id)
+        resp = self.client.get(endpoint)
+        resp = json.loads(resp.data.decode('utf-8'))
+        assert len(resp['results']) == min(expected_total, 10)
+        assert resp['limit'] == 10
+
     def _create_save_to_db(self):
         """
         Create and save diagnosis

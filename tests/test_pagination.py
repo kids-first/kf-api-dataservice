@@ -135,7 +135,6 @@ class TestPagination:
             db.session.add(gf)
             samp.genomic_files.append(gf)
             samp.diagnoses.append(diag)
-
             db.session.flush()
             rg = ReadGroup(lane_number=4,
                            flow_cell='FL0123',

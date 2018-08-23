@@ -458,3 +458,34 @@ class BiospecimenTest(FlaskTestCase):
         self.assertEqual(3, Diagnosis.query.count())
         self.assertEqual([d, d1, d2],
                          Biospecimen.query.first().diagnoses)
+
+    def test_all_filter(self):
+        """
+        Test biospecimens with a study filter and
+        diagnosis id
+        """
+        expected_total = 1
+        # create and save biospecimens and diagnosis to db
+        kwargs = self._create_save_to_db()
+        kf_id = kwargs.get('kf_id')
+        d, d_args = self._create_diagnosis(
+            1, participant_id=kwargs['participant_id'])
+        d_args['kf_id'] = d.kf_id
+        body = {
+            'diagnoses': [{'kf_id': d_args['kf_id']}]
+        }
+        response = self.client.patch(url_for(BIOSPECIMENS_URL,
+                                             kf_id=kf_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        # Status code
+        self.assertEqual(response.status_code, 200)
+
+        s = Study.query.first()
+        dg = Diagnosis.query.first()
+        endpoint = '/biospecimens?study_id={}&diagnosis_id={}'.format(
+            s.kf_id, dg.kf_id)
+        resp = self.client.get(endpoint)
+        resp = json.loads(resp.data.decode('utf-8'))
+        assert len(resp['results']) == min(expected_total, 10)
+        assert resp['limit'] == 10
