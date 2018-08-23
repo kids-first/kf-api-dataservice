@@ -4,9 +4,13 @@ from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
-from dataservice.api.read_group.models import ReadGroup
+from dataservice.api.read_group.models import (
+    ReadGroup,
+    ReadGroupGenomicFile
+)
 from dataservice.api.read_group.schemas import (
-    ReadGroupSchema
+    ReadGroupSchema,
+    ReadGroupFilterSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -21,7 +25,7 @@ class ReadGroupListAPI(CRUDView):
     schemas = {'ReadGroup': ReadGroupSchema}
 
     @paginated
-    @use_args(filter_schema_factory(ReadGroupSchema),
+    @use_args(filter_schema_factory(ReadGroupFilterSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """
@@ -38,8 +42,11 @@ class ReadGroupListAPI(CRUDView):
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
 
-        q = (ReadGroup.query
-             .filter_by(**filter_params))
+        # Get genomic file id and remove from model filter params
+        genomic_file_id = filter_params.pop('genomic_file_id', None)
+
+        # Apply model filter params
+        q = ReadGroup.query.filter_by(**filter_params)
 
         # Filter by study
         from dataservice.api.participant.models import Participant
@@ -55,6 +62,11 @@ class ReadGroupListAPI(CRUDView):
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
                  .filter(Participant.study_id == study_id))
+
+        # Filter by genomic file id
+        if genomic_file_id:
+            q = q.filter(
+                ReadGroupGenomicFile.genomic_file_id == genomic_file_id)
 
         return (ReadGroupSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

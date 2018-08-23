@@ -1,14 +1,14 @@
 import datetime
 from flask import abort, request
 from marshmallow import ValidationError
-from sqlalchemy.orm import joinedload
 from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, indexd_pagination
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.genomic_file.schemas import (
-    GenomicFileSchema
+    GenomicFileSchema,
+    GenomicFileFilterSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -23,7 +23,7 @@ class GenomicFileListAPI(CRUDView):
     schemas = {'GenomicFile': GenomicFileSchema}
 
     @paginated
-    @use_args(filter_schema_factory(GenomicFileSchema),
+    @use_args(filter_schema_factory(GenomicFileFilterSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """
@@ -42,7 +42,10 @@ class GenomicFileListAPI(CRUDView):
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
 
-        # Get a page of the data from the model first
+        # Get read group id and remove from model filter params
+        read_group_id = filter_params.pop('read_group_id', None)
+
+        # Apply model filter params
         q = (GenomicFile.query
              .filter_by(**filter_params))
 
@@ -57,6 +60,11 @@ class GenomicFileListAPI(CRUDView):
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
                  .filter(Participant.study_id == study_id))
+
+        from dataservice.api.read_group.models import ReadGroupGenomicFile
+        if read_group_id:
+            q = (q.join(GenomicFile.read_groups)
+                 .filter(ReadGroupGenomicFile.read_group_id == read_group_id))
 
         pager = indexd_pagination(q, after, limit)
 
