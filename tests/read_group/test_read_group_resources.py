@@ -1,12 +1,14 @@
 import json
-import uuid
 from flask import url_for
 from datetime import datetime
 from dateutil import parser, tz
 
 from dataservice.extensions import db
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.read_group.models import ReadGroup
+from dataservice.api.read_group.models import (
+    ReadGroup,
+    ReadGroupGenomicFile
+)
 
 from tests.utils import IndexdTestCase
 
@@ -44,6 +46,42 @@ class ReadGroupTest(IndexdTestCase):
 
         self.assertEqual(1, ReadGroup.query.count())
 
+    def test_post_with_genomic_files(self):
+        """
+        Test create a new read_group with genomic files
+        """
+        gfs = []
+        for i in range(2):
+            gfs.append(GenomicFile(external_id='gf{}'.format(i)))
+        db.session.add_all(gfs)
+        db.session.commit()
+
+        body = {'external_id': 'blah',
+                'lane_number': 3,
+                'flow_cell': 'FL0101',
+                'genomic_files': [{'kf_id': gf.kf_id} for gf in gfs]
+                }
+
+        # Send get request
+        response = self.client.post(url_for(READ_GROUPS_LIST_URL),
+                                    data=json.dumps(body),
+                                    headers=self._api_headers())
+        # Check response status status_code
+        self.assertEqual(response.status_code, 201)
+
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        read_group = response['results']
+        for k, v in body.items():
+            if k == 'genomic_files':
+                continue
+            self.assertEqual(read_group[k], v)
+
+        # Check counts
+        self.assertEqual(1, ReadGroup.query.count())
+        self.assertEqual(2, GenomicFile.query.count())
+        self.assertEqual(2, ReadGroupGenomicFile.query.count())
+
     def test_get(self):
         """
         Test retrieval of read_group
@@ -73,10 +111,18 @@ class ReadGroupTest(IndexdTestCase):
         rg = self._create_save_to_db()
         kf_id = rg.kf_id
 
+        gfs = []
+        for i in range(2):
+            gfs.append(GenomicFile(external_id='gf{}'.format(i)))
+        rg.genomic_files.extend(gfs)
+        db.session.commit()
+
         # Update existing read_group
-        body = {
-            'external_id': 'updated',
-        }
+        # Unlink one of the genomic files from read group
+        body = {'external_id': 'updated',
+                'genomic_files': [{'kf_id': gfs[0].kf_id}]
+                }
+
         response = self.client.patch(url_for(READ_GROUPS_URL,
                                              kf_id=kf_id),
                                      headers=self._api_headers(),
@@ -93,6 +139,8 @@ class ReadGroupTest(IndexdTestCase):
         read_group = resp['results']
         rg = ReadGroup.query.get(kf_id)
         for k, v in body.items():
+            if 'genomic_files':
+                continue
             self.assertEqual(v, getattr(rg, k))
         # Content - Check remaining fields are unchanged
         unchanged_keys = (set(read_group.keys()) -
@@ -105,7 +153,11 @@ class ReadGroupTest(IndexdTestCase):
                     str(parser.parse(read_group[k])), str(d))
             else:
                 self.assertEqual(read_group[k], val)
+
+        # Check counts
         self.assertEqual(1, ReadGroup.query.count())
+        self.assertEqual(2, GenomicFile.query.count())
+        self.assertEqual(1, ReadGroupGenomicFile.query.count())
 
     def test_delete(self):
         """
@@ -128,20 +180,9 @@ class ReadGroupTest(IndexdTestCase):
         """
         Create and save read_group
         """
-        kwargs = {
-            'file_name': 'test123.fq',
-            'data_type': 'Unaligned Reads',
-            'file_format': 'fastq',
-            'size': 1000,
-            'urls': ['s3://bucket/key'],
-            'hashes': {'md5': str(uuid.uuid4())}
-        }
-        gf = GenomicFile(**kwargs)
-
         rg = ReadGroup(external_id='blah',
                        lane_number=3,
                        flow_cell='FL0101')
-        gf.read_group = rg
 
         db.session.add(rg)
         db.session.commit()
