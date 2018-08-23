@@ -63,7 +63,7 @@ class GenomicFileListAPI(CRUDView):
 
         from dataservice.api.read_group.models import ReadGroupGenomicFile
         if read_group_id:
-            q = (q.join(GenomicFile.read_groups)
+            q = (q.join(ReadGroupGenomicFile)
                  .filter(ReadGroupGenomicFile.read_group_id == read_group_id))
 
         pager = indexd_pagination(q, after, limit)

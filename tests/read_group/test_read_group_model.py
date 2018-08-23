@@ -1,5 +1,3 @@
-import uuid
-
 from dataservice.extensions import db
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.read_group.models import (

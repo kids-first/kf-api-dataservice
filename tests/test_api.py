@@ -85,7 +85,8 @@ class TestAPI:
         ('/biospecimens', ['participant', 'sequencing_center', 'diagnoses']),
         ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['sequencing_experiment',
-                            'read_group']),
+                            'read_groups']),
+        ('/read-groups', ['genomic_files']),
         ('/cavatica-tasks', ['cavatica_app']),
         ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file']),
         ('/biospecimen-genomic-files', ['biospecimen', 'genomic_file'])
@@ -109,7 +110,7 @@ class TestAPI:
                 assert len(link.split('/')[-1].split('=')[-1]) == 11
                 # test that link responds ok
                 resp = client.get(link,
-                          headers={'Content-Type': 'application/json'})
+                                  headers={'Content-Type': 'application/json'})
                 assert resp.status_code == 200
 
         # Test self and collection links
@@ -131,7 +132,6 @@ class TestAPI:
                            'biospecimens']),
         ('/biospecimens', ['biospecimen_genomic_files']),
         ('/sequencing-experiments', ['genomic_files']),
-        ('/read-groups', ['genomic_files']),
         ('/genomic-files', ['cavatica_task_genomic_files',
                             'biospecimen_genomic_files'
                             ]),
@@ -372,7 +372,7 @@ class TestAPI:
         status = json.loads(client.get('/status').data.decode('utf-8'))
         status = status['_status']
         assert 'commit' in status
-        assert len(status['commit']) == 8
+        assert len(status['commit']) == 7
         assert 'branch' in status
         assert 'version' in status
         assert status['version'].count('.') == 2

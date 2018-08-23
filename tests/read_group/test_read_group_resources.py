@@ -1,15 +1,23 @@
 import json
-from flask import url_for
+from pprint import pprint
 from datetime import datetime
+
+from flask import url_for
 from dateutil import parser, tz
+from urllib.parse import urlencode
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
+from dataservice.api.participant.models import Participant
+from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sequencing_center.models import (
+    SequencingCenter
+)
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.read_group.models import (
     ReadGroup,
     ReadGroupGenomicFile
 )
-
 from tests.utils import IndexdTestCase
 
 READ_GROUPS_URL = 'api.read_groups'
@@ -188,3 +196,92 @@ class ReadGroupTest(IndexdTestCase):
         db.session.commit()
 
         return rg
+
+    def test_filter_by_gf(self):
+        """
+        Test get and filter read groups by study_id and/or genomic_file_id
+        """
+        rgs, gfs, studies = self._create_all_entities()
+
+        # Create query
+        gf = GenomicFile.query.filter_by(external_id='study0-gf1').first()
+        assert len(gf.read_groups) == 1
+        assert gf.read_groups[0].external_id == 'study0-rg0'
+
+        # Send get request
+        filter_params = {'genomic_file_id': gf.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/read-groups', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 1 == response['total']
+        assert 1 == len(response['results'])
+        read_group = response['results'][0]
+        assert read_group['external_id'] == 'study0-rg0'
+
+    def test_filter_by_study(self):
+        """
+        Test filter by study
+        """
+        rgs, gfs, studies = self._create_all_entities()
+        assert len(rgs['study0']) == 2
+
+        # Create query
+        filter_params = {'study_id': studies[0].kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/read-groups', qs)
+        # Send get request
+        response = self.client.get(endpoint, headers=self._api_headers())
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 2 == response['total']
+        assert 2 == len(response['results'])
+        read_groups = response['results']
+        for rg in read_groups:
+            assert rg['external_id'].startswith('study0')
+
+    def _create_all_entities(self):
+        """
+        Create 2 studies with genomic files and read groups
+        """
+        sc = SequencingCenter(name='sc')
+        studies = []
+        rgs = {}
+        gfs = {}
+        for j in range(2):
+            s = Study(external_id='s{}'.format(j))
+            p = Participant(external_id='p{}'.format(j))
+            s.participants.append(p)
+            study_gfs = gfs.setdefault('study{}'.format(j), [])
+            for i in range(3):
+                b = Biospecimen(external_sample_id='b{}'.format(i),
+                                analyte_type='DNA',
+                                sequencing_center=sc,
+                                participant=p)
+                gf = GenomicFile(
+                    external_id='study{}-gf{}'.format(j, i),
+                    urls=['s3://mybucket/key'],
+                    hashes={'md5': 'd418219b883fce3a085b1b7f38b01e37'})
+                study_gfs.append(gf)
+                b.genomic_files.append(gf)
+
+            study_rgs = rgs.setdefault('study{}'.format(j), [])
+
+            rg0 = ReadGroup(external_id='study{}-rg0'.format(j))
+            rg0.genomic_files.extend(study_gfs[0:2])
+            rg1 = ReadGroup(external_id='study{}-rg1'.format(j))
+            rg1.genomic_files.extend([study_gfs[0],
+                                      study_gfs[-1]])
+
+            study_rgs.extend([rg0, rg1])
+            studies.append(s)
+
+        db.session.add_all(studies)
+        db.session.commit()
+
+        return rgs, gfs, studies

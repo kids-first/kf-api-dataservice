@@ -55,18 +55,20 @@ class ReadGroupListAPI(CRUDView):
         from dataservice.api.biospecimen_genomic_file.models import (
             BiospecimenGenomicFile
         )
-
         if study_id:
             q = (q.join(ReadGroup.genomic_files)
                  .join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
-                 .filter(Participant.study_id == study_id))
+                 .filter(Participant.study_id == study_id)
+                 .group_by(ReadGroup.kf_id))
 
-        # Filter by genomic file id
+        # Filter by genomic_file_id
         if genomic_file_id:
-            q = q.filter(
-                ReadGroupGenomicFile.genomic_file_id == genomic_file_id)
+            q = (q.join(ReadGroupGenomicFile,
+                        ReadGroup.kf_id == ReadGroupGenomicFile.read_group_id)
+                 .filter(ReadGroupGenomicFile.genomic_file_id ==
+                         genomic_file_id))
 
         return (ReadGroupSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

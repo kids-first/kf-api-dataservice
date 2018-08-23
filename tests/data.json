@@ -235,6 +235,7 @@
                 "data_type": "Expression"
             },
             "invalid": [
+                {"read_group_id": "BS_00000000"},
                 {"paired_end": -1},
                 {"paired_end": "one"},
                 {"controlled_access": "hello", "size": "hello"},
@@ -254,6 +255,7 @@
                 "quality_scale": "Illumina15"
             },
             "invalid": [
+                {"genomic_file_id": "BS_00000000"},
                 {"lane_number": "two"},
                 {"lane_number": -1},
                 {"quality_scale": "none"}

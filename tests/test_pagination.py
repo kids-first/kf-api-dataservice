@@ -136,6 +136,7 @@ class TestPagination:
 
             gf = GenomicFile(**gf_kwargs,
                              sequencing_experiment_id=seq_exp.kf_id)
+            gf.read_groups.append(rg)
             db.session.add(gf)
             samp.genomic_files.append(gf)
 

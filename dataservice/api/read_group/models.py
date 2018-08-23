@@ -5,30 +5,6 @@ from dataservice.api.common.model import Base, KfId
 from dataservice.api.genomic_file.models import GenomicFile
 
 
-class ReadGroupGenomicFile(db.Model, Base):
-    """
-    Represents association table between read_group table and
-    genomic_file table. Contains all read_group, genomic_file combiniations.
-    :param kf_id: Unique id given by the Kid's First DCC
-    :param created_at: Time of object creation
-    :param modified_at: Last time of object modification
-    """
-    __tablename__ = 'read_group_genomic_file'
-    __prefix__ = 'RF'
-    __table_args__ = (db.UniqueConstraint('read_group_id',
-                                          'genomic_file_id'),)
-    read_group_id = db.Column(KfId(),
-                              db.ForeignKey('read_group.kf_id'),
-                              nullable=False)
-
-    genomic_file_id = db.Column(KfId(),
-                                db.ForeignKey('genomic_file.kf_id'),
-                                nullable=False)
-
-    read_group = db.relationship('ReadGroup')
-    genomic_file = db.relationship('GenomicFile')
-
-
 class ReadGroup(db.Model, Base):
     """
     ReadGroup entity.
@@ -53,8 +29,34 @@ class ReadGroup(db.Model, Base):
 
     genomic_files = db.relationship('GenomicFile',
                                     secondary='read_group_genomic_file',
-                                    backref=db.backref(
-                                        'read_groups'))
+                                    backref=db.backref('read_groups'))
+
+
+class ReadGroupGenomicFile(db.Model, Base):
+    """
+    Represents association table between read_group table and
+    genomic_file table. Contains all read_group, genomic_file combiniations.
+    :param kf_id: Unique id given by the Kid's First DCC
+    :param created_at: Time of object creation
+    :param modified_at: Last time of object modification
+    """
+    __tablename__ = 'read_group_genomic_file'
+    __prefix__ = 'RF'
+    __table_args__ = (db.UniqueConstraint('read_group_id',
+                                          'genomic_file_id'),)
+    read_group_id = db.Column(KfId(),
+                              db.ForeignKey('read_group.kf_id'),
+                              nullable=False)
+
+    genomic_file_id = db.Column(KfId(),
+                                db.ForeignKey('genomic_file.kf_id'),
+                                nullable=False)
+    read_group = db.relationship('ReadGroup')
+    genomic_file = db.relationship('GenomicFile')
+
+    def __repr__(self):
+        return "{}-{}".format(self.read_group.external_id,
+                              self.genomic_file.external_id)
 
 
 @event.listens_for(GenomicFile, 'after_delete')
