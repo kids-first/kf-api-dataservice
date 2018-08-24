@@ -29,7 +29,7 @@ class BiospecimenSchema(BaseSchema):
                                   validate=validate_age)
     concentration_mg_per_ml = field_for(Biospecimen, 'concentration_mg_per_ml',
                                         validate=validate_positive_number)
-    volume_ml = field_for(Biospecimen, 'volume_ml',
+    volume_ul = field_for(Biospecimen, 'volume_ul',
                           validate=validate_positive_number)
 
     shipment_date = field_for(Biospecimen, 'shipment_date',

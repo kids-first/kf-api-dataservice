@@ -43,7 +43,7 @@ class BiospecimenTest(FlaskTestCase):
             'shipment_origin': 'CORIELL',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
-            'volume_ml': 12.67,
+            'volume_ul': 12.67,
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',
@@ -95,7 +95,7 @@ class BiospecimenTest(FlaskTestCase):
             'source_text_tissue_type': 'abnormal',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 200,
-            'volume_ml': 13.99,
+            'volume_ul': 13.99,
             'participant_id': s1['participant_id'],
             'sequencing_center_id': s1['sequencing_center_id']
         }
@@ -315,7 +315,7 @@ class BiospecimenTest(FlaskTestCase):
             'shipment_origin': 'CORIELL',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
-            'volume_ml': 12.67,
+            'volume_ul': 12.67,
             'shipment_date': dt,
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',

@@ -40,7 +40,7 @@
             "shipment_origin": "CORIELL",
             "analyte_type": "DNA",
             "concentration_mg_per_ml": 200.0,
-            "volume_ml": 13.99,
+            "volume_ul": 13.99,
             "shipment_date": "",
             "uberon_id_anatomical_site": "test",
             "spatial_descriptor": "left side",
