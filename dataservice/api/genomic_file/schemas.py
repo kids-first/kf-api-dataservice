@@ -16,7 +16,9 @@ DATA_TYPE_ENUM = {'Aligned Reads',
                   'gVCF',
                   'gVCF Index',
                   'Other',
-                  'Expression'}
+                  'Expression',
+                  'Histology Images', 'Radiology Images', 'Pathology Reports',
+                  'Operation Reports', 'Radiology Reports'}
 
 
 class GenomicFileSchema(BaseSchema, IndexdFileSchema):
