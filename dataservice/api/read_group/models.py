@@ -54,10 +54,6 @@ class ReadGroupGenomicFile(db.Model, Base):
     read_group = db.relationship('ReadGroup')
     genomic_file = db.relationship('GenomicFile')
 
-    def __repr__(self):
-        return "{}-{}".format(self.read_group.external_id,
-                              self.genomic_file.external_id)
-
 
 @event.listens_for(GenomicFile, 'after_delete')
 def delete_orphans(mapper, connection, state):

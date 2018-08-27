@@ -14,7 +14,7 @@ class Config:
     PG_USER = os.environ.get('PG_USER', 'postgres')
     PG_PASS = os.environ.get('PG_PASS', '')
     SQLALCHEMY_DATABASE_URI = 'postgres://{}:{}@{}:{}/{}'.format(
-                        PG_USER, PG_PASS, PG_HOST, PG_PORT, PG_NAME)
+        PG_USER, PG_PASS, PG_HOST, PG_PORT, PG_NAME)
 
     # Default number of results per request
     DEFAULT_PAGE_LIMIT = 10
@@ -44,9 +44,8 @@ class TestingConfig(Config):
     SERVER_NAME = "localhost"
     TESTING = True
     WTF_CSRF_ENABLED = False
-    SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/test'
+    # SQLALCHEMY_DATABASE_URI = 'postgres://postgres@localhost:5432/test'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-
 
     INDEXD_URL = os.environ.get('INDEXD_URL', '')
     BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', '')
@@ -83,11 +82,11 @@ class ProductionConfig(Config):
         pg_user = pg_secrets['data']['user']
         pg_pass = pg_secrets['data']['password']
         connection_str = 'postgres://{}:{}@{}:{}/{}'.format(
-                            pg_user,
-                            pg_pass,
-                            Config.PG_HOST,
-                            Config.PG_PORT,
-                            Config.PG_NAME)
+            pg_user,
+            pg_pass,
+            Config.PG_HOST,
+            Config.PG_PORT,
+            Config.PG_NAME)
 
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_str
 
@@ -98,17 +97,17 @@ class ProductionConfig(Config):
         # Get the bucket service's token for auth
         if (bucket_token and
             'data' in bucket_token and
-            'token' in bucket_token ['data']):
+                'token' in bucket_token['data']):
             app.config['BUCKET_SERVICE_TOKEN'] = \
-                    bucket_token['data']['token']
+                bucket_token['data']['token']
 
         # Get the bucket service's url
         if (bucket_url and
             'data' in bucket_url and
-            'invoke_url' in bucket_url['data']):
+                'invoke_url' in bucket_url['data']):
             # All environments use the /api stage in api gateway
             app.config['BUCKET_SERVICE_URL'] = \
-                    bucket_url['data']['invoke_url'] + 'api'
+                bucket_url['data']['invoke_url'] + 'api'
 
 
 class UnixConfig(ProductionConfig):
