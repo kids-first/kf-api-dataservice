@@ -49,7 +49,7 @@ class Biospecimen(db.Model, Base):
     :param concentration_mg_per_ml: The concentration of an analyte or aliquot
            extracted from the biospecimen or biospecimen portion, measured in
            milligrams per milliliter
-    :param volume_ml: The volume in microliters (ml) of the aliquots derived
+    :param volume_ul: The volume in microliters (ul) of the aliquots derived
            from the analyte(s) shipped for sequencing and characterization
     :param shipment_date: The date item was shipped in YYYY-MM-DD format
     :param uberon_id_anatomical_site: The ID of the term from Uber-anatomy
@@ -90,7 +90,7 @@ class Biospecimen(db.Model, Base):
                              doc='The molecular description of the aliquot')
     concentration_mg_per_ml = db.Column(db.Float(),
                                         doc='The concentration of the aliquot')
-    volume_ml = db.Column(db.Float(),
+    volume_ul = db.Column(db.Float(),
                           doc='The volume of the aliquot')
     shipment_date = db.Column(db.DateTime(),
                               doc='The date the aliquot was shipped')

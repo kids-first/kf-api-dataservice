@@ -351,7 +351,7 @@ class ModelTest(FlaskTestCase):
             'shipment_origin': 'CORIELL',
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100.0,
-            'volume_ml': 12.67,
+            'volume_ul': 12.67,
             'shipment_date': dt,
             'uberon_id_anatomical_site': 'UBERON:0000955',
             'spatial_descriptor': 'left side',
