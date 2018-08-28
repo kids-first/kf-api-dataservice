@@ -85,8 +85,8 @@ class TestAPI:
         ('/biospecimens', ['participant', 'sequencing_center', 'diagnoses']),
         ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['sequencing_experiment',
-                            'read_group']),
-        ('/read-groups', ['genomic_file']),
+                            'read_groups']),
+        ('/read-groups', ['genomic_files']),
         ('/cavatica-tasks', ['cavatica_app']),
         ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file']),
         ('/biospecimen-genomic-files', ['biospecimen', 'genomic_file'])
@@ -110,7 +110,7 @@ class TestAPI:
                 assert len(link.split('/')[-1].split('=')[-1]) == 11
                 # test that link responds ok
                 resp = client.get(link,
-                          headers={'Content-Type': 'application/json'})
+                                  headers={'Content-Type': 'application/json'})
                 assert resp.status_code == 200
 
         # Test self and collection links
@@ -295,7 +295,6 @@ class TestAPI:
                                  ('/study-files', 'size'),
                                  ('/genomic-files', 'urls'),
                                  ('/genomic-files', 'hashes'),
-                                 ('/read-groups', 'genomic_file_id'),
                                  ('/diagnoses', 'participant_id'),
                                  ('/sequencing-centers', 'name')
                              ])
@@ -334,7 +333,6 @@ class TestAPI:
                               ('/diagnoses', 'participant_id'),
                               ('/biospecimens', 'participant_id'),
                               ('/genomic-files', 'sequencing_experiment_id'),
-                              ('/read-groups', 'genomic_file_id'),
                               ('/cavatica-tasks', 'cavatica_app_id'),
                               ('/cavatica-task-genomic-files',
                                'cavatica_task_id'),

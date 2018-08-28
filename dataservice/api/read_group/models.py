@@ -1,5 +1,8 @@
+from sqlalchemy import event
+
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
+from dataservice.api.genomic_file.models import GenomicFile
 
 
 class ReadGroup(db.Model, Base):
@@ -17,17 +20,43 @@ class ReadGroup(db.Model, Base):
 
     external_id = db.Column(db.Text(), nullable=True,
                             doc='Name given to read group by the contributor')
-    paired_end = db.Column(db.Integer(),
-                           doc='The direction of the read')
     flow_cell = db.Column(db.Text(),
                           doc='The identifier of the group\'s flow cell')
     lane_number = db.Column(db.Float(),
                             doc='The group\'s lane')
     quality_scale = db.Column(db.Text(),
                               doc='The scale used to encode quality scores')
-    # NB: Because of the way GenomicFiles may delete themselves,
-    # they do not cascade to the read-group in the ORM, so we explicitly
-    # ON DELETE CASCADE inside Postgres
-    genomic_file_id = db.Column(KfId(), db.ForeignKey('genomic_file.kf_id',
-                                                      ondelete='CASCADE'),
+
+    genomic_files = db.relationship('GenomicFile',
+                                    secondary='read_group_genomic_file',
+                                    backref=db.backref('read_groups'))
+
+
+class ReadGroupGenomicFile(db.Model, Base):
+    """
+    Represents association table between read_group table and
+    genomic_file table. Contains all read_group, genomic_file combiniations.
+    :param kf_id: Unique id given by the Kid's First DCC
+    :param created_at: Time of object creation
+    :param modified_at: Last time of object modification
+    """
+    __tablename__ = 'read_group_genomic_file'
+    __prefix__ = 'RF'
+    __table_args__ = (db.UniqueConstraint('read_group_id',
+                                          'genomic_file_id'),)
+    read_group_id = db.Column(KfId(),
+                              db.ForeignKey('read_group.kf_id'),
+                              nullable=False)
+
+    genomic_file_id = db.Column(KfId(),
+                                db.ForeignKey('genomic_file.kf_id'),
                                 nullable=False)
+    read_group = db.relationship('ReadGroup')
+    genomic_file = db.relationship('GenomicFile')
+
+
+@event.listens_for(GenomicFile, 'after_delete')
+def delete_orphans(mapper, connection, state):
+    q = (db.session.query(ReadGroup)
+         .filter(~ReadGroup.genomic_files.any()))
+    q.delete(synchronize_session='fetch')

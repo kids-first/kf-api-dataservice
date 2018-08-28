@@ -1,11 +1,21 @@
 from marshmallow_sqlalchemy import field_for
+from marshmallow import (
+    fields,
+    validates
+)
 
-from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.common.schemas import (BaseSchema, IndexdFileSchema,
-                                            AVAILABILITY_ENUM)
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
-from dataservice.api.common.validation import enum_validation_generator
+from dataservice.api.common.validation import (
+    enum_validation_generator,
+    validate_kf_id
+)
+from dataservice.api.genomic_file.models import GenomicFile
+from dataservice.api.common.schemas import (
+    BaseSchema,
+    IndexdFileSchema,
+    AVAILABILITY_ENUM
+)
 
 DATA_TYPE_ENUM = {'Aligned Reads',
                   'Aligned Reads Index',
@@ -20,6 +30,8 @@ DATA_TYPE_ENUM = {'Aligned Reads',
                   'Histology Images', 'Radiology Images', 'Pathology Reports',
                   'Operation Reports', 'Radiology Reports'}
 
+PAIRED_END_ENUM = {1, 2}
+
 
 class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     class Meta(BaseSchema.Meta, IndexdFileSchema.Meta):
@@ -30,8 +42,11 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         exclude = (BaseSchema.Meta.exclude +
                    ('biospecimen', 'sequencing_experiment',) +
                    ('cavatica_task_genomic_files',
-                    'biospecimen_genomic_files',
-                    'read_group',))
+                    'biospecimen_genomic_files',))
+
+    paired_end = field_for(GenomicFile, 'paired_end',
+                           validate=enum_validation_generator(
+                               PAIRED_END_ENUM))
 
     data_type = field_for(GenomicFile, 'data_type',
                           validate=enum_validation_generator(
@@ -49,6 +64,9 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
                            required=False,
                            dump_only=True)
 
+    read_groups = fields.Nested('ReadGroupSchema', many=True, only=['kf_id'],
+                                load_only=True)
+
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
@@ -59,6 +77,15 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>'),
         'biospecimen_genomic_files': ma.URLFor(
             'api.biospecimen_genomic_files_list', genomic_file_id='<kf_id>'),
-        'read_group': PatchedURLFor(
-            'api.read_groups', kf_id='<read_group.kf_id>')
+        'read_groups': ma.URLFor(
+            'api.read_groups_list', genomic_file_id='<kf_id>')
     }, description='Resource links and pagination')
+
+
+class GenomicFileFilterSchema(GenomicFileSchema):
+
+    read_group_id = fields.Str()
+
+    @validates('read_group_id')
+    def valid_read_group_id(self, value):
+        validate_kf_id('RG', value)

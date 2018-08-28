@@ -54,6 +54,7 @@ class ModelTest(IndexdTestCase):
                 'controlled_access': True,
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
+                'paired_end': 1,
                 'availability': 'Immediate Download',
                 'sequencing_experiment_id': se.kf_id
             }
@@ -252,6 +253,7 @@ class ModelTest(IndexdTestCase):
                 'urls': ['s3://file_{}'.format(i)],
                 'controlled_access': True,
                 'is_harmonized': True,
+                'paired_end': 1,
                 'reference_genome': 'Test01',
                 'hashes': {'md5': str(uuid.uuid4())},
                 'availability': 'Immediate Download'
