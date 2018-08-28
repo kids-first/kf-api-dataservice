@@ -55,8 +55,8 @@ class DiagnosisListAPI(CRUDView):
 
         if biospecimen_id:
             q = (q.join(BiospecimenDiagnosis)
-                 .filter(BiospecimenDiagnosis.biospecimen_id
-                         == biospecimen_id))
+                 .filter(
+                 BiospecimenDiagnosis.biospecimen_id == biospecimen_id))
 
         return (DiagnosisSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
