@@ -168,7 +168,8 @@
         "/biospecimens": {
             "valid": {
                 "analyte_type": "RNA",
-                "shipment_date": ""
+                "shipment_date": "",
+                "analyte_type": "Virtual"
             },
             "invalid": [
                 {"age_at_event_days": -1, "shipment_date": "hai der"},

@@ -15,7 +15,7 @@ from marshmallow import (
     validates
 )
 
-ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other"}
+ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other", "Virtual"}
 
 
 class BiospecimenSchema(BaseSchema):
