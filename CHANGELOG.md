@@ -1,3 +1,24 @@
+# Kids First Dataservice Release 1.3.1
+
+## Features
+
+### Summary
+
+Feature Emojis: ✨x5 🐛x2 🔧x1
+Feature Labels: [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x3 [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x2 [refactor](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/refactor) x2 [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x1
+
+### New features and changes
+
+- (#436) ✨update outcome enum to deceased - @parimalak
+- (#420) 🐛 fix parsing of uniqueness constraint error - @fiendish
+- (#435) 🔧 Update read group quality scale enum - @znatty22
+- (#430) ✨ Update analyte_type enum to support imaging files - @parimalak
+- (#427) 🐛 Fix filtering in biospecimen, diagnosis GET all endpoint - @znatty22
+- (#412) ✨ Refactor ReaGroup GenomicFile Relation - @znatty22
+- (#426)  ✨ Update data_type enum to support image files - @parimalak
+- (#422) ✨Rename field volume_ml to volume_ul - @parimalak
+
+
 # Kids First Dataservice Release 1.3.0
 
 ## Features
