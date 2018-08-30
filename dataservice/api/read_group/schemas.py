@@ -26,7 +26,7 @@ class ReadGroupSchema(BaseSchema):
 
     quality_scale = field_for(ReadGroup, 'quality_scale',
                               validate=enum_validation_generator(
-                                  QUALITY_SCALE_ENUM, common=False))
+                                  QUALITY_SCALE_ENUM, common=True))
 
     genomic_files = fields.Nested(GenomicFileSchema, many=True, only=['kf_id'],
                                   load_only=True)
