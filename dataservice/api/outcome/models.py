@@ -11,8 +11,9 @@ class Outcome(db.Model, Base):
     :param modified_at: Last time of object modification
     :param external_id: Name given to outcome by contributor
     :param vital_status: Vital status of the participant
-    :param disease_related: true if Dead and cause of death was disease related
-    , false if Dead and cause of death was disease related, Not Reported
+    :param disease_related: true if Deceased and cause of death
+    was disease related
+    , false if Deceasedand cause of death was disease related, Not Reported
     :param age_at_event_days: Age at the time of outcome occured
     in number of days since birth.
     """

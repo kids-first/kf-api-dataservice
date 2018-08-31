@@ -39,7 +39,7 @@ class ModelTest(FlaskTestCase):
         dt = datetime.now()
         o1 = Outcome(**data)
         db.session.add(o1)
-        data['vital_status'] = 'Dead'
+        data['vital_status'] = 'Deceased'
         data['disease_related'] = 'True'
         o2 = Outcome(**data)
         db.session.add(o2)
@@ -60,7 +60,7 @@ class ModelTest(FlaskTestCase):
         Test create outcomes via creation of participant
         """
         outcomes, p = self._create_outcomes()
-        oc = ['Dead', 'Alive']
+        oc = ['Deceased', 'Alive']
 
         # Check outcomes were created
         self.assertEqual(Outcome.query.count(), 2)
@@ -81,7 +81,7 @@ class ModelTest(FlaskTestCase):
         outcomes, p = self._create_outcomes()
 
         # Find outcome
-        oc = ['Dead', 'Alive']
+        oc = ['Deceased', 'Alive']
         o = Outcome.query.filter_by(vital_status=oc[0]).one_or_none()
         self.assertEqual(o.vital_status, oc[0])
 
@@ -92,7 +92,7 @@ class ModelTest(FlaskTestCase):
         outcomes, p = self._create_outcomes()
 
         # Update and save
-        oc = ['Dead', 'Alive']
+        oc = ['Deceased', 'Alive']
         o = Outcome.query.filter_by(vital_status=oc[0]).one_or_none()
         o.outcome = oc[1]
         db.session.commit()
@@ -108,7 +108,7 @@ class ModelTest(FlaskTestCase):
         outcomes, p = self._create_outcomes()
 
         # Choose one and delete it
-        oc = ['Dead', 'Alive']
+        oc = ['Deceased', 'Alive']
         o = Outcome.query.filter_by(vital_status=oc[0]).one_or_none()
         db.session.delete(o)
         db.session.commit()
@@ -129,7 +129,7 @@ class ModelTest(FlaskTestCase):
         db.session.commit()
 
         # Check that outcomes have been deleted
-        oc = ['Dead', 'Alive']
+        oc = ['Deceased', 'Alive']
         o1 = Outcome.query.filter_by(vital_status=oc[0]).one_or_none()
         o2 = Outcome.query.filter_by(vital_status=oc[1]).one_or_none()
         self.assertIs(o1, None)
@@ -172,7 +172,7 @@ class ModelTest(FlaskTestCase):
         # Create study
         study = Study(external_id='phs001')
         # Create two outcomes
-        oc = ['Dead', 'Alive']
+        oc = ['Deceased', 'Alive']
         o1 = Outcome(vital_status=oc[0])
         o2 = Outcome(vital_status=oc[1])
         p = Participant(external_id='p1', is_proband=True, study=study)
