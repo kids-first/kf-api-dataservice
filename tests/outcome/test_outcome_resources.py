@@ -61,7 +61,7 @@ class OutcomeTest(FlaskTestCase):
         # Create another outcome for the same participant
         oc2 = {
             'external_id': 'test_1',
-            'vital_status': 'Dead',
+            'vital_status': 'Deceased',
             'disease_related': 'Yes',
             'age_at_event_days': 369,
             'participant_id': oc1['participant_id']
@@ -124,7 +124,7 @@ class OutcomeTest(FlaskTestCase):
 
         # Send patch request
         body = {
-            'vital_status': 'Dead',
+            'vital_status': 'Deceased',
             'participant_id': kwargs['participant_id']
         }
         response = self.client.patch(url_for(OUTCOMES_URL,

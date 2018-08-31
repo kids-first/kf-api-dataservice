@@ -192,7 +192,7 @@
         "/outcomes": {
             "valid": {
                 "external_id": "Outcome_1",
-                "vital_status": "Dead"
+                "vital_status": "Deceased"
             },
             "invalid": [
                 {"age_at_event_days": -1},

@@ -7,7 +7,7 @@ from dataservice.api.common.validation import (validate_age,
 from dataservice.extensions import ma
 
 
-VITAL_STATUS_ENUM = {'Alive', 'Dead'}
+VITAL_STATUS_ENUM = {'Alive', 'Deceased'}
 DISEASE_RELATED_ENUM = {'Yes', 'No'}
 
 
