@@ -59,7 +59,8 @@ class GenomicFileListAPI(CRUDView):
             q = (q.join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
-                 .filter(Participant.study_id == study_id))
+                 .filter(Participant.study_id == study_id)
+                 .group_by(GenomicFile.kf_id))
 
         from dataservice.api.read_group.models import ReadGroupGenomicFile
         if read_group_id:
