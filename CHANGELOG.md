@@ -1,3 +1,10 @@
+# Kids First Dataservice Release 1.3.2
+
+## Features
+
+- (#437) 🐛 Fix join for genomic files study filter - @dankolbman
+
+
 # Kids First Dataservice Release 1.3.1
 
 ## Features
