@@ -58,7 +58,8 @@ class CavaticaTaskListAPI(CRUDView):
                  .join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
-                 .filter(Participant.study_id == study_id))
+                 .filter(Participant.study_id == study_id)
+                 .group_by(CavaticaTask.kf_id))
 
         return (CavaticaTaskSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))

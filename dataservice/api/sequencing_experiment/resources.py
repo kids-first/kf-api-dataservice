@@ -55,7 +55,8 @@ class SequencingExperimentListAPI(CRUDView):
                  .join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
-                 .filter(Participant.study_id == study_id))
+                 .filter(Participant.study_id == study_id)
+                 .group_by(SequencingExperiment.kf_id))
 
         return (SequencingExperimentSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
