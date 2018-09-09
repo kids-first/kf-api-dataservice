@@ -1,3 +1,17 @@
+# Kids First Dataservice Release 1.3.3
+
+## Features
+
+### Summary
+
+Feature Emojis: 🐛x1
+Feature Labels: [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x1
+
+### New features and changes
+
+- (#439) 🐛 Remove duplicates from join results - @dankolbman
+
+
 # Kids First Dataservice Release 1.3.2
 
 ## Features
