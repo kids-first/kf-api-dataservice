@@ -205,6 +205,8 @@ class Indexd(object):
                 if doc['version'] is None:
                     del doc['version']
                 url = '{}{}?rev={}'.format(self.url, did, doc['rev'])
+                # rev is not allowed in put schema
+                del doc['rev']
                 resp = self.session.put(url, json=doc)
                 # Update the record's rev if it's the record being modified
                 if record.latest_did == did:

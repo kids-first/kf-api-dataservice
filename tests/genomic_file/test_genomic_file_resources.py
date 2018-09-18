@@ -247,6 +247,27 @@ def test_get_one(client, entities):
     assert resp['file_format'] == gf.file_format
 
 
+def test_update_no_version(client, indexd, entities):
+    """
+    Test that existing genomic files are updated with correct schema
+
+    This should not create a new version
+    """
+    resp = _new_genomic_file(client)
+    orig_calls = indexd.put.call_count
+
+    genomic_file = resp['results']
+    body = genomic_file
+    response = client.patch(url_for(GENOMICFILE_LIST_URL)+'/'+body['kf_id'],
+                           headers={'Content-Type': 'application/json'},
+                           data=json.dumps(body))
+    resp = json.loads(response.data.decode("utf-8"))
+
+    # Updates were made to the three versions
+    assert indexd.put.call_count == orig_calls + 3
+    assert 'rev' not in indexd.put.call_args_list[0].json
+
+
 def test_update(client, indexd, entities):
     """
     Test updating an existing genomic file
