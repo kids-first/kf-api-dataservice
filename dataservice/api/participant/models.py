@@ -38,7 +38,6 @@ class Participant(db.Model, Base):
     :param external_id: Name given to participant by contributor
     :param family_id: Id for the participants grouped by family
     :param is_proband: Denotes whether participant is proband of study
-    :param consent_type: Type of the consent participant belongs to
     :param race: Race of participant
     :param ethnicity: Ethnicity of participant
     :param gender: Self reported gender of participant
@@ -58,8 +57,6 @@ class Participant(db.Model, Base):
     is_proband = db.Column(
         db.Boolean(),
         doc='Denotes whether participant is proband of study')
-    consent_type = db.Column(db.Text(),
-                             doc='Type of the consent participant belongs to')
     race = db.Column(db.Text(),
                      doc='The race of the participant')
     ethnicity = db.Column(db.Text(),

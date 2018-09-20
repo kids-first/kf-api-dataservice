@@ -16,9 +16,9 @@ class FamilyModelTest(FlaskTestCase):
         """
         s = Study(external_id='phs001')
         p1 = Participant(external_id="CASE01",
-                         is_proband=False, consent_type="GRU-IRB")
+                         is_proband=False)
         p2 = Participant(external_id="CASE02",
-                         is_proband=False, consent_type="GRU-IRB")
+                         is_proband=False)
         s.participants.extend([p1, p2])
 
         f = Family(external_id=external_id, family_type='Duo+')

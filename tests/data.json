@@ -21,7 +21,6 @@
         "/sequencing-centers": {},
         "/participants": {
             "is_proband": true,
-            "consent_type": "GRU-IRB",
             "race": "Asian",
             "ethnicity": "Hispanic or Latino",
             "gender": "Male",
@@ -47,6 +46,7 @@
             "ncit_id_tissue_type": "Test",
             "ncit_id_anatomical_site": "C12439",
             "dbgap_consent_code": "phs00000.c1",
+            "consent_type": "GRU-IRB",
             "visible": true
         },
         "/diagnoses": {

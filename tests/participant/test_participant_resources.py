@@ -55,7 +55,6 @@ class ParticipantTest(FlaskTestCase):
             'kf_id': 'PT_00000000',
             'external_id': 'test',
             'is_proband': True,
-            'consent_type': 'GRU-IRB',
             'race': 'Asian',
             'ethnicity': 'Hispanic or Latino',
             'gender': 'Female',
@@ -118,7 +117,6 @@ class ParticipantTest(FlaskTestCase):
         participant = resp['results']
         p = Participant.query.first()
         self.assertEqual(kf_id, participant['kf_id'])
-        self.assertEqual(p.consent_type, participant['consent_type'])
         self.assertTrue(resp['_links']['family'].endswith(p.family_id))
 
     def test_get_participant_no_family(self):
@@ -164,7 +162,6 @@ class ParticipantTest(FlaskTestCase):
         # Update existing participant
         body = {
             'external_id': 'participant 0',
-            'consent_type': 'something',
             'gender': 'Male',
             'kf_id': kf_id
         }
@@ -269,7 +266,6 @@ class ParticipantTest(FlaskTestCase):
         body = {
             'external_id': external_id,
             'is_proband': True,
-            'consent_type': 'GRU-IRB',
             'race': 'Asian',
             'ethnicity': 'Not Hispanic or Latino',
             'gender': 'Male',
