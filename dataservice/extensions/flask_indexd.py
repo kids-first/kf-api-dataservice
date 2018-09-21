@@ -33,7 +33,8 @@ class Indexd(object):
         s = requests.Session()
         s.auth = (current_app.config['INDEXD_USER'],
                   current_app.config['INDEXD_PASS'])
-        s.headers.update({'Content-Type': 'application/json'})
+        s.headers.update({'Content-Type': 'application/json',
+                          'User-Agent': 'Kids First Dataservice'})
         return s
 
     def teardown(self, exception):
