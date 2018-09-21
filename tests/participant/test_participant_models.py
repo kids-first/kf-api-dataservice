@@ -21,7 +21,6 @@ class ModelTest(FlaskTestCase):
         data = {
             'external_id': external_id,
             'is_proband': False,
-            'consent_type': 'GRU-IRB',
             'race': 'asian',
             'ethnicity': 'not hispanic',
             'gender': 'female',
@@ -110,12 +109,10 @@ class ModelTest(FlaskTestCase):
         participant = self._get_participant(kf_id)
         new_name = "Updated-{}".format(participant.external_id)
         participant.external_id = new_name
-        participant.consent_type = 'GRU-COL'
         db.session.commit()
 
         participant = self._get_participant(kf_id)
         self.assertEqual(participant.external_id, new_name)
-        self.assertEqual(participant.consent_type, 'GRU-COL')
         self.assertEqual(participant.kf_id, kf_id)
 
     def test_delete_participant(self):

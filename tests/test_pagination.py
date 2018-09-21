@@ -80,7 +80,6 @@ class TestPagination:
             data = {
                 'external_id': "test",
                 'is_proband': True,
-                'consent_type': 'GRU-IRB',
                 'race': 'Asian',
                 'ethnicity': 'Hispanic or Latino',
                 'diagnosis_category': 'Cancer',

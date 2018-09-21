@@ -60,6 +60,7 @@ class Biospecimen(db.Model, Base):
            Institute Thesaurus which represents a harmonized anatomical_site
     :param spatial_descriptor: Ontology term that harmonizes the spatial
            concepts from Biological Spatial Ontology
+    :param consent_type: Short name of consent
     :param dbgap_consent_code: Consent classification code from dbgap
     """
 
@@ -120,6 +121,8 @@ class Biospecimen(db.Model, Base):
                                      db.ForeignKey('sequencing_center.kf_id'),
                                      nullable=False,
                                      doc='The kf_id of the sequencing center')
+    consent_type = db.Column(db.Text(),
+                             doc='Short name of consent')
     dbgap_consent_code = db.Column(db.Text(),
                                    doc='Consent classification code from dbgap'
                                    )

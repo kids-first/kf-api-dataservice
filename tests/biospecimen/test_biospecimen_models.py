@@ -357,6 +357,7 @@ class ModelTest(FlaskTestCase):
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',
             'ncit_id_anatomical_site': 'C12439',
+            'consent_type': 'GRU-IRB',
             'dbgap_consent_code': 'phs00000.c1'
         }
         return body
