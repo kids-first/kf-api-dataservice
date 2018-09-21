@@ -66,7 +66,7 @@ class MockIndexd(MagicMock):
 
     def post(self, url, *args, **kwargs):
         """
-        Mocks a response from POST /index/
+        Mocks a response from POST /index/ and POST /bulk/documents
         """
 
         resp = {
@@ -82,6 +82,9 @@ class MockIndexd(MagicMock):
         else:
             # Otherwise, assume creation of a new doc and track the baseid
             self.baseid_by_did[resp['did']] = resp['baseid']
+
+        if 'bulk/documents' in url:
+            resp = [resp]
 
         mock_resp = MockResp(resp=resp, status_code=self.status_code)
         return mock_resp

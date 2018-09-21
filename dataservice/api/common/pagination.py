@@ -2,6 +2,7 @@ from flask import request, current_app
 from functools import wraps
 from dateutil import parser
 from datetime import datetime
+from dataservice.extensions import db, indexd
 
 
 def paginated(f):
@@ -101,6 +102,18 @@ def indexd_pagination(q, after, limit):
 
     :returns: A Pagination object
     """
+    def prefetch_indexd(after):
+        """ Compute dids for the page and have indexd fetch them in bulk """
+        model = q._entities[0].mapper.entity
+        gfs = (q.order_by(model.created_at.asc())
+                .filter(model.created_at > after)
+                .with_entities(model.latest_did)
+                .limit(limit).all())
+        dids = [gf[0] for gf in gfs]
+        indexd.prefetch(dids)
+
+    indexd.clear_cache()
+    prefetch_indexd(after)
     pager = Pagination(q, after, limit)
     keep = []
     refresh = True
@@ -108,17 +121,21 @@ def indexd_pagination(q, after, limit):
     # Continue updating the page until we get a page with no deleted files
     while (pager.total > 0 and refresh):
         refresh = False
-        # Move the cursor ahead to the last valid file
-        next_after = keep[-1].created_at if len(keep) > 0 else after
-        # Number of results needed to fulfill the original limit
-        remain = limit - len(keep)
-        pager = Pagination(q, next_after, remain)
-
         for st in pager.items:
             if hasattr(st, 'was_deleted') and st.was_deleted:
                 refresh = True
             else:
                 keep.append(st)
+
+        # Only fetch more if we saw there were some items that were deleted
+        if refresh:
+            # Move the cursor ahead to the last valid file
+            next_after = keep[-1].created_at if len(keep) > 0 else after
+            # Number of results needed to fulfill the original limit
+            remain = limit - len(keep)
+
+            prefetch_indexd(next_after)
+            pager = Pagination(q, next_after, remain)
 
     # Replace original page's items with new list of valid files
     pager.items = keep

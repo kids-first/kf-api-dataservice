@@ -17,12 +17,18 @@ class Indexd(object):
 
     def __init__(self, app=None):
         self.app = app
+        # Used to store documents prefetched for a page
+        self.page_cache = {}
         if app is not None:
             self.init_app(app)
 
     def init_app(self, app):
         app.config.setdefault('INDEXD_URL', None)
         self.url = app.config['INDEXD_URL']
+        if self.url:
+            self.bulk_url = '/'.join(self.url.split('/')[:-1] + ['bulk/'])
+        else:
+            self.bulk_url = None
         if hasattr(app, 'teardown_appcontext'):
             app.teardown_appcontext(self.teardown)
         else:
@@ -42,6 +48,20 @@ class Indexd(object):
         if hasattr(ctx, 'indexd_session'):
             ctx.indexd_session.close()
 
+    def prefetch(self, dids):
+        """
+        Fetch a list of documents by did into the page cache.
+        """
+        # If running in dev mode, don't call indexd
+        if self.url is None or self.bulk_url is None:
+            return
+        resp = self.session.post(self.bulk_url + 'documents', json=dids).json()
+        for doc in resp:
+            self.page_cache[doc['did']] = doc
+
+    def clear_cache(self):
+        self.page_cache = {}
+
     def get(self, record):
         """
         Retrieves a record from indexd
@@ -54,6 +74,9 @@ class Indexd(object):
         # If running in dev mode, don't call indexd
         if self.url is None:
             return record
+
+        if record.latest_did in self.page_cache:
+            return self.page_cache[record.latest_did]
 
         url = self.url + record.latest_did
         resp = self.session.get(url)
@@ -171,7 +194,8 @@ class Indexd(object):
         if record.acl != old['acl']:
             self._update_all_acls(record)
 
-        url = '{}{}?rev={}'.format(self.url, record.latest_did, record.rev)
+        url = '{}{}?rev={}'.format(self.url, record.latest_did,
+                                   record.rev)
         if 'size' in req_body or 'hashes' in req_body:
             # Create a new version in indxed
             req_body['form'] = 'object'
