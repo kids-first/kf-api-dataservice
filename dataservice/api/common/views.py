@@ -9,6 +9,7 @@ from dataservice.api.common.schemas import (
     paginated_generator,
     error_response_generator
 )
+from dataservice.extensions import db
 
 
 class CRUDView(MethodView):
@@ -174,8 +175,22 @@ class CRUDView(MethodView):
 
     def dispatch_request(self, *args, **kwargs):
         """
-        Sends event to sns
+        Override MethodView's dispatch_request method to execute additional
+        needed functionality for every CRUD request:
+
+            - Sends request as an event to sns
+
+            - Execute each request with sqlalchemy autoflush turned off.
+              This prevents the model event listeners from triggering
+              inadvertently. It happens when the db session goes out of scope
+              and when Marshmallow loads an object into the session and does a
+              merge during a patch request. Its better to explicitly flush
+              the session.
         """
+        # Autoflush off
+        db.session.autoflush = False
+
+        # Send request
         resp = super(CRUDView, self).dispatch_request(*args, **kwargs)
 
         if isinstance(resp, tuple):
@@ -184,7 +199,11 @@ class CRUDView(MethodView):
         else:
             status = resp.status_code
 
+        # Send event to sns
         self.send_sns(resp)
+
+        # Autoflush back on
+        db.session.autoflush = True
 
         return resp, status
 
