@@ -4,20 +4,9 @@ import pytest
 from unittest.mock import MagicMock, patch
 from requests.exceptions import HTTPError
 from flask import url_for
-from urllib.parse import urlencode
 
 from dataservice.extensions import db
-from dataservice.api.study.models import Study
-from dataservice.api.participant.models import Participant
-from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.sequencing_center.models import (
-    SequencingCenter
-)
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.read_group.models import (
-    ReadGroup,
-    ReadGroupGenomicFile
-)
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.conftest import entities as ent
 from tests.conftest import ENTITY_TOTAL
@@ -97,58 +86,6 @@ def test_new(client, indexd, entities):
     gf = GenomicFile.query.get(genomic_file['kf_id'])
     assert gf
     assert indexd.post.call_count == orig_calls + 1
-
-
-def test_post_with_read_groups(client, indexd):
-    """
-    Test creating a new genomic file with read groups
-    """
-    # Create entiteis in db
-    rg_ids = _create_read_groups(2)
-    orig_calls = indexd.post.call_count
-
-    # Read groups and genomic files not linked yet
-    assert 0 == ReadGroupGenomicFile.query.count()
-
-    # Send request
-    resp = _new_genomic_file(client, include_seq_exp=False, read_groups=rg_ids)
-
-    # Check db counts
-    genomic_file = resp['results']
-    gf = GenomicFile.query.get(genomic_file['kf_id'])
-    assert gf
-    assert 2 == ReadGroupGenomicFile.query.count()
-    assert indexd.post.call_count == orig_calls + 1
-
-
-def test_patch_with_read_groups(client, indexd):
-    """
-    Test patching genomic files with read groups
-    """
-    # Create genomic file and link to all read groups
-    orig_calls = indexd.post.call_count
-    test_post_with_read_groups(client, indexd)
-    assert 2 == ReadGroupGenomicFile.query.count()
-
-    # Patch by changing linked read groups to just one
-    gf = GenomicFile.query.first()
-    body = {
-        'read_groups': [{'kf_id': ReadGroup.query.first().kf_id}]
-    }
-    response = client.patch(url_for(GENOMICFILE_URL,
-                                    kf_id=gf.kf_id),
-                            data=json.dumps(body),
-                            headers={'Content-Type': 'application/json'})
-
-    assert indexd.post.call_count == orig_calls + 1
-    assert response.status_code == 200
-
-    resp = json.loads(response.data.decode("utf-8"))
-    assert 'genomic_file' in resp['_status']['message']
-    assert 'updated' in resp['_status']['message']
-
-    # Check database
-    assert 1 == ReadGroupGenomicFile.query.count()
 
 
 def test_new_indexd_error(client, entities):
@@ -247,20 +184,20 @@ def test_get_one(client, entities):
     assert resp['file_format'] == gf.file_format
 
 
-def test_update_no_version(client, indexd, entities):
+def test_update_no_version(client, indexd):
     """
     Test that existing genomic files are updated with correct schema
 
     This should not create a new version
     """
-    resp = _new_genomic_file(client)
+    resp = _new_genomic_file(client, include_seq_exp=False)
     orig_calls = indexd.put.call_count
 
     genomic_file = resp['results']
     body = genomic_file
-    response = client.patch(url_for(GENOMICFILE_LIST_URL)+'/'+body['kf_id'],
-                           headers={'Content-Type': 'application/json'},
-                           data=json.dumps(body))
+    response = client.patch(url_for(GENOMICFILE_LIST_URL) + '/' + body['kf_id'],
+                            headers={'Content-Type': 'application/json'},
+                            data=json.dumps(body))
     resp = json.loads(response.data.decode("utf-8"))
 
     # Updates were made to the three versions
@@ -366,60 +303,7 @@ def test_delete_error(client, indexd, entities):
     assert GenomicFile.query.count() == init + 1
 
 
-def test_filter_by_rg(client, indexd):
-    """
-    Test get and filter genomic files by study_id and/or read_group_id
-    """
-    rgs, gfs, studies = _create_all_entities()
-
-    # Create query
-    rg = ReadGroup.query.filter_by(external_id='study0-rg1').first()
-    assert len(rg.genomic_files) == 2
-    assert rg.genomic_files[0].external_id == 'study0-gf0'
-
-    # Send get request
-    filter_params = {'read_group_id': rg.kf_id}
-    qs = urlencode(filter_params)
-    endpoint = '{}?{}'.format('/genomic-files', qs)
-    response = client.get(endpoint)
-    # Check response status code
-    assert response.status_code == 200
-    # Check response content
-    response = json.loads(response.data.decode('utf-8'))
-    assert 2 == response['total']
-    assert 2 == len(response['results'])
-    gfs = response['results']
-    _ids = {'study0-gf0', 'study0-gf2'}
-    for gf in gfs:
-        assert gf['external_id'] in _ids
-
-
-def test_filter_by_study(client, indexd):
-    """
-    Test filter by study
-    """
-    rgs, gfs, studies = _create_all_entities()
-    assert len(gfs['study0']) == 3
-
-    # Create query
-    filter_params = {'study_id': studies[0].kf_id,
-                     'read_group_id': rgs['study0'][1].kf_id}
-    qs = urlencode(filter_params)
-    endpoint = '{}?{}'.format('/genomic-files', qs)
-    # Send get request
-    response = client.get(endpoint)
-    # Check response status code
-    assert response.status_code == 200
-    # Check response content
-    response = json.loads(response.data.decode('utf-8'))
-    assert 2 == response['total']
-    assert 2 == len(response['results'])
-    gfs = response['results']
-    for gf in gfs:
-        assert gf['external_id'].startswith('study0')
-
-
-def _new_genomic_file(client, include_seq_exp=True, read_groups=None):
+def _new_genomic_file(client, include_seq_exp=True):
     """ Creates a genomic file """
     body = {
         'external_id': 'genomic_file_0',
@@ -435,8 +319,6 @@ def _new_genomic_file(client, include_seq_exp=True, read_groups=None):
     if include_seq_exp:
         body['sequencing_experiment_id'] = (SequencingExperiment.query
                                             .first().kf_id)
-    if read_groups:
-        body['read_groups'] = read_groups
 
     response = client.post(url_for(GENOMICFILE_LIST_URL),
                            headers={'Content-Type': 'application/json'},
@@ -444,59 +326,3 @@ def _new_genomic_file(client, include_seq_exp=True, read_groups=None):
     resp = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 201
     return resp
-
-
-def _create_read_groups(total=2):
-    """
-    Create read groups and return kf_ids
-    """
-    rgs = [
-        ReadGroup(external_id='rg{}'.format(i))
-        for i in range(total)
-    ]
-    db.session.add_all(rgs)
-    db.session.commit()
-
-    return [{'kf_id': rg.kf_id} for rg in rgs]
-
-
-def _create_all_entities():
-    """
-    Create 2 studies with genomic files and read groups
-    """
-    sc = SequencingCenter(name='sc')
-    studies = []
-    rgs = {}
-    gfs = {}
-    for j in range(2):
-        s = Study(external_id='s{}'.format(j))
-        p = Participant(external_id='p{}'.format(j))
-        s.participants.append(p)
-        study_gfs = gfs.setdefault('study{}'.format(j), [])
-        for i in range(3):
-            b = Biospecimen(external_sample_id='b{}'.format(i),
-                            analyte_type='DNA',
-                            sequencing_center=sc,
-                            participant=p)
-            gf = GenomicFile(
-                external_id='study{}-gf{}'.format(j, i),
-                urls=['s3://mybucket/key'],
-                hashes={'md5': 'd418219b883fce3a085b1b7f38b01e37'})
-            study_gfs.append(gf)
-            b.genomic_files.append(gf)
-
-        study_rgs = rgs.setdefault('study{}'.format(j), [])
-
-        rg0 = ReadGroup(external_id='study{}-rg0'.format(j))
-        rg0.genomic_files.extend(study_gfs[0:2])
-        rg1 = ReadGroup(external_id='study{}-rg1'.format(j))
-        rg1.genomic_files.extend([study_gfs[0],
-                                  study_gfs[-1]])
-
-        study_rgs.extend([rg0, rg1])
-        studies.append(s)
-
-    db.session.add_all(studies)
-    db.session.commit()
-
-    return rgs, gfs, studies

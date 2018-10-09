@@ -6,13 +6,13 @@ from dateutil import parser, tz
 
 from dataservice.extensions import db
 from dataservice.api.read_group.models import ReadGroup
-from tests.utils import IndexdTestCase
+from tests.utils import FlaskTestCase
 
 READ_GROUPS_URL = 'api.read_groups'
 READ_GROUPS_LIST_URL = 'api.read_groups_list'
 
 
-class ReadGroupTest(IndexdTestCase):
+class ReadGroupTest(FlaskTestCase):
     """
     Test read_group api
     """
