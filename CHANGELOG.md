@@ -1,3 +1,21 @@
+# Kids First Release Coordinator Release 1.4.0
+
+## Features
+
+Patches breaking change for Indexd and moves consent field from
+participant to biospecimen.
+
+### Summary
+
+Feature Emojis: x1 ♻️x1
+Feature Labels: [refactor](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/refactor) x2 [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x1 [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x1
+
+### New features and changes
+
+- (#447)  ✨Move consent_type from participant to biospecimen - @parimalak
+- (#443) ♻️ Don't use rev in indexd requests - @dankolbman
+
+
 # Kids First Dataservice Release 1.3.3
 
 ## Features
