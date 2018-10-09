@@ -110,7 +110,8 @@
         "/cavatica-tasks": {
             "name": "CavaticaTask_0",
             "external_cavatica_task_id": "1ab12165-7351-4744-921c-a97a19b84773"},
-        "/cavatica-task-genomic-files": {}
+        "/cavatica-task-genomic-files": {},
+        "/read-group-genomic-files": {}
 
     },
     "filter_params": {
@@ -236,7 +237,6 @@
                 "data_type": "Expression"
             },
             "invalid": [
-                {"read_group_id": "BS_00000000"},
                 {"paired_end": -1},
                 {"paired_end": "one"},
                 {"controlled_access": "hello", "size": "hello"},
@@ -256,7 +256,6 @@
                 "quality_scale": "Illumina15"
             },
             "invalid": [
-                {"genomic_file_id": "BS_00000000"},
                 {"lane_number": "two"},
                 {"lane_number": -1},
                 {"quality_scale": "none"}
@@ -286,6 +285,11 @@
             "invalid": [
                 {"is_input": "hello"}
             ]
+        },
+        "/read-group-genomic-files": {
+            "valid": {
+            },
+            "invalid": []
         }
     }
 }

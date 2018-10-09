@@ -84,11 +84,10 @@ class TestAPI:
         ('/diagnoses', ['participant', 'biospecimens']),
         ('/biospecimens', ['participant', 'sequencing_center', 'diagnoses']),
         ('/sequencing-experiments', ['sequencing_center']),
-        ('/genomic-files', ['sequencing_experiment',
-                            'read_groups']),
-        ('/read-groups', ['genomic_files']),
+        ('/genomic-files', ['sequencing_experiment']),
         ('/cavatica-tasks', ['cavatica_app']),
         ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file']),
+        ('/read-group-genomic-files', ['read_group', 'genomic_file']),
         ('/biospecimen-genomic-files', ['biospecimen', 'genomic_file'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
@@ -133,8 +132,10 @@ class TestAPI:
         ('/biospecimens', ['biospecimen_genomic_files']),
         ('/sequencing-experiments', ['genomic_files']),
         ('/genomic-files', ['cavatica_task_genomic_files',
-                            'biospecimen_genomic_files'
+                            'biospecimen_genomic_files',
+                            'read_group_genomic_files',
                             ]),
+        ('/read-groups', ['read_group_genomic_files']),
         ('/cavatica-apps', ['cavatica_tasks']),
         ('/cavatica-tasks', ['cavatica_task_genomic_files']),
     ])
@@ -337,6 +338,10 @@ class TestAPI:
                               ('/cavatica-task-genomic-files',
                                'cavatica_task_id'),
                               ('/cavatica-task-genomic-files',
+                               'genomic_file_id'),
+                              ('/read-group-genomic-files',
+                               'read_group_id'),
+                              ('/read-group-genomic-files',
                                'genomic_file_id'),
                               ('/biospecimen-genomic-files',
                                'biospecimen_id'),

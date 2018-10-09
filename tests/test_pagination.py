@@ -14,7 +14,10 @@ from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.read_group.models import ReadGroup
+from dataservice.api.read_group.models import (
+    ReadGroup,
+    ReadGroupGenomicFile
+)
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.family_relationship.models import FamilyRelationship
@@ -129,19 +132,17 @@ class TestPagination:
             db.session.add(samp)
             p.biospecimens = [samp]
 
-            rg = ReadGroup(lane_number=4,
-                           flow_cell='FL0123')
-            db.session.add(rg)
-
             gf = GenomicFile(**gf_kwargs,
                              sequencing_experiment_id=seq_exp.kf_id)
-            gf.read_groups.append(rg)
             db.session.add(gf)
             samp.genomic_files.append(gf)
-
             samp.diagnoses.append(diag)
 
             db.session.flush()
+
+            rg = ReadGroup(lane_number=4,
+                           flow_cell='FL0123')
+            rg.genomic_files.append(gf)
 
             ct = CavaticaTask(name='task_{}'.format(i))
             ct.genomic_files.append(gf)
@@ -157,6 +158,7 @@ class TestPagination:
                                    participant2=participant2,
                                    participant1_to_participant2_relation=rel)
             db.session.add(r)
+
         db.session.commit()
 
     @pytest.mark.parametrize('endpoint, expected_total', [
@@ -176,6 +178,7 @@ class TestPagination:
         ('/cavatica-apps', 1),
         ('/cavatica-tasks', 50),
         ('/cavatica-task-genomic-files', 50),
+        ('/read-group-genomic-files', 50),
         ('/biospecimen-genomic-files', 50)
     ])
     def test_study_filter(self, client, participants,
@@ -269,7 +272,8 @@ class TestPagination:
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 101),
         ('/cavatica-tasks', 102),
-        ('/cavatica-task-genomic-files', 102)
+        ('/cavatica-task-genomic-files', 102),
+        ('/read-group-genomic-files', 102)
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
