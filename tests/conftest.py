@@ -21,6 +21,7 @@ from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile
 )
+from dataservice.api.biospecimen.models import BiospecimenDiagnosis
 from dataservice.api.read_group.models import (
     ReadGroup,
     ReadGroupGenomicFile
@@ -53,6 +54,7 @@ ENTITY_ENDPOINT_MAP = {
     Biospecimen: '/biospecimens',
     GenomicFile: '/genomic-files',
     BiospecimenGenomicFile: '/biospecimen-genomic-files',
+    BiospecimenDiagnosis: '/biospecimen-diagnoses',
     ReadGroup: '/read-groups',
     SequencingExperiment: '/sequencing-experiments',
     CavaticaTask: '/cavatica-tasks',
@@ -143,6 +145,7 @@ def entities(client):
             if model in {FamilyRelationship,
                          CavaticaTaskGenomicFile,
                          BiospecimenGenomicFile,
+                         BiospecimenDiagnosis,
                          ReadGroupGenomicFile}:
                 continue
             for i in range(ENTITY_TOTAL):
@@ -216,6 +219,14 @@ def entities(client):
                                         genomic_file=gf)
             _entities[ReadGroupGenomicFile].append(rggf)
             db.session.add(rggf)
+
+        # Biospecimen genomic files
+        for i, (b, d) in enumerate(zip(_entities[Biospecimen],
+                                       _entities[Diagnosis])):
+            bd = BiospecimenDiagnosis(biospecimen=b,
+                                      diagnosis=d)
+            _entities[BiospecimenDiagnosis].append(bd)
+            db.session.add(bd)
 
         # Add relations
         s0 = _entities[Study][0]

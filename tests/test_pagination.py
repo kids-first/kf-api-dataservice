@@ -179,7 +179,8 @@ class TestPagination:
         ('/cavatica-tasks', 50),
         ('/cavatica-task-genomic-files', 50),
         ('/read-group-genomic-files', 50),
-        ('/biospecimen-genomic-files', 50)
+        ('/biospecimen-genomic-files', 50),
+        ('/biospecimen-diagnoses', 50)
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):
@@ -273,7 +274,9 @@ class TestPagination:
         ('/cavatica-apps', 101),
         ('/cavatica-tasks', 102),
         ('/cavatica-task-genomic-files', 102),
-        ('/read-group-genomic-files', 102)
+        ('/read-group-genomic-files', 102),
+        ('/biospecimen-genomic-files', 102),
+        ('/biospecimen-diagnoses', 102)
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """

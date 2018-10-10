@@ -81,8 +81,8 @@ class TestAPI:
         ('/family-relationships', ['participant1', 'participant2']),
         ('/phenotypes', ['participant']),
         ('/outcomes', ['participant']),
-        ('/diagnoses', ['participant', 'biospecimens']),
-        ('/biospecimens', ['participant', 'sequencing_center', 'diagnoses']),
+        ('/diagnoses', ['participant']),
+        ('/biospecimens', ['participant', 'sequencing_center']),
         ('/sequencing-experiments', ['sequencing_center']),
         ('/genomic-files', ['sequencing_experiment',
                             'read_groups']),
@@ -90,7 +90,8 @@ class TestAPI:
         ('/cavatica-tasks', ['cavatica_app']),
         ('/cavatica-task-genomic-files', ['cavatica_task', 'genomic_file']),
         ('/read-group-genomic-files', ['read_group', 'genomic_file']),
-        ('/biospecimen-genomic-files', ['biospecimen', 'genomic_file'])
+        ('/biospecimen-genomic-files', ['biospecimen', 'genomic_file']),
+        ('/biospecimen-diagnoses', ['biospecimen', 'diagnosis'])
     ])
     def test_parent_links(self, client, entities, endpoint, parents):
         """ Test the existance and formatting of _links """
@@ -131,13 +132,16 @@ class TestAPI:
         ('/sequencing-centers', ['sequencing_experiments', 'biospecimens']),
         ('/participants', ['diagnoses', 'phenotypes', 'outcomes',
                            'biospecimens']),
-        ('/biospecimens', ['biospecimen_genomic_files']),
+        ('/biospecimens', ['biospecimen_genomic_files',
+                           'biospecimen_diagnoses']),
+        ('/biospecimens', ['biospecimen_diagnoses']),
         ('/sequencing-experiments', ['genomic_files']),
         ('/genomic-files', ['cavatica_task_genomic_files',
                             'biospecimen_genomic_files',
                             'read_group_genomic_files',
                             ]),
         ('/read-groups', ['read_group_genomic_files']),
+        ('/diagnoses', ['biospecimen_diagnoses']),
         ('/cavatica-apps', ['cavatica_tasks']),
         ('/cavatica-tasks', ['cavatica_task_genomic_files']),
     ])

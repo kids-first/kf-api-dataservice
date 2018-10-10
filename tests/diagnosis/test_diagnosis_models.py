@@ -90,11 +90,13 @@ class ModelTest(FlaskTestCase):
         b = Biospecimen.query.first()
         # Try linking through diagnosis
         d = Diagnosis.query.first()
-        d.biospecimens = [b]
+        b.diagnoses.append(d)
         db.session.commit()
+
         # check updated values
-        d = Diagnosis.query.get(d.kf_id)
-        self.assertIs(d.biospecimens[0].kf_id, b.kf_id)
+        bd = BiospecimenDiagnosis.query.first()
+        assert bd.biospecimen_id == b.kf_id
+        assert bd.diagnosis_id == d.kf_id
 
     def test_add_invalid_biospecimen(self):
         """
@@ -115,14 +117,8 @@ class ModelTest(FlaskTestCase):
         db.session.add(b)
         db.session.commit()
 
-        # Try linking through diagnosis
+        # Try linking
         d = Diagnosis.query.first()
-        d.biospecimens = [b]
-        with self.assertRaises(DatabaseValidationError):
-            db.session.commit()
-        db.session.rollback()
-
-        # Try linking through biospecimen
         b.diagnoses.append(d)
         with self.assertRaises(DatabaseValidationError):
             db.session.commit()
@@ -136,18 +132,37 @@ class ModelTest(FlaskTestCase):
         # Create and save genomic files and dependent entities
         kwargs_dict, diagnoses = self._create_diagnoses(total=1)
 
-        # Get biospecimen
-        biospecimen = Biospecimen.query.first()
-        bsds = BiospecimenDiagnosis(biospecimen_id=biospecimen.kf_id,
-                                    diagnosis_id=kwargs_dict[0].kf_id)
+        # Add another biospecimen
+        p = Participant.query.first()
+        sc = SequencingCenter.query.first()
+        b = Biospecimen(analyte_type='DNA',
+                        sequencing_center=sc,
+                        participant=p)
+        db.session.add(b)
+        db.session.commit()
+
+        # Link bio and diags
+        biospecimens = Biospecimen.query.all()
+        diagnosis = Diagnosis.query.first()
+        for biospecimen in biospecimens:
+            bsds = BiospecimenDiagnosis(biospecimen=biospecimen,
+                                        diagnosis=diagnosis)
+            db.session.add(bsds)
+        db.session.commit()
+
+        # Get initial counts
+        b_count = Biospecimen.query.count()
+        d_count = Diagnosis.query.count()
+        bd_count = BiospecimenDiagnosis.query.count()
 
         # Delete biospecimen
-        db.session.delete(biospecimen)
+        db.session.delete(b)
         db.session.commit()
 
         # Check database
-        assert BiospecimenDiagnosis.query.count() == 0
-        assert Diagnosis.query.count() == 1
+        assert BiospecimenDiagnosis.query.count() == bd_count - 1
+        assert Diagnosis.query.count() == d_count
+        assert Biospecimen.query.count() == b_count - 1
 
     def test_not_null_constraint(self):
         """
