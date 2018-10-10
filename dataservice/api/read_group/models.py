@@ -28,9 +28,9 @@ class ReadGroup(db.Model, Base):
                               doc='The scale used to encode quality scores')
 
     genomic_files = association_proxy(
-        'read_group_genomic_files', 'genomic_file',
-        creator=lambda genomic_file:
-        ReadGroupGenomicFile(genomic_file=genomic_file))
+        'read_group_genomic_files',
+        'genomic_file',
+        creator=lambda gf: ReadGroupGenomicFile(genomic_file=gf))
 
     read_group_genomic_files = db.relationship('ReadGroupGenomicFile',
                                                backref='read_group',
