@@ -7,27 +7,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy import event
 
 
-class BiospecimenDiagnosis(db.Model, Base):
-    """
-    Represents association table between biospecimen table and
-    diagnosis table. Contains all biospecimen, diagnosis combiniations.
-    :param kf_id: Unique id given by the Kid's First DCC
-    :param created_at: Time of object creation
-    :param modified_at: Last time of object modification
-    """
-    __tablename__ = 'biospecimen_diagnosis'
-    __prefix__ = 'BD'
-    __table_args__ = (db.UniqueConstraint('diagnosis_id',
-                                          'biospecimen_id'),)
-    diagnosis_id = db.Column(KfId(),
-                             db.ForeignKey('diagnosis.kf_id'),
-                             nullable=False)
-
-    biospecimen_id = db.Column(KfId(),
-                               db.ForeignKey('biospecimen.kf_id'),
-                               nullable=False)
-
-
 class Biospecimen(db.Model, Base):
     """
     Biospecimen entity.
@@ -131,56 +110,43 @@ class Biospecimen(db.Model, Base):
         creator=lambda genomic_file:
         BiospecimenGenomicFile(genomic_file=genomic_file))
 
+    diagnoses = association_proxy(
+        'biospecimen_diagnoses', 'diagnosis',
+        creator=lambda dg: BiospecimenDiagnosis(diagnosis=dg))
+
     biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
                                                 backref='biospecimen',
                                                 cascade='all, delete-orphan')
-    diagnoses = db.relationship('Diagnosis', secondary='biospecimen_diagnosis',
-                                backref=db.backref(
-                                    'biospecimens'))
 
 
-def validate_biospecimen(target):
+class BiospecimenDiagnosis(db.Model, Base):
     """
-    Ensure that both the diagnosis and biospecimen
-    have the same participant
-    If this is not the case then raise DatabaseValidationError
+    Represents association table between biospecimen table and
+    diagnosis table. Contains all biospecimen, diagnosis combiniations.
+    :param kf_id: Unique id given by the Kid's First DCC
+    :param created_at: Time of object creation
+    :param modified_at: Last time of object modification
     """
-    from dataservice.api.errors import DatabaseValidationError
-    # Return if biospecimen is None or
-    # if diagnosis doesn't exist, return and
-    # let ORM handle non-existent foreign key
-    errors = []
-    if not target or not target.diagnoses:
-        return
-    # Get diagnosis by id and bisopecimen by id
-    for diagnosis in target.diagnoses:
-        ds = Diagnosis.query.get(target.diagnoses[0].kf_id)
-        bsp = Biospecimen.query.get(target.kf_id)
-        if ds is None:
-            operation = 'modify'
-            target_entity = Diagnosis.__tablename__
-            message = ('Diagnosis {} does not exist').format(
-                target.diagnoses[0].kf_id)
-            raise DatabaseValidationError(target_entity, operation, message)
-        elif bsp is None:
-            operation = 'modify'
-            target_entity = Biospecimen.__tablename__
-            message = ('Biospecimen {} does not exist').format(target.kf_id)
-            raise DatabaseValidationError(target_entity, operation, message)
-        # Check if this diagnosis and biospecimen refer to same participant
-        if ds.participant_id != target.participant_id:
-            operation = 'modify'
-            target_entity = Biospecimen.__tablename__
-            message = (
-                ('a diagnosis cannot be linked with a biospecimen if they '
-                 'refer to different participants. diagnosis {} '
-                 'refers to participant {} and '
-                 'biospecimen {} refers to participant {}')
-                .format(ds.kf_id,
-                        ds.participant_id,
-                        target.kf_id,
-                        target.participant_id))
-            raise DatabaseValidationError(target_entity, operation, message)
+    __tablename__ = 'biospecimen_diagnosis'
+    __prefix__ = 'BD'
+    __table_args__ = (db.UniqueConstraint('diagnosis_id',
+                                          'biospecimen_id'),)
+    diagnosis_id = db.Column(KfId(),
+                             db.ForeignKey('diagnosis.kf_id'),
+                             nullable=False)
+
+    biospecimen_id = db.Column(KfId(),
+                               db.ForeignKey('biospecimen.kf_id'),
+                               nullable=False)
+    external_id = db.Column(db.Text(), doc='external id used by contributor')
+
+    biospecimen = db.relationship(Biospecimen, backref=db.backref(
+        'biospecimen_diagnoses',
+        cascade='all, delete-orphan'))
+
+    diagnosis = db.relationship(Diagnosis, backref=db.backref(
+        'biospecimen_diagnoses',
+        cascade='all, delete-orphan'))
 
 
 def validate_diagnosis_biospecimen(target):
@@ -220,15 +186,6 @@ def validate_diagnosis_biospecimen(target):
                     bsp.kf_id,
                     bsp.participant_id))
         raise DatabaseValidationError(target_entity, operation, message)
-
-
-@event.listens_for(Biospecimen, 'before_insert')
-@event.listens_for(Biospecimen, 'before_update')
-def biospecimen_on_insert(mapper, connection, target):
-    """
-    Run preprocessing/validation of diagnosis before insert
-    """
-    validate_biospecimen(target)
 
 
 @event.listens_for(BiospecimenDiagnosis, 'before_insert')

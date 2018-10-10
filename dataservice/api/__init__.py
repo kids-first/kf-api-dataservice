@@ -48,7 +48,10 @@ from dataservice.api.biospecimen_genomic_file import (
     BiospecimenGenomicFileAPI,
     BiospecimenGenomicFileListAPI
 )
-
+from dataservice.api.biospecimen_diagnosis import (
+    BiospecimenDiagnosisAPI,
+    BiospecimenDiagnosisListAPI
+)
 from dataservice.api.study.models import Study
 
 
