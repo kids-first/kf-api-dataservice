@@ -4,8 +4,14 @@ import pytest
 from unittest.mock import MagicMock, patch
 from requests.exceptions import HTTPError
 from flask import url_for
+from urllib.parse import urlencode
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
+from dataservice.api.participant.models import Participant
+from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sequencing_center.models import SequencingCenter
+from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.conftest import entities as ent
@@ -303,6 +309,34 @@ def test_delete_error(client, indexd, entities):
     assert GenomicFile.query.count() == init + 1
 
 
+def test_filter_by_rg(client, indexd):
+    """
+    Test get and filter genomic files by study_id and/or read_group_id
+    """
+    rgs, gfs, studies = _create_all_entities()
+
+    # Create query
+    rg = ReadGroup.query.filter_by(external_id='study0-rg1').first()
+    assert len(rg.genomic_files) == 2
+    assert rg.genomic_files[0].external_id == 'study0-gf0'
+
+    # Send get request
+    filter_params = {'read_group_id': rg.kf_id}
+    qs = urlencode(filter_params)
+    endpoint = '{}?{}'.format('/genomic-files', qs)
+    response = client.get(endpoint)
+    # Check response status code
+    assert response.status_code == 200
+    # Check response content
+    response = json.loads(response.data.decode('utf-8'))
+    assert 2 == response['total']
+    assert 2 == len(response['results'])
+    gfs = response['results']
+    _ids = {'study0-gf0', 'study0-gf2'}
+    for gf in gfs:
+        assert gf['external_id'] in _ids
+
+
 def _new_genomic_file(client, include_seq_exp=True):
     """ Creates a genomic file """
     body = {
@@ -326,3 +360,45 @@ def _new_genomic_file(client, include_seq_exp=True):
     resp = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 201
     return resp
+
+
+def _create_all_entities():
+    """
+    Create 2 studies with genomic files and read groups
+    """
+    sc = SequencingCenter(name='sc')
+    studies = []
+    rgs = {}
+    gfs = {}
+    for j in range(2):
+        s = Study(external_id='s{}'.format(j))
+        p = Participant(external_id='p{}'.format(j))
+        s.participants.append(p)
+        study_gfs = gfs.setdefault('study{}'.format(j), [])
+        for i in range(3):
+            b = Biospecimen(external_sample_id='b{}'.format(i),
+                            analyte_type='DNA',
+                            sequencing_center=sc,
+                            participant=p)
+            gf = GenomicFile(
+                external_id='study{}-gf{}'.format(j, i),
+                urls=['s3://mybucket/key'],
+                hashes={'md5': 'd418219b883fce3a085b1b7f38b01e37'})
+            study_gfs.append(gf)
+            b.genomic_files.append(gf)
+
+        study_rgs = rgs.setdefault('study{}'.format(j), [])
+
+        rg0 = ReadGroup(external_id='study{}-rg0'.format(j))
+        rg0.genomic_files.extend(study_gfs[0:2])
+        rg1 = ReadGroup(external_id='study{}-rg1'.format(j))
+        rg1.genomic_files.extend([study_gfs[0],
+                                  study_gfs[-1]])
+
+        study_rgs.extend([rg0, rg1])
+        studies.append(s)
+
+    db.session.add_all(studies)
+    db.session.commit()
+
+    return rgs, gfs, studies
