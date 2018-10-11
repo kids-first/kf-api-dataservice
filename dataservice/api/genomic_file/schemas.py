@@ -1,8 +1,15 @@
 from marshmallow_sqlalchemy import field_for
+from marshmallow import (
+    fields,
+    validates
+)
 
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
-from dataservice.api.common.validation import enum_validation_generator
+from dataservice.api.common.validation import (
+    enum_validation_generator,
+    validate_kf_id
+)
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.common.schemas import (
     BaseSchema,
@@ -69,4 +76,15 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             'api.biospecimen_genomic_files_list', genomic_file_id='<kf_id>'),
         'read_group_genomic_files': ma.URLFor(
             'api.read_group_genomic_files_list', genomic_file_id='<kf_id>'),
+        'read_groups': ma.URLFor('api.read_groups_list',
+                                 genomic_file_id='<kf_id>')
     }, description='Resource links and pagination')
+
+
+class GenomicFileFilterSchema(GenomicFileSchema):
+
+    read_group_id = fields.Str()
+
+    @validates('read_group_id')
+    def valid_read_group_id(self, value):
+        validate_kf_id('RG', value)

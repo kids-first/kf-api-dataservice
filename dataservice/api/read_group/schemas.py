@@ -1,10 +1,15 @@
 from marshmallow_sqlalchemy import field_for
+from marshmallow import (
+    fields,
+    validates
+)
 
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.common.validation import (
     validate_positive_number,
-    enum_validation_generator
+    enum_validation_generator,
+    validate_kf_id
 )
 from dataservice.extensions import ma
 
@@ -32,5 +37,17 @@ class ReadGroupSchema(BaseSchema):
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'read_group_genomic_files': ma.URLFor(
-            'api.read_group_genomic_files_list', read_group_id='<kf_id>')
+            'api.read_group_genomic_files_list', read_group_id='<kf_id>'),
+        'genomic_files': ma.URLFor('api.genomic_files_list',
+                                   read_group_id='<kf_id>')
+
     }, description='Resource links and pagination')
+
+
+class ReadGroupFilterSchema(ReadGroupSchema):
+
+    genomic_file_id = fields.Str()
+
+    @validates('genomic_file_id')
+    def valid_genomic_file_id(self, value):
+        validate_kf_id('GF', value)
