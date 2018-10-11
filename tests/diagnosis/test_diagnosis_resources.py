@@ -7,14 +7,14 @@ from dateutil import parser, tz
 from urllib.parse import urlencode
 
 from dataservice.extensions import db
-from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
+from dataservice.api.diagnosis.models import Diagnosis
+from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.biospecimen.models import (
     Biospecimen,
     BiospecimenDiagnosis
 )
-from dataservice.api.sequencing_center.models import SequencingCenter
-from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 
 DIAGNOSES_URL = 'api.diagnoses'
@@ -185,6 +185,85 @@ class DiagnosisTest(FlaskTestCase):
         d = Diagnosis.query.first()
         self.assertIs(d, None)
 
+    def test_filters(self):
+        """
+        Test get and filter diagnoses by biospecimen_id or study id
+        """
+        self._create_all_entities()
+
+        assert 8 == Diagnosis.query.count()
+        assert 8 == Biospecimen.query.count()
+        assert 5 == BiospecimenDiagnosis.query.count()
+
+        # Create query - Participant p0, Biospecimen b0 has 3 diagnoses
+        bs = Biospecimen.query.filter_by(
+            external_sample_id='study0-p0-b0').first()
+        s = Study.query.filter_by(external_id='s0').first()
+        bds = BiospecimenDiagnosis.query.filter_by(
+            biospecimen_id=bs.kf_id).count()
+        assert bds == 3
+
+        # Send get request
+        filter_params = {'biospecimen_id': bs.kf_id,
+                         'study_id': s.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/diagnoses', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 3 == response['total']
+        assert 3 == len(response['results'])
+        diagnoses = response['results']
+        for d in diagnoses:
+            assert d['external_id'] in {'study0-p0-d0',
+                                        'study0-p0-d1',
+                                        'study0-p0-d2'}
+
+        # Create query - Participant p0, Biospecimen b1 has 1 diagnosis
+        bs = Biospecimen.query.filter_by(
+            external_sample_id='study0-p0-b1').first()
+        bds = BiospecimenDiagnosis.query.filter_by(
+            biospecimen_id=bs.kf_id).count()
+        assert bds == 1
+
+        # Send get request
+        filter_params = {'biospecimen_id': bs.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/diagnoses', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 1 == response['total']
+        assert 1 == len(response['results'])
+        diagnoses = response['results']
+        for d in diagnoses:
+            assert d['external_id'] in {'study0-p0-d2'}
+
+        # Create query - Same as first query but wrong study, yields 0 results
+        bs = Biospecimen.query.filter_by(
+            external_sample_id='study0-p0-b0').first()
+        s = Study.query.filter_by(external_id='s1').first()
+        bds = BiospecimenDiagnosis.query.filter_by(
+            biospecimen_id=bs.kf_id).count()
+        assert bds == 3
+
+        # Send get request
+        filter_params = {'biospecimen_id': bs.kf_id,
+                         'study_id': s.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/diagnoses', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 0 == response['total']
+        assert 0 == len(response['results'])
+
     def _create_save_to_db(self):
         """
         Create and save diagnosis
@@ -233,3 +312,97 @@ class DiagnosisTest(FlaskTestCase):
         kwargs['kf_id'] = d.kf_id
 
         return kwargs
+
+    def _create_all_entities(self):
+        """
+        Create 2 studies with same content
+        Content: 3 participants, 4 biospecimens, 4 diagnoses
+        """
+        # Create entities
+        sc = SequencingCenter.query.filter_by(name='sc').first()
+        if not sc:
+            sc = SequencingCenter(name='sc')
+        studies = []
+
+        # Two studies
+        for j in range(2):
+            s = Study(external_id='s{}'.format(j))
+            p0 = Participant(external_id='study{}-p0'.format(j))
+            p1 = Participant(external_id='study{}-p1'.format(j))
+            p2 = Participant(external_id='study{}-p2'.format(j))
+
+            # Participant 0
+            # Has 2 Biospecimens
+            for i in range(2):
+                b = Biospecimen(
+                    external_sample_id='study{}-p0-b{}'.format(j, i),
+                    analyte_type='DNA',
+                    sequencing_center=sc)
+
+                # Biospecimen b0 has 2 diagnoses
+                if i == 0:
+                    for k in range(2):
+                        d = Diagnosis(
+                            external_id='study{}-p0-d{}'.format(j, k))
+                        p0.diagnoses.append(d)
+
+                # Biospecimen b1 has 1 diagnosis
+                else:
+                    d = Diagnosis(
+                        external_id='study{}-p0-d{}'.format(j, k + 1))
+                    p0.diagnoses.append(d)
+                p0.biospecimens.append(b)
+
+            # Participant 1
+            # Has 1 biospecimen, 1 diagnosis
+            b = Biospecimen(external_sample_id='study{}-p1-b0'.format(j),
+                            analyte_type='DNA',
+                            sequencing_center=sc)
+            d = Diagnosis(external_id='study{}-p1-d0'.format(j))
+            p1.biospecimens.append(b)
+            p1.diagnoses.append(d)
+
+            # Participant 2
+            # Has 1 biospecimen
+            b = Biospecimen(external_sample_id='study{}-p2-b0'.format(j),
+                            analyte_type='DNA',
+                            sequencing_center=sc)
+            p2.biospecimens.append(b)
+
+            s.participants.extend([p0, p1, p2])
+            studies.append(s)
+
+        db.session.add_all(studies)
+        db.session.commit()
+
+        # Create links between bios and diags
+        bs_dgs = []
+
+        # Participant 0
+        p0 = studies[0].participants[0]
+        # b0-d0
+        bs_dgs.append(
+            BiospecimenDiagnosis(biospecimen_id=p0.biospecimens[0].kf_id,
+                                 diagnosis_id=p0.diagnoses[0].kf_id))
+        # b0-d1
+        bs_dgs.append(
+            BiospecimenDiagnosis(biospecimen_id=p0.biospecimens[0].kf_id,
+                                 diagnosis_id=p0.diagnoses[1].kf_id))
+        # b1-d2
+        bs_dgs.append(
+            BiospecimenDiagnosis(biospecimen_id=p0.biospecimens[1].kf_id,
+                                 diagnosis_id=p0.diagnoses[2].kf_id))
+        # b0-d2
+        bs_dgs.append(
+            BiospecimenDiagnosis(biospecimen_id=p0.biospecimens[0].kf_id,
+                                 diagnosis_id=p0.diagnoses[2].kf_id))
+
+        # Participant 1
+        p1 = studies[0].participants[1]
+        # b0-d0
+        bs_dgs.append(
+            BiospecimenDiagnosis(biospecimen_id=p1.biospecimens[0].kf_id,
+                                 diagnosis_id=p1.diagnoses[0].kf_id))
+
+        db.session.add_all(bs_dgs)
+        db.session.commit()
