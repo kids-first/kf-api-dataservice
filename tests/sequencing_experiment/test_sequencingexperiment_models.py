@@ -11,8 +11,7 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
-from tests.utils import FlaskTestCase
-from tests.mocks import MockIndexd, MockResp
+from tests.utils import IndexdTestCase
 
 
 MAX_SIZE_MB = 5000
@@ -20,7 +19,7 @@ MIN_SIZE_MB = 1000
 MB_TO_BYTES = 1000000000
 
 
-class ModelTest(FlaskTestCase):
+class ModelTest(IndexdTestCase):
     """
     Test database model
     """
@@ -90,19 +89,23 @@ class ModelTest(FlaskTestCase):
         """
         Test Deleting sequencing_experiment
         """
-        ids = self.create_seqexp()
+        self._create_entities()
 
-        # get sequencing_experiment
-        e = SequencingExperiment.query.filter_by(
-            external_id=ids['sequencing_experiment_id']).one_or_none()
+        # Get seq exp, and track total gf count
+        e = SequencingExperiment.query.first()
+        kf_id = e.kf_id
+        gf_count = GenomicFile.query.count()
+        assert gf_count > 0
 
         # Delete sequencing_experiment
         db.session.delete(e)
         db.session.commit()
 
-        e = SequencingExperiment.query.filter_by(
-            external_id=ids['sequencing_experiment_id']).one_or_none()
-        self.assertIs(e, None)
+        # Check database
+        # Exp deleted
+        assert SequencingExperiment.query.get(kf_id) is None
+        # All gfs still there, no cascade
+        assert gf_count == GenomicFile.query.count()
 
     def test_not_null_constraint(self):
         """
@@ -130,15 +133,12 @@ class ModelTest(FlaskTestCase):
         # Check for database
         self.assertRaises(IntegrityError, db.session.add(e))
 
-    @patch('dataservice.extensions.flask_indexd.requests')
-    def test_delete_orphans(self, mock):
+    def test_delete_orphans(self):
         """
         Test that orphaned seq exps are deleted
         Orphans are seq exp with 0 genomic_files
         """
         # Create entities
-        indexd = MockIndexd()
-        mock.Session().post = indexd.post
         self._create_entities()
 
         # Delete genomic files from seq exp 1
