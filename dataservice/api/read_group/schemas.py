@@ -5,7 +5,6 @@ from marshmallow import (
 )
 
 from dataservice.api.common.schemas import BaseSchema
-from dataservice.api.genomic_file.schemas import GenomicFileSchema
 from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.common.validation import (
     validate_positive_number,
@@ -28,9 +27,6 @@ class ReadGroupSchema(BaseSchema):
                               validate=enum_validation_generator(
                                   QUALITY_SCALE_ENUM, common=True))
 
-    genomic_files = fields.Nested(GenomicFileSchema, many=True, only=['kf_id'],
-                                  load_only=True)
-
     class Meta(BaseSchema.Meta):
         resource_url = 'api.read_groups'
         collection_url = 'api.read_groups_list'
@@ -40,8 +36,11 @@ class ReadGroupSchema(BaseSchema):
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
+        'read_group_genomic_files': ma.URLFor(
+            'api.read_group_genomic_files_list', read_group_id='<kf_id>'),
         'genomic_files': ma.URLFor('api.genomic_files_list',
                                    read_group_id='<kf_id>')
+
     }, description='Resource links and pagination')
 
 

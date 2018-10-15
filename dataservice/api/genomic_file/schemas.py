@@ -64,9 +64,6 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
                            required=False,
                            dump_only=True)
 
-    read_groups = fields.Nested('ReadGroupSchema', many=True, only=['kf_id'],
-                                load_only=True)
-
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
@@ -77,8 +74,10 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>'),
         'biospecimen_genomic_files': ma.URLFor(
             'api.biospecimen_genomic_files_list', genomic_file_id='<kf_id>'),
-        'read_groups': ma.URLFor(
-            'api.read_groups_list', genomic_file_id='<kf_id>')
+        'read_group_genomic_files': ma.URLFor(
+            'api.read_group_genomic_files_list', genomic_file_id='<kf_id>'),
+        'read_groups': ma.URLFor('api.read_groups_list',
+                                 genomic_file_id='<kf_id>')
     }, description='Resource links and pagination')
 
 

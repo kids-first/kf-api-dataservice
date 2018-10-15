@@ -11,6 +11,7 @@ CONSTRAINT_ERR_RE = re.compile(
     'could not create (\w+)\. one with \(.+\) = \(.+\) already exists\.'
 )
 
+
 class TestErrors:
     """ Test general error handling """
 
@@ -42,8 +43,11 @@ class TestErrors:
             assert message in response['_status']['message']
 
     @pytest.mark.parametrize('endpoint', [
-        '/sequencing-centers', '/biospecimen-genomic-files', 
-        '/family-relationships'
+        '/sequencing-centers',
+        '/biospecimen-genomic-files',
+        '/family-relationships',
+        '/cavatica-task-genomic-files',
+        '/read-group-genomic-files'
     ])
     def test_uniqueness_constraints(self, client, entities, endpoint):
         """ Test integrity error from uniqueness violations """

@@ -40,6 +40,10 @@ from dataservice.api.genomic_file import GenomicFileAPI
 from dataservice.api.genomic_file import GenomicFileListAPI
 from dataservice.api.read_group import ReadGroupAPI
 from dataservice.api.read_group import ReadGroupListAPI
+from dataservice.api.read_group_genomic_file import (
+    ReadGroupGenomicFileAPI,
+    ReadGroupGenomicFileListAPI
+)
 from dataservice.api.biospecimen_genomic_file import (
     BiospecimenGenomicFileAPI,
     BiospecimenGenomicFileListAPI

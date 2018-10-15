@@ -1,5 +1,4 @@
 import json
-from pprint import pprint
 from datetime import datetime
 
 from flask import url_for
@@ -10,14 +9,9 @@ from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.sequencing_center.models import (
-    SequencingCenter
-)
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.read_group.models import (
-    ReadGroup,
-    ReadGroupGenomicFile
-)
+from dataservice.api.sequencing_center.models import SequencingCenter
+from dataservice.api.read_group.models import ReadGroup, ReadGroupGenomicFile
 from tests.utils import IndexdTestCase
 
 READ_GROUPS_URL = 'api.read_groups'
@@ -54,42 +48,6 @@ class ReadGroupTest(IndexdTestCase):
 
         self.assertEqual(1, ReadGroup.query.count())
 
-    def test_post_with_genomic_files(self):
-        """
-        Test create a new read_group with genomic files
-        """
-        gfs = []
-        for i in range(2):
-            gfs.append(GenomicFile(external_id='gf{}'.format(i)))
-        db.session.add_all(gfs)
-        db.session.commit()
-
-        body = {'external_id': 'blah',
-                'lane_number': 3,
-                'flow_cell': 'FL0101',
-                'genomic_files': [{'kf_id': gf.kf_id} for gf in gfs]
-                }
-
-        # Send get request
-        response = self.client.post(url_for(READ_GROUPS_LIST_URL),
-                                    data=json.dumps(body),
-                                    headers=self._api_headers())
-        # Check response status status_code
-        self.assertEqual(response.status_code, 201)
-
-        # Check response content
-        response = json.loads(response.data.decode('utf-8'))
-        read_group = response['results']
-        for k, v in body.items():
-            if k == 'genomic_files':
-                continue
-            self.assertEqual(read_group[k], v)
-
-        # Check counts
-        self.assertEqual(1, ReadGroup.query.count())
-        self.assertEqual(2, GenomicFile.query.count())
-        self.assertEqual(2, ReadGroupGenomicFile.query.count())
-
     def test_get(self):
         """
         Test retrieval of read_group
@@ -112,6 +70,35 @@ class ReadGroupTest(IndexdTestCase):
                 attr = attr.replace(tzinfo=tz.tzutc()).isoformat()
             self.assertEqual(read_group[k], attr)
 
+    def test_filter_by_gf(self):
+        """
+        Test get and filter read groups by study_id and/or genomic_file_id
+        """
+        rgs, gfs, studies = self._create_all_entities()
+
+        # Create query
+        gf = GenomicFile.query.filter_by(external_id='study0-gf1').first()
+        rgfs = ReadGroupGenomicFile.query.filter_by(
+            genomic_file_id=gf.kf_id).all()
+        assert len(rgfs) == 1
+        assert rgfs[0].read_group.external_id == 'study0-rg0'
+
+        # Send get request
+        filter_params = {'genomic_file_id': gf.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/read-groups', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 1 == response['total']
+        assert 1 == len(response['results'])
+        read_group = response['results'][0]
+        assert read_group['external_id'] == 'study0-rg0'
+
     def test_patch(self):
         """
         Test partial update of an existing read_group
@@ -119,17 +106,8 @@ class ReadGroupTest(IndexdTestCase):
         rg = self._create_save_to_db()
         kf_id = rg.kf_id
 
-        gfs = []
-        for i in range(2):
-            gfs.append(GenomicFile(external_id='gf{}'.format(i)))
-        rg.genomic_files.extend(gfs)
-        db.session.commit()
-
         # Update existing read_group
-        # Unlink one of the genomic files from read group
-        body = {'external_id': 'updated',
-                'genomic_files': [{'kf_id': gfs[0].kf_id}]
-                }
+        body = {'external_id': 'updated'}
 
         response = self.client.patch(url_for(READ_GROUPS_URL,
                                              kf_id=kf_id),
@@ -147,8 +125,6 @@ class ReadGroupTest(IndexdTestCase):
         read_group = resp['results']
         rg = ReadGroup.query.get(kf_id)
         for k, v in body.items():
-            if 'genomic_files':
-                continue
             self.assertEqual(v, getattr(rg, k))
         # Content - Check remaining fields are unchanged
         unchanged_keys = (set(read_group.keys()) -
@@ -164,8 +140,6 @@ class ReadGroupTest(IndexdTestCase):
 
         # Check counts
         self.assertEqual(1, ReadGroup.query.count())
-        self.assertEqual(2, GenomicFile.query.count())
-        self.assertEqual(1, ReadGroupGenomicFile.query.count())
 
     def test_delete(self):
         """
@@ -196,54 +170,6 @@ class ReadGroupTest(IndexdTestCase):
         db.session.commit()
 
         return rg
-
-    def test_filter_by_gf(self):
-        """
-        Test get and filter read groups by study_id and/or genomic_file_id
-        """
-        rgs, gfs, studies = self._create_all_entities()
-
-        # Create query
-        gf = GenomicFile.query.filter_by(external_id='study0-gf1').first()
-        assert len(gf.read_groups) == 1
-        assert gf.read_groups[0].external_id == 'study0-rg0'
-
-        # Send get request
-        filter_params = {'genomic_file_id': gf.kf_id}
-        qs = urlencode(filter_params)
-        endpoint = '{}?{}'.format('/read-groups', qs)
-        response = self.client.get(endpoint, headers=self._api_headers())
-        # Check response status code
-        self.assertEqual(response.status_code, 200)
-        # Check response content
-        response = json.loads(response.data.decode('utf-8'))
-        assert 1 == response['total']
-        assert 1 == len(response['results'])
-        read_group = response['results'][0]
-        assert read_group['external_id'] == 'study0-rg0'
-
-    def test_filter_by_study(self):
-        """
-        Test filter by study
-        """
-        rgs, gfs, studies = self._create_all_entities()
-        assert len(rgs['study0']) == 2
-
-        # Create query
-        filter_params = {'study_id': studies[0].kf_id}
-        qs = urlencode(filter_params)
-        endpoint = '{}?{}'.format('/read-groups', qs)
-        # Send get request
-        response = self.client.get(endpoint, headers=self._api_headers())
-        # Check response status code
-        self.assertEqual(response.status_code, 200)
-        # Check response content
-        response = json.loads(response.data.decode('utf-8'))
-        assert 2 == response['total']
-        assert 2 == len(response['results'])
-        read_groups = response['results']
-        for rg in read_groups:
-            assert rg['external_id'].startswith('study0')
 
     def _create_all_entities(self):
         """

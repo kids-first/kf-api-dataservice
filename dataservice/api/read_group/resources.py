@@ -56,7 +56,8 @@ class ReadGroupListAPI(CRUDView):
             BiospecimenGenomicFile
         )
         if study_id:
-            q = (q.join(ReadGroup.genomic_files)
+            q = (q.join(ReadGroup.read_group_genomic_files)
+                 .join(ReadGroupGenomicFile.genomic_file)
                  .join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)

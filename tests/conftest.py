@@ -56,7 +56,8 @@ ENTITY_ENDPOINT_MAP = {
     ReadGroup: '/read-groups',
     SequencingExperiment: '/sequencing-experiments',
     CavaticaTask: '/cavatica-tasks',
-    CavaticaTaskGenomicFile: '/cavatica-task-genomic-files'
+    CavaticaTaskGenomicFile: '/cavatica-task-genomic-files',
+    ReadGroupGenomicFile: '/read-group-genomic-files'
 }
 
 ENDPOINT_ENTITY_MAP = {v: k for k, v in ENTITY_ENDPOINT_MAP.items()}

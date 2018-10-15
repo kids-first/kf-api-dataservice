@@ -16,12 +16,12 @@ class ModelTest(IndexdTestCase):
         """
         Test creation of read_group
         """
-        self._create_entities()
+        rgs, gfs = self._create_entities()
         self.assertEqual(ReadGroup.query.count(), 2)
 
         # Check that read group was linked to its gfs
-        self.assertEqual(len(ReadGroup.query.filter_by(external_id='rg0')
-                             .first().genomic_files), 2)
+        self.assertEqual(ReadGroupGenomicFile.query.filter_by(
+            read_group_id=rgs[0].kf_id).count(), 2)
 
     def test_update_read_group(self):
         """
@@ -95,13 +95,15 @@ class ModelTest(IndexdTestCase):
             rgs.append(
                 ReadGroup(external_id='rg{}'.format(i))
             )
+        db.session.add(ReadGroupGenomicFile(genomic_file=gfs[0],
+                                            read_group=rgs[0]))
+        db.session.add(ReadGroupGenomicFile(genomic_file=gfs[0],
+                                            read_group=rgs[1]))
+        db.session.add(ReadGroupGenomicFile(genomic_file=gfs[1],
+                                            read_group=rgs[0]))
+        db.session.add(ReadGroupGenomicFile(genomic_file=gfs[1],
+                                            read_group=rgs[1]))
 
-        gfs[0].read_groups.append(rgs[0])
-        gfs[0].read_groups.append(rgs[1])
-        rgs[0].genomic_files.append(gfs[1])
-        rgs[1].genomic_files.append(gfs[1])
-
-        db.session.add_all(rgs + gfs)
         db.session.commit()
 
         return rgs, gfs

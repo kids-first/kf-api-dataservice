@@ -1,8 +1,8 @@
 from sqlalchemy import event
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
-from dataservice.api.genomic_file.models import GenomicFile
 
 
 class ReadGroup(db.Model, Base):
@@ -27,9 +27,14 @@ class ReadGroup(db.Model, Base):
     quality_scale = db.Column(db.Text(),
                               doc='The scale used to encode quality scores')
 
-    genomic_files = db.relationship('GenomicFile',
-                                    secondary='read_group_genomic_file',
-                                    backref=db.backref('read_groups'))
+    genomic_files = association_proxy(
+        'read_group_genomic_files',
+        'genomic_file',
+        creator=lambda gf: ReadGroupGenomicFile(genomic_file=gf))
+
+    read_group_genomic_files = db.relationship('ReadGroupGenomicFile',
+                                               backref='read_group',
+                                               cascade='all, delete-orphan')
 
 
 class ReadGroupGenomicFile(db.Model, Base):
@@ -43,7 +48,7 @@ class ReadGroupGenomicFile(db.Model, Base):
     __tablename__ = 'read_group_genomic_file'
     __prefix__ = 'RF'
     __table_args__ = (db.UniqueConstraint('read_group_id',
-                                          'genomic_file_id'),)
+                                          'genomic_file_id',),)
     read_group_id = db.Column(KfId(),
                               db.ForeignKey('read_group.kf_id'),
                               nullable=False)
@@ -51,12 +56,12 @@ class ReadGroupGenomicFile(db.Model, Base):
     genomic_file_id = db.Column(KfId(),
                                 db.ForeignKey('genomic_file.kf_id'),
                                 nullable=False)
-    read_group = db.relationship('ReadGroup')
-    genomic_file = db.relationship('GenomicFile')
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
 
 
-@event.listens_for(GenomicFile, 'after_delete')
+@event.listens_for(ReadGroupGenomicFile, 'after_delete')
 def delete_orphans(mapper, connection, state):
     q = (db.session.query(ReadGroup)
-         .filter(~ReadGroup.genomic_files.any()))
+         .filter(~ReadGroup.read_group_genomic_files.any()))
     q.delete(synchronize_session='fetch')
