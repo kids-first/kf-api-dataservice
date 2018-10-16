@@ -1,7 +1,6 @@
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
-from sqlalchemy import event
 
 
 class Diagnosis(db.Model, Base):
@@ -68,58 +67,3 @@ class Diagnosis(db.Model, Base):
                                db.ForeignKey('participant.kf_id'),
                                doc='the participant who was diagnosed',
                                nullable=False)
-
-
-def validate_diagnosis(target):
-    """
-    Ensure that both the diagnosis and biospecimen
-    have the same participant
-    If this is not the case then raise DatabaseValidationError
-    """
-    from dataservice.api.errors import DatabaseValidationError
-    from dataservice.api.biospecimen.models import Biospecimen
-    # Return if biospecimen is None or
-    # if diagnosis doesn't exist, return and
-    # let ORM handle non-existent foreign key
-    if not target or not target.biospecimens:
-        return
-    # Get diagnosis by id and bisopecimen by id
-    for biospecimen in target.biospecimens:
-        bsp = Biospecimen.query.get(biospecimen.kf_id)
-        ds = Diagnosis.query.get(target.kf_id)
-        if bsp is None:
-            operation = 'modify'
-            target_entity = Biospecimen.__tablename__
-            message = ('Biospecimen {} does not exist').format(
-                biospecimen.kf_id)
-            raise DatabaseValidationError(target_entity, operation, message)
-        elif ds is None:
-            operation = 'modify'
-            target_entity = Diagnosis.__tablename__
-            message = ('Diagnosis {} does not exist').format(target.kf_id)
-            raise DatabaseValidationError(target_entity, operation, message)
-        # Check if this diagnosis and biospecimen refer to same participant
-        if bsp.participant_id != target.participant_id:
-            operation = 'modify'
-            target_entity = Diagnosis.__tablename__
-            message = (
-                ('a diagnosis cannot be linked with a biospecimen if they '
-                 'refer to different participants. diagnosis {} '
-                 'refers to participant {} and '
-                 'biospecimen {} refers to participant {}')
-                .format(
-                    target.kf_id,
-                    target.participant_id,
-                    bsp.kf_id,
-                    bsp.participant_id
-                ))
-            raise DatabaseValidationError(target_entity, operation, message)
-
-
-@event.listens_for(Diagnosis, 'before_insert')
-@event.listens_for(Diagnosis, 'before_update')
-def diagnosis_on_insert(mapper, connection, target):
-    """
-    Run preprocessing/validation of diagnosis before insert
-    """
-    validate_diagnosis(target)

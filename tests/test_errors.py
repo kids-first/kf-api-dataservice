@@ -45,6 +45,7 @@ class TestErrors:
     @pytest.mark.parametrize('endpoint', [
         '/sequencing-centers',
         '/biospecimen-genomic-files',
+        '/biospecimen-diagnoses',
         '/family-relationships',
         '/cavatica-task-genomic-files',
         '/read-group-genomic-files'

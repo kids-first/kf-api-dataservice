@@ -1,18 +1,18 @@
 from marshmallow_sqlalchemy import field_for
-
-from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.common.schemas import BaseSchema
-from dataservice.api.diagnosis.schemas import DiagnosisSchema
-from dataservice.api.common.validation import validate_age
-from dataservice.api.common.custom_fields import (DateOrDatetime,
-                                                  PatchedURLFor)
-from dataservice.api.common.validation import (validate_positive_number,
-                                               enum_validation_generator,
-                                               validate_kf_id)
-from dataservice.extensions import ma
 from marshmallow import (
     fields,
     validates
+)
+
+from dataservice.extensions import ma
+from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.common.schemas import BaseSchema
+from dataservice.api.common.validation import validate_age
+from dataservice.api.common.custom_fields import DateOrDatetime
+from dataservice.api.common.validation import (
+    validate_positive_number,
+    enum_validation_generator,
+    validate_kf_id
 )
 
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other", "Virtual"}
@@ -37,8 +37,6 @@ class BiospecimenSchema(BaseSchema):
     analyte_type = field_for(Biospecimen, 'analyte_type',
                              validate=enum_validation_generator(
                                  ANALYTE_TYPE_ENUM))
-    diagnoses = fields.Nested(DiagnosisSchema, many=True, only=['kf_id'],
-                              load_only=True)
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen
@@ -54,11 +52,12 @@ class BiospecimenSchema(BaseSchema):
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>'),
-        'diagnoses': PatchedURLFor('api.diagnoses_list',
-                                   biospecimen_id='<kf_id>'
-                                   ),
         'biospecimen_genomic_files': ma.URLFor(
-            'api.biospecimen_genomic_files_list', biospecimen_id='<kf_id>')
+            'api.biospecimen_genomic_files_list', biospecimen_id='<kf_id>'),
+        'biospecimen_diagnoses': ma.URLFor(
+            'api.biospecimen_diagnoses_list', biospecimen_id='<kf_id>'),
+        'diagnoses': ma.URLFor('api.diagnoses_list',
+                               biospecimen_id='<kf_id>')
     })
 
 

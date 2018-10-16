@@ -23,3 +23,5 @@ class BiospecimenGenomicFile(db.Model, Base):
     biospecimen_id = db.Column(KfId(),
                                db.ForeignKey('biospecimen.kf_id'),
                                nullable=False)
+
+    external_id = db.Column(db.Text(), doc='external id used by contributor')

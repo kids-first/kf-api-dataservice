@@ -95,6 +95,7 @@
             "visible": true
         },
         "/biospecimen-genomic-files": {},
+        "/biospecimen-diagnoses": {},
         "/read-groups": {
             "external_id": "FL01",
             "flow_cell": "FL123",
@@ -245,6 +246,11 @@
             ]
         },
         "/biospecimen-genomic-files": {
+            "valid": {
+            },
+            "invalid": []
+        },
+        "/biospecimen-diagnoses": {
             "valid": {
             },
             "invalid": []

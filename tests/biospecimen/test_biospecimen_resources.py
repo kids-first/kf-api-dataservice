@@ -1,19 +1,18 @@
 import json
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlencode
 from datetime import datetime
 from dateutil import parser, tz
-from urllib.parse import urlencode
 
 from flask import url_for
 
 from dataservice.extensions import db
+from dataservice.api.study.models import Study
+from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import (
     Biospecimen,
     BiospecimenDiagnosis
 )
 from dataservice.api.diagnosis.models import Diagnosis
-from dataservice.api.participant.models import Participant
-from dataservice.api.study.models import Study
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from tests.utils import FlaskTestCase
@@ -280,106 +279,6 @@ class BiospecimenTest(FlaskTestCase):
         d = Biospecimen.query.first()
         self.assertIs(d, None)
 
-    def test_patch_biospec_w_diagnosis(self):
-        """
-        Test update biospecimen with diagnosis
-        """
-        kwargs = self._create_save_to_db()
-        kf_id = kwargs.get('kf_id')
-        d, d_args = self._create_diagnosis(
-            1, participant_id=kwargs['participant_id'])
-        d_args['kf_id'] = d.kf_id
-        body = {
-            'diagnoses': [{'kf_id': d_args['kf_id']}]
-        }
-        response = self.client.patch(url_for(BIOSPECIMENS_URL,
-                                             kf_id=kf_id),
-                                     headers=self._api_headers(),
-                                     data=json.dumps(body))
-        # Status code
-        self.assertEqual(response.status_code, 200)
-        # Message
-        resp = json.loads(response.data.decode("utf-8"))
-        self.assertIn('biospecimen', resp['_status']['message'])
-        self.assertIn('updated', resp['_status']['message'])
-        self.assertEqual(1, Biospecimen.query.count())
-
-        # Update existing biospecimen with wrong format
-        # diagnoses takes dictionary with key as kf_id
-        body = {
-            'diagnoses': [d_args['kf_id']]
-        }
-        response = self.client.patch(url_for(BIOSPECIMENS_URL,
-                                             kf_id=kf_id),
-                                     headers=self._api_headers(),
-                                     data=json.dumps(body))
-        resp = json.loads(response.data.decode("utf-8"))
-        # Status code
-        self.assertEqual(response.status_code, 400)
-        self.assertIn('could not update biospecimen',
-                      resp['_status']['message'])
-
-        # Update existing biospecimen with non existing diagnosis id
-        # diagnoses takes dictionary with key as kf_id
-        body = {
-            'diagnoses': [{'kf_id': 'DG_00000000'}]
-        }
-        response = self.client.patch(url_for(BIOSPECIMENS_URL,
-                                             kf_id=kf_id),
-                                     headers=self._api_headers(),
-                                     data=json.dumps(body))
-        resp = json.loads(response.data.decode("utf-8"))
-        # Status code
-        self.assertEqual(response.status_code, 400)
-        self.assertIn('could not modify', resp['_status']['message'])
-        self.assertIn('does not exist', resp['_status']['message'])
-
-        # check multiple objects patching
-        body = {
-            'diagnoses': [{'kf_id': d_args['kf_id']},
-                          {'kf_id': 'DG_00000000'}
-                          ]
-        }
-        response = self.client.patch(url_for(BIOSPECIMENS_URL,
-                                             kf_id=kf_id),
-                                     headers=self._api_headers(),
-                                     data=json.dumps(body))
-        # Status code
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(1, Biospecimen.query.count())
-        self.assertEqual(1, Diagnosis.query.count())
-        self.assertEqual([d],
-                         Biospecimen.query.first().diagnoses)
-        # Create another diagnosis
-        d1, d_args1 = self._create_diagnosis(
-            1, participant_id=kwargs['participant_id'])
-        d_args1['kf_id'] = d1.kf_id
-
-        # Create another diagnosis
-        d2, d_args2 = self._create_diagnosis(
-            3, participant_id=kwargs['participant_id'])
-        d_args2['kf_id'] = d2.kf_id
-        body = {
-            'diagnoses': [{'kf_id': d_args['kf_id']},
-                          {'kf_id': d_args1['kf_id']},
-                          {'kf_id': d_args2['kf_id']}
-                          ]
-        }
-        response = self.client.patch(url_for(BIOSPECIMENS_URL,
-                                             kf_id=kf_id),
-                                     headers=self._api_headers(),
-                                     data=json.dumps(body))
-        # Status code
-        self.assertEqual(response.status_code, 200)
-        # Message
-        resp = json.loads(response.data.decode("utf-8"))
-        self.assertIn('biospecimen', resp['_status']['message'])
-        self.assertIn('updated', resp['_status']['message'])
-        self.assertEqual(1, Biospecimen.query.count())
-        self.assertEqual(3, Diagnosis.query.count())
-        self.assertEqual([d, d1, d2],
-                         Biospecimen.query.first().diagnoses)
-
     def test_filters(self):
         """
         Test get and filter diagnosis by biospecimen_id or study id
@@ -393,7 +292,9 @@ class BiospecimenTest(FlaskTestCase):
         # Create query - Participant p0, Diagnosis d2 has 2 biospecimens
         d = Diagnosis.query.filter_by(external_id='study0-p0-d2').first()
         s = Study.query.filter_by(external_id='s0').first()
-        assert len(d.biospecimens) == 2
+        bds = BiospecimenDiagnosis.query.filter_by(
+            diagnosis_id=d.kf_id).count()
+        assert bds == 2
 
         # Send get request
         filter_params = {'diagnosis_id': d.kf_id,
@@ -415,7 +316,9 @@ class BiospecimenTest(FlaskTestCase):
         # Create query - Participant p1, Diagnosis d0 has 1 biospecimens
         d = Diagnosis.query.filter_by(external_id='study0-p1-d0').first()
         s = Study.query.filter_by(external_id='s0').first()
-        assert len(d.biospecimens) == 1
+        bds = BiospecimenDiagnosis.query.filter_by(
+            diagnosis_id=d.kf_id).count()
+        assert bds == 1
 
         # Send get request
         filter_params = {'diagnosis_id': d.kf_id,
@@ -436,7 +339,9 @@ class BiospecimenTest(FlaskTestCase):
         # Create query - Same as first query, but wrong study yields 0 results
         d = Diagnosis.query.filter_by(external_id='study0-p0-d2').first()
         s = Study.query.filter_by(external_id='s1').first()
-        assert len(d.biospecimens) == 2
+        bds = BiospecimenDiagnosis.query.filter_by(
+            diagnosis_id=d.kf_id).count()
+        assert bds == 2
 
         # Send get request
         filter_params = {'diagnosis_id': d.kf_id,
@@ -511,28 +416,6 @@ class BiospecimenTest(FlaskTestCase):
         kwargs['kf_id'] = d.kf_id
 
         return kwargs
-
-    def _create_diagnosis(self, _id, participant_id=None):
-        """
-        Create diagnosis
-        """
-        kwargs = {
-            'external_id': 'id_{}'.format(_id),
-            'source_text_diagnosis': 'diagnosis {}'.format(_id),
-            'age_at_event_days': 365,
-            'diagnosis_category': 'cancer',
-            'source_text_tumor_location': 'Brain',
-            'mondo_id_diagnosis': 'DOID:8469',
-            'uberon_id_tumor_location': 'UBERON:0000955',
-            'icd_id_diagnosis': 'J10.01',
-            'spatial_descriptor': 'left side'
-        }
-        if participant_id:
-            kwargs['participant_id'] = participant_id
-        d = Diagnosis(**kwargs)
-        db.session.add(d)
-        db.session.commit()
-        return d, kwargs
 
     def _create_all_entities(self):
         """

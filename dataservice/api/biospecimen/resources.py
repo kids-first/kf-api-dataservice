@@ -1,12 +1,13 @@
 from flask import abort, request
 from marshmallow import ValidationError
-from sqlalchemy.orm import joinedload
 from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.biospecimen.models import (
-    Biospecimen, BiospecimenDiagnosis)
+    Biospecimen,
+    BiospecimenDiagnosis
+)
 from dataservice.api.biospecimen.schemas import (
     BiospecimenSchema,
     BiospecimenFilterSchema
