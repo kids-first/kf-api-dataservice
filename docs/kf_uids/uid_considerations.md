@@ -192,26 +192,26 @@ What alphabet we use for encoding comes down to arbitrary gut feelings. https://
   * 35 trillion UIDs per server
   * If exhausted (lol), request a new Server ID
 
-### Session ID + Counter
+### Disposable Session ID + Counter
 
-* 44 bits for Session ID (17 trillion sessions)
+* 44 bits for Session ID (17 trillion disposable sessions)
 * 20 bits for Counter
   * 1 million UIDs per session
   * If exhausted (lol), get a new Session ID
 
-### Millisecond Timestamp + Node ID + Randomized Sub-chronon Counter
+### Millisecond Timestamp + Node ID + Randomized Sub-chronon Counter (few nodes)
 
-* 41 bits for milliseconds since custom epoch (from now until 69.5 years from now)
 * 10 bits for Node ID
   * 1 thousand nodes
+* 41 bits for milliseconds since custom epoch (from now until 69.5 years from now)
 * 13 bits for randomized counter
   * 8 thousand keys per millisecond per node
 
-### Second Timestamp + Node ID + Randomized Sub-chronon Counter
+### Second Timestamp + Node ID + Randomized Sub-chronon Counter (more nodes)
 
-* 31 bits for seconds since custom epoch (from now until 69.5 years from now)
 * 20 bits for Node ID
   * 1 million nodes
+* 31 bits for seconds since custom epoch (from now until 68 years from now)
 * 13 bits for randomized counter
   * 8 thousand keys per second per node
 
