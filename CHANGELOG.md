@@ -1,4 +1,22 @@
-# Kids First Release Coordinator Release 1.4.0
+# Kids First Dataservice Release 1.5.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ♻️x2 ⬆️x1 🐛x1 🔥x1
+Feature Labels: [refactor](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/refactor) x1
+
+### New features and changes
+
+- (#458) ⬆️ Upgrade dependencies - @dankolbman
+- (#459) 🐛 Fix down rev in migration - @znatty22
+- (#455) ♻️ Standardize biospecimen_diagnosis entity - @znatty22
+- (#453) ♻️ Standardize read_group_genomic_file entity - @znatty22
+- (#456) 🔥 Remove cascade delete genomic file on sequencing-experiment delete - @znatty22
+
+
+# Kids First Dataservice Release 1.4.0
 
 ## Features
 
