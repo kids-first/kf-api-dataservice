@@ -16,6 +16,7 @@ from dataservice.api.common.validation import (
 )
 
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other", "Virtual"}
+SAMPLE_PROCUREMENT_ENUM = {"Autopsy", "Biopsy", "Other"}
 
 
 class BiospecimenSchema(BaseSchema):
@@ -37,6 +38,10 @@ class BiospecimenSchema(BaseSchema):
     analyte_type = field_for(Biospecimen, 'analyte_type',
                              validate=enum_validation_generator(
                                  ANALYTE_TYPE_ENUM))
+    method_of_sample_procurement = field_for(
+        Biospecimen,
+        'method_of_sample_procurement',
+        validate=enum_validation_generator(SAMPLE_PROCUREMENT_ENUM))
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen

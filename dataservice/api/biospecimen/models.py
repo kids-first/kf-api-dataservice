@@ -92,6 +92,10 @@ class Biospecimen(db.Model, Base):
                                    doc='Ontology term that harmonizes the'
                                    'spatial concepts from Biological Spatial'
                                    ' Ontology')
+    method_of_sample_procurement = db.Column(db.Text(),
+                                             doc='The method used to procure '
+                                             'the sample used to extract '
+                                             'analyte(s)')
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
                                nullable=False,

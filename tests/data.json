@@ -47,6 +47,7 @@
             "ncit_id_anatomical_site": "C12439",
             "dbgap_consent_code": "phs00000.c1",
             "consent_type": "GRU-IRB",
+            "method_of_sample_procurement": "Biopsy",
             "visible": true
         },
         "/diagnoses": {
@@ -171,12 +172,14 @@
             "valid": {
                 "analyte_type": "RNA",
                 "shipment_date": "",
-                "analyte_type": "Virtual"
+                "analyte_type": "Virtual",
+                "method_of_sample_procurement": "Autopsy"
             },
             "invalid": [
                 {"age_at_event_days": -1, "shipment_date": "hai der"},
                 {"age_at_event_days": "hello"},
-                {"analyte_type": "test"}
+                {"analyte_type": "test"},
+                {"method_of_sample_procurement": "foo"}
             ]
         },
         "/diagnoses": {
