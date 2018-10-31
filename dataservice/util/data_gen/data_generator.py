@@ -18,9 +18,9 @@ from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.outcome.models import Outcome
-from dataservice.api.workflow.models import (
-    Workflow,
-    WorkflowGenomicFile
+from dataservice.api.cavatica_task.models import (
+    CavaticaTask,
+    CavaticaTaskGenomicFile
 )
 from dataservice.api.investigator.models import Investigator
 from dataservice.api.phenotype.models import Phenotype
@@ -203,7 +203,8 @@ class DataGenerator(object):
         """
         self.anatomical_site_list = []
         for i in range(0, len(diagnoses)):
-            self.anatomical_site_list.append(diagnoses[i].tumor_location)
+            self.anatomical_site_list.append(
+                diagnoses[i].source_text_tumor_location)
 
     def setup(self, config_name):
         """
@@ -233,10 +234,10 @@ class DataGenerator(object):
         self._create_participants_and_studies(self.max_participants)
         # Create aliased participants
         self._create_aliases(5)
-        # Create workflows
-        workflows = self._create_workflows(2)
-        # Link workflows and genomic files
-        self._link_genomic_files_to_workflows(workflows)
+        # Create cavatica_tasks
+        cavatica_tasks = self._create_cavatica_tasks(2)
+        # Link cavatica_tasks and genomic files
+        self._link_genomic_files_to_cavatica_tasks(cavatica_tasks)
         # Create family relationships
         self._create_family_relationships()
         # Tear down
@@ -244,7 +245,8 @@ class DataGenerator(object):
 
     def _create_aliases(self, total):
         for i in range(total):
-            id1 = random.randint(0, self.max_participants - 1)
+            # randint is inclusive on upper bound
+            id1 = random.randint(0, self.max_participants - 2)
             p1 = Participant.query.filter_by(
                 external_id='participant_{}'.format(id1)).first()
             p2 = Participant.query.filter_by(
@@ -324,13 +326,16 @@ class DataGenerator(object):
         Create family relationships between pairs of participants
         """
         participants = Participant.query.all()
-        for participant, relative in self._pairwise(participants):
-            gender = participant.gender
+        for participant1, participant2 in self._pairwise(participants):
+            gender = participant1.gender
             rel = 'mother'
             if gender == 'male':
                 rel = 'father'
-            r = FamilyRelationship(participant=participant, relative=relative,
-                                   participant_to_relative_relation=rel)
+            r = FamilyRelationship(
+                participant1=participant1,
+                participant2=participant2,
+                participant1_to_participant2_relation=rel
+            )
             db.session.add(r)
         db.session.commit()
 
@@ -358,7 +363,6 @@ class DataGenerator(object):
                 external_id='participant_{}'.format(i),
                 # family_id='family_{}'.format(total % (i + 1)),
                 is_proband=random.choice(self.is_proband_list),
-                consent_type=random.choice(self.consent_type_list),
                 biospecimens=biospecimens,
                 diagnoses=diagnoses,
                 outcomes=outcomes,
@@ -389,16 +393,23 @@ class DataGenerator(object):
         for i in range(total):
             biospecimen_data = {
                 'external_sample_id': 'sample_{}'.format(i),
-                'tissue_type': random.choice(self.tissue_type_list),
+                'source_text_tissue_type': random.choice(
+                    self.tissue_type_list
+                ),
                 'composition': random.choice(self.composition_list),
-                'anatomical_site': random.choice(self.anatomical_site_list),
+                'source_text_anatomical_site': random.choice(
+                    self.anatomical_site_list
+                ),
                 'age_at_event_days': random.randint(0, 32872),
-                'tumor_descriptor': random.choice(self.tumor_descriptor_list),
+                'source_text_tumor_descriptor': random.choice(
+                    self.tumor_descriptor_list
+                ),
                 'external_aliquot_id': 'aliquot_{}'.format(i),
                 'shipment_origin': random.choice(self.shipment_origin_list),
                 'analyte_type': random.choice(self.analyte_type_list),
                 'concentration_mg_per_ml': (random.randint(700, 4000)) / 10,
-                'volume_ml': (random.randint(200, 400)) / 10,
+                'volume_ul': (random.randint(200, 400)) / 10,
+                'consent_type': random.choice(self.consent_type_list),
                 'shipment_date': dt - relativedelta.relativedelta(
                     years=random.randint(1, 2)) - relativedelta.relativedelta(
                     months=random.randint(1, 12)) +
@@ -416,7 +427,7 @@ class DataGenerator(object):
 
     def _create_genomic_files(self, total):
         """
-        Creates genomic files with sequencing experiments
+        Creates genomic files
         """
         max_size_mb = 5000
         min_size_mb = 1000
@@ -435,9 +446,7 @@ class DataGenerator(object):
                     self.controlled_access_list),
                 'hashes': {'md5': str(uuid.uuid4()).replace('-', '')}
             }
-            se = random.choice(SequencingExperiment.query.all())
-            gf_list.append(GenomicFile(**kwargs,
-                           sequencing_experiment_id=se.kf_id))
+            gf_list.append(GenomicFile(**kwargs))
         return gf_list
 
     def _create_experiments(self, total):
@@ -474,46 +483,44 @@ class DataGenerator(object):
             se = SequencingExperiment(**e_data,
                                       genomic_files=genomic_files)
             e_list.append(SequencingExperiment(**e_data,
-                          genomic_files=genomic_files))
+                                               genomic_files=genomic_files))
         return e_list
 
-    def _create_workflows(self, total=None):
+    def _create_cavatica_tasks(self, total=None):
         """
-        Create workflows
+        Create cavatica tasks
         """
-        min_workflows = 1
-        max_workflows = 5
+        min_cavatica_tasks = 1
+        max_cavatica_tasks = 5
         if not total:
-            total = random.randint(min_workflows, max_workflows)
-        wf_list = []
+            total = random.randint(min_cavatica_tasks, max_cavatica_tasks)
+        ct_list = []
         for i in range(total):
             data = {
-                'task_id': 'task_{}'.format(i),
-                'name': 'kf_alignment_{}'.format(i),
-                'github_commit_url': (
-                    'https://github.com/kids-first/'
-                    'kf-alignment-workflow/commit/'
-                    '0d7f93dff6463446b0ed43dc2883f60c28e6f1f4')
+                'external_cavatica_task_id': uuid.uuid4(),
+                'name': 'kf_alignment_{}'.format(i)
             }
-            wf = Workflow(**data)
-            db.session.add(wf)
-            wf_list.append(wf)
+            ct = CavaticaTask(**data)
+            db.session.add(ct)
+            ct_list.append(ct)
         db.session.commit()
 
-        return wf_list
+        return ct_list
 
-    def _link_genomic_files_to_workflows(self, workflows):
+    def _link_genomic_files_to_cavatica_tasks(self, cavatica_tasks):
         """
-        Link all genomic files to at least 1 workflow
+        Link all genomic files to at least 1 cavatica task
         """
         for gf in GenomicFile.query.all():
             is_input = not (gf.data_type.startswith('aligned'))
-            n_workflows = random.randint(1, len(workflows))
-            for i in range(n_workflows):
-                wgf = WorkflowGenomicFile(workflow_id=workflows[i].kf_id,
-                                          genomic_file_id=gf.kf_id,
-                                          is_input=is_input)
-                db.session.add(wgf)
+            n_cavatica_tasks = random.randint(1, len(cavatica_tasks))
+            for i in range(n_cavatica_tasks):
+                ctgf = CavaticaTaskGenomicFile(
+                    cavatica_task_id=cavatica_tasks[i].kf_id,
+                    genomic_file_id=gf.kf_id,
+                    is_input=is_input
+                )
+                db.session.add(ctgf)
         db.session.commit()
 
     def _create_diagnoses(self, total):
@@ -525,10 +532,12 @@ class DataGenerator(object):
 
             data = {
                 'external_id': 'diagnosis_{}'.format(i),
-                'diagnosis': random.choice(self.diagnosis_list),
+                'source_text_diagnosis': random.choice(self.diagnosis_list),
                 'diagnosis_category': random.choice(
                     self.diagnosis_category_list),
-                'tumor_location': random.choice(self.tumor_location_list),
+                'source_text_tumor_location': random.choice(
+                    self.tumor_location_list
+                ),
                 'age_at_event_days': random.randint(0, 32872)
             }
             diag_list.append(Diagnosis(**data))
@@ -567,8 +576,8 @@ class DataGenerator(object):
         for i in range(total):
             ph = random.choice(self.phenotype_chosen_list)
             phen = {
-                'phenotype': ph[0],
-                'hpo_id': ph[1],
+                'source_text_phenotype': ph[0],
+                'hpo_id_phenotype': ph[1],
                 'observed': random.choice(self.observed_list),
                 'age_at_event_days': random.randint(0, 32872)
             }
@@ -580,12 +589,12 @@ class DataGenerator(object):
         Create sequencing center
         """
         sc = {
-          'name': random.choice(self.name_list)
-          }
+            'name': random.choice(self.name_list)
+        }
         sequencing_experiments = self._create_experiments(
             random.randint(self.min_seq_exps, self.max_seq_exps))
         sc = SequencingCenter(**sc,
                               sequencing_experiments=sequencing_experiments)
         db.session.add(sc)
         db.session.commit()
-        return SequencingCenter(**sc)
+        return sc

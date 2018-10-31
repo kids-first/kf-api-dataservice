@@ -14,7 +14,7 @@ class AliasGroup(db.Model, Base):
     """
     Alias group.
 
-    Each record in this table represents a group of particpants who are
+    Each record in this table represents a group of participants who are
     aliased to each other (they are all the same person, but have distinct
     entries in the participant table). Participants with the same
     alias_group_id are all aliases of each other.
@@ -97,38 +97,38 @@ class Participant(db.Model, Base):
         There are 4 cases to consider:
 
         1) Participant pt and self have not been assigned an alias
-        group. Create a new alias group and add both particpants to it.
+        group. Create a new alias group and add both participants to it.
 
         2) Participant pt does not have an alias group, but participant self
         does. Add pt to self's alias group.
 
-        3) Participant self does not have an alias group but particpant pt
+        3) Participant self does not have an alias group but participant pt
         does. Add self to pt's alias group
 
-        4) Both participants already have an alias group. Find which particpant
-        has the smaller alias group and merge all particpants in the
-        smaller group into the larger group
+        4) Both participants already have an alias group. Find which
+        participant has the smaller alias group and merge all participants
+        in the smaller group into the larger group
 
-        ** NOTE ** A particpant's aliases can also be created manually by
-        direct manipulation of the particpants in an AliasGroup or
-        the particpant's alias_group_id. However, then it is completely up to
+        ** NOTE ** A participant's aliases can also be created manually by
+        direct manipulation of the participants in an AliasGroup or
+        the participant's alias_group_id. However, then it is completely up to
         the user to ensure all aliases are in the right group and there aren't
         redundant groups that exist.
         """
-        # Neither particpant has an alias group yet
+        # Neither participant has an alias group yet
         if (not pt.alias_group) and (not self.alias_group):
             g = AliasGroup()
             g.participants.extend([self, pt])
 
         # Self belongs to alias group, pt does not
         elif (not pt.alias_group) and (self.alias_group):
-            self.alias_group.particpants.append(pt)
+            self.alias_group.participants.append(pt)
 
         # pt belongs to an alias group, self does not
         elif pt.alias_group and (not self.alias_group):
-            pt.alias_group.particpants.append(self)
+            pt.alias_group.participants.append(self)
 
-        # Both particpants belong to two different alias groups
+        # Both participants belong to two different alias groups
         elif pt.alias_group and self.alias_group:
             # Find smaller alias group first
             c1 = (Participant.query.
