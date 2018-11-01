@@ -16,7 +16,9 @@ from dataservice.api.common.validation import (
 )
 
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other", "Virtual"}
-SAMPLE_PROCUREMENT_ENUM = {"Autopsy", "Biopsy", "Other"}
+SAMPLE_PROCUREMENT_ENUM = {"Autopsy", "Biopsy", "Subtotal Resections",
+                           "Gross Total Resections", "Blood Draw",
+                           "Other"}
 
 
 class BiospecimenSchema(BaseSchema):
