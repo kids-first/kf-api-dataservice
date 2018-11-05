@@ -1,3 +1,19 @@
+# Kids First Dataservice Release 1.6.0
+
+## Features
+
+### Summary
+
+Feature Emojis: 🐛x1 🔧x1 ✨x1
+Feature Labels: [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x2 [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x1 [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x1
+
+### New features and changes
+
+- (#471) 🐛 Fix typo in license badge link - @znatty22
+- (#469) 🔧 Update Biospecimen method_of_sample_procurement enum - @znatty22
+- (#468) ✨ Add method_of_sample_procurement col to biospec - @znatty22
+
+
 # Kids First Dataservice Release 1.5.0
 
 ## Features
