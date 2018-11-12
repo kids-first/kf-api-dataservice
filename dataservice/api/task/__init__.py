@@ -1,2 +1,2 @@
-from dataservice.api.cavatica_task.resources import CavaticaTaskAPI
-from dataservice.api.cavatica_task.resources import CavaticaTaskListAPI
+from dataservice.api.task.resources import TaskAPI
+from dataservice.api.task.resources import TaskListAPI

@@ -1,6 +1,6 @@
-from dataservice.api.cavatica_task_genomic_file.resources import (
-    CavaticaTaskGenomicFileAPI
+from dataservice.api.task_genomic_file.resources import (
+    TaskGenomicFileAPI
 )
-from dataservice.api.cavatica_task_genomic_file.resources import (
-    CavaticaTaskGenomicFileListAPI
+from dataservice.api.task_genomic_file.resources import (
+    TaskGenomicFileListAPI
 )

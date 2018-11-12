@@ -9,9 +9,9 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.cavatica_task.models import (
-    CavaticaTask,
-    CavaticaTaskGenomicFile
+from dataservice.api.task.models import (
+    Task,
+    TaskGenomicFile
 )
 from tests.utils import FlaskTestCase
 
@@ -22,57 +22,57 @@ from tests.mocks import MockIndexd
 @patch('dataservice.extensions.flask_indexd.requests')
 class ModelTest(FlaskTestCase):
     """
-    Test CavaticaTask database model
+    Test Task database model
     """
 
     def test_create_and_find(self, mock):
         """
-        Test create cavatica_task
+        Test create task
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
-        # Create and save cavatica_tasks and dependents
-        participants, cavatica_tasks = self._create_and_save_cavatica_tasks()
+        # Create and save tasks and dependents
+        participants, tasks = self._create_and_save_tasks()
 
         GenomicFile.query.limit(5).all()
 
         # Check database
         # Count checks
         # 4 participants, 2 genomic files per participant
-        # 2 cavatica_tasks, all genomic files are in both cavatica_tasks
+        # 2 tasks, all genomic files are in both tasks
         self.assertEqual(8, GenomicFile.query.count())
-        self.assertEqual(2, CavaticaTask.query.count())
-        self.assertEqual(16, CavaticaTaskGenomicFile.query.count())
-        self.assertEqual(8, CavaticaTaskGenomicFile.query.filter_by(
+        self.assertEqual(2, Task.query.count())
+        self.assertEqual(16, TaskGenomicFile.query.count())
+        self.assertEqual(8, TaskGenomicFile.query.filter_by(
             is_input=False).count())
-        self.assertEqual(8, CavaticaTaskGenomicFile.query.filter_by(
+        self.assertEqual(8, TaskGenomicFile.query.filter_by(
             is_input=True).count())
-        # CavaticaTask content checks
+        # Task content checks
         for p in participants:
             gfs = (p.biospecimens[0].genomic_files)
             for gf in gfs:
-                gf_cavatica_tasks = [
-                    ctgf.cavatica_task
-                    for ctgf in gf.cavatica_task_genomic_files]
-                for gf_cavatica_task in gf_cavatica_tasks:
-                    self.assertIn(gf_cavatica_task, cavatica_tasks)
+                gf_tasks = [
+                    tgf.task
+                    for tgf in gf.task_genomic_files]
+                for gf_task in gf_tasks:
+                    self.assertIn(gf_task, tasks)
                     self.assertEqual(
                         True,
-                        (gf_cavatica_task.name == 'kf-alignment1'
-                         or gf_cavatica_task.name == 'kf-alignment2'))
+                        (gf_task.name == 'kf-alignment1'
+                         or gf_task.name == 'kf-alignment2'))
 
     def test_update(self, mock):
         """
-        Test update cavatica_task
+        Test update task
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
-        # Create and save cavatica_tasks and dependents
-        participants, cavatica_tasks = self._create_and_save_cavatica_tasks()
+        # Create and save tasks and dependents
+        participants, tasks = self._create_and_save_tasks()
         se = SequencingExperiment.query.all()[0]
         # Create new genomic_file
         p0 = Participant.query.filter_by(external_id='Fred').one()
@@ -82,65 +82,65 @@ class ModelTest(FlaskTestCase):
         (p0.biospecimens[0].genomic_files.append(gf_new))
         db.session.commit()
 
-        # Unlink cavatica_task from a genomic file and link to a new one
-        ctgf = CavaticaTaskGenomicFile.query.first()
-        ct_id = ctgf.cavatica_task_id
-        gf_id = ctgf.genomic_file_id
+        # Unlink task from a genomic file and link to a new one
+        tgf = TaskGenomicFile.query.first()
+        t_id = tgf.task_id
+        gf_id = tgf.genomic_file_id
 
-        ctgf.genomic_file_id = gf_new.kf_id
+        tgf.genomic_file_id = gf_new.kf_id
         db.session.commit()
 
         # Check database
-        ct = CavaticaTask.query.get(ct_id)
+        t = Task.query.get(t_id)
         gf = GenomicFile.query.get(gf_id)
-        self.assertNotIn(gf, ct.genomic_files)
-        self.assertIn(gf_new, ct.genomic_files)
+        self.assertNotIn(gf, t.genomic_files)
+        self.assertIn(gf_new, t.genomic_files)
         self.assertEqual(9, GenomicFile.query.count())
-        self.assertEqual(16, CavaticaTaskGenomicFile.query.count())
+        self.assertEqual(16, TaskGenomicFile.query.count())
 
     def test_delete(self, mock):
         """
-        Test delete cavatica_task
+        Test delete task
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
-        # Create and save cavatica_tasks and dependents
-        participants, cavatica_tasks = self._create_and_save_cavatica_tasks()
-        kf_id = cavatica_tasks[0].kf_id
+        # Create and save tasks and dependents
+        participants, tasks = self._create_and_save_tasks()
+        kf_id = tasks[0].kf_id
 
-        # Delete cavatica_task
-        ct = CavaticaTask.query.get(kf_id)
-        db.session.delete(ct)
+        # Delete task
+        t = Task.query.get(kf_id)
+        db.session.delete(t)
         db.session.commit()
 
         # Check database
-        self.assertEqual(0, CavaticaTaskGenomicFile.query.
-                         filter_by(cavatica_task_id=kf_id).count())
-        self.assertEqual(1, CavaticaTask.query.count())
-        self.assertNotIn(cavatica_tasks[0], CavaticaTask.query.all())
+        self.assertEqual(0, TaskGenomicFile.query.
+                         filter_by(task_id=kf_id).count())
+        self.assertEqual(1, Task.query.count())
+        self.assertNotIn(tasks[0], Task.query.all())
         self.assertEqual(8, GenomicFile.query.count())
 
     def test_delete_relations(self, mock):
         """
-        Test delete GenomicFile and CavaticaTaskGenomicFile
+        Test delete GenomicFile and TaskGenomicFile
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
-        # Create and save cavatica_tasks and dependents
-        participants, cavatica_tasks = self._create_and_save_cavatica_tasks()
+        # Create and save tasks and dependents
+        participants, tasks = self._create_and_save_tasks()
 
         # Delete genomic file
         p0 = Participant.query.filter_by(external_id='Fred').one()
         gf = (p0.biospecimens[0].genomic_files[0])
-        # Save id and related cavatica_tasks
+        # Save id and related tasks
         kf_id = gf.kf_id
-        gf_cavatica_tasks = [
-            ctgf.cavatica_task
-            for ctgf in CavaticaTaskGenomicFile.query.filter_by(
+        gf_tasks = [
+            tgf.task
+            for tgf in TaskGenomicFile.query.filter_by(
                 genomic_file_id=kf_id)]
         db.session.delete(gf)
         db.session.commit()
@@ -148,34 +148,34 @@ class ModelTest(FlaskTestCase):
         # Check database
         # Genomic file deleted
         self.assertEqual(7, GenomicFile.query.count())
-        self.assertEqual(14, CavaticaTaskGenomicFile.query.count())
+        self.assertEqual(14, TaskGenomicFile.query.count())
         self.assertNotIn(gf, (p0.biospecimens[0].genomic_files))
-        for ct in gf_cavatica_tasks:
-            self.assertNotIn(gf, ct.genomic_files)
+        for t in gf_tasks:
+            self.assertNotIn(gf, t.genomic_files)
 
-        # Delete CavaticaTaskGenomicFile
-        ctgf = CavaticaTaskGenomicFile.query.first()
-        kf_id = ctgf.kf_id
-        ct_id = ctgf.cavatica_task_id
-        gf_id = ctgf.genomic_file_id
-        db.session.delete(ctgf)
+        # Delete TaskGenomicFile
+        tgf = TaskGenomicFile.query.first()
+        kf_id = tgf.kf_id
+        t_id = tgf.task_id
+        gf_id = tgf.genomic_file_id
+        db.session.delete(tgf)
         db.session.commit()
 
         # Check database
-        # No genomic files or cavatica_tasks were deleted
+        # No genomic files or tasks were deleted
         self.assertEqual(7, GenomicFile.query.count())
-        self.assertEqual(2, CavaticaTask.query.count())
+        self.assertEqual(2, Task.query.count())
         # Association deleted
-        self.assertEqual(None, CavaticaTaskGenomicFile.query.get(kf_id))
-        # CavaticaTask unlinked from genomic_file
-        ct = CavaticaTask.query.get(ct_id)
+        self.assertEqual(None, TaskGenomicFile.query.get(kf_id))
+        # Task unlinked from genomic_file
+        t = Task.query.get(t_id)
         gf = GenomicFile.query.get(gf_id)
-        self.assertNotIn(gf, ct.genomic_files)
+        self.assertNotIn(gf, t.genomic_files)
 
     def test_foreign_key_constraint(self, mock):
         """
-        Test that a cavatica_task_genomic_file cannot be created without
-        existing reference CavaticaTask and GenomicFile.
+        Test that a task_genomic_file cannot be created without
+        existing reference Task and GenomicFile.
         This checks foreign key constraint
         """
         indexd = MockIndexd()
@@ -185,33 +185,33 @@ class ModelTest(FlaskTestCase):
         # Create study_participant
         data = {
             'is_input': True,
-            'cavatica_task_id': 'none',
+            'task_id': 'none',
             'genomic_file_id': 'none'
         }
-        ctgf = CavaticaTaskGenomicFile(**data)
-        db.session.add(ctgf)
+        tgf = TaskGenomicFile(**data)
+        db.session.add(tgf)
         with self.assertRaises(IntegrityError):
             db.session.commit()
 
     def test_not_null_constraint(self, mock):
         """
-        Test that a cavatica_task and cavatica_task genomic file cannot be
+        Test that a task and task genomic file cannot be
         created without required parameters
 
-        cavatica_task genomic file requires cavatica_task_id,
+        task genomic file requires task_id,
         genomic_file_id, is_input
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
-        # Create and save cavatica_tasks and dependents
-        participants, cavatica_tasks = self._create_and_save_cavatica_tasks()
+        # Create and save tasks and dependents
+        participants, tasks = self._create_and_save_tasks()
 
         # Missing all required parameters
         data = {}
-        ctgf = CavaticaTaskGenomicFile(**data)
-        db.session.add(ctgf)
+        tgf = TaskGenomicFile(**data)
+        db.session.add(tgf)
 
         # Check database
         with self.assertRaises(IntegrityError):
@@ -220,10 +220,10 @@ class ModelTest(FlaskTestCase):
 
         # Missing 1 required param
         data = {
-            'cavatica_task_id': cavatica_tasks[0].kf_id
+            'task_id': tasks[0].kf_id
         }
-        ctgf = CavaticaTaskGenomicFile(**data)
-        db.session.add(ctgf)
+        tgf = TaskGenomicFile(**data)
+        db.session.add(tgf)
 
         # Check database
         with self.assertRaises(IntegrityError):
@@ -232,26 +232,26 @@ class ModelTest(FlaskTestCase):
     def test_unique_constraint(self, mock):
         """
         Test that duplicate tuples
-        (cavatica_task_id, genomic_file_id, is_input)
+        (task_id, genomic_file_id, is_input)
         cannot be created
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
-        # Create and save cavatica_tasks and dependents
-        participants, cavatica_tasks = self._create_and_save_cavatica_tasks()
+        # Create and save tasks and dependents
+        participants, tasks = self._create_and_save_tasks()
 
-        # Get existing CavaticaTaskGenomicFile
-        ctgf = CavaticaTaskGenomicFile.query.first()
-        ct_id = ctgf.cavatica_task_id
-        gf_id = ctgf.genomic_file_id
-        is_input = ctgf.is_input
+        # Get existing TaskGenomicFile
+        tgf = TaskGenomicFile.query.first()
+        t_id = tgf.task_id
+        gf_id = tgf.genomic_file_id
+        is_input = tgf.is_input
 
-        new_ctgf = CavaticaTaskGenomicFile(cavatica_task_id=ct_id,
-                                           genomic_file_id=gf_id,
-                                           is_input=is_input)
-        db.session.add(new_ctgf)
+        new_tgf = TaskGenomicFile(task_id=t_id,
+                                   genomic_file_id=gf_id,
+                                   is_input=is_input)
+        db.session.add(new_tgf)
 
         # Check database
         with self.assertRaises(IntegrityError):
@@ -304,17 +304,17 @@ class ModelTest(FlaskTestCase):
         }
         return GenomicFile(**data)
 
-    def _create_cavatica_task(self, _name, genomic_files=None):
+    def _create_task(self, _name, genomic_files=None):
         """
-        Create cavatica_task
+        Create task
         """
         data = {
-            'external_cavatica_task_id': str(uuid.uuid4()),
+            'external_task_id': str(uuid.uuid4()),
             'name': _name,
         }
         if genomic_files:
             data['genomic_files'] = genomic_files
-        return CavaticaTask(**data)
+        return Task(**data)
 
     def _create_participants_and_dependents(self):
         """
@@ -362,40 +362,40 @@ class ModelTest(FlaskTestCase):
 
         return participants
 
-    def _create_and_save_cavatica_tasks(self):
+    def _create_and_save_tasks(self):
         """
-        Create and save cavatica_tasks + dependent entities
+        Create and save tasks + dependent entities
         """
         # Create participants and dependent entities
         participants = self._create_participants_and_dependents()
         db.session.add_all(participants)
         db.session.commit()
 
-        # Create cavatica_task
-        ct1 = self._create_cavatica_task('kf-alignment1')
-        ct2 = self._create_cavatica_task('kf-alignment2')
-        cavatica_tasks = [ct1, ct2]
+        # Create task
+        t1 = self._create_task('kf-alignment1')
+        t2 = self._create_task('kf-alignment2')
+        tasks = [t1, t2]
 
-        # Add genomic files to cavatica_tasks
+        # Add genomic files to tasks
         # Each participant has an input GF and output GF
         for p in participants:
             gfs = (p.biospecimens[0].genomic_files)
-            # Add input and output genomic files to both cavatica_tasks
-            for ct in cavatica_tasks:
+            # Add input and output genomic files to both tasks
+            for t in tasks:
                 for gf in gfs:
                     # Input gf
                     if gf.data_type == 'submitted aligned read':
                         # Must use assoc obj to add
-                        ctgf = CavaticaTaskGenomicFile(cavatica_task=ct,
-                                                       genomic_file=gf,
-                                                       is_input=True)
-                        db.session.add(ctgf)
+                        tgf = TaskGenomicFile(task=t,
+                                               genomic_file=gf,
+                                               is_input=True)
+                        db.session.add(tgf)
                     # Output gf
                     else:
                         # Use assoc proxy to add, is_input=False by default
-                        ct.genomic_files.append(gf)
+                        t.genomic_files.append(gf)
 
-                db.session.add(ct)
+                db.session.add(t)
         db.session.commit()
 
-        return participants, cavatica_tasks
+        return participants, tasks

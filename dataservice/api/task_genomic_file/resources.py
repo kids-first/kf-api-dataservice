@@ -4,42 +4,42 @@ from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
-from dataservice.api.cavatica_task.models import (
-    CavaticaTaskGenomicFile
+from dataservice.api.task.models import (
+    TaskGenomicFile
 )
-from dataservice.api.cavatica_task_genomic_file.schemas import (
-    CavaticaTaskGenomicFileSchema
+from dataservice.api.task_genomic_file.schemas import (
+    TaskGenomicFileSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
 
 
-class CavaticaTaskGenomicFileListAPI(CRUDView):
+class TaskGenomicFileListAPI(CRUDView):
     """
-    CavaticaTaskGenomicFile List API
+    TaskGenomicFile List API
     """
-    endpoint = 'cavatica_task_genomic_files_list'
-    rule = '/cavatica-task-genomic-files'
-    schemas = {'CavaticaTaskGenomicFile': CavaticaTaskGenomicFileSchema}
+    endpoint = 'task_genomic_files_list'
+    rule = '/task-genomic-files'
+    schemas = {'TaskGenomicFile': TaskGenomicFileSchema}
 
     @paginated
-    @use_args(filter_schema_factory(CavaticaTaskGenomicFileSchema),
+    @use_args(filter_schema_factory(TaskGenomicFileSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """
-        Get a paginated cavatica_task_genomic_files
+        Get a paginated task_genomic_files
         ---
         template:
           path:
             get_list.yml
           properties:
             resource:
-              CavaticaTaskGenomicFile
+              TaskGenomicFile
         """
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
 
-        q = CavaticaTaskGenomicFile.query.filter_by(**filter_params)
+        q = TaskGenomicFile.query.filter_by(**filter_params)
 
         # Filter by study
         from dataservice.api.participant.models import Participant
@@ -49,121 +49,121 @@ class CavaticaTaskGenomicFileListAPI(CRUDView):
             BiospecimenGenomicFile
         )
         if study_id:
-            q = (q.join(CavaticaTaskGenomicFile.genomic_file)
+            q = (q.join(TaskGenomicFile.genomic_file)
                  .join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
                  .filter(Participant.study_id == study_id)
-                 .group_by(CavaticaTaskGenomicFile.kf_id))
+                 .group_by(TaskGenomicFile.kf_id))
 
-        return (CavaticaTaskGenomicFileSchema(many=True)
+        return (TaskGenomicFileSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
 
     def post(self):
         """
-        Create a new cavatica_task_genomic_file
+        Create a new task_genomic_file
         ---
         template:
           path:
             new_resource.yml
           properties:
             resource:
-              CavaticaTaskGenomicFile
+              TaskGenomicFile
         """
         body = request.get_json(force=True)
         try:
-            app = (CavaticaTaskGenomicFileSchema(strict=True)
+            app = (TaskGenomicFileSchema(strict=True)
                    .load(body).data)
         except ValidationError as err:
             abort(400,
-                  'could not create cavatica_task_genomic_file: {}'
+                  'could not create task_genomic_file: {}'
                   .format(err.messages))
 
         db.session.add(app)
         db.session.commit()
-        return CavaticaTaskGenomicFileSchema(
-            201, 'cavatica_task_genomic_file {} created'.format(app.kf_id)
+        return TaskGenomicFileSchema(
+            201, 'task_genomic_file {} created'.format(app.kf_id)
         ).jsonify(app), 201
 
 
-class CavaticaTaskGenomicFileAPI(CRUDView):
+class TaskGenomicFileAPI(CRUDView):
     """
-    CavaticaTaskGenomicFile API
+    TaskGenomicFile API
     """
-    endpoint = 'cavatica_task_genomic_files'
-    rule = '/cavatica-task-genomic-files/<string:kf_id>'
-    schemas = {'CavaticaTaskGenomicFile': CavaticaTaskGenomicFileSchema}
+    endpoint = 'task_genomic_files'
+    rule = '/task-genomic-files/<string:kf_id>'
+    schemas = {'TaskGenomicFile': TaskGenomicFileSchema}
 
     def get(self, kf_id):
         """
-        Get a cavatica_task_genomic_file by id
+        Get a task_genomic_file by id
         ---
         template:
           path:
             get_by_id.yml
           properties:
             resource:
-              CavaticaTaskGenomicFile
+              TaskGenomicFile
         """
-        app = CavaticaTaskGenomicFile.query.get(kf_id)
+        app = TaskGenomicFile.query.get(kf_id)
         if app is None:
             abort(404, 'could not find {} `{}`'
-                  .format('cavatica_task_genomic_file', kf_id))
+                  .format('task_genomic_file', kf_id))
 
-        return CavaticaTaskGenomicFileSchema().jsonify(app)
+        return TaskGenomicFileSchema().jsonify(app)
 
     def patch(self, kf_id):
         """
-        Update an existing cavatica_task_genomic_file. Allows partial update
+        Update an existing task_genomic_file. Allows partial update
         ---
         template:
           path:
             update_by_id.yml
           properties:
             resource:
-              CavaticaTaskGenomicFile
+              TaskGenomicFile
         """
-        app = CavaticaTaskGenomicFile.query.get(kf_id)
+        app = TaskGenomicFile.query.get(kf_id)
         if app is None:
             abort(404, 'could not find {} `{}`'
-                  .format('cavatica_task_genomic_file', kf_id))
+                  .format('task_genomic_file', kf_id))
 
         # Partial update - validate but allow missing required fields
         body = request.get_json(force=True) or {}
         try:
-            app = (CavaticaTaskGenomicFileSchema(strict=True)
+            app = (TaskGenomicFileSchema(strict=True)
                    .load(body, instance=app, partial=True).data)
         except ValidationError as err:
             abort(400,
-                  'could not update cavatica_task_genomic_file: {}'
+                  'could not update task_genomic_file: {}'
                   .format(err.messages))
 
         db.session.add(app)
         db.session.commit()
 
-        return CavaticaTaskGenomicFileSchema(
-            200, 'cavatica_task_genomic_file {} updated'.format(app.kf_id)
+        return TaskGenomicFileSchema(
+            200, 'task_genomic_file {} updated'.format(app.kf_id)
         ).jsonify(app), 200
 
     def delete(self, kf_id):
         """
-        Delete cavatica_task_genomic_file by id
+        Delete task_genomic_file by id
         ---
         template:
           path:
             delete_by_id.yml
           properties:
             resource:
-              CavaticaTaskGenomicFile
+              TaskGenomicFile
         """
-        app = CavaticaTaskGenomicFile.query.get(kf_id)
+        app = TaskGenomicFile.query.get(kf_id)
         if app is None:
             abort(404, 'could not find {} `{}`'
-                  .format('cavatica_task_genomic_file', kf_id))
+                  .format('task_genomic_file', kf_id))
 
         db.session.delete(app)
         db.session.commit()
 
-        return CavaticaTaskGenomicFileSchema(
-            200, 'cavatica_task_genomic_file {} deleted'.format(app.kf_id)
+        return TaskGenomicFileSchema(
+            200, 'task_genomic_file {} deleted'.format(app.kf_id)
         ).jsonify(app), 200
