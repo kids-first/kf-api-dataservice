@@ -134,11 +134,10 @@ class TestAPI:
                            'biospecimens']),
         ('/biospecimens', ['biospecimen_genomic_files',
                            'biospecimen_diagnoses']),
-        ('/biospecimens', ['biospecimen_diagnoses']),
         ('/sequencing-experiments', ['genomic_files']),
         ('/genomic-files', ['task_genomic_files',
                             'biospecimen_genomic_files',
-                            'read_group_genomic_files',
+                            'read_group_genomic_files'
                             ]),
         ('/read-groups', ['read_group_genomic_files']),
         ('/diagnoses', ['biospecimen_diagnoses']),

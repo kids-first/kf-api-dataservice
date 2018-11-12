@@ -10,18 +10,21 @@ from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import (
     Biospecimen,
-    BiospecimenDiagnosis
+    BiospecimenDiagnosis,
+    BiospecimenGenomicFile
 )
+from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
-from tests.utils import FlaskTestCase
+
+from tests.utils import IndexdTestCase
 
 BIOSPECIMENS_URL = 'api.biospecimens'
 BIOSPECIMENS_LIST_URL = 'api.biospecimens_list'
 
 
-class BiospecimenTest(FlaskTestCase):
+class BiospecimenTest(IndexdTestCase):
     """
     Test biospecimen api
     """
@@ -288,17 +291,73 @@ class BiospecimenTest(FlaskTestCase):
         assert 8 == Diagnosis.query.count()
         assert 8 == Biospecimen.query.count()
         assert 5 == BiospecimenDiagnosis.query.count()
+        assert 6 == GenomicFile.query.count()
+        assert 8 == BiospecimenGenomicFile.query.count()
 
         # Create query - Participant p0, Diagnosis d2 has 2 biospecimens
         d = Diagnosis.query.filter_by(external_id='study0-p0-d2').first()
         s = Study.query.filter_by(external_id='s0').first()
         bds = BiospecimenDiagnosis.query.filter_by(
             diagnosis_id=d.kf_id).count()
+        gf = GenomicFile.query.filter_by(external_id='study0-b0-gf0').first()
+        bsgf = BiospecimenGenomicFile.query.filter_by(
+            genomic_file_id=gf.kf_id).count()
         assert bds == 2
+        assert bsgf == 2
+
+        # test study_id filter
+        filter_params = {'study_id': s.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/biospecimens', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 4 == response['total']
+        assert 4 == len(response['results'])
+        results = response['results']
+        for r in results:
+            assert r['external_sample_id'] in {'study0-p0-b0',
+                                               'study0-p0-b1',
+                                               'study0-p1-b0',
+                                               'study0-p2-b0'}
+        # Send genomic_file_id
+        filter_params = {'genomic_file_id': gf.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/biospecimens', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 2 == response['total']
+        assert 2 == len(response['results'])
+        results = response['results']
+        for r in results:
+            assert r['external_sample_id'] in {'study0-p0-b0',
+                                               'study0-p0-b1'}
+
+        # test diagnois_id filter
+        filter_params = {'diagnosis_id': d.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/biospecimens', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 2 == response['total']
+        assert 2 == len(response['results'])
+        results = response['results']
+        for r in results:
+            assert r['external_sample_id'] in {'study0-p0-b0',
+                                               'study0-p0-b1'}
 
         # Send get request
         filter_params = {'diagnosis_id': d.kf_id,
-                         'study_id': s.kf_id}
+                         'study_id': s.kf_id,
+                         'genomic_file_id': gf.kf_id}
         qs = urlencode(filter_params)
         endpoint = '{}?{}'.format('/biospecimens', qs)
         response = self.client.get(endpoint, headers=self._api_headers())
@@ -318,11 +377,16 @@ class BiospecimenTest(FlaskTestCase):
         s = Study.query.filter_by(external_id='s0').first()
         bds = BiospecimenDiagnosis.query.filter_by(
             diagnosis_id=d.kf_id).count()
+        gf = GenomicFile.query.filter_by(external_id='study0-b1-gf0').first()
+        bsgf = BiospecimenGenomicFile.query.filter_by(
+            genomic_file_id=gf.kf_id).count()
         assert bds == 1
+        assert bsgf == 1
 
         # Send get request
         filter_params = {'diagnosis_id': d.kf_id,
-                         'study_id': s.kf_id}
+                         'study_id': s.kf_id,
+                         'genomic_file_id': gf.kf_id}
         qs = urlencode(filter_params)
         endpoint = '{}?{}'.format('/biospecimens', qs)
         response = self.client.get(endpoint, headers=self._api_headers())
@@ -427,7 +491,6 @@ class BiospecimenTest(FlaskTestCase):
         if not sc:
             sc = SequencingCenter(name='sc')
         studies = []
-
         # Two studies
         for j in range(2):
             s = Study(external_id='s{}'.format(j))
@@ -437,23 +500,31 @@ class BiospecimenTest(FlaskTestCase):
 
             # Participant 0
             # Has 2 Biospecimens
+            gf = GenomicFile(
+                external_id='study{}-b0-gf0'.format(j),
+                urls=['s3://mybucket/key'],
+                hashes={'md5': 'd418219b883fce3a085b1b7f38b01e37'})
             for i in range(2):
                 b = Biospecimen(
                     external_sample_id='study{}-p0-b{}'.format(j, i),
                     analyte_type='DNA',
                     sequencing_center=sc)
-
+                b.genomic_files.append(gf)
                 # Biospecimen b0 has 2 diagnoses
                 if i == 0:
                     for k in range(2):
                         d = Diagnosis(
                             external_id='study{}-p0-d{}'.format(j, k))
                         p0.diagnoses.append(d)
-
                 # Biospecimen b1 has 1 diagnosis
                 else:
                     d = Diagnosis(
                         external_id='study{}-p0-d{}'.format(j, k + 1))
+                    gf = GenomicFile(
+                        external_id='study{}-b0-gf{}'.format(j, k + 1),
+                        urls=['s3://mybucket/key'],
+                        hashes={'md5': 'd418219b883fce3a085b1b7f38b01e37'})
+                    b.genomic_files.append(gf)
                     p0.diagnoses.append(d)
                 p0.biospecimens.append(b)
 
@@ -463,6 +534,11 @@ class BiospecimenTest(FlaskTestCase):
                             analyte_type='DNA',
                             sequencing_center=sc)
             d = Diagnosis(external_id='study{}-p1-d0'.format(j))
+            gf = GenomicFile(
+                external_id='study{}-b1-gf0'.format(j),
+                urls=['s3://mybucket/key'],
+                hashes={'md5': 'd418219b883fce3a085b1b7f38b01e37'})
+            b.genomic_files.append(gf)
             p1.biospecimens.append(b)
             p1.diagnoses.append(d)
 

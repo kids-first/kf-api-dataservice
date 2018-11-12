@@ -45,6 +45,9 @@ class GenomicFileListAPI(CRUDView):
         # Get read group id and remove from model filter params
         read_group_id = filter_params.pop('read_group_id', None)
 
+        # Get biospecimen id and remove from model filter params
+        biospecimen_id = filter_params.pop('biospecimen_id', None)
+
         # Apply model filter params
         q = (GenomicFile.query
              .filter_by(**filter_params))
@@ -66,7 +69,13 @@ class GenomicFileListAPI(CRUDView):
         if read_group_id:
             q = (q.join(ReadGroupGenomicFile)
                  .filter(ReadGroupGenomicFile.read_group_id == read_group_id))
-
+        if biospecimen_id and not study_id:
+            q = (q.join(BiospecimenGenomicFile).filter(
+                 BiospecimenGenomicFile.biospecimen_id == biospecimen_id))
+        # This check is to remove duplicate join on biospecimen genomic file
+        if biospecimen_id and study_id:
+            q = (q.filter(
+                 BiospecimenGenomicFile.biospecimen_id == biospecimen_id))
         pager = indexd_pagination(q, after, limit)
 
         return (GenomicFileSchema(many=True)

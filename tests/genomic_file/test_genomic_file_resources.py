@@ -358,7 +358,7 @@ def test_delete_error(client, indexd, entities):
     assert GenomicFile.query.count() == init + 1
 
 
-def test_filter_by_rg(client, indexd):
+def test_filter_by_rg_bs(client, indexd):
     """
     Test get and filter genomic files by study_id and/or read_group_id
     """
@@ -366,6 +366,7 @@ def test_filter_by_rg(client, indexd):
 
     # Create query
     rg = ReadGroup.query.filter_by(external_id='study0-rg1').first()
+
     assert len(rg.genomic_files) == 2
     assert rg.genomic_files[0].external_id == 'study0-gf0'
 
@@ -382,6 +383,68 @@ def test_filter_by_rg(client, indexd):
     assert 2 == len(response['results'])
     gfs = response['results']
     _ids = {'study0-gf0', 'study0-gf2'}
+    for gf in gfs:
+        assert gf['external_id'] in _ids
+
+
+def test_filter_by_bs(client, indexd):
+    """
+    Test get and filter genomic files by biospecimen_id
+    """
+    rgs, gfs, studies = _create_all_entities()
+    bs = Biospecimen.query.filter_by(external_sample_id='b0').first()
+    s = Study.query.filter_by(external_id='s0').first()
+
+    assert len(bs.genomic_files) == 1
+    assert bs.genomic_files[0].external_id == 'study0-gf0'
+
+    # Send get request
+    filter_params = {'biospecimen_id': bs.kf_id}
+    qs = urlencode(filter_params)
+    endpoint = '{}?{}'.format('/genomic-files', qs)
+    response = client.get(endpoint)
+    # Check response status code
+    assert response.status_code == 200
+    # Check response content
+    response = json.loads(response.data.decode('utf-8'))
+    assert 1 == response['total']
+    assert 1 == len(response['results'])
+    gfs = response['results']
+    _ids = {'study0-gf0'}
+    for gf in gfs:
+        assert gf['external_id'] in _ids
+
+    # test study_id filter
+    filter_params = {'study_id': s.kf_id}
+    qs = urlencode(filter_params)
+    endpoint = '{}?{}'.format('/biospecimens', qs)
+    endpoint = '{}?{}'.format('/genomic-files', qs)
+    response = client.get(endpoint)
+    # Check response status code
+    assert response.status_code == 200
+    # Check response content
+    response = json.loads(response.data.decode('utf-8'))
+    assert 3 == response['total']
+    assert 3 == len(response['results'])
+    gfs = response['results']
+    _ids = {'study0-gf0', 'study0-gf1', 'study0-gf2'}
+    for gf in gfs:
+        assert gf['external_id'] in _ids
+
+    # Send get request
+    filter_params = {'biospecimen_id': bs.kf_id,
+                     'study_id': s.kf_id}
+    qs = urlencode(filter_params)
+    endpoint = '{}?{}'.format('/genomic-files', qs)
+    response = client.get(endpoint)
+    # Check response status code
+    assert response.status_code == 200
+    # Check response content
+    response = json.loads(response.data.decode('utf-8'))
+    assert 1 == response['total']
+    assert 1 == len(response['results'])
+    gfs = response['results']
+    _ids = {'study0-gf0'}
     for gf in gfs:
         assert gf['external_id'] in _ids
 
