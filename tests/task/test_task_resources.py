@@ -4,62 +4,62 @@ import json
 from flask import url_for
 
 from dataservice.extensions import db
-from dataservice.api.cavatica_task.models import CavaticaTask
+from dataservice.api.task.models import Task
 from dataservice.api.cavatica_app.models import CavaticaApp
 from tests.utils import FlaskTestCase
 
-CAVATICA_TASK_URL = 'api.cavatica_tasks'
-CAVATICA_TASK_LIST_URL = 'api.cavatica_tasks_list'
+TASK_URL = 'api.tasks'
+TASK_LIST_URL = 'api.tasks_list'
 
 
-class CavaticaTaskTest(FlaskTestCase):
+class TaskTest(FlaskTestCase):
     """
-    Test cavatica_task api endpoints
+    Test task api endpoints
     """
 
-    def test_post_cavatica_task(self):
+    def test_post_task(self):
         """
-        Test creating a new cavatica_task
+        Test creating a new task
         """
-        response = self._make_cavatica_task(name='task1')
+        response = self._make_task(name='task1')
         resp = json.loads(response.data.decode('utf-8'))
 
         self.assertEqual(response.status_code, 201)
 
-        self.assertIn('cavatica_task', resp['_status']['message'])
+        self.assertIn('task', resp['_status']['message'])
         self.assertIn('created', resp['_status']['message'])
 
-        cavatica_task = resp['results']
-        task = CavaticaTask.query.get(cavatica_task['kf_id'])
-        self.assertEqual(task.name, cavatica_task['name'])
+        task = resp['results']
+        t = Task.query.get(task['kf_id'])
+        self.assertEqual(t.name, task['name'])
 
-    def test_get_cavatica_task(self):
+    def test_get_task(self):
         """
-        Test retrieving a cavatica_task by id
+        Test retrieving a task by id
         """
-        resp = self._make_cavatica_task('task1')
+        resp = self._make_task('task1')
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
 
-        response = self.client.get(url_for(CAVATICA_TASK_URL,
+        response = self.client.get(url_for(TASK_URL,
                                            kf_id=kf_id),
                                    headers=self._api_headers())
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 200)
 
-        cavatica_task = resp['results']
-        task = CavaticaTask.query.get(kf_id)
-        self.assertEqual(kf_id, cavatica_task['kf_id'])
-        self.assertEqual(kf_id, task.kf_id)
-        self.assertEqual(task.name, cavatica_task['name'])
+        task = resp['results']
+        t = Task.query.get(kf_id)
+        self.assertEqual(kf_id, task['kf_id'])
+        self.assertEqual(kf_id, t.kf_id)
+        self.assertEqual(t.name, task['name'])
 
-    def test_get_all_cavatica_tasks(self):
+    def test_get_all_tasks(self):
         """
-        Test retrieving all cavatica_tasks
+        Test retrieving all tasks
         """
-        self._make_cavatica_task(name='TEST')
+        self._make_task(name='TEST')
 
-        response = self.client.get(url_for(CAVATICA_TASK_LIST_URL),
+        response = self.client.get(url_for(TASK_LIST_URL),
                                    headers=self._api_headers())
         status_code = response.status_code
         response = json.loads(response.data.decode('utf-8'))
@@ -68,20 +68,20 @@ class CavaticaTaskTest(FlaskTestCase):
         self.assertIs(type(content), list)
         self.assertEqual(len(content), 1)
 
-    def test_patch_cavatica_task(self):
+    def test_patch_task(self):
         """
-        Test updating an existing cavatica_task
+        Test updating an existing task
         """
-        orig = CavaticaTask.query.count()
-        response = self._make_cavatica_task(name='TEST')
+        orig = Task.query.count()
+        response = self._make_task(name='TEST')
         resp = json.loads(response.data.decode('utf-8'))
-        cavatica_task = resp['results']
-        kf_id = cavatica_task['kf_id']
+        task = resp['results']
+        kf_id = task['kf_id']
         body = {
             'name': 'new name',
         }
-        self.assertEqual(orig + 1, CavaticaTask.query.count())
-        response = self.client.patch(url_for(CAVATICA_TASK_URL,
+        self.assertEqual(orig + 1, Task.query.count())
+        response = self.client.patch(url_for(TASK_URL,
                                              kf_id=kf_id),
                                      headers=self._api_headers(),
                                      data=json.dumps(body))
@@ -90,41 +90,41 @@ class CavaticaTaskTest(FlaskTestCase):
 
         # Message
         resp = json.loads(response.data.decode('utf-8'))
-        self.assertIn('cavatica_task', resp['_status']['message'])
+        self.assertIn('task', resp['_status']['message'])
         self.assertIn('updated', resp['_status']['message'])
 
         # Content - check only patched fields are updated
-        task = CavaticaTask.query.get(kf_id)
+        task = Task.query.get(kf_id)
         self.assertEqual(task.name, resp['results']['name'])
-        self.assertEqual(orig + 1, CavaticaTask.query.count())
+        self.assertEqual(orig + 1, Task.query.count())
 
-    def test_delete_cavatica_task(self):
+    def test_delete_task(self):
         """
-        Test deleting a cavatica_task by id
+        Test deleting a task by id
         """
-        orig = CavaticaTask.query.count()
-        resp = self._make_cavatica_task('TEST')
+        orig = Task.query.count()
+        resp = self._make_task('TEST')
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
 
-        response = self.client.delete(url_for(CAVATICA_TASK_URL,
+        response = self.client.delete(url_for(TASK_URL,
                                               kf_id=kf_id),
                                       headers=self._api_headers())
 
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(CavaticaTask.query.count(), orig)
+        self.assertEqual(Task.query.count(), orig)
 
-        response = self.client.get(url_for(CAVATICA_TASK_URL,
+        response = self.client.get(url_for(TASK_URL,
                                            kf_id=kf_id),
                                    headers=self._api_headers())
 
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 404)
 
-    def _make_cavatica_task(self, name='task1'):
+    def _make_task(self, name='task1'):
         """
-        Create a new cavatica_task with given name
+        Create a new task with given name
         """
         data = {
             'external_cavatica_app_id': 'app1',
@@ -136,10 +136,10 @@ class CavaticaTaskTest(FlaskTestCase):
         db.session.commit()
         body = {
             'name': name,
-            'external_cavatica_task_id': str(uuid.uuid4()),
+            'external_task_id': str(uuid.uuid4()),
             'cavatica_app_id': app.kf_id
         }
-        response = self.client.post(url_for(CAVATICA_TASK_LIST_URL),
+        response = self.client.post(url_for(TASK_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
         return response

@@ -9,90 +9,90 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.cavatica_task.models import (
-    CavaticaTask,
-    CavaticaTaskGenomicFile
+from dataservice.api.task.models import (
+    Task,
+    TaskGenomicFile
 )
 from tests.utils import FlaskTestCase
 
 from unittest.mock import patch
 from tests.mocks import MockIndexd
 
-CT_GF_URL = 'api.cavatica_task_genomic_files'
-CT_GF_LIST_URL = 'api.cavatica_task_genomic_files_list'
+TASK_GF_URL = 'api.task_genomic_files'
+TASK_GF_LIST_URL = 'api.task_genomic_files_list'
 
 
 @patch('dataservice.extensions.flask_indexd.requests')
-class CavaticaTaskGenomicFileTest(FlaskTestCase):
+class TaskGenomicFileTest(FlaskTestCase):
     """
-    Test cavatica_task_genomic_file api endpoints
+    Test task_genomic_file api endpoints
     """
 
-    def test_post_cavatica_task_genomic_file(self, mock):
+    def test_post_task_genomic_file(self, mock):
         """
-        Test creating a new cavatica_task_genomic_file
+        Test creating a new task_genomic_file
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
-        response = self._make_cavatica_task_genomic_file(mock)
+        response = self._make_task_genomic_file(mock)
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 201)
-        self.assertIn('cavatica_task_genomic_file', resp['_status']['message'])
+        self.assertIn('task_genomic_file', resp['_status']['message'])
         self.assertIn('created', resp['_status']['message'])
 
         # Content check
-        cavatica_task_genomic_file = resp['results']
-        ctgf = CavaticaTaskGenomicFile.query.get(
-            cavatica_task_genomic_file['kf_id'])
-        self.assertEqual(ctgf.is_input, cavatica_task_genomic_file['is_input'])
+        task_genomic_file = resp['results']
+        tgf = TaskGenomicFile.query.get(
+            task_genomic_file['kf_id'])
+        self.assertEqual(tgf.is_input, task_genomic_file['is_input'])
 
         # Relations check
-        ct_kfid = resp['_links']['cavatica_task'].split('/')[-1]
+        t_kfid = resp['_links']['task'].split('/')[-1]
         gf_kfid = resp['_links']['genomic_file'].split('/')[-1]
-        assert ctgf.cavatica_task_id == ct_kfid
-        assert ctgf.genomic_file_id == gf_kfid
-        assert CavaticaTask.query.get(ct_kfid) is not None
+        assert tgf.task_id == t_kfid
+        assert tgf.genomic_file_id == gf_kfid
+        assert Task.query.get(t_kfid) is not None
         assert GenomicFile.query.get(gf_kfid) is not None
 
-    def test_get_cavatica_task_genomic_file(self, mock):
+    def test_get_task_genomic_file(self, mock):
         """
-        Test retrieving a cavatica_task_genomic_file by id
+        Test retrieving a task_genomic_file by id
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
 
-        resp = self._make_cavatica_task_genomic_file(mock)
+        resp = self._make_task_genomic_file(mock)
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
 
-        response = self.client.get(url_for(CT_GF_URL,
+        response = self.client.get(url_for(TASK_GF_URL,
                                            kf_id=kf_id),
                                    headers=self._api_headers())
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 200)
 
-        cavatica_task_genomic_file = resp['results']
-        ctgf = CavaticaTaskGenomicFile.query.get(kf_id)
-        self.assertEqual(kf_id, cavatica_task_genomic_file['kf_id'])
-        self.assertEqual(kf_id, ctgf.kf_id)
-        self.assertEqual(ctgf.is_input, cavatica_task_genomic_file['is_input'])
+        task_genomic_file = resp['results']
+        tgf = TaskGenomicFile.query.get(kf_id)
+        self.assertEqual(kf_id, task_genomic_file['kf_id'])
+        self.assertEqual(kf_id, tgf.kf_id)
+        self.assertEqual(tgf.is_input, task_genomic_file['is_input'])
 
-    def test_get_all_cavatica_task_genomic_files(self, mock):
+    def test_get_all_task_genomic_files(self, mock):
         """
-        Test retrieving all cavatica_task_genomic_files
+        Test retrieving all task_genomic_files
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
 
-        self._make_cavatica_task_genomic_file(mock)
+        self._make_task_genomic_file(mock)
 
-        response = self.client.get(url_for(CT_GF_LIST_URL),
+        response = self.client.get(url_for(TASK_GF_LIST_URL),
                                    headers=self._api_headers())
         status_code = response.status_code
         response = json.loads(response.data.decode('utf-8'))
@@ -101,25 +101,25 @@ class CavaticaTaskGenomicFileTest(FlaskTestCase):
         self.assertIs(type(content), list)
         self.assertEqual(len(content), 1)
 
-    def test_patch_cavatica_task_genomic_file(self, mock):
+    def test_patch_task_genomic_file(self, mock):
         """
-        Test updating an existing cavatica_task_genomic_file
+        Test updating an existing task_genomic_file
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
 
-        response = self._make_cavatica_task_genomic_file(mock)
-        orig = CavaticaTaskGenomicFile.query.count()
+        response = self._make_task_genomic_file(mock)
+        orig = TaskGenomicFile.query.count()
         resp = json.loads(response.data.decode('utf-8'))
-        cavatica_task_genomic_file = resp['results']
-        kf_id = cavatica_task_genomic_file['kf_id']
+        task_genomic_file = resp['results']
+        kf_id = task_genomic_file['kf_id']
         body = {
-            'is_input': not cavatica_task_genomic_file['is_input'],
+            'is_input': not task_genomic_file['is_input'],
         }
-        self.assertEqual(orig, CavaticaTaskGenomicFile.query.count())
-        response = self.client.patch(url_for(CT_GF_URL,
+        self.assertEqual(orig, TaskGenomicFile.query.count())
+        response = self.client.patch(url_for(TASK_GF_URL,
                                              kf_id=kf_id),
                                      headers=self._api_headers(),
                                      data=json.dumps(body))
@@ -128,53 +128,53 @@ class CavaticaTaskGenomicFileTest(FlaskTestCase):
         self.assertEqual(response.status_code, 200)
 
         # Message
-        self.assertIn('cavatica_task_genomic_file', resp['_status']['message'])
+        self.assertIn('task_genomic_file', resp['_status']['message'])
         self.assertIn('updated', resp['_status']['message'])
 
         # Content - check only patched fields are updated
-        task = CavaticaTaskGenomicFile.query.get(kf_id)
+        task = TaskGenomicFile.query.get(kf_id)
         self.assertEqual(task.is_input, resp['results']['is_input'])
-        self.assertEqual(orig, CavaticaTaskGenomicFile.query.count())
+        self.assertEqual(orig, TaskGenomicFile.query.count())
 
-    def test_delete_cavatica_task_genomic_file(self, mock):
+    def test_delete_task_genomic_file(self, mock):
         """
-        Test deleting a cavatica_task_genomic_file by id
+        Test deleting a task_genomic_file by id
         """
         indexd = MockIndexd()
         mock.Session().post = indexd.post
         mock.Session().get = indexd.get
         mock.Session().put = indexd.put
 
-        resp = self._make_cavatica_task_genomic_file(mock)
+        resp = self._make_task_genomic_file(mock)
         resp = json.loads(resp.data.decode('utf-8'))
         kf_id = resp['results']['kf_id']
 
-        response = self.client.delete(url_for(CT_GF_URL,
+        response = self.client.delete(url_for(TASK_GF_URL,
                                               kf_id=kf_id),
                                       headers=self._api_headers())
 
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(CavaticaTaskGenomicFile.query.count(), 0)
+        self.assertEqual(TaskGenomicFile.query.count(), 0)
 
-        response = self.client.get(url_for(CT_GF_URL,
+        response = self.client.get(url_for(TASK_GF_URL,
                                            kf_id=kf_id),
                                    headers=self._api_headers())
 
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 404)
 
-    def _create_cavatica_task(self, _name, genomic_files=None):
+    def _create_task(self, _name, genomic_files=None):
         """
-        Create cavatica_task
+        Create task
         """
         data = {
-            'external_cavatica_task_id': str(uuid.uuid4()),
+            'external_task_id': str(uuid.uuid4()),
             'name': _name,
         }
         if genomic_files:
             data['genomic_files'] = genomic_files
-        return CavaticaTask(**data)
+        return Task(**data)
 
     def _create_entities(self):
         """
@@ -226,33 +226,33 @@ class CavaticaTaskGenomicFileTest(FlaskTestCase):
             se.genomic_files.append(gf)
             genomic_files.append(gf)
 
-        ct = self._create_cavatica_task('ct1')
-        db.session.add(ct)
+        t = self._create_task('t1')
+        db.session.add(t)
         db.session.add(study)
         db.session.commit()
 
-    def _make_cavatica_task_genomic_file(self, mock, **kwargs):
+    def _make_task_genomic_file(self, mock, **kwargs):
         """
-        Create a new cavatica_task_genomic_file with given is_input flag
+        Create a new task_genomic_file with given is_input flag
         """
         # Create entities
         self._create_entities()
 
-        ct = kwargs.get('cavatica_task_id')
+        t = kwargs.get('task_id')
         gf = kwargs.get('genomic_file_id')
         is_input = kwargs.get('is_input', True)
 
-        if not (ct and gf):
-            ct = CavaticaTask.query.first().kf_id
+        if not (t and gf):
+            t = Task.query.first().kf_id
             gf = GenomicFile.query.first().kf_id
 
         body = {
-            'cavatica_task_id': ct,
+            'task_id': t,
             'genomic_file_id': gf,
             'is_input': is_input,
         }
 
-        response = self.client.post(url_for(CT_GF_LIST_URL),
+        response = self.client.post(url_for(TASK_GF_LIST_URL),
                                     headers=self._api_headers(),
                                     data=json.dumps(body))
         return response

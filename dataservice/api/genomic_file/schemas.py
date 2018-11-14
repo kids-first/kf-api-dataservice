@@ -41,7 +41,7 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
 
         exclude = (BaseSchema.Meta.exclude +
                    ('biospecimen', 'sequencing_experiment',) +
-                   ('cavatica_task_genomic_files',
+                   ('task_genomic_files',
                     'biospecimen_genomic_files',))
 
     paired_end = field_for(GenomicFile, 'paired_end',
@@ -70,8 +70,8 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         'sequencing_experiment': PatchedURLFor(
             'api.sequencing_experiments',
             kf_id='<sequencing_experiment_id>'),
-        'cavatica_task_genomic_files': ma.URLFor(
-            'api.cavatica_task_genomic_files_list', genomic_file_id='<kf_id>'),
+        'task_genomic_files': ma.URLFor(
+            'api.task_genomic_files_list', genomic_file_id='<kf_id>'),
         'biospecimen_genomic_files': ma.URLFor(
             'api.biospecimen_genomic_files_list', genomic_file_id='<kf_id>'),
         'read_group_genomic_files': ma.URLFor(

@@ -29,9 +29,9 @@ from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile
 )
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
-from dataservice.api.cavatica_task.models import (
-    CavaticaTask,
-    CavaticaTaskGenomicFile
+from dataservice.api.task.models import (
+    Task,
+    TaskGenomicFile
 )
 from dataservice.api.cavatica_app.models import CavaticaApp
 from dataservice.api.study_file.models import StudyFile
