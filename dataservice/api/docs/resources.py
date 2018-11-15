@@ -40,9 +40,10 @@ class Swagger(View):
 
         tags = []
         for d in glob.glob('dataservice/api/*/README.md'):
-            name = d.split('/')[-2].capitalize()
+            name = d.split('/')[-2].replace('_', ' ')
+            name = name.title().replace(' ', '')
             tag = {
-                'name': name.capitalize(),
+                'name': name,
                 'description': open(d, 'r').read()
             }
             tags.append(tag)
