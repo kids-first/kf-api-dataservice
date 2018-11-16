@@ -472,7 +472,12 @@ def _new_genomic_file(client, include_seq_exp=True):
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'availability': 'Immediate Download',
-        'controlled_access': False
+        'controlled_access': False,
+        'max_insert_size': 600,
+        'mean_insert_size': 500,
+        'mean_depth': 40,
+        'total_reads': 800,
+        'mean_read_length': 200
     }
     if include_seq_exp:
         body['sequencing_experiment_id'] = (SequencingExperiment.query

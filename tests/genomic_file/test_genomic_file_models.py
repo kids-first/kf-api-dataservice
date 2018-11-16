@@ -57,7 +57,12 @@ class ModelTest(IndexdTestCase):
                 'reference_genome': 'Test01',
                 'paired_end': 1,
                 'availability': 'Immediate Download',
-                'sequencing_experiment_id': se.kf_id
+                'sequencing_experiment_id': se.kf_id,
+                'max_insert_size': 600,
+                'mean_insert_size': 500,
+                'mean_depth': 40,
+                'total_reads': 800,
+                'mean_read_length': 200
             }
             # Add genomic file to db session
             gf = GenomicFile(**kwargs)
@@ -333,7 +338,12 @@ class ModelTest(IndexdTestCase):
                 'paired_end': 1,
                 'reference_genome': 'Test01',
                 'hashes': {'md5': str(uuid.uuid4())},
-                'availability': 'Immediate Download'
+                'availability': 'Immediate Download',
+                'max_insert_size': 600,
+                'mean_insert_size': 500,
+                'mean_depth': 40,
+                'total_reads': 800,
+                'mean_read_length': 200
             }
             # Add genomic file to list in biospecimen
             gf = GenomicFile(**kwargs, sequencing_experiment_id=se.kf_id)

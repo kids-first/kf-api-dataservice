@@ -223,11 +223,6 @@
             },
             "invalid": [
                 {"experiment_date": "hai der"},
-                {"mean_insert_size": -12},
-                {"max_insert_size": -12},
-                {"mean_depth": -12},
-                {"mean_read_length": -12},
-                {"total_reads": -12},
                 {"experiment_strategy": "test"},
                 {"platform": "test"},
                 {"library_strand": "test"}
@@ -245,7 +240,12 @@
                 {"paired_end": "one"},
                 {"controlled_access": "hello", "size": "hello"},
                 {"availability": "availble for download"},
-                {"data_type": "read"}
+                {"data_type": "read"},
+                {"mean_insert_size": -12},
+                {"max_insert_size": -12},
+                {"mean_depth": -12},
+                {"mean_read_length": -12},
+                {"total_reads": -12}
             ]
         },
         "/biospecimen-genomic-files": {

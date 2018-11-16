@@ -225,10 +225,5 @@ class ModelTest(IndexdTestCase):
             'is_paired_end': False,
             'platform': 'Test_platform_name_1',
             'instrument_model': '454 GS FLX Titanium',
-            'max_insert_size': 600,
-            'mean_insert_size': 500,
-            'mean_depth': 40,
-            'total_reads': 800,
-            'mean_read_length': 200
         }
         return seq_experiment_data
