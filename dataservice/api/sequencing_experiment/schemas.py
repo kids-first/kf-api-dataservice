@@ -38,16 +38,6 @@ class SequencingExperimentSchema(BaseSchema):
                    ('sequencing_center', ) +
                    ('genomic_files', ))
 
-    max_insert_size = field_for(SequencingExperiment, 'max_insert_size',
-                                validate=validate_positive_number)
-    mean_insert_size = field_for(SequencingExperiment, 'mean_insert_size',
-                                 validate=validate_positive_number)
-    mean_depth = field_for(SequencingExperiment, 'mean_depth',
-                           validate=validate_positive_number)
-    total_reads = field_for(SequencingExperiment, 'total_reads',
-                            validate=validate_positive_number)
-    mean_read_length = field_for(SequencingExperiment, 'mean_read_length',
-                                 validate=validate_positive_number)
     experiment_date = field_for(SequencingExperiment, 'experiment_date',
                                 field_class=DateOrDatetime)
 

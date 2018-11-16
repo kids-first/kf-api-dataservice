@@ -17,12 +17,6 @@ class SequencingExperiment(db.Model, Base):
     :param is_paired_end: Boolean term specifies whether reads have paired end
     :param platform: Name of the platform used to obtain data
     :param instrument_model: Text term that represents the model of instrument
-    :param max_insert_size: Maximum size of the fragmented DNA
-    :param mean_insert_size: Mean size of the fragmented DNA
-    :param mean_depth: (Coverage)Describes the amount of sequence data that
-           is available per position in the sequenced genome territory
-    :param total_reads: Total reads of the sequencing experiment
-    :param mean_read_length: Mean lenth of the reads
     """
     __tablename__ = 'sequencing_experiment'
     __prefix__ = 'SE'
@@ -50,18 +44,6 @@ class SequencingExperiment(db.Model, Base):
     instrument_model = db.Column(db.Text(),
                                  doc='Text term that represents the model of'
                                  ' instrument')
-    max_insert_size = db.Column(db.Integer(),
-                                doc='Maximum size of the fragmented DNA')
-    mean_insert_size = db.Column(db.Float(),
-                                 doc='Mean size of the fragmented DNA')
-    mean_depth = db.Column(db.Float(),
-                           doc='Mean depth or coverage describes the amount of'
-                           ' sequence data that is available per position in'
-                           ' the sequenced genome territory')
-    total_reads = db.Column(db.Integer(),
-                            doc='Total reads of the sequencing experiment')
-    mean_read_length = db.Column(db.Float(),
-                                 doc='Mean lenth of the reads')
     genomic_files = db.relationship(GenomicFile,
                                     backref=db.backref(
                                         'sequencing_experiment',

@@ -45,6 +45,12 @@ class GenomicFile(db.Model, Base, IndexdFile):
         sequencing experiments
     :param is_paired_end: Whether this file was generated from a paired end
         sequencing_experiment
+    :param max_insert_size: Maximum size of the fragmented DNA
+    :param mean_insert_size: Mean size of the fragmented DNA
+    :param mean_depth: (Coverage) Describes the amount of sequence data that
+           is available per position in the sequenced genome territory
+    :param total_reads: Total reads of the sequencing experiment
+    :param mean_read_length: Mean lenth of the reads
     """
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
@@ -63,7 +69,6 @@ class GenomicFile(db.Model, Base, IndexdFile):
                              'available for immediate download, or is in '
                              'cold storage')
     paired_end = db.Column(db.Integer(), doc='The direction of the read')
-
     sequencing_experiment_id = db.Column(KfId(),
                                          db.ForeignKey(
                                          'sequencing_experiment.kf_id'))
@@ -71,6 +76,21 @@ class GenomicFile(db.Model, Base, IndexdFile):
     task_genomic_files = db.relationship(TaskGenomicFile,
                                          backref='genomic_file',
                                          cascade='all, delete-orphan')
+
+    # These fields were previously located on SequencingExperiment
+    max_insert_size = db.Column(db.Integer(),
+                                doc='Maximum size of the fragmented DNA')
+    mean_insert_size = db.Column(db.Float(),
+                                 doc='Mean size of the fragmented DNA')
+    mean_depth = db.Column(db.Float(),
+                           doc='Mean depth or coverage describes the amount of'
+                           ' sequence data that is available per position in'
+                           ' the sequenced genome territory')
+    total_reads = db.Column(db.Integer(),
+                            doc='Total reads of the in the file')
+    mean_read_length = db.Column(db.Float(),
+                                 doc='Mean length of the reads')
+
     read_group_genomic_files = db.relationship(ReadGroupGenomicFile,
                                                backref='genomic_file',
                                                cascade='all, delete-orphan')

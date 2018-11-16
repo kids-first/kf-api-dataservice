@@ -7,6 +7,7 @@ from marshmallow import (
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
 from dataservice.api.common.validation import (
+    validate_positive_number,
     enum_validation_generator,
     validate_kf_id
 )
@@ -67,6 +68,17 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
                            'latest_did',
                            required=False,
                            dump_only=True)
+
+    max_insert_size = field_for(GenomicFile, 'max_insert_size',
+                                validate=validate_positive_number)
+    mean_insert_size = field_for(GenomicFile, 'mean_insert_size',
+                                 validate=validate_positive_number)
+    mean_depth = field_for(GenomicFile, 'mean_depth',
+                           validate=validate_positive_number)
+    total_reads = field_for(GenomicFile, 'total_reads',
+                            validate=validate_positive_number)
+    mean_read_length = field_for(GenomicFile, 'mean_read_length',
+                                 validate=validate_positive_number)
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
