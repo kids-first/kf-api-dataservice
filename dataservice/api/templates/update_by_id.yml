@@ -1,10 +1,10 @@
-description: Partial update of a {{ resource.lower() }}
+description: Partial update of a {{ resource }}
 tags:
 - {{ resource }}
 parameters:
 - name: kf_id
   in: path
-  description: ID of the {{ resource.lower() }}to return
+  description: ID of the {{ resource }}to return
   required: true
   type: string
 - name: body
