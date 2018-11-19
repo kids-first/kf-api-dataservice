@@ -1,3 +1,5 @@
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, IndexdFile, KfId
 from dataservice.api.task.models import (
@@ -36,6 +38,13 @@ class GenomicFile(db.Model, Base, IndexdFile):
     :param controlled_access: whether or not the file is controlled access
     :param availability: Indicates whether a file is available for immediate
            download, or is in cold storage
+    :param experiment_strategies: List of experiment_strategies on this
+        file's sequencing experiments
+    :param platforms: List of platforms in this file's sequencing experiments
+    :param instrument_models: List of instrument_models in this file's
+        sequencing experiments
+    :param is_paired_end: Whether this file was generated from a paired end
+        sequencing_experiment
     """
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
@@ -68,3 +77,59 @@ class GenomicFile(db.Model, Base, IndexdFile):
     biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
                                                 backref='genomic_file',
                                                 cascade='all, delete-orphan')
+
+    @hybrid_property
+    def experiment_strategies(self):
+        if self.sequencing_experiment:
+            return [self.sequencing_experiment.experiment_strategy]
+        else:
+            return []
+
+    @experiment_strategies.expression
+    def experiment_strategies(cls):
+        from dataservice.api.sequencing_experiment.models import (
+            SequencingExperiment
+        )
+        return [SequencingExperiment.experiment_strategy]
+
+    @hybrid_property
+    def platforms(self):
+        if self.sequencing_experiment:
+            return [self.sequencing_experiment.platform]
+        else:
+            return []
+
+    @platforms.expression
+    def platforms(cls):
+        from dataservice.api.sequencing_experiment.models import (
+            SequencingExperiment
+        )
+        return [SequencingExperiment.platform]
+
+    @hybrid_property
+    def instrument_models(self):
+        if self.sequencing_experiment:
+            return [self.sequencing_experiment.instrument_model]
+        else:
+            return []
+
+    @instrument_models.expression
+    def instrument_models(cls):
+        from dataservice.api.sequencing_experiment.models import (
+            SequencingExperiment
+        )
+        return [SequencingExperiment.instrument_model]
+
+    @hybrid_property
+    def is_paired_end(self):
+        if self.sequencing_experiment:
+            return self.sequencing_experiment.is_paired_end
+        else:
+            return None
+
+    @instrument_models.expression
+    def instrument_models(cls):
+        from dataservice.api.sequencing_experiment.models import (
+            SequencingExperiment
+        )
+        return SequencingExperiment.is_paired_end

@@ -58,6 +58,10 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     sequencing_experiment_id = field_for(GenomicFile,
                                          'sequencing_experiment_id',
                                          load_only=True)
+    experiment_strategies = fields.List(fields.Str(), dump_only=True)
+    platforms = fields.List(fields.Str(), dump_only=True)
+    instrument_models = fields.List(fields.Str(), dump_only=True)
+    is_paired_end = fields.Bool(dump_only=True)
 
     latest_did = field_for(GenomicFile,
                            'latest_did',
