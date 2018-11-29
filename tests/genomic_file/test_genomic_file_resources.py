@@ -97,6 +97,28 @@ def test_new(client, indexd, entities):
     assert indexd.post.call_count == orig_calls + 1
 
 
+def test_empty_arrays(client, indexd, entities):
+    """
+    Test that rollup fields return emtpy arrays as opposed to [None]
+    """
+    resp = _new_genomic_file(client)
+    gf = GenomicFile.query.get(resp['results']['kf_id'])
+    sc = SequencingCenter.query.first()
+    se = SequencingExperiment(external_id='BLAH',
+                              experiment_strategy='WXS',
+                              platform='Illumina',
+                              sequencing_center=sc,
+                              is_paired_end=True)
+    gf.sequencing_experiment = se
+    db.session.add(se)
+    db.session.commit()
+
+    resp = client.get(url_for(GENOMICFILE_URL, kf_id=gf.kf_id)).json
+    assert resp['results']['experiment_strategies'] == ['WXS']
+    assert resp['results']['platforms'] == ['Illumina']
+    assert resp['results']['instrument_models'] == []
+
+
 def test_no_hybrid_posts(client, indexd, entities):
     """
     Test that hybrid fields cannot be populated

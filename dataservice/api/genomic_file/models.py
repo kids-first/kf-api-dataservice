@@ -81,7 +81,8 @@ class GenomicFile(db.Model, Base, IndexdFile):
     @hybrid_property
     def experiment_strategies(self):
         if self.sequencing_experiment:
-            return [self.sequencing_experiment.experiment_strategy]
+            v = self.sequencing_experiment.experiment_strategy
+            return [] if v is None else [v]
         else:
             return []
 
@@ -90,7 +91,8 @@ class GenomicFile(db.Model, Base, IndexdFile):
         from dataservice.api.sequencing_experiment.models import (
             SequencingExperiment
         )
-        return [SequencingExperiment.experiment_strategy]
+        v = SequencingExperiment.experiment_strategy
+        return [] if v is None else [v]
 
     @hybrid_property
     def platforms(self):
@@ -104,12 +106,14 @@ class GenomicFile(db.Model, Base, IndexdFile):
         from dataservice.api.sequencing_experiment.models import (
             SequencingExperiment
         )
-        return [SequencingExperiment.platform]
+        v = SequencingExperiment.platform
+        return [] if v is None else [v]
 
     @hybrid_property
     def instrument_models(self):
         if self.sequencing_experiment:
-            return [self.sequencing_experiment.instrument_model]
+            v = self.sequencing_experiment.instrument_model
+            return [] if v is None else [v]
         else:
             return []
 
@@ -118,7 +122,8 @@ class GenomicFile(db.Model, Base, IndexdFile):
         from dataservice.api.sequencing_experiment.models import (
             SequencingExperiment
         )
-        return [SequencingExperiment.instrument_model]
+        v = SequencingExperiment.instrument_model
+        return [] if v is None else [v]
 
     @hybrid_property
     def is_paired_end(self):
