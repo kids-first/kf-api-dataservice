@@ -1,6 +1,6 @@
 from dataservice.extensions import db
 from dataservice.api.common.model import Base
-from dataservice.api.cavatica_task.models import CavaticaTask
+from dataservice.api.task.models import Task
 
 
 class CavaticaApp(db.Model, Base):
@@ -25,4 +25,4 @@ class CavaticaApp(db.Model, Base):
                          ' Cavatica app assigned by Cavatica user')
     github_commit_url = db.Column(db.Text(),
                                   doc='Link to git commit on GitHub')
-    cavatica_tasks = db.relationship(CavaticaTask, backref='cavatica_app')
+    tasks = db.relationship(Task, backref='cavatica_app')

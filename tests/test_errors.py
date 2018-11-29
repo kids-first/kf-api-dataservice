@@ -47,7 +47,7 @@ class TestErrors:
         '/biospecimen-genomic-files',
         '/biospecimen-diagnoses',
         '/family-relationships',
-        '/cavatica-task-genomic-files',
+        '/task-genomic-files',
         '/read-group-genomic-files'
     ])
     def test_uniqueness_constraints(self, client, entities, endpoint):

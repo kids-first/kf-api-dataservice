@@ -5,167 +5,167 @@ from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
-from dataservice.api.cavatica_task.models import CavaticaTask
-from dataservice.api.cavatica_task.schemas import (
-    CavaticaTaskSchema
+from dataservice.api.task.models import Task
+from dataservice.api.task.schemas import (
+    TaskSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
 
 
-class CavaticaTaskListAPI(CRUDView):
+class TaskListAPI(CRUDView):
     """
-    CavaticaTask List API
+    Task List API
     """
-    endpoint = 'cavatica_tasks_list'
-    rule = '/cavatica-tasks'
-    schemas = {'CavaticaTask': CavaticaTaskSchema}
+    endpoint = 'tasks_list'
+    rule = '/tasks'
+    schemas = {'Task': TaskSchema}
 
     @paginated
-    @use_args(filter_schema_factory(CavaticaTaskSchema),
+    @use_args(filter_schema_factory(TaskSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """
-        Get a paginated cavatica_tasks
+        Get a paginated tasks
         ---
         template:
           path:
             get_list.yml
           properties:
             resource:
-              CavaticaTask
+              Task
         """
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
 
-        q = (CavaticaTask.query
+        q = (Task.query
              .filter_by(**filter_params))
 
         # Filter by study
         from dataservice.api.participant.models import Participant
         from dataservice.api.biospecimen.models import Biospecimen
         from dataservice.api.genomic_file.models import GenomicFile
-        from dataservice.api.cavatica_task.models import (
-            CavaticaTaskGenomicFile
+        from dataservice.api.task.models import (
+            TaskGenomicFile
         )
         from dataservice.api.biospecimen_genomic_file.models import (
             BiospecimenGenomicFile
         )
 
         if study_id:
-            q = (q.join(CavaticaTask.cavatica_task_genomic_files)
-                 .join(CavaticaTaskGenomicFile.genomic_file)
+            q = (q.join(Task.task_genomic_files)
+                 .join(TaskGenomicFile.genomic_file)
                  .join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
                  .filter(Participant.study_id == study_id)
-                 .group_by(CavaticaTask.kf_id))
+                 .group_by(Task.kf_id))
 
-        return (CavaticaTaskSchema(many=True)
+        return (TaskSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
 
     def post(self):
         """
-        Create a new cavatica_task
+        Create a new task
         ---
         template:
           path:
             new_resource.yml
           properties:
             resource:
-              CavaticaTask
+              Task
         """
         body = request.get_json(force=True)
         try:
-            app = CavaticaTaskSchema(strict=True).load(body).data
+            app = TaskSchema(strict=True).load(body).data
         except ValidationError as err:
             abort(400,
-                  'could not create cavatica_task: {}'.format(err.messages))
+                  'could not create task: {}'.format(err.messages))
 
         db.session.add(app)
         db.session.commit()
-        return CavaticaTaskSchema(
-            201, 'cavatica_task {} created'.format(app.kf_id)
+        return TaskSchema(
+            201, 'task {} created'.format(app.kf_id)
         ).jsonify(app), 201
 
 
-class CavaticaTaskAPI(CRUDView):
+class TaskAPI(CRUDView):
     """
-    CavaticaTask API
+    Task API
     """
-    endpoint = 'cavatica_tasks'
-    rule = '/cavatica-tasks/<string:kf_id>'
-    schemas = {'CavaticaTask': CavaticaTaskSchema}
+    endpoint = 'tasks'
+    rule = '/tasks/<string:kf_id>'
+    schemas = {'Task': TaskSchema}
 
     def get(self, kf_id):
         """
-        Get a cavatica_task by id
+        Get a task by id
         ---
         template:
           path:
             get_by_id.yml
           properties:
             resource:
-              CavaticaTask
+              Task
         """
-        app = CavaticaTask.query.get(kf_id)
+        app = Task.query.get(kf_id)
         if app is None:
             abort(404, 'could not find {} `{}`'
-                  .format('cavatica_task', kf_id))
+                  .format('task', kf_id))
 
-        return CavaticaTaskSchema().jsonify(app)
+        return TaskSchema().jsonify(app)
 
     def patch(self, kf_id):
         """
-        Update an existing cavatica_task. Allows partial update
+        Update an existing task. Allows partial update
         ---
         template:
           path:
             update_by_id.yml
           properties:
             resource:
-              CavaticaTask
+              Task
         """
-        app = CavaticaTask.query.get(kf_id)
+        app = Task.query.get(kf_id)
         if app is None:
             abort(404, 'could not find {} `{}`'
-                  .format('cavatica_task', kf_id))
+                  .format('task', kf_id))
 
         # Partial update - validate but allow missing required fields
         body = request.get_json(force=True) or {}
         try:
-            app = CavaticaTaskSchema(strict=True).load(body, instance=app,
-                                                       partial=True).data
+            app = TaskSchema(strict=True).load(body, instance=app,
+                                               partial=True).data
         except ValidationError as err:
             abort(400,
-                  'could not update cavatica_task: {}'.format(err.messages))
+                  'could not update task: {}'.format(err.messages))
 
         db.session.add(app)
         db.session.commit()
 
-        return CavaticaTaskSchema(
-            200, 'cavatica_task {} updated'.format(app.kf_id)
+        return TaskSchema(
+            200, 'task {} updated'.format(app.kf_id)
         ).jsonify(app), 200
 
     def delete(self, kf_id):
         """
-        Delete cavatica_task by id
+        Delete task by id
         ---
         template:
           path:
             delete_by_id.yml
           properties:
             resource:
-              CavaticaTask
+              Task
         """
-        app = CavaticaTask.query.get(kf_id)
+        app = Task.query.get(kf_id)
         if app is None:
             abort(404, 'could not find {} `{}`'
-                  .format('cavatica_task', kf_id))
+                  .format('task', kf_id))
 
         db.session.delete(app)
         db.session.commit()
 
-        return CavaticaTaskSchema(
-            200, 'cavatica_task {} deleted'.format(app.kf_id)
+        return TaskSchema(
+            200, 'task {} deleted'.format(app.kf_id)
         ).jsonify(app), 200

@@ -109,10 +109,10 @@
             "revision": 1,
             "github_commit_url": "https://github.com/kids-first/cav-app"
         },
-        "/cavatica-tasks": {
+        "/tasks": {
             "name": "CavaticaTask_0",
-            "external_cavatica_task_id": "1ab12165-7351-4744-921c-a97a19b84773"},
-        "/cavatica-task-genomic-files": {},
+            "external_task_id": "1ab12165-7351-4744-921c-a97a19b84773"},
+        "/task-genomic-files": {},
         "/read-group-genomic-files": {}
 
     },
@@ -281,13 +281,13 @@
                 {"github_commit_url": "google.com"}
             ]
         },
-        "/cavatica-tasks": {
+        "/tasks": {
             "valid": {
-                "name": "CavaticaTask_1"
+                "name": "Task_1"
             },
             "invalid": []
         },
-        "/cavatica-task-genomic-files": {
+        "/task-genomic-files": {
             "valid": {
                 "is_input": true
             },

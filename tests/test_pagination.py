@@ -24,9 +24,9 @@ from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.utils import iterate_pairwise
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.cavatica_app.models import CavaticaApp
-from dataservice.api.cavatica_task.models import (
-    CavaticaTask,
-    CavaticaTaskGenomicFile
+from dataservice.api.task.models import (
+    Task,
+    TaskGenomicFile
 )
 
 from unittest.mock import MagicMock, patch
@@ -144,9 +144,9 @@ class TestPagination:
                            flow_cell='FL0123')
             rg.genomic_files.append(gf)
 
-            ct = CavaticaTask(name='task_{}'.format(i))
+            ct = Task(name='task_{}'.format(i))
             ct.genomic_files.append(gf)
-            ca.cavatica_tasks.append(ct)
+            ca.tasks.append(ct)
 
         # Family relationships
         for participant1, participant2 in iterate_pairwise(participants):
@@ -176,8 +176,8 @@ class TestPagination:
         ('/read-groups', 50),
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 1),
-        ('/cavatica-tasks', 50),
-        ('/cavatica-task-genomic-files', 50),
+        ('/tasks', 50),
+        ('/task-genomic-files', 50),
         ('/read-group-genomic-files', 50),
         ('/biospecimen-genomic-files', 50),
         ('/biospecimen-diagnoses', 50)
@@ -272,8 +272,8 @@ class TestPagination:
         ('/read-groups', 102),
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 101),
-        ('/cavatica-tasks', 102),
-        ('/cavatica-task-genomic-files', 102),
+        ('/tasks', 102),
+        ('/task-genomic-files', 102),
         ('/read-group-genomic-files', 102),
         ('/biospecimen-genomic-files', 102),
         ('/biospecimen-diagnoses', 102)

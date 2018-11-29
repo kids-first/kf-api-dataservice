@@ -14,6 +14,7 @@ from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.biospecimen.models import BiospecimenGenomicFile
+from dataservice.api.task.models import Task, TaskGenomicFile
 
 from tests.utils import IndexdTestCase
 from tests.mocks import MockIndexd, MockResp
@@ -229,6 +230,83 @@ class ModelTest(IndexdTestCase):
 
         # Check database
         assert BiospecimenGenomicFile.query.count() == 1
+
+    def test_rollups(self):
+        """
+        Create two gfs representing two bams, with different sequencing
+        experiments:
+        gf1 (reads1.bam): se strategy: wgs
+        gf2 (reads2.bam): se strategy: wxs
+
+        Create a downstream analysis file:
+        gf3 (calls.vcf)
+
+        gf3 should have sequencing_strategies of ['wgs', 'wxs']
+        """
+        self._create_save_dependents()
+        bs = Biospecimen.query.all()[0]
+
+        def gf_se(bs, strategy='wgs'):
+            sequencing_center_id = SequencingCenter.query.first().kf_id
+            se = {
+                'external_id': 'se1',
+                'experiment_strategy': strategy,
+                'is_paired_end': True,
+                'platform': 'platform',
+                'sequencing_center_id': sequencing_center_id
+            }
+
+            gf = {
+                'external_id': 'genomic_file',
+                'file_name': 'file',
+                'size': (random.randint(MIN_SIZE_MB, MAX_SIZE_MB) *
+                         MB_TO_BYTES),
+                'data_type': 'submitted aligned reads',
+                'file_format': '.cram',
+                'urls': ['s3://file'],
+                'controlled_access': True,
+                'is_harmonized': True,
+                'paired_end': 1,
+                'reference_genome': 'Test01',
+                'hashes': {'md5': str(uuid.uuid4())},
+                'availability': 'Immediate Download'
+            }
+
+            se = SequencingExperiment(**se)
+            db.session.add(se)
+            db.session.flush()
+            gf = GenomicFile(**gf, sequencing_experiment_id=se.kf_id)
+            return gf, se
+
+        gf1, se1 = gf_se(bs, 'wgs')
+        gf2, se2 = gf_se(bs, 'wxs')
+        gf3, se3 = gf_se(bs)
+        db.session.add_all([gf1, gf2, gf3])
+        db.session.flush()
+
+        tk = Task(name='mutect2')
+        db.session.add_all([tk])
+        db.session.flush()
+
+        tg1 = TaskGenomicFile(genomic_file_id=gf1.kf_id,
+                              task_id=tk.kf_id,
+                              is_input=True)
+        tg2 = TaskGenomicFile(genomic_file_id=gf2.kf_id,
+                              task_id=tk.kf_id,
+                              is_input=True)
+        tg3 = TaskGenomicFile(genomic_file_id=gf3.kf_id,
+                              task_id=tk.kf_id,
+                              is_input=False)
+        db.session.add_all([tg1, tg2, tg3])
+        db.session.commit()
+
+        assert gf1.experiment_strategies == ['wgs']
+        assert gf2.experiment_strategies == ['wxs']
+
+        # TODO: This should be a combination of all input files that this
+        # file has been derived from, in this case, 'wgs' and 'wxs'
+        # assert set(gf3.experiment_strategy) == {'wxs', 'wgs'}
+
 
     # TODO Check that file is not deleted if deletion on indexd fails
 

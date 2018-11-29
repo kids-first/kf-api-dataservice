@@ -30,9 +30,9 @@ from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.cavatica_app.models import CavaticaApp
-from dataservice.api.cavatica_task.models import (
-    CavaticaTask,
-    CavaticaTaskGenomicFile
+from dataservice.api.task.models import (
+    Task,
+    TaskGenomicFile
 )
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
@@ -57,8 +57,8 @@ ENTITY_ENDPOINT_MAP = {
     BiospecimenDiagnosis: '/biospecimen-diagnoses',
     ReadGroup: '/read-groups',
     SequencingExperiment: '/sequencing-experiments',
-    CavaticaTask: '/cavatica-tasks',
-    CavaticaTaskGenomicFile: '/cavatica-task-genomic-files',
+    Task: '/tasks',
+    TaskGenomicFile: '/task-genomic-files',
     ReadGroupGenomicFile: '/read-group-genomic-files'
 }
 
@@ -143,7 +143,7 @@ def entities(client):
         _entities = defaultdict(list)
         for model, endpoint in ENTITY_ENDPOINT_MAP.items():
             if model in {FamilyRelationship,
-                         CavaticaTaskGenomicFile,
+                         TaskGenomicFile,
                          BiospecimenGenomicFile,
                          BiospecimenDiagnosis,
                          ReadGroupGenomicFile}:
@@ -187,18 +187,18 @@ def entities(client):
 
             db.session.add(r)
 
-        # Cavatica task genomic files
+        # Task genomic files
         for i, (ct, gf) in enumerate(zip(
-                _entities[CavaticaTask], _entities[GenomicFile])):
+                _entities[Task], _entities[GenomicFile])):
             is_input = True
             if i % 2 == 0:
                 is_input = False
-            ctgf = CavaticaTaskGenomicFile(cavatica_task=ct,
+            ctgf = TaskGenomicFile(task=ct,
                                            genomic_file=gf,
                                            is_input=is_input)
-            _entities[CavaticaTaskGenomicFile].append(ctgf)
+            _entities[TaskGenomicFile].append(ctgf)
 
-            ENTITY_PARAMS['fields']['/cavatica-task-genomic-files'].update({
+            ENTITY_PARAMS['fields']['/task-genomic-files'].update({
                 'is_input': is_input
             })
 
@@ -262,7 +262,7 @@ def entities(client):
         for ent in _entities[GenomicFile]:
             ent.sequencing_experiment = se0
 
-        # CavaticaTask
+        # Task
         for ent in _entities[CavaticaApp]:
             ent.cavatica_app = ca0
 
