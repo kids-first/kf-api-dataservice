@@ -81,14 +81,21 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         'read_group_genomic_files': ma.URLFor(
             'api.read_group_genomic_files_list', genomic_file_id='<kf_id>'),
         'read_groups': ma.URLFor('api.read_groups_list',
-                                 genomic_file_id='<kf_id>')
+                                 genomic_file_id='<kf_id>'),
+        'biospecimens': ma.URLFor('api.biospecimens_list',
+                                  genomic_file_id='<kf_id>')
     }, description='Resource links and pagination')
 
 
 class GenomicFileFilterSchema(GenomicFileSchema):
 
     read_group_id = fields.Str()
+    biospecimen_id = fields.Str()
 
     @validates('read_group_id')
     def valid_read_group_id(self, value):
         validate_kf_id('RG', value)
+
+    @validates('biospecimen_id')
+    def valid_biospecimen_id(self, value):
+        validate_kf_id('BS', value)

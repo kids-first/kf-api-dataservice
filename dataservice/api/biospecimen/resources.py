@@ -6,7 +6,8 @@ from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
 from dataservice.api.biospecimen.models import (
     Biospecimen,
-    BiospecimenDiagnosis
+    BiospecimenDiagnosis,
+    BiospecimenGenomicFile
 )
 from dataservice.api.biospecimen.schemas import (
     BiospecimenSchema,
@@ -42,6 +43,7 @@ class BiospecimenListAPI(CRUDView):
         # Get study id, diagnosis_id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
         diagnosis_id = filter_params.pop('diagnosis_id', None)
+        genomic_file_id = filter_params.pop('genomic_file_id', None)
 
         # Apply filter params
         q = (Biospecimen.query
@@ -56,6 +58,10 @@ class BiospecimenListAPI(CRUDView):
         if diagnosis_id:
             q = (q.join(BiospecimenDiagnosis)
                  .filter(BiospecimenDiagnosis.diagnosis_id == diagnosis_id))
+        if genomic_file_id:
+            q = (q.join(BiospecimenGenomicFile)
+                 .filter(BiospecimenGenomicFile.genomic_file_id ==
+                 genomic_file_id))
 
         return (BiospecimenSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
