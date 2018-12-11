@@ -1,3 +1,21 @@
+# Kids First Dataservice Release 1.7.0
+
+## Features
+
+### Summary
+
+Feature Emojis: x1 🐛x1 ✨x1 🎨x1 🚚x1
+Feature Labels: [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x2 [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x2 [refactor](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/refactor) x2 [documentation](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/documentation) x1
+
+### New features and changes
+
+- (#473)  ✨Add biospecimen_id and genomic_file_id for genomic file and biospecimen endpoint - @parimalak
+- (#480) 🐛 Do not include 'None' in rollup arrays - @dankolbman
+- (#478) ✨ Summarize sequencing experiment fields on genomic file - @dankolbman
+- (#476) 🎨 Make capitalization consistent for resources - @dankolbman
+- (#474) 🚚 Mass rename of CavaticaTask and relationships - @dankolbman
+
+
 # Kids First Dataservice Release 1.6.0
 
 ## Features
