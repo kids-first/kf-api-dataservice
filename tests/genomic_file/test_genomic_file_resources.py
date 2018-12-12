@@ -449,6 +449,18 @@ def test_filter_by_bs(client, indexd):
         assert gf['external_id'] in _ids
 
 
+def test_access_urls(client):
+    """
+    The access_urls field should be a field derived from the urls replacing
+    s3 locations with gen3 http locations
+    """
+    rgs, gfs, studies = _create_all_entities()
+    gf = list(gfs.values())[0][0]
+    gf = client.get(f'/genomic-files/{gf.kf_id}').json['results']
+    assert gf['access_urls'] == [f'gen3/data/{gf["latest_did"]}',
+                                 f'https://gen3.something.com/did']
+
+
 def _new_genomic_file(client, include_seq_exp=True):
     """ Creates a genomic file """
     body = {
@@ -494,7 +506,7 @@ def _create_all_entities():
                             participant=p)
             gf = GenomicFile(
                 external_id='study{}-gf{}'.format(j, i),
-                urls=['s3://mybucket/key'],
+                urls=['s3://mybucket/key', 'https://gen3.something.com/did'],
                 hashes={'md5': 'd418219b883fce3a085b1b7f38b01e37'})
             study_gfs.append(gf)
             b.genomic_files.append(gf)

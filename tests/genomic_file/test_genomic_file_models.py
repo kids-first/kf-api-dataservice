@@ -307,7 +307,6 @@ class ModelTest(IndexdTestCase):
         # file has been derived from, in this case, 'wgs' and 'wxs'
         # assert set(gf3.experiment_strategy) == {'wxs', 'wgs'}
 
-
     # TODO Check that file is not deleted if deletion on indexd fails
 
     def _create_save_genomic_files(self):

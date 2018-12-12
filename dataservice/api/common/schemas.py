@@ -100,6 +100,7 @@ class BaseSchema(ma.ModelSchema):
 
 class IndexdFileSchema(Schema):
     urls = ma.List(ma.Str(), required=True)
+    access_urls = ma.List(ma.Str(), dump_only=True)
     acl = ma.List(ma.Str(), required=False)
     file_name = ma.Str()
     hashes = ma.Dict(required=True)

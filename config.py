@@ -25,6 +25,8 @@ class Config:
     INDEXD_USER = os.environ.get('INDEXD_USER', 'test')
     INDEXD_PASS = os.environ.get('INDEXD_PASS', 'test')
 
+    GEN3_URL = os.environ.get('GEN3_URL', 'gen3')
+
     BUCKET_SERVICE_URL = os.environ.get('BUCKET_SERVICE_URL', None)
     BUCKET_SERVICE_TOKEN = os.environ.get('BUCKET_SERVICE_TOKEN', None)
     SNS_EVENT_ARN = os.environ.get('SNS_EVENT_ARN', None)
