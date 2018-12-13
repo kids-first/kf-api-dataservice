@@ -109,7 +109,7 @@ class IndexdFile:
     def access_urls(self):
         """
         Access urls should contain only links out to gen3 data endpoints
-        that are used to download the file's themselves.
+        that are used to download the files themselves.
 
         For urls that are already https:// urls, we will consider them as
         valid gen3 locations, for urls that are s3:// protocol, we will assume
