@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import abort
+from flask import abort, current_app
 from requests.exceptions import HTTPError
 import sqlalchemy.types as types
 from sqlalchemy import event, inspect
@@ -104,6 +104,25 @@ class IndexdFile:
         self.size = None
         # Update fields from indexd
         self.merge_indexd()
+
+    @property
+    def access_urls(self):
+        """
+        Access urls should contain only links out to gen3 data endpoints
+        that are used to download the files themselves.
+
+        For urls that are already https:// urls, we will consider them as
+        valid gen3 locations, for urls that are s3:// protocol, we will assume
+        that they are internal files and resolve them to our gen3 service
+        """
+        urls = []
+        for url in self.urls:
+            if url.startswith('s3://'):
+                url = (f'{current_app.config["GEN3_URL"]}'
+                       f'/data/{self.latest_did}')
+            urls.append(url)
+
+        return urls
 
     def merge_indexd(self):
         """
