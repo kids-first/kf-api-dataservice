@@ -1,3 +1,17 @@
+# Kids First Dataservice Release 1.8.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ✨x1
+Feature Labels: [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x1 [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x1
+
+### New features and changes
+
+- (#486) ✨ Add access_urls to indexd models to point to gen3 locations - @dankolbman
+
+
 # Kids First Dataservice Release 1.7.0
 
 ## Features
