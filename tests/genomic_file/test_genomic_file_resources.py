@@ -87,9 +87,6 @@ def test_new(client, indexd, entities):
     assert 'genomic_file' in resp['_status']['message']
     assert 'created' in resp['_status']['message']
     assert resp['results']['file_name'] == 'hg38.bam'
-    assert resp['results']['experiment_strategies'] == ['WXS']
-    assert resp['results']['platforms'] == ['Illumina']
-    assert resp['results']['instrument_models'] == ['HiSeq']
 
     genomic_file = resp['results']
     gf = GenomicFile.query.get(genomic_file['kf_id'])
@@ -117,30 +114,6 @@ def test_empty_arrays(client, indexd, entities):
     assert resp['results']['experiment_strategies'] == ['WXS']
     assert resp['results']['platforms'] == ['Illumina']
     assert resp['results']['instrument_models'] == []
-
-
-def test_no_hybrid_posts(client, indexd, entities):
-    """
-    Test that hybrid fields cannot be populated
-    """
-    orig_calls = indexd.post.call_count
-    body = {
-        'external_id': 'genomic_file_0',
-        'file_name': 'hg38.bam',
-        'size': 123,
-        'data_type': 'Aligned Reads',
-        'file_format': 'bam',
-        'urls': ['s3://bucket/key'],
-        'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
-        'availability': 'Immediate Download',
-        'controlled_access': False,
-        'experiment_strategies': 'WGS',
-    }
-    resp = client.post(url_for(GENOMICFILE_LIST_URL),
-                       headers={'Content-Type': 'application/json'},
-                       data=json.dumps(body))
-
-    assert resp.json['results']['experiment_strategies'] == []
 
 
 def test_new_indexd_error(client, entities):

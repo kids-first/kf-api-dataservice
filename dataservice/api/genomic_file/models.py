@@ -1,5 +1,3 @@
-from sqlalchemy.ext.hybrid import hybrid_property
-
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, IndexdFile, KfId
 from dataservice.api.task.models import (
@@ -77,64 +75,3 @@ class GenomicFile(db.Model, Base, IndexdFile):
     biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
                                                 backref='genomic_file',
                                                 cascade='all, delete-orphan')
-
-    @hybrid_property
-    def experiment_strategies(self):
-        if self.sequencing_experiment:
-            v = self.sequencing_experiment.experiment_strategy
-            return [] if v is None else [v]
-        else:
-            return []
-
-    @experiment_strategies.expression
-    def experiment_strategies(cls):
-        from dataservice.api.sequencing_experiment.models import (
-            SequencingExperiment
-        )
-        v = SequencingExperiment.experiment_strategy
-        return [] if v is None else [v]
-
-    @hybrid_property
-    def platforms(self):
-        if self.sequencing_experiment:
-            return [self.sequencing_experiment.platform]
-        else:
-            return []
-
-    @platforms.expression
-    def platforms(cls):
-        from dataservice.api.sequencing_experiment.models import (
-            SequencingExperiment
-        )
-        v = SequencingExperiment.platform
-        return [] if v is None else [v]
-
-    @hybrid_property
-    def instrument_models(self):
-        if self.sequencing_experiment:
-            v = self.sequencing_experiment.instrument_model
-            return [] if v is None else [v]
-        else:
-            return []
-
-    @instrument_models.expression
-    def instrument_models(cls):
-        from dataservice.api.sequencing_experiment.models import (
-            SequencingExperiment
-        )
-        v = SequencingExperiment.instrument_model
-        return [] if v is None else [v]
-
-    @hybrid_property
-    def is_paired_end(self):
-        if self.sequencing_experiment:
-            return self.sequencing_experiment.is_paired_end
-        else:
-            return None
-
-    @instrument_models.expression
-    def instrument_models(cls):
-        from dataservice.api.sequencing_experiment.models import (
-            SequencingExperiment
-        )
-        return SequencingExperiment.is_paired_end
