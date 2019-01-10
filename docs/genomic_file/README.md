@@ -32,79 +32,50 @@ See motivation for more details.
 
 3. However, when people are looking for variant data they typically want to search and filter by whether those gVCF/VCF came from whole genome vs whole exome, and now with newer platforms/instruments like pacbio/nanopore appearing it's likely also want to distinguish between Illumina and those
 
-4. So to meet the searchability need with the current model we could either attach sequencing experiment directly to those files, resulting in many-to-many relationships, require the portal ETL to walk through the logic, or push the fields needed for searching onto the files themselves
+4. Traditionally things like gVCF/VCFs were typically only created with one type of experimental strategy, but increasingly there have been new methods that include multiple strategies to improve power. For example, high depth whole exome sequencing combined with whole genome for wider coverage (this is actually how the Kids First sequencing is done for tumors) as well as combining RNA-seq with DNA methods as they're all different inspections of the same underlying information.
 
 
 ### Design Considerations
-Traditionally things like gVCF/VCFs were typically only created with one type of experimental strategy, but increasingly there have been new methods that include multiple strategies to improve power. For example, high depth whole exome sequencing combined with whole genome for wider coverage (this is actually how the Kids First sequencing is done for tumors) as well as combining RNA-seq with DNA methods as they're all different inspections of the same underlying information.
-
-To address that potential if it was easy to utilize arrays that would help prevent unnecessary changes in the future. However, sounds like there is both some technical challenges as well as the consideration that we might want the search fields to say something like "WXS/WGS" versus bucketing them into the two categories.
-
+To meet the searchability need with the current model we will attach sequencing experiment directly to the gVCF/VCF files resulting in a many-to-many relationship between sequencing experiment and genomic file.
 
 ### Model Change
 
-\* Data types for fields below will remain unchanged. See SequencingExperiment
-model definition for types.
-
-
-1. Add the common SE fields to GenomicFile. Do not remove them from
-SequencingExperiment yet (we want to keep them for now)
-
-    - `experiment_strategy`
-    - `platform`
-    - `instrument_model`
-    - `is_paired_end`
-
-2. Move read group SE fields to GenomicFile.
-
-    - `max_insert_size`
-    - `mean_insert_size`
-    - `mean_depth`
-    - `total_reads`
-    - `mean_read_length`
-
-3. Update the enums:
-    - `experiment_strategy`
-        - Add `WGS and WXS`
-        - Add `Multiple`
-    - `platform`
-        - Add `Multiple`
-    - `instrument_model`
-        - Add `Multiple`
-
 <p align="center">
-  <img src="gf-se-fields.png">
+  <img src="gf-se-model.png">
 </p>
 
+## Endpoint Changes
+- Add new endpoint
+    - `/sequencing-experiment-genomic-files`
+- Modify `/genomic-files` and `/sequencing-experiments` endpoints
+    - Find all genomic files associated with a sequencing experiment
+
+    `/genomic-files?sequencing_experiment_id=<se kf id>`
+    - Find all sequencing experiments associated with a genomic file
+
+     `/sequencing-experiments?genomic_file_id=<gf kf id>`
 
 ### Migration
-- Add the new columns (above) on genomic file
-- Copy the values of these columns on the sequencing experiments to the columns
-on the linked genomic files.
-- Remove the read group SE columns from sequencing experiment.
+- Add the new association table (sequencing_experiment_genomic_file) for the many to many relationship
+- Copy the values from genomic_file.kf_id and genomic_file.sequencing_experiment_id to the new table above
+- Remove the sequencing_experiment_id foreign key column from genomic_file table
 
 ### Data Ingest Workflow
 1. Dataservice ingest before harmonization
 
     - Ingest sequencing experiments
-    - Ingest and link unharmonized genomic files to sequencing experiments
-    - Common SE fields should be populated on both the SEs and the GFs.
-    - Since these are single specimen files the arrays (if we choose array type for these fields) for each field will just
-    have one value
+    - Ingest unharmonized genomic files
+    - Link unharmonized genomic files to sequencing experiments
 
 2. Harmonization
 
 3. Dataservice ingest after harmonization
 
-    - Ingest harmonized genomic files
-    - Ingest tasks and task_genomic_files to create a mapping between unharmonized
-    and harmonized genomic files
-    - Populate common SE fields on harmonized genomic files -
-        - For each harmonized genomic file, find the input genomic file which is
-        the unharmonized genomic file
-        - Copy the SE field values from the unharmonized files to the SE field
-        values on the harmonized genomic files.
+    - Ingest harmonized genomic files (gVCF/VCFs)
+    - Link the sequencing experiments to the harmonized genomic files
+         - Ingest will be responsible for figuring out which sequencing experiments
+         the VCFs should be linked to. Will likely use Cavatica tasks, input/output genomic files to do this.
 
-        \* This is where the array type might become useful.
-        Although rare, a harmonized file could be linked to two unharmonized files, each
-        with different values for experiment_strategy (or platform, or instrument_model or is_paired_end)
+4. Portal ETL
+    - Join the genomic_file, sequencing_experiment_genomic_file, and sequencing_experiment
+    tables together to get sequencing information for any genomic file
