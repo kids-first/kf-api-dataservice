@@ -73,12 +73,10 @@ class ModelTest(FlaskTestCase):
         mock.Session().put = indexd.put
         # Create and save tasks and dependents
         participants, tasks = self._create_and_save_tasks()
-        se = SequencingExperiment.query.all()[0]
         # Create new genomic_file
         p0 = Participant.query.filter_by(external_id='Fred').one()
         gf_new = GenomicFile(data_type='slide_image',
-                             file_name='slide_image1',
-                             sequencing_experiment_id=se.kf_id)
+                             file_name='slide_image1')
         (p0.biospecimens[0].genomic_files.append(gf_new))
         db.session.commit()
 
@@ -249,8 +247,8 @@ class ModelTest(FlaskTestCase):
         is_input = tgf.is_input
 
         new_tgf = TaskGenomicFile(task_id=t_id,
-                                   genomic_file_id=gf_id,
-                                   is_input=is_input)
+                                  genomic_file_id=gf_id,
+                                  is_input=is_input)
         db.session.add(new_tgf)
 
         # Check database
@@ -290,7 +288,7 @@ class ModelTest(FlaskTestCase):
         return se
 
     def _create_genomic_file(self, _id, data_type='submitted aligned read',
-                             sequencing_experiment_id=None, biospec_id=None):
+                             biospec_id=None):
         """
         Create genomic file
         """
@@ -300,7 +298,6 @@ class ModelTest(FlaskTestCase):
             'file_format': '.cram',
             'urls': ['s3://file_{}'.format(_id)],
             'hashes': {'md5': str(uuid.uuid4())},
-            'sequencing_experiment_id': sequencing_experiment_id
         }
         return GenomicFile(**data)
 
@@ -348,14 +345,13 @@ class ModelTest(FlaskTestCase):
                                          participant_id=p.kf_id)
             # Input GF
             gf_in = self._create_genomic_file(
-                'gf_{}_in'.format(i),
-                sequencing_experiment_id=se.kf_id)
+                'gf_{}_in'.format(i))
             # Output GF
             gf_out = self._create_genomic_file(
                 'gf_{}_out'.format(i),
-                data_type='aligned read',
-                sequencing_experiment_id=se.kf_id)
+                data_type='aligned read')
 
+            se.genomic_files.extend([gf_in, gf_out])
             s.genomic_files = [gf_in, gf_out]
             p.biospecimens = [s]
             participants.append(p)
@@ -387,8 +383,8 @@ class ModelTest(FlaskTestCase):
                     if gf.data_type == 'submitted aligned read':
                         # Must use assoc obj to add
                         tgf = TaskGenomicFile(task=t,
-                                               genomic_file=gf,
-                                               is_input=True)
+                                              genomic_file=gf,
+                                              is_input=True)
                         db.session.add(tgf)
                     # Output gf
                     else:

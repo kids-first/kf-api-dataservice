@@ -106,17 +106,18 @@ def test_new_indexd_error(client, entities):
         'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
-        'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
-        'sequencing_experiment_id': 'SE_AAAAAAAA',
+        # 'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'controlled_access': False
     }
     init_count = GenomicFile.query.count()
     response = client.post(url_for(GENOMICFILE_LIST_URL),
                            headers={'Content-Type': 'application/json'},
                            data=json.dumps(body))
+
     resp = json.loads(response.data.decode("utf-8"))
 
-    assert 'does not exist' in resp['_status']['message']
+    assert 400 == response.status_code
+    assert 'could not create' in resp['_status']['message']
     assert GenomicFile.query.count() == init_count
 
 
