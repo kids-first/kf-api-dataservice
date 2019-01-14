@@ -13,7 +13,6 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.genomic_file.models import GenomicFile
-from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from tests.conftest import entities as ent
 from tests.conftest import ENTITY_TOTAL
 from tests.mocks import MockIndexd
@@ -69,7 +68,6 @@ def genomic_files(client, entities):
         'external_id': 'genomic_file_0',
         'file_name': 'hg38.bam',
         'data_type': 'Aligned Reads',
-        'sequencing_experiment_id': SequencingExperiment.query.first().kf_id,
         'file_format': 'bam'
     }
     gfs = [GenomicFile(**props) for _ in range(EXPECTED_TOTAL - ENTITY_TOTAL)]
@@ -92,28 +90,6 @@ def test_new(client, indexd, entities):
     gf = GenomicFile.query.get(genomic_file['kf_id'])
     assert gf
     assert indexd.post.call_count == orig_calls + 1
-
-
-def test_empty_arrays(client, indexd, entities):
-    """
-    Test that rollup fields return emtpy arrays as opposed to [None]
-    """
-    resp = _new_genomic_file(client)
-    gf = GenomicFile.query.get(resp['results']['kf_id'])
-    sc = SequencingCenter.query.first()
-    se = SequencingExperiment(external_id='BLAH',
-                              experiment_strategy='WXS',
-                              platform='Illumina',
-                              sequencing_center=sc,
-                              is_paired_end=True)
-    gf.sequencing_experiment = se
-    db.session.add(se)
-    db.session.commit()
-
-    resp = client.get(url_for(GENOMICFILE_URL, kf_id=gf.kf_id)).json
-    assert resp['results']['experiment_strategies'] == ['WXS']
-    assert resp['results']['platforms'] == ['Illumina']
-    assert resp['results']['instrument_models'] == []
 
 
 def test_new_indexd_error(client, entities):
@@ -218,7 +194,7 @@ def test_update_no_version(client, indexd):
 
     This should not create a new version
     """
-    resp = _new_genomic_file(client, include_seq_exp=False)
+    resp = _new_genomic_file(client)
     orig_calls = indexd.put.call_count
 
     genomic_file = resp['results']
@@ -434,7 +410,7 @@ def test_access_urls(client):
                                  f'https://gen3.something.com/did']
 
 
-def _new_genomic_file(client, include_seq_exp=True):
+def _new_genomic_file(client):
     """ Creates a genomic file """
     body = {
         'external_id': 'genomic_file_0',
@@ -447,9 +423,6 @@ def _new_genomic_file(client, include_seq_exp=True):
         'availability': 'Immediate Download',
         'controlled_access': False
     }
-    if include_seq_exp:
-        body['sequencing_experiment_id'] = (SequencingExperiment.query
-                                            .first().kf_id)
 
     response = client.post(url_for(GENOMICFILE_LIST_URL),
                            headers={'Content-Type': 'application/json'},

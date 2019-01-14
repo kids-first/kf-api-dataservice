@@ -113,7 +113,8 @@
             "name": "CavaticaTask_0",
             "external_task_id": "1ab12165-7351-4744-921c-a97a19b84773"},
         "/task-genomic-files": {},
-        "/read-group-genomic-files": {}
+        "/read-group-genomic-files": {},
+        "/sequencing-experiment-genomic-files": {}
 
     },
     "filter_params": {
@@ -296,6 +297,11 @@
             ]
         },
         "/read-group-genomic-files": {
+            "valid": {
+            },
+            "invalid": []
+        },
+        "/sequencing-experiment-genomic-files": {
             "valid": {
             },
             "invalid": []

@@ -26,7 +26,10 @@ from dataservice.api.read_group.models import (
     ReadGroup,
     ReadGroupGenomicFile
 )
-from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_experiment.models import (
+    SequencingExperiment,
+    SequencingExperimentGenomicFile
+)
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.cavatica_app.models import CavaticaApp
@@ -59,7 +62,8 @@ ENTITY_ENDPOINT_MAP = {
     SequencingExperiment: '/sequencing-experiments',
     Task: '/tasks',
     TaskGenomicFile: '/task-genomic-files',
-    ReadGroupGenomicFile: '/read-group-genomic-files'
+    ReadGroupGenomicFile: '/read-group-genomic-files',
+    SequencingExperimentGenomicFile: '/sequencing-experiment-genomic-files'
 }
 
 ENDPOINT_ENTITY_MAP = {v: k for k, v in ENTITY_ENDPOINT_MAP.items()}
@@ -146,7 +150,8 @@ def entities(client):
                          TaskGenomicFile,
                          BiospecimenGenomicFile,
                          BiospecimenDiagnosis,
-                         ReadGroupGenomicFile}:
+                         ReadGroupGenomicFile,
+                         SequencingExperimentGenomicFile}:
                 continue
             for i in range(ENTITY_TOTAL):
                 data = ENTITY_PARAMS['fields'][endpoint].copy()
@@ -194,8 +199,8 @@ def entities(client):
             if i % 2 == 0:
                 is_input = False
             ctgf = TaskGenomicFile(task=ct,
-                                           genomic_file=gf,
-                                           is_input=is_input)
+                                   genomic_file=gf,
+                                   is_input=is_input)
             _entities[TaskGenomicFile].append(ctgf)
 
             ENTITY_PARAMS['fields']['/task-genomic-files'].update({
@@ -220,6 +225,15 @@ def entities(client):
             _entities[ReadGroupGenomicFile].append(rggf)
             db.session.add(rggf)
 
+        # Sequencing Experiment Genomic Files
+        for i, (se, gf) in enumerate(
+            zip(_entities[SequencingExperiment],
+                _entities[GenomicFile])):
+            segf = SequencingExperimentGenomicFile(sequencing_experiment=se,
+                                                   genomic_file=gf)
+            _entities[SequencingExperimentGenomicFile].append(segf)
+            db.session.add(segf)
+
         # Biospecimen genomic files
         for i, (b, d) in enumerate(zip(_entities[Biospecimen],
                                        _entities[Diagnosis])):
@@ -233,7 +247,6 @@ def entities(client):
         f0 = _entities[Family][0]
         p0 = _entities[Participant][0]
         sc0 = _entities[SequencingCenter][0]
-        se0 = _entities[SequencingExperiment][0]
         ca0 = _entities[CavaticaApp][0]
 
         # Investigator
@@ -257,10 +270,6 @@ def entities(client):
         # SequencingExperiment
         for ent in _entities[SequencingExperiment]:
             ent.sequencing_center = sc0
-
-        # GenomicFiles
-        for ent in _entities[GenomicFile]:
-            ent.sequencing_experiment = se0
 
         # Task
         for ent in _entities[CavaticaApp]:
