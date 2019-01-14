@@ -44,6 +44,10 @@ from dataservice.api.read_group_genomic_file import (
     ReadGroupGenomicFileAPI,
     ReadGroupGenomicFileListAPI
 )
+from dataservice.api.sequencing_experiment_genomic_file import (
+    SequencingExperimentGenomicFileAPI,
+    SequencingExperimentGenomicFileListAPI
+)
 from dataservice.api.biospecimen_genomic_file import (
     BiospecimenGenomicFileAPI,
     BiospecimenGenomicFileListAPI

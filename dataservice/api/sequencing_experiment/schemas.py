@@ -56,6 +56,7 @@ class SequencingExperimentSchema(BaseSchema):
         'collection': ma.URLFor(Meta.collection_url),
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>'),
-        'genomic_files': ma.URLFor('api.genomic_files_list',
-                                   sequencing_experiment_id='<kf_id>')
+        'sequencing_experiment_genomic_files': ma.URLFor(
+            'api.sequencing_experiment_genomic_files_list',
+            sequencing_experiment_id='<kf_id>'),
     }, description='Resource links and pagination')

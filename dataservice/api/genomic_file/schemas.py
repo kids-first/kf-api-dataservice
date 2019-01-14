@@ -67,15 +67,15 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
-        'sequencing_experiment': PatchedURLFor(
-            'api.sequencing_experiments',
-            kf_id='<sequencing_experiment_id>'),
         'task_genomic_files': ma.URLFor(
             'api.task_genomic_files_list', genomic_file_id='<kf_id>'),
         'biospecimen_genomic_files': ma.URLFor(
             'api.biospecimen_genomic_files_list', genomic_file_id='<kf_id>'),
         'read_group_genomic_files': ma.URLFor(
             'api.read_group_genomic_files_list', genomic_file_id='<kf_id>'),
+        'sequencing_experiment_genomic_files': ma.URLFor(
+            'api.sequencing_experiment_genomic_files_list',
+            genomic_file_id='<kf_id>'),
         'read_groups': ma.URLFor('api.read_groups_list',
                                  genomic_file_id='<kf_id>'),
         'biospecimens': ma.URLFor('api.biospecimens_list',
