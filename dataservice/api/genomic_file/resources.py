@@ -43,6 +43,10 @@ class GenomicFileListAPI(CRUDView):
         study_id = filter_params.pop('study_id', None)
 
         # Get read group id and remove from model filter params
+        sequencing_experiment_id = filter_params.pop(
+            'sequencing_experiment_id', None)
+
+        # Get read group id and remove from model filter params
         read_group_id = filter_params.pop('read_group_id', None)
 
         # Get biospecimen id and remove from model filter params
@@ -66,6 +70,16 @@ class GenomicFileListAPI(CRUDView):
                  .group_by(GenomicFile.kf_id))
 
         from dataservice.api.read_group.models import ReadGroupGenomicFile
+        from dataservice.api.sequencing_experiment.models import (
+            SequencingExperimentGenomicFile
+        )
+
+        if sequencing_experiment_id:
+            q = (q.join(SequencingExperimentGenomicFile)
+                 .filter(
+                 SequencingExperimentGenomicFile.sequencing_experiment_id ==
+                 sequencing_experiment_id)
+                 )
         if read_group_id:
             q = (q.join(ReadGroupGenomicFile)
                  .filter(ReadGroupGenomicFile.read_group_id == read_group_id))

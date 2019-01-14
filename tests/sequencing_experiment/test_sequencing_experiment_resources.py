@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
+from dateutil import parser, tz
+from urllib.parse import urlencode
 
 from flask import url_for
-from dateutil import parser, tz
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
@@ -89,34 +90,34 @@ class SequencingExperimentTest(IndexdTestCase):
                 attr = attr.replace(tzinfo=tz.tzutc()).isoformat()
             self.assertEqual(sequencing_experiment[k], attr)
 
-    # def test_filter_by_gf(self):
-    #     """
-    #     Test get and filter read groups by study_id and/or genomic_file_id
-    #     """
-    #     ses, gfs, studies = self._create_all_entities()
-    #
-    #     # Create query
-    #     gf = GenomicFile.query.filter_by(external_id='study0-gf1').first()
-    #     sefs = SequencingExperimentGenomicFile.query.filter_by(
-    #         genomic_file_id=gf.kf_id).all()
-    #     assert len(sefs) == 1
-    #     assert sefs[0].sequencing_experiment.external_id == 'study0-se0'
-    #
-    #     # Send get request
-    #     filter_params = {'genomic_file_id': gf.kf_id}
-    #     qs = urlencode(filter_params)
-    #     endpoint = '{}?{}'.format('/sequencing-experiments', qs)
-    #     response = self.client.get(endpoint, headers=self._api_headers())
-    #
-    #     # Check response status code
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     # Check response content
-    #     response = json.loads(response.data.decode('utf-8'))
-    #     assert 1 == response['total']
-    #     assert 1 == len(response['results'])
-    #     sequencing_experiment = response['results'][0]
-    #     assert sequencing_experiment['external_id'] == 'study0-se0'
+    def test_filter_by_gf(self):
+        """
+        Test get and filter seq exps by study_id and/or genomic_file_id
+        """
+        ses, gfs, studies = self._create_all_entities()
+
+        # Create query
+        gf = GenomicFile.query.filter_by(external_id='study0-gf1').first()
+        segfs = SequencingExperimentGenomicFile.query.filter_by(
+            genomic_file_id=gf.kf_id).all()
+        assert len(segfs) == 1
+        assert segfs[0].sequencing_experiment.external_id == 'study0-se0'
+
+        # Send get request
+        filter_params = {'genomic_file_id': gf.kf_id}
+        qs = urlencode(filter_params)
+        endpoint = '{}?{}'.format('/sequencing-experiments', qs)
+        response = self.client.get(endpoint, headers=self._api_headers())
+
+        # Check response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert 1 == response['total']
+        assert 1 == len(response['results'])
+        sequencing_experiment = response['results'][0]
+        assert sequencing_experiment['external_id'] == 'study0-se0'
 
     def test_patch(self):
         """

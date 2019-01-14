@@ -65,10 +65,6 @@ class GenomicFile(db.Model, Base, IndexdFile):
                              'cold storage')
     paired_end = db.Column(db.Integer(), doc='The direction of the read')
 
-    sequencing_experiment_id = db.Column(KfId(),
-                                         db.ForeignKey(
-                                         'sequencing_experiment.kf_id'))
-
     task_genomic_files = db.relationship(TaskGenomicFile,
                                          backref='genomic_file',
                                          cascade='all, delete-orphan')

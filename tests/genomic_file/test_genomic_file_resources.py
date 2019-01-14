@@ -12,6 +12,7 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.read_group.models import ReadGroup
+from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from tests.conftest import entities as ent
 from tests.conftest import ENTITY_TOTAL
@@ -307,20 +308,24 @@ def test_delete_error(client, indexd, entities):
     assert GenomicFile.query.count() == init + 1
 
 
-def test_filter_by_rg_bs(client, indexd):
+def test_filter_by_se(client, indexd):
     """
-    Test get and filter genomic files by study_id and/or read_group_id
+    Test get and filter genomic files by study_id and/or
+    sequencing_experiment_id
     """
-    rgs, gfs, studies = _create_all_entities()
+    ses, rgs, gfs, studies = _create_all_entities()
 
     # Create query
-    rg = ReadGroup.query.filter_by(external_id='study0-rg1').first()
+    se = SequencingExperiment.query.filter_by(external_id='study0-se1').first()
 
-    assert len(rg.genomic_files) == 2
-    assert rg.genomic_files[0].external_id == 'study0-gf0'
+    assert len(se.genomic_files) == 2
+    _ids = {'study0-gf0', 'study0-gf2'}
+    for gf in se.genomic_files:
+        assert gf.external_id in _ids
 
     # Send get request
-    filter_params = {'read_group_id': rg.kf_id}
+    filter_params = {'sequencing_experiment_id': se.kf_id,
+                     'study_id': studies[0].kf_id}
     qs = urlencode(filter_params)
     endpoint = '{}?{}'.format('/genomic-files', qs)
     response = client.get(endpoint)
@@ -331,7 +336,39 @@ def test_filter_by_rg_bs(client, indexd):
     assert 2 == response['total']
     assert 2 == len(response['results'])
     gfs = response['results']
+
+    for gf in gfs:
+        assert gf['external_id'] in _ids
+
+
+def test_filter_by_rg(client, indexd):
+    """
+    Test get and filter genomic files by study_id and/or read_group_id
+    """
+    ses, rgs, gfs, studies = _create_all_entities()
+
+    # Create query
+    rg = ReadGroup.query.filter_by(external_id='study0-rg1').first()
+
+    assert len(rg.genomic_files) == 2
     _ids = {'study0-gf0', 'study0-gf2'}
+    for gf in rg.genomic_files:
+        assert gf.external_id in _ids
+
+    # Send get request
+    filter_params = {'read_group_id': rg.kf_id,
+                     'study_id': studies[0].kf_id}
+    qs = urlencode(filter_params)
+    endpoint = '{}?{}'.format('/genomic-files', qs)
+    response = client.get(endpoint)
+    # Check response status code
+    assert response.status_code == 200
+    # Check response content
+    response = json.loads(response.data.decode('utf-8'))
+    assert 2 == response['total']
+    assert 2 == len(response['results'])
+    gfs = response['results']
+
     for gf in gfs:
         assert gf['external_id'] in _ids
 
@@ -340,7 +377,7 @@ def test_filter_by_bs(client, indexd):
     """
     Test get and filter genomic files by biospecimen_id
     """
-    rgs, gfs, studies = _create_all_entities()
+    ses, rgs, gfs, studies = _create_all_entities()
     bs = Biospecimen.query.filter_by(external_sample_id='b0').first()
     s = Study.query.filter_by(external_id='s0').first()
 
@@ -403,7 +440,7 @@ def test_access_urls(client):
     The access_urls field should be a field derived from the urls replacing
     s3 locations with gen3 http locations
     """
-    rgs, gfs, studies = _create_all_entities()
+    ses, rgs, gfs, studies = _create_all_entities()
     gf = list(gfs.values())[0][0]
     gf = client.get(f'/genomic-files/{gf.kf_id}').json['results']
     assert gf['access_urls'] == [f'gen3/data/{gf["latest_did"]}',
@@ -438,6 +475,7 @@ def _create_all_entities():
     """
     sc = SequencingCenter(name='sc')
     studies = []
+    ses = {}
     rgs = {}
     gfs = {}
     for j in range(2):
@@ -458,17 +496,32 @@ def _create_all_entities():
             b.genomic_files.append(gf)
 
         study_rgs = rgs.setdefault('study{}'.format(j), [])
-
         rg0 = ReadGroup(external_id='study{}-rg0'.format(j))
         rg0.genomic_files.extend(study_gfs[0:2])
         rg1 = ReadGroup(external_id='study{}-rg1'.format(j))
         rg1.genomic_files.extend([study_gfs[0],
                                   study_gfs[-1]])
 
+        study_ses = ses.setdefault('study{}'.format(j), [])
+        se0 = SequencingExperiment(external_id='study{}-se0'.format(j),
+                                   experiment_strategy='WGS',
+                                   is_paired_end=True,
+                                   platform='platform',
+                                   sequencing_center=sc)
+        se0.genomic_files.extend(study_gfs[0:2])
+        se1 = SequencingExperiment(external_id='study{}-se1'.format(j),
+                                   experiment_strategy='WGS',
+                                   is_paired_end=True,
+                                   platform='platform',
+                                   sequencing_center=sc)
+        se1.genomic_files.extend([study_gfs[0],
+                                  study_gfs[-1]])
+
         study_rgs.extend([rg0, rg1])
+        study_ses.extend([se0, se1])
         studies.append(s)
 
     db.session.add_all(studies)
     db.session.commit()
 
-    return rgs, gfs, studies
+    return ses, rgs, gfs, studies

@@ -28,7 +28,7 @@ class SequencingExperimentGenomicFileTest(IndexdTestCase):
         """
         # Create needed entities
         gf = GenomicFile(external_id='gf0')
-        sc = SequencingCenter(external_id='sc')
+        sc = SequencingCenter(name='sc')
         se = SequencingExperiment(external_id='se0',
                                   experiment_strategy='WGS',
                                   is_paired_end=True,

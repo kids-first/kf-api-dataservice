@@ -55,10 +55,6 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
                              validate=enum_validation_generator(
                                  AVAILABILITY_ENUM))
 
-    sequencing_experiment_id = field_for(GenomicFile,
-                                         'sequencing_experiment_id',
-                                         load_only=True)
-
     latest_did = field_for(GenomicFile,
                            'latest_did',
                            required=False,
@@ -78,6 +74,8 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
             genomic_file_id='<kf_id>'),
         'read_groups': ma.URLFor('api.read_groups_list',
                                  genomic_file_id='<kf_id>'),
+        'sequencing_experiments': ma.URLFor('api.sequencing_experiments_list',
+                                            genomic_file_id='<kf_id>'),
         'biospecimens': ma.URLFor('api.biospecimens_list',
                                   genomic_file_id='<kf_id>')
     }, description='Resource links and pagination')
@@ -85,8 +83,13 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
 
 class GenomicFileFilterSchema(GenomicFileSchema):
 
+    sequencing_experiment_id = fields.Str()
     read_group_id = fields.Str()
     biospecimen_id = fields.Str()
+
+    @validates('sequencing_experiment_id')
+    def valid_sequencing_experiment_id(self, value):
+        validate_kf_id('SE', value)
 
     @validates('read_group_id')
     def valid_read_group_id(self, value):
