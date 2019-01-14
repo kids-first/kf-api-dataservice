@@ -7,6 +7,9 @@ from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile
 )
 from dataservice.api.read_group.models import ReadGroupGenomicFile
+from dataservice.api.sequencing_experiment.models import (
+    SequencingExperimentGenomicFile
+)
 
 
 class GenomicFile(db.Model, Base, IndexdFile):
@@ -72,6 +75,10 @@ class GenomicFile(db.Model, Base, IndexdFile):
     read_group_genomic_files = db.relationship(ReadGroupGenomicFile,
                                                backref='genomic_file',
                                                cascade='all, delete-orphan')
+    sequencing_experiment_genomic_files = db.relationship(
+        SequencingExperimentGenomicFile,
+        backref='genomic_file',
+        cascade='all, delete-orphan')
     biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
                                                 backref='genomic_file',
                                                 cascade='all, delete-orphan')

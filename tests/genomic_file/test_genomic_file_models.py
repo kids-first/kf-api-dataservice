@@ -6,7 +6,6 @@ from dataservice.extensions import db
 from dataservice.api.study.models import Study
 from dataservice.api.participant.models import Participant
 from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.biospecimen.models import BiospecimenGenomicFile
@@ -35,8 +34,6 @@ class ModelTest(IndexdTestCase):
         self.assertEqual(Participant.query.count(), 1)
         self.assertEqual(Biospecimen.query.count(), 2)
 
-        se = SequencingExperiment.query.all()[0]
-
         # Properties keyed on kf_id
         kwargs_dict = {}
         for i in range(2):
@@ -51,8 +48,7 @@ class ModelTest(IndexdTestCase):
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
                 'paired_end': 1,
-                'availability': 'Immediate Download',
-                'sequencing_experiment_id': se.kf_id
+                'availability': 'Immediate Download'
             }
             # Add genomic file to db session
             gf = GenomicFile(**kwargs)
@@ -232,7 +228,6 @@ class ModelTest(IndexdTestCase):
         """
         # Create and save genomic file dependent entities
         self._create_save_dependents()
-        se = SequencingExperiment.query.all()[0]
         # Create genomic files
         biospecimen = Biospecimen.query.all()[0]
         kwargs_dict = {}
@@ -253,7 +248,7 @@ class ModelTest(IndexdTestCase):
                 'availability': 'Immediate Download'
             }
             # Add genomic file to list in biospecimen
-            gf = GenomicFile(**kwargs, sequencing_experiment_id=se.kf_id)
+            gf = GenomicFile(**kwargs)
             biospecimen.genomic_files.append(gf)
             db.session.add(gf)
             db.session.flush()
@@ -286,25 +281,7 @@ class ModelTest(IndexdTestCase):
         sc = SequencingCenter(name='Baylor')
         db.session.add(sc)
         db.session.commit()
-        # Create Sequencing_experiment
-        se = self._create_experiments(sequencing_center_id=sc.kf_id)
         return [Biospecimen(external_sample_id='s{}'.format(i),
                             analyte_type='dna',
                             sequencing_center_id=sc.kf_id)
                 for i in range(total)]
-
-    def _create_experiments(self, total=1, sequencing_center_id=None):
-        """
-        Create sequencing experiments
-        """
-        data = {
-            'external_id': 'se1',
-            'experiment_strategy': 'wgs',
-            'is_paired_end': True,
-            'platform': 'platform',
-            'sequencing_center_id': sequencing_center_id
-        }
-        se = SequencingExperiment(**data)
-        db.session.add(se)
-        db.session.commit()
-        return se

@@ -1,8 +1,8 @@
 from sqlalchemy import event
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
-from dataservice.api.genomic_file.models import GenomicFile
 
 
 class SequencingExperiment(db.Model, Base):
@@ -62,18 +62,52 @@ class SequencingExperiment(db.Model, Base):
                             doc='Total reads of the sequencing experiment')
     mean_read_length = db.Column(db.Float(),
                                  doc='Mean lenth of the reads')
-    genomic_files = db.relationship(GenomicFile,
-                                    backref=db.backref(
-                                        'sequencing_experiment',
-                                        lazy=True))
+
+    genomic_files = association_proxy(
+        'sequencing_experiment_genomic_files',
+        'genomic_file',
+        creator=lambda gf: SequencingExperimentGenomicFile(genomic_file=gf))
+
+    sequencing_experiment_genomic_files = db.relationship(
+        'SequencingExperimentGenomicFile',
+        backref='sequencing_experiment',
+        cascade='all, delete-orphan')
+
     sequencing_center_id = db.Column(KfId(),
                                      db.ForeignKey('sequencing_center.kf_id'),
                                      nullable=False,
                                      doc='The kf_id of the sequencing center')
 
 
-@event.listens_for(GenomicFile, 'after_delete')
+class SequencingExperimentGenomicFile(db.Model, Base):
+    """
+    Represents association table between sequencing_experiment table and
+    genomic_file table. Contains all sequencing_experiment,
+    genomic_file combiniations.
+    :param kf_id: Unique id given by the Kid's First DCC
+    :param created_at: Time of object creation
+    :param modified_at: Last time of object modification
+    """
+    __tablename__ = 'sequencing_experiment_genomic_file'
+    __prefix__ = 'SG'
+    __table_args__ = (db.UniqueConstraint('sequencing_experiment_id',
+                                          'genomic_file_id',),)
+    sequencing_experiment_id = db.Column(
+        KfId(),
+        db.ForeignKey('sequencing_experiment.kf_id'),
+        nullable=False)
+
+    genomic_file_id = db.Column(KfId(),
+                                db.ForeignKey('genomic_file.kf_id'),
+                                nullable=False)
+    external_id = db.Column(db.Text(),
+                            doc='external id used by contributor')
+
+
+@event.listens_for(SequencingExperimentGenomicFile, 'after_delete')
 def delete_orphans(mapper, connection, state):
     q = (db.session.query(SequencingExperiment)
-         .filter(~SequencingExperiment.genomic_files.any()))
+         .filter(
+         ~SequencingExperiment.sequencing_experiment_genomic_files.any())
+         )
     q.delete(synchronize_session='fetch')
