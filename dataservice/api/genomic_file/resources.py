@@ -39,17 +39,11 @@ class GenomicFileListAPI(CRUDView):
             resource:
               GenomicFile
         """
-        # Get study id and remove from model filter params
+        # Remove non-genomic_file attributes from genomic_file filter params
         study_id = filter_params.pop('study_id', None)
-
-        # Get read group id and remove from model filter params
         sequencing_experiment_id = filter_params.pop(
             'sequencing_experiment_id', None)
-
-        # Get read group id and remove from model filter params
         read_group_id = filter_params.pop('read_group_id', None)
-
-        # Get biospecimen id and remove from model filter params
         biospecimen_id = filter_params.pop('biospecimen_id', None)
 
         # Apply model filter params

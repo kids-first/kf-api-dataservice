@@ -180,7 +180,7 @@ class TestPagination:
         ('/tasks', 50),
         ('/task-genomic-files', 50),
         ('/read-group-genomic-files', 50),
-        # ('/sequencing-experiment-genomic-files', 50),
+        ('/sequencing-experiment-genomic-files', 50),
         ('/biospecimen-genomic-files', 50),
         ('/biospecimen-diagnoses', 50)
     ])

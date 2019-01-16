@@ -106,7 +106,6 @@ def test_new_indexd_error(client, entities):
         'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
-        # 'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'controlled_access': False
     }
     init_count = GenomicFile.query.count()
