@@ -39,13 +39,11 @@ class GenomicFileListAPI(CRUDView):
             resource:
               GenomicFile
         """
-        # Get study id and remove from model filter params
+        # Remove non-genomic_file attributes from genomic_file filter params
         study_id = filter_params.pop('study_id', None)
-
-        # Get read group id and remove from model filter params
+        sequencing_experiment_id = filter_params.pop(
+            'sequencing_experiment_id', None)
         read_group_id = filter_params.pop('read_group_id', None)
-
-        # Get biospecimen id and remove from model filter params
         biospecimen_id = filter_params.pop('biospecimen_id', None)
 
         # Apply model filter params
@@ -66,6 +64,16 @@ class GenomicFileListAPI(CRUDView):
                  .group_by(GenomicFile.kf_id))
 
         from dataservice.api.read_group.models import ReadGroupGenomicFile
+        from dataservice.api.sequencing_experiment.models import (
+            SequencingExperimentGenomicFile
+        )
+
+        if sequencing_experiment_id:
+            q = (q.join(SequencingExperimentGenomicFile)
+                 .filter(
+                 SequencingExperimentGenomicFile.sequencing_experiment_id ==
+                 sequencing_experiment_id)
+                 )
         if read_group_id:
             q = (q.join(ReadGroupGenomicFile)
                  .filter(ReadGroupGenomicFile.read_group_id == read_group_id))
@@ -150,10 +158,6 @@ class GenomicFileAPI(CRUDView):
         if gf is None:
             abort(404, 'could not find {} `{}`'
                   .format('genomic_file', kf_id))
-
-        # Deserialization will require this field and won't merge automatically
-        if 'sequencing_experiment_id' not in body:
-            body['sequencing_experiment_id'] = gf.sequencing_experiment_id
 
         try:
             gf = GenomicFileSchema(strict=True).load(body, instance=gf,

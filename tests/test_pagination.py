@@ -132,8 +132,7 @@ class TestPagination:
             db.session.add(samp)
             p.biospecimens = [samp]
 
-            gf = GenomicFile(**gf_kwargs,
-                             sequencing_experiment_id=seq_exp.kf_id)
+            gf = GenomicFile(**gf_kwargs)
             db.session.add(gf)
             samp.genomic_files.append(gf)
             samp.diagnoses.append(diag)
@@ -143,6 +142,8 @@ class TestPagination:
             rg = ReadGroup(lane_number=4,
                            flow_cell='FL0123')
             rg.genomic_files.append(gf)
+
+            seq_exp.genomic_files.append(gf)
 
             ct = Task(name='task_{}'.format(i))
             ct.genomic_files.append(gf)
@@ -179,6 +180,7 @@ class TestPagination:
         ('/tasks', 50),
         ('/task-genomic-files', 50),
         ('/read-group-genomic-files', 50),
+        ('/sequencing-experiment-genomic-files', 50),
         ('/biospecimen-genomic-files', 50),
         ('/biospecimen-diagnoses', 50)
     ])
@@ -275,6 +277,7 @@ class TestPagination:
         ('/tasks', 102),
         ('/task-genomic-files', 102),
         ('/read-group-genomic-files', 102),
+        ('/sequencing-experiment-genomic-files', 102),
         ('/biospecimen-genomic-files', 102),
         ('/biospecimen-diagnoses', 102)
     ])

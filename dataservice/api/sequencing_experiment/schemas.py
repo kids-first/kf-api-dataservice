@@ -1,10 +1,16 @@
 from marshmallow_sqlalchemy import field_for
+from marshmallow import (
+    fields,
+    validates
+)
 
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.custom_fields import DateOrDatetime
-from dataservice.api.common.validation import (validate_positive_number,
-                                               enum_validation_generator)
+from dataservice.api.common.validation import (
+    validate_positive_number,
+    enum_validation_generator,
+    validate_kf_id)
 from dataservice.extensions import ma
 
 EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq', 'Other'}
@@ -56,6 +62,18 @@ class SequencingExperimentSchema(BaseSchema):
         'collection': ma.URLFor(Meta.collection_url),
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>'),
+        'sequencing_experiment_genomic_files': ma.URLFor(
+            'api.sequencing_experiment_genomic_files_list',
+            sequencing_experiment_id='<kf_id>'),
         'genomic_files': ma.URLFor('api.genomic_files_list',
                                    sequencing_experiment_id='<kf_id>')
     }, description='Resource links and pagination')
+
+
+class SequencingExperimentFilterSchema(SequencingExperimentSchema):
+
+    genomic_file_id = fields.Str()
+
+    @validates('genomic_file_id')
+    def valid_genomic_file_id(self, value):
+        validate_kf_id('GF', value)

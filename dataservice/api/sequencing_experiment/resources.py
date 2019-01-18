@@ -1,13 +1,16 @@
 from flask import abort, request
 from marshmallow import ValidationError
-from sqlalchemy.orm import joinedload
 from webargs.flaskparser import use_args
 
 from dataservice.extensions import db
 from dataservice.api.common.pagination import paginated, Pagination
-from dataservice.api.sequencing_experiment.models import SequencingExperiment
+from dataservice.api.sequencing_experiment.models import (
+    SequencingExperiment,
+    SequencingExperimentGenomicFile
+)
 from dataservice.api.sequencing_experiment.schemas import (
-    SequencingExperimentSchema
+    SequencingExperimentSchema,
+    SequencingExperimentFilterSchema
 )
 from dataservice.api.common.views import CRUDView
 from dataservice.api.common.schemas import filter_schema_factory
@@ -22,7 +25,7 @@ class SequencingExperimentListAPI(CRUDView):
     schemas = {'SequencingExperiment': SequencingExperimentSchema}
 
     @paginated
-    @use_args(filter_schema_factory(SequencingExperimentSchema),
+    @use_args(filter_schema_factory(SequencingExperimentFilterSchema),
               locations=('query',))
     def get(self, filter_params, after, limit):
         """
@@ -39,6 +42,9 @@ class SequencingExperimentListAPI(CRUDView):
         # Get study id and remove from model filter params
         study_id = filter_params.pop('study_id', None)
 
+        # Get genomic file id and remove from model filter params
+        genomic_file_id = filter_params.pop('genomic_file_id', None)
+
         q = (SequencingExperiment.query
              .filter_by(**filter_params))
 
@@ -51,12 +57,23 @@ class SequencingExperimentListAPI(CRUDView):
         )
 
         if study_id:
-            q = (q.join(SequencingExperiment.genomic_files)
+            q = (q.join(SequencingExperiment
+                        .sequencing_experiment_genomic_files)
+                 .join(SequencingExperimentGenomicFile.genomic_file)
                  .join(GenomicFile.biospecimen_genomic_files)
                  .join(BiospecimenGenomicFile.biospecimen)
                  .join(Biospecimen.participant)
                  .filter(Participant.study_id == study_id)
                  .group_by(SequencingExperiment.kf_id))
+
+        # Filter by genomic_file_id
+        if genomic_file_id:
+            q = (q.join(
+                SequencingExperimentGenomicFile,
+                SequencingExperiment.kf_id ==
+                SequencingExperimentGenomicFile.sequencing_experiment_id)
+                .filter(SequencingExperimentGenomicFile.genomic_file_id ==
+                        genomic_file_id))
 
         return (SequencingExperimentSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
