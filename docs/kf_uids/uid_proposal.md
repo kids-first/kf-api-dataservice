@@ -17,6 +17,7 @@ Based on [uid_considerations.md](uid_considerations.md) and [uid_migration.md](u
 The counter bits will be reversed (to put rapid changes at the left for easier left-to-right reading) and then the counter and timer bits will be interleaved (to distribute randomization across the whole key). The key, therefore, will begin with the lowest order bit from the counter and end with the lowest order bit from the timer.
 
 e.g., for 5 bit timer `t`, 5 bit counter `c`:
+
 |`t1`|`t2`|`t3`|`t4`|`t5`|`c1`|`c2`|`c3`|`c4`|`c5`|
 |-|-|-|-|-|-|-|-|-|-|
 | | | | |↓| | | | |
