@@ -2,11 +2,11 @@
 
 Based on [uid_considerations.md](uid_considerations.md) and [uid_migration.md](uid_migration.md)
 
-## 64 bit nodeless keys
+## 64+ bit nodeless keys
 
 * 32 bit time in half-seconds since custom epoch (now until 68 years from now)
-* 32 bit randomized counter (4.3 billion keys for every half-second)
-* Cross fingers
+* 32+ bit randomized counter (4.3 billion+ keys for every half-second)
+* Cross fingers gently
 
 (Increasing to more bits would make it more better but also more bigger.)
 
