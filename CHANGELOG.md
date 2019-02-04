@@ -1,3 +1,18 @@
+# Kids First Dataservice Release 1.9.0
+
+## Features
+
+### Summary
+
+Feature Emojis: 🐛🗃x1 ♻️x1
+Feature Labels: [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x1 [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x1
+
+### New features and changes
+
+- (#497) 🐛🗃 Migration - Fix sequencing_experiment_genomic_file KF ID prefixes - @znatty22
+- (#492) ♻️ Make Seq Exp and Genomic File Many to Many - @znatty22
+
+
 # Kids First Dataservice Release 1.8.0
 
 ## Features
