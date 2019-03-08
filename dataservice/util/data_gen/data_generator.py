@@ -131,6 +131,7 @@ class DataGenerator(object):
             'WXS',
             'RNA-Seq',
             'ChIP-Seq',
+            'Linked-Read WGS (10x Chromium)',
             'miRNA-Seq',
             'Bisulfite-Seq',
             'Validation',

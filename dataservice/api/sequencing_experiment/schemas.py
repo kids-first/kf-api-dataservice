@@ -13,7 +13,8 @@ from dataservice.api.common.validation import (
     validate_kf_id)
 from dataservice.extensions import ma
 
-EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq', 'Other'}
+EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq',
+                            'Linked-Read WGS (10x Chromium)', 'Other'}
 PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Complete Genomics', 'PacBio', 'Other'}
 LIBRARY_STRAND_ENUM = {'Unstranded', 'First Stranded',
