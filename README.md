@@ -24,6 +24,11 @@ is with docker compose:
 ```
 git clone git@github.com:kids-first/kf-api-dataservice.git
 cd kf-api-dataservice
+
+# If you haven't already, create the kf-data-stack network
+docker network create kf-data-stack
+
+# Bring up the dataservice
 docker-compose up -d
 ```
 
