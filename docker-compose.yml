@@ -18,3 +18,7 @@ services:
       - PG_HOST=pg
     depends_on:
       - pg
+networks:
+  default:
+    external:
+      name: kf-data-stack
