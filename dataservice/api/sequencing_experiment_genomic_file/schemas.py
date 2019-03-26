@@ -12,7 +12,7 @@ class SequencingExperimentGenomicFileSchema(BaseSchema):
     sequencing_experiment_id = field_for(SequencingExperimentGenomicFile,
                                          'sequencing_experiment_id',
                                          required=True, load_only=True,
-                                         example='SG_ABB2C104')
+                                         example='SE_ABB2C104')
     genomic_file_id = field_for(SequencingExperimentGenomicFile,
                                 'genomic_file_id',
                                 required=True, load_only=True,
