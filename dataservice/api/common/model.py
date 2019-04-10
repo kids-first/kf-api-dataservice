@@ -187,7 +187,7 @@ class TimestampMixin:
     """
     Defines the common timestammp columns on all Kids First tables
     """
-    created_at = db.Column(db.DateTime(), default=datetime.now,
+    created_at = db.Column(db.DateTime(), default=datetime.now, index=True,
                            doc="Time of object creation")
     modified_at = db.Column(db.DateTime(), default=datetime.now,
                             onupdate=datetime.now,
