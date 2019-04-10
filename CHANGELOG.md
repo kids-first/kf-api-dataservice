@@ -1,3 +1,21 @@
+# Kids First Dataservice Release 1.10.0
+
+## Features
+Adds index to created_at column for better pagination performance.
+
+### Summary
+
+Feature Emojis: ⬆️x1 🗃x1 ✏️x1 🐳x1 x1
+Feature Labels: [refactor](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/refactor) x2 [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x1 [devops](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/devops) x1
+
+### New features and changes
+
+- (#508) ⬆️ Bump webargs version - @dankolbman
+- (#507) 🗃 Add indices to created_at - @dankolbman
+- (#505) ✏️ SG doc typo - @fiendish
+- (#501) 🐳 Add dataservice to kf-data-stack network - @znatty22
+- (#500)  💬 add linked longread 10x sequencing strategy - @fiendish
+
 # Kids First Dataservice Release 1.9.0
 
 ## Features
