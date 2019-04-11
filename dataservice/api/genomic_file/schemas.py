@@ -42,7 +42,9 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         exclude = (BaseSchema.Meta.exclude +
                    ('biospecimen', 'sequencing_experiment',) +
                    ('task_genomic_files',
-                    'biospecimen_genomic_files',))
+                    'biospecimen_genomic_files',) +
+                   ('sequencing_experiment_genomic_files',
+                    'read_group_genomic_files'))
 
     paired_end = field_for(GenomicFile, 'paired_end',
                            validate=enum_validation_generator(
