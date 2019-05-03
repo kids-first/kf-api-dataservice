@@ -7,8 +7,7 @@ RUN apk update && apk add py3-psycopg2 musl-dev \
     nginx supervisor git \
     openssl ca-certificates \
     gcc postgresql-dev \
- && pip install --upgrade pip \
- && pip install virtualenv
+ && pip install --upgrade pip
 
 RUN         pip install -r /app/requirements.txt
 ADD         . /app
