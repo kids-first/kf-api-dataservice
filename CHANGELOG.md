@@ -1,3 +1,22 @@
+# Kids First Dataservice Release 1.10.1
+
+## Features
+
+Minor operations changes.
+
+### Summary
+
+Feature Emojis: 🔊x2 🐳x1 ⬆️x1 ✨x1
+Feature Labels: [devops](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/devops) x4 [refactor](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/refactor) x1
+
+### New features and changes
+
+- (#515) 🐳 Remove venv from docker - @dankolbman
+- (#516) 🔊 Move log formatting to nginx.conf - @dankolbman
+- (#512) ⬆️ Bump postgres to 11.1 - @dankolbman
+- (#514) 🔊 Add response timing to logs - @dankolbman
+- (#511) ✨ Exclude fkey lists from genomic-files and biospecimens results - @parimalak
+
 # Kids First Dataservice Release 1.10.0
 
 ## Features
