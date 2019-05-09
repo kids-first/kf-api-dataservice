@@ -10,7 +10,15 @@ RUN apk update && apk add py3-psycopg2 musl-dev \
  && pip install --upgrade pip
 
 RUN         pip install -r /app/requirements.txt
-COPY        dataservice docs .git migrations bin manage.py config.py setup.py /app/
+
+COPY        manage.py manage.py
+COPY        setup.py setup.py
+COPY        bin bin
+COPY        docs docs
+COPY        migrations migrations
+COPY        dataservice  dataservice
+COPY        .git .git
+
 RUN         python /app/setup.py install
 
 EXPOSE      80
