@@ -13,6 +13,7 @@ RUN         pip install -r /app/requirements.txt
 
 COPY        manage.py manage.py
 COPY        setup.py setup.py
+COPY        config.py config.py
 COPY        bin bin
 COPY        docs docs
 COPY        migrations migrations
