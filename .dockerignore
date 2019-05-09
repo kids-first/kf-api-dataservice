@@ -1,0 +1,8 @@
+.circleci/
+tests/
+venv/
+data/
+tests/
+dumps/
+pyenv/
+*/__pycache__/
