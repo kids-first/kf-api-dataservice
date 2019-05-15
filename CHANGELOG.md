@@ -1,3 +1,18 @@
+# Kids First Dataservice Release 1.10.2
+
+## Features
+
+ Hot fix to the dockerfile build.
+
+### Summary
+
+Feature Emojis: ♻️x1
+Feature Labels: [refactor](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/refactor) x1
+
+### New features and changes
+
+- (#519) ♻️ Make Dockerfile follow best practices - @znatty22
+
 # Kids First Dataservice Release 1.10.1
 
 ## Features
