@@ -195,10 +195,7 @@ class TestPagination:
         resp = json.loads(resp.data.decode('utf-8'))
         assert len(resp['results']) == min(expected_total, 10)
         assert resp['limit'] == 10
-        if '/sequencing-centers' in endpoint:
-            assert resp['total'] == 50
-        else:
-            assert resp['total'] == expected_total
+        assert resp['total'] == expected_total
 
         ids_seen = []
         # Iterate through via the `next` link
@@ -213,10 +210,7 @@ class TestPagination:
             self._check_link(resp['_links']['self'], {'study_id': s.kf_id})
 
         ids_seen.extend([r['kf_id'] for r in resp['results']])
-        if '/sequencing-centers' in endpoint:
-            assert len(ids_seen) == expected_total
-        else:
-            assert len(ids_seen) == resp['total']
+        assert len(ids_seen) == resp['total']
 
     @pytest.mark.parametrize('endpoint', [
         (ept) for ept in ENDPOINTS if ept != '/studies'
@@ -303,10 +297,7 @@ class TestPagination:
             assert float(resp['_links']['self'].split('=')[-1])
 
         ids_seen.extend([r['kf_id'] for r in resp['results']])
-        if '/sequencing-centers' in endpoint:
-            assert len(ids_seen) == expected_total
-        else:
-            assert len(ids_seen) == resp['total']
+        assert len(ids_seen) == resp['total']
 
     @pytest.mark.parametrize('endpoint', [
         (ept) for ept in ENDPOINTS
