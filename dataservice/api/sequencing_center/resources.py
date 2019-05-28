@@ -46,7 +46,8 @@ class SequencingCenterListAPI(CRUDView):
         if study_id:
             q = (q.join(SequencingCenter.biospecimens)
                  .join(Biospecimen.participant)
-                 .filter(Participant.study_id == study_id))
+                 .filter(Participant.study_id == study_id)
+                 .group_by(SequencingCenter.kf_id))
 
         return (SequencingCenterSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
