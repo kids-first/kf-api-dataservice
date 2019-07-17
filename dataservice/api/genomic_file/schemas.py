@@ -19,16 +19,25 @@ from dataservice.api.common.schemas import (
 
 DATA_TYPE_ENUM = {'Aligned Reads',
                   'Aligned Reads Index',
-                  'Unaligned Reads',
-                  'Simple Nucleotide Variation',
-                  'Variant Calls',
-                  'Variant Calls Index',
+                  'Annotated Somatic Mutations',
+                  'Expression',
+                  'Gene Expression',
+                  'Gene Fusions',
                   'gVCF',
                   'gVCF Index',
+                  'Histology Images',
+                  'Isoform Expression',
+                  'Operation Reports',
                   'Other',
-                  'Expression',
-                  'Histology Images', 'Radiology Images', 'Pathology Reports',
-                  'Operation Reports', 'Radiology Reports'}
+                  'Pathology Reports',
+                  'Radiology Images',
+                  'Radiology Reports',
+                  'Simple Nucleotide Variations',
+                  'Somatic Copy Number Variations',
+                  'Somatic Structural Variations',
+                  'Unaligned Reads',
+                  'Variant Calls',
+                  'Variant Calls Index'}
 
 PAIRED_END_ENUM = {1, 2}
 
