@@ -1,3 +1,18 @@
+# Kids First Dataservice Release 1.10.3
+
+## Features
+
+### Summary
+
+Feature Emojis: ✨x1 🐛x1
+Feature Labels: [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x1 [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x1
+
+### New features and changes
+
+- (#526) ✨ Add New Data Type Enums for Somatic Mutation Analysis - @liberaliscomputing
+- (#522) 🐛 Add missing groupby for sequencing center - @dankolbman
+
+
 # Kids First Dataservice Release 1.10.2
 
 ## Features
