@@ -1,3 +1,6 @@
+from typing import Optional, Tuple
+from datetime import datetime
+from uuid import UUID
 from dataservice.extensions import ma
 from marshmallow import (
     fields,
@@ -10,11 +13,19 @@ from marshmallow import (
 )
 from flask import url_for, request
 from flask_marshmallow import Schema
-from dataservice.api.common.pagination import Pagination
+from dataservice.api.common.pagination import Pagination, After
 from dataservice.api.common.validation import validate_kf_id
 from dataservice.extensions import db
 AVAILABILITY_ENUM = {'Immediate Download',
                      'Cold Storage'}
+
+
+def format_after(after: Optional[After]) -> Tuple[float, str]:
+    # epoch and 0 uuid are synonymous with no after param, return none
+    # as it's most likely the user came from the root endpoint
+    if after is None or after == (datetime.fromtimestamp(0), str(UUID(int=0))):
+        return None, None
+    return after[0].timestamp(), after[1]
 
 
 class BaseSchema(ma.ModelSchema):
@@ -67,14 +78,16 @@ class BaseSchema(ma.ModelSchema):
 
             _links = {}
 
-            # If an 'after' param could not be parsed, don't include the param
-            after = None if p.after.timestamp() == 0 else p.curr_num
+            after_date, after_uuid = format_after(p.curr_num)
             _links['self'] = url_for(self.Meta.collection_url,
-                                     after=after,
+                                     after=after_date,
+                                     after_uuid=after_uuid,
                                      study_id=request.args.get('study_id'))
             if p.has_next:
+                next_date, next_uuid = format_after(p.next_num)
                 _links['next'] = url_for(self.Meta.collection_url,
-                                         after=p.next_num,
+                                         after=next_date,
+                                         after_uuid=next_uuid,
                                          study_id=request.args.get('study_id'))
             resp['total'] = int(p.total)
             resp['limit'] = int(p.limit)
