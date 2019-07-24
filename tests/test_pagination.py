@@ -1,6 +1,7 @@
 import json
 import pytest
 from dateutil import parser
+from datetime import datetime
 from urllib import parse
 import uuid
 
@@ -288,16 +289,41 @@ class TestPagination:
         # Iterate through via the `next` link
         while 'next' in resp['_links']:
             # Check formatting of next link
-            assert float(resp['_links']['next'].split('=')[-1])
+            self._check_link(resp['_links']['next'], {})
             # Stash all the ids on the page
             ids_seen.extend([r['kf_id'] for r in resp['results']])
             resp = client.get(resp['_links']['next'])
             resp = json.loads(resp.data.decode('utf-8'))
             # Check formatting of the self link
-            assert float(resp['_links']['self'].split('=')[-1])
+            self._check_link(resp['_links']['self'], {})
 
         ids_seen.extend([r['kf_id'] for r in resp['results']])
         assert len(ids_seen) == resp['total']
+
+    def test_same_created_at(self, client):
+        """
+        Test that many objects with the same created_at time may still be
+        paginated correctly
+        """
+        created_at = datetime.now()
+        studies = [Study(external_id=f'Study_{i}') for i in range(50)]
+        db.session.add_all(studies)
+        db.session.flush()
+        for study in studies:
+            study.created_at = created_at
+        db.session.flush()
+
+        resp = client.get('/studies')
+        resp = json.loads(resp.data.decode('utf-8'))
+        ids_seen = []
+        # Iterate through via the `next` link
+        while 'next' in resp['_links']:
+            ids_seen.extend([r['kf_id'] for r in resp['results']])
+            resp = client.get(resp['_links']['next'])
+            resp = json.loads(resp.data.decode('utf-8'))
+
+        ids_seen.extend([r['kf_id'] for r in resp['results']])
+        assert len(ids_seen) == Study.query.count()
 
     @pytest.mark.parametrize('endpoint', [
         (ept) for ept in ENDPOINTS
@@ -395,7 +421,12 @@ class TestPagination:
         res = parse.urlsplit(link_str)
         q_params = parse.parse_qs(res.query)
         assert 'after' in q_params
-        assert 'study_id' in q_params
-        assert float(q_params.get('after')[0])
+        assert 'after_uuid' in q_params
+        if 'study_id' in params:
+            assert 'study_id' in q_params
+        after_date = q_params.get('after')[0]
+        after_uuid = q_params.get('after_uuid')[0]
+        assert uuid.UUID(after_uuid)
+        assert isinstance(datetime.fromtimestamp(float(after_date)), datetime)
         for k, v in params.items():
             assert q_params.get(k)[0] == v
