@@ -1,3 +1,20 @@
+# Kids First Dataservice Release 1.10.4
+
+## Features
+
+Fixes issue with pagination potentially skipping entries with similiar creation
+dates.
+
+### Summary
+
+Feature Emojis: ✨x1
+Feature Labels: [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x1 [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x1 [refactor](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/refactor) x1
+
+### New features and changes
+
+- (#529) ✨ Add pagination by uuid - @dankolbman
+
+
 # Kids First Dataservice Release 1.10.3
 
 ## Features
