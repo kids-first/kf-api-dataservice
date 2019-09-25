@@ -3,7 +3,7 @@ import uuid
 
 from flask import current_app, abort
 from flask import _app_ctx_stack as stack
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException
 
 
 class RecordNotFound(HTTPError):
@@ -55,9 +55,12 @@ class Indexd(object):
             return record
 
         url = self.url + record.latest_did
-        resp = self.session.get(url)
-        self.check_response(resp)
-        resp.raise_for_status()
+        try:
+            resp = self.session.get(url)
+            self.check_response(resp)
+            resp.raise_for_status()
+        except RequestException as err:
+            abort(500, f"Problem getting record from Indexd")
 
         # update fields on the target record's object
         for prop, v in resp.json().items():
@@ -121,10 +124,12 @@ class Indexd(object):
         }
 
         # Register the file on indexd
-        resp = self.session.post(self.url,
-                                 json=req_body)
+        try:
+            resp = self.session.post(self.url, json=req_body)
+            resp.raise_for_status()
+        except RequestException as err:
+            abort(500, f"Problem saving file to Indexd")
 
-        resp.raise_for_status()
         resp = resp.json()
 
         # Update the record object with the id fields
@@ -146,7 +151,10 @@ class Indexd(object):
 
         # Fetch rev for the did
         url = self.url + record.latest_did
-        resp = self.session.get(url)
+        try:
+            resp = self.session.get(url)
+        except RequestException as err:
+            abort(500, "Problem getting record from Indexd")
         self.check_response(resp)
 
         old = resp.json()
@@ -174,12 +182,19 @@ class Indexd(object):
         if 'size' in req_body or 'hashes' in req_body:
             # Create a new version in indxed
             req_body['form'] = 'object'
-            resp = self.session.post(url, json=req_body)
-            did = resp.json()['did']
+            try:
+                resp = self.session.post(url, json=req_body)
+            except RequestException as err:
+                abort(500, "Problem creating a new record in Indexd")
+
+            did = resp.json()["did"]
             record.latest_did = did
         else:
             # Update the file on indexd
-            resp = self.session.put(url, json=req_body)
+            try:
+                resp = self.session.put(url, json=req_body)
+            except RequestException as err:
+                abort(500, "Problem updating record in Indexd")
 
         self.check_response(resp)
         resp.raise_for_status()
@@ -196,7 +211,10 @@ class Indexd(object):
                   'metadata', 'urls_metadata', 'rev']
 
         url = '{}{}/versions'.format(self.url, record.latest_did)
-        versions = self.session.get(url).json()
+        try:
+            versions = self.session.get(url).json()
+        except RequestException as err:
+            abort(500, "Problem updating record in Indexd")
         for version, doc in versions.items():
             if doc['acl'] != record.acl:
                 did = doc['did']
@@ -207,7 +225,10 @@ class Indexd(object):
                 url = '{}{}?rev={}'.format(self.url, did, doc['rev'])
                 # rev is not allowed in put schema
                 del doc['rev']
-                resp = self.session.put(url, json=doc)
+                try:
+                    resp = self.session.put(url, json=doc)
+                except RequestException as err:
+                    abort(500, "Problem updating record in Indexd")
                 # Update the record's rev if it's the record being modified
                 if record.latest_did == did:
                     record.rev = resp.json()['rev']
@@ -224,13 +245,16 @@ class Indexd(object):
             return record
 
         if record.rev is None:
-            r = self.session.get(self.url + record.latest_did)
+            try:
+                r = self.session.get(self.url + record.latest_did)
+            except RequestException as err:
+                abort(500, "Problem getting record in Indexd")
             record.rev = r.json()['rev']
 
         url = '{}{}?rev={}'.format(self.url, record.latest_did, record.rev)
-        resp = self.session.delete(url)
-        self.check_response(resp)
         try:
+            resp = self.session.delete(url)
+            self.check_response(resp)
             resp.raise_for_status()
         except HTTPError:
             message = 'could not get file record'
@@ -238,6 +262,8 @@ class Indexd(object):
             if 'error' in resp.json():
                 message = '{}: {}'.format(message, resp.json()['error'])
             abort(resp.status_code, message)
+        except RequestException as err:
+            abort(500, "Problem deleting record in Indexd")
 
         return record
 
