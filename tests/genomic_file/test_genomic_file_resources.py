@@ -103,6 +103,7 @@ def test_new_indexd_error(client, entities):
         'file_name': 'hg38.bam',
         'size': 123,
         'acl': ['TEST'],
+        'authz': ['/projects/TEST'],
         'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
@@ -183,6 +184,7 @@ def test_get_one(client, entities):
     assert 'rev' not in resp
     assert resp['size'] == gf.size
     assert resp['acl'] == gf.acl
+    assert resp['authz'] == gf.authz
     # check properties from datamodel
     assert resp['file_name'] == gf.file_name
     assert resp['data_type'] == gf.data_type

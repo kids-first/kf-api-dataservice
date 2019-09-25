@@ -82,6 +82,7 @@ class IndexdFile:
     rev = None
     hashes = {}
     acl = []
+    authz = []
     # The metadata property is already used by sqlalchemy
     _metadata = {}
     size = None
@@ -99,6 +100,7 @@ class IndexdFile:
         self.rev = None
         self.hashes = {}
         self.acl = []
+        self.authz = []
         # The metadata property is already used by sqlalchemy
         self._metadata = {}
         self.size = None

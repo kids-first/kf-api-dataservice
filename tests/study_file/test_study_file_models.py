@@ -60,7 +60,8 @@ class ModelTest(IndexdTestCase):
 
     def test_update_all_versions(self):
         """
-        Test that all verions of a document are updated when the acl is changed
+        Test that all verions of a document are updated when the autz is
+        changed
         """
         # Create study_files and study
         study_files, study, data = self.create_study_file()
@@ -72,7 +73,8 @@ class ModelTest(IndexdTestCase):
         sf.size = 7696048
         sf.hashes = {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'}
         # Update to a new acl
-        sf.acl = ['new_acl']
+        sf.acl = []
+        sf.authz = ['/programs/new-authz']
         sf.modified_at = datetime.datetime.now()
         did = sf.latest_did
         db.session.add(sf)
@@ -97,7 +99,7 @@ class ModelTest(IndexdTestCase):
 
         sf = StudyFile.query.get(study_files[0].kf_id)
         # Set to value returned in the mock endpoint
-        sf.acl = ['INTERNAL']
+        sf.authz = ['/programs/INTERNAL']
         # New content values
         sf.size = 1234
         sf.hashes = {'md5': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}

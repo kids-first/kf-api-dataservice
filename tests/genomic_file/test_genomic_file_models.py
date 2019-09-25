@@ -1,6 +1,7 @@
 import datetime
 import uuid
 import random
+from werkzeug.exceptions import BadRequest
 
 from dataservice.extensions import db
 from dataservice.api.study.models import Study
@@ -109,7 +110,7 @@ class ModelTest(IndexdTestCase):
         gf = GenomicFile.query.get(kwargs['kf_id'])
         gf.external_id = 'blah'
         gf.size = 1234
-        gf.acl = ['new_acl']
+        gf.authz = ['/programs/new_acl']
         gf._metadata = {'test': 'test'}
         did = gf.latest_did
         db.session.commit()
@@ -123,7 +124,8 @@ class ModelTest(IndexdTestCase):
         expected = MockIndexd.doc_base.copy()
         expected.update({
             'size': 1234,
-            'acl': ["new_acl"],
+            'acl': [],
+            'authz': ["/programs/new_acl"],
             'metadata': {'test': 'test'},
         })
         self.indexd.Session().post.assert_any_call(
@@ -156,6 +158,42 @@ class ModelTest(IndexdTestCase):
         expected = {
             'file_name': 'hg38.bam',
             'acl': ['INTERNAL', 'new_acl'],
+            'authz': ['/programs/INTERNAL'],
+            'urls': ['s3://bucket/key'],
+            'metadata': {}
+        }
+        self.indexd.Session().put.assert_any_call(
+            '{}?rev={}'.format(did, gf.rev), json=expected)
+
+
+    def test_update_authz_only(self):
+        """
+        Test updating of only authz field
+        """
+        # Create and save genomic files and dependent entities
+        kwargs_dict = self._create_save_genomic_files()
+
+        kwargs = kwargs_dict[list(kwargs_dict.keys())[1]]
+
+        # Update fields
+        gf = GenomicFile.query.get(kwargs['kf_id'])
+        gf.authz = ['/programs/INTERNAL', '/programs/new_authz']
+        did = gf.latest_did
+        # explicitly tell the object to update one of the mapped fields
+        gf.modified_at = datetime.datetime.now()
+        db.session.commit()
+
+        # Check database
+        gf = GenomicFile.query.get(kwargs['kf_id'])
+        assert gf.authz == ['/programs/INTERNAL', '/programs/new_authz']
+
+        # Update document and all versions
+        assert self.indexd.Session().put.call_count == 4
+
+        expected = {
+            'file_name': 'hg38.bam',
+            'acl': [],
+            'authz': ['/programs/INTERNAL', '/programs/new_authz'],
             'urls': ['s3://bucket/key'],
             'metadata': {}
         }

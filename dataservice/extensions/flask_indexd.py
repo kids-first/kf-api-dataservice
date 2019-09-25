@@ -59,6 +59,8 @@ class Indexd(object):
             resp = self.session.get(url)
             self.check_response(resp)
             resp.raise_for_status()
+        except RecordNotFound as err:
+            raise err
         except RequestException as err:
             abort(500, f"Problem getting record from Indexd")
 
@@ -80,7 +82,8 @@ class Indexd(object):
 
           {
             "file_name": "my_file",
-            "acl": ["phs000000"],
+            "acl": [],
+            "authz": ["/programs/phs000000"],
             "hashes": {
               "md5": "0b7940593044dff8e74380476b2b27a9"
             },
@@ -119,6 +122,7 @@ class Indexd(object):
             "form": "object",
             "hashes": record.hashes,
             "acl": record.acl,
+            "authz": record.authz,
             "urls": record.urls,
             "metadata": meta
         }
@@ -165,6 +169,7 @@ class Indexd(object):
             "size": record.size,
             "hashes": record.hashes,
             "acl": record.acl,
+            "authz": record.authz,
             "urls": record.urls,
             "metadata": record._metadata
         }
@@ -174,8 +179,9 @@ class Indexd(object):
             del req_body['size']
             del req_body['hashes']
 
-        # If acl changed, update all previous version with new acl
-        if record.acl != old['acl']:
+        # Update all previous versions with the new authz or acl fields, if
+        # they changed
+        if record.authz != old.get('authz') or record.acl != old.get('acl'):
             self._update_all_acls(record)
 
         url = '{}{}?rev={}'.format(self.url, record.latest_did, record.rev)
@@ -203,11 +209,11 @@ class Indexd(object):
 
     def _update_all_acls(self, record):
         """
-        Update acls for all previous versions of a record and update the
-        target record's rev
+        Update acls and authz for all previous versions of a record and
+        update the target record's rev
         """
         # Only use fields allowed by the indexd PUT schema
-        fields = ['urls', 'acl', 'file_name', 'version',
+        fields = ['urls', 'acl', 'authz', 'file_name', 'version',
                   'metadata', 'urls_metadata', 'rev']
 
         url = '{}{}/versions'.format(self.url, record.latest_did)
@@ -216,10 +222,11 @@ class Indexd(object):
         except RequestException as err:
             abort(500, "Problem updating record in Indexd")
         for version, doc in versions.items():
-            if doc['acl'] != record.acl:
+            if doc['acl'] != record.acl or doc['authz'] != record.authz:
                 did = doc['did']
                 doc = {k: v for k, v in doc.items() if k in fields}
                 doc['acl'] = record.acl
+                doc['authz'] = record.authz
                 if doc['version'] is None:
                     del doc['version']
                 url = '{}{}?rev={}'.format(self.url, did, doc['rev'])
