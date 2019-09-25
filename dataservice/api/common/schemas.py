@@ -111,10 +111,19 @@ class BaseSchema(ma.ModelSchema):
             raise ValidationError('Unknown field', unknown)
 
 
+def acl_deprecation(v):
+    if v is not None and not v == []:
+        raise ValidationError(
+            "The ACL field has been disabled. Use the authz field instead."
+        )
+
+
 class IndexdFileSchema(Schema):
     urls = ma.List(ma.Str(), required=True)
     access_urls = ma.List(ma.Str(), dump_only=True)
-    acl = ma.List(ma.Str(), required=False)
+    acl = ma.List(
+        ma.Str(), required=False, validate=lambda v: acl_deprecation(v)
+    )
     authz = ma.List(ma.Str(), required=False)
     file_name = ma.Str()
     hashes = ma.Dict(required=True)
