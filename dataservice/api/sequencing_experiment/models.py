@@ -42,6 +42,12 @@ class SequencingExperiment(db.Model, Base):
     library_strand = db.Column(db.Text(),
                                doc='Text term that represents the'
                                ' library stranded-ness')
+    library_selection = db.Column(db.Text(),
+                                  doc='Text term that describes the library '
+                                  'selection method')
+    library_prep = db.Column(db.Text(),
+                             doc='Text term that describes the library '
+                             'preparation method')
     is_paired_end = db.Column(db.Boolean(), nullable=False,
                               doc='Boolean term specifies whether reads have'
                               ' paired end')

@@ -14,11 +14,18 @@ from dataservice.api.common.validation import (
 from dataservice.extensions import ma
 
 EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq',
-                            'Linked-Read WGS (10x Chromium)', 'Other'}
+                            'Linked-Read WGS (10x Chromium)',
+                            'Targeted Sequencing', 'Other'}
 PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Complete Genomics', 'PacBio', 'Other'}
 LIBRARY_STRAND_ENUM = {'Unstranded', 'First Stranded',
                        'Second Stranded', 'Other'}
+
+LIBRARY_SELECTION_ENUM = {'Hybrid Selection', 'PCR', 'Affinity Enrichment',
+                          'Poly-T Enrichment', 'Random', 'rRNA Depletion',
+                          'miRNA Size Fractionation', 'Other'}
+
+LIBRARY_PREP_ENUM = {'polyA', 'Other'}
 
 
 class SequencingExperimentSchema(BaseSchema):
@@ -36,6 +43,13 @@ class SequencingExperimentSchema(BaseSchema):
     library_strand = field_for(SequencingExperiment, 'library_strand',
                                validate=enum_validation_generator(
                                    LIBRARY_STRAND_ENUM))
+    library_selection = field_for(SequencingExperiment, 'library_selection',
+                                  validate=enum_validation_generator(
+                                      LIBRARY_SELECTION_ENUM))
+
+    library_prep = field_for(SequencingExperiment, 'library_prep',
+                             validate=enum_validation_generator(
+                                 LIBRARY_PREP_ENUM))
 
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_experiments'
