@@ -68,6 +68,8 @@ class Participant(db.Model, Base):
         doc='Denotes whether participant is affected')
     diagnosis_category = db.Column(db.Text(),
                                    doc='High level diagnosis categorization')
+    species = db.Column(db.Text(), default='Homo Sapiens',
+                        doc='The species of the research particpant')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
                                 backref=db.backref('participant',
