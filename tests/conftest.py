@@ -142,6 +142,10 @@ def swagger(client):
 
 @pytest.fixture(scope='module')
 def entities(client):
+    return make_entities(client)
+
+
+def make_entities(client):
     # Create initial entities
     with db.session.no_autoflush:
         _entities = defaultdict(list)

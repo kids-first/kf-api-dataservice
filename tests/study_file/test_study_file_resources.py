@@ -10,7 +10,7 @@ from dataservice.extensions import db
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
-from tests.conftest import entities as ent
+from tests.conftest import make_entities
 from tests.conftest import ENTITY_TOTAL
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
@@ -22,7 +22,7 @@ EXPECTED_TOTAL = ENTITY_TOTAL + 102
 
 @pytest.fixture(scope='function')
 def entities(client):
-    return ent(client)
+    return make_entities(client)
 
 
 @pytest.yield_fixture(scope='function')
@@ -161,7 +161,7 @@ def test_get_list_with_missing_files(client, indexd, study_files):
     for res in resp['results']:
         assert 'kf_id' in res
     expected = EXPECTED_TOTAL
-    assert indexd.get.call_count == expected 
+    assert indexd.get.call_count == expected
 
 
 def test_get_one(client, entities):

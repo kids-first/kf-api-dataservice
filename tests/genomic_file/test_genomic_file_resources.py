@@ -14,7 +14,7 @@ from dataservice.api.sequencing_center.models import SequencingCenter
 from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
-from tests.conftest import entities as ent
+from tests.conftest import make_entities
 from tests.conftest import ENTITY_TOTAL
 from tests.mocks import MockIndexd
 
@@ -26,7 +26,7 @@ EXPECTED_TOTAL = ENTITY_TOTAL + 102 * 2
 
 @pytest.fixture(scope='function')
 def entities(client):
-    return ent(client)
+    return make_entities(client)
 
 
 @pytest.yield_fixture(scope='function')
