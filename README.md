@@ -111,12 +111,16 @@ The swagger docs are located at the root `localhost:5000/`.
 ### Generate a Data Model Diagram
 
 An ERD (entity relation diagram) may be found in the `docs/` directory, or may
-be produced for changes to the data schema. To do so requires that the latest
-development version of
-[eralchemy](github.com/Alexis-benoist/eralchemy) be installed:
+be produced for changes to the data schema. To do so requires the ERAlchemy
+library.
+
+Unfortunately the [original source code](github.com/Alexis-benoist/eralchemy) 
+currently has a bug in it that causes cardinality labels to be drawn backwards
+(e.g. 1 to N vs N to 1), so you must install the following dev version which 
+does not have that bug:
 
 ```
-pip install -e git+git@github.com:Alexis-benoist/eralchemy.git#egg=eralchemy
+pip install -e git+git@github.com:msladecek/eralchemy.git@msladecek/switch-cardinality-labels#egg=eralchemy
 ```
 
 This also requires
