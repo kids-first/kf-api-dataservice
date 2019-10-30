@@ -12,13 +12,21 @@ from dataservice.api.common.custom_fields import DateOrDatetime
 from dataservice.api.common.validation import (
     validate_positive_number,
     enum_validation_generator,
-    validate_kf_id
+    validate_kf_id,
+    list_validation_generator
 )
 
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other", "Virtual"}
 SAMPLE_PROCUREMENT_ENUM = {"Autopsy", "Biopsy", "Subtotal Resections",
                            "Gross Total Resections", "Blood Draw",
                            "Other"}
+# Codes from http://purl.obolibrary.org/obo/duo.owl
+DUO_ID_BIOSPECIMEN_ENUM = {
+    "DUO:0000021", "DUO:0000006", "DUO:0000019", "DUO:0000026", "DUO:0000020",
+    "DUO:0000005", "DUO:0000018", "DUO:0000012", "DUO:0000025", "DUO:0000004",
+    "DUO:0000011", "DUO:0000024", "DUO:0000016", "DUO:0000029", "DUO:0000028",
+    "DUO:0000022", "DUO:0000007", "DUO:0000042", "DUO:0000014", "DUO:0000027"
+}
 
 
 class BiospecimenSchema(BaseSchema):
@@ -43,7 +51,14 @@ class BiospecimenSchema(BaseSchema):
     method_of_sample_procurement = field_for(
         Biospecimen,
         'method_of_sample_procurement',
-        validate=enum_validation_generator(SAMPLE_PROCUREMENT_ENUM))
+        validate=enum_validation_generator(SAMPLE_PROCUREMENT_ENUM)
+    )
+    duo_ids = field_for(
+        Biospecimen,
+        'duo_ids',
+        validate=list_validation_generator(DUO_ID_BIOSPECIMEN_ENUM,
+                                           items_name='DUO IDs')
+    )
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen

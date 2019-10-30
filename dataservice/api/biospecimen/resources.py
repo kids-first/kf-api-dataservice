@@ -40,14 +40,24 @@ class BiospecimenListAPI(CRUDView):
             resource:
               Biospecimen
         """
-        # Get study id, diagnosis_id and remove from model filter params
+        # Get and remove special filter params that are not attributes of model
         study_id = filter_params.pop('study_id', None)
         diagnosis_id = filter_params.pop('diagnosis_id', None)
         genomic_file_id = filter_params.pop('genomic_file_id', None)
 
+        # Get and remove any list type filter params that need to be
+        # handled differently than others
+        duo_ids = filter_params.pop('duo_ids', None)
+
         # Apply filter params
         q = (Biospecimen.query
              .filter_by(**filter_params))
+
+        # Apply duo_ids filter
+        # Get specimens whose duo ids list includes all values in duo_ids
+        if duo_ids:
+            duo_ids = [id_.strip() for id_ in duo_ids[0].split(',')]
+            q = q.filter(Biospecimen.duo_ids.contains(duo_ids))
 
         # Apply study_id filter and diagnosis_id filter
         from dataservice.api.participant.models import Participant
@@ -61,7 +71,7 @@ class BiospecimenListAPI(CRUDView):
         if genomic_file_id:
             q = (q.join(BiospecimenGenomicFile)
                  .filter(BiospecimenGenomicFile.genomic_file_id ==
-                 genomic_file_id))
+                         genomic_file_id))
 
         return (BiospecimenSchema(many=True)
                 .jsonify(Pagination(q, after, limit)))
