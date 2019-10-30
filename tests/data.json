@@ -22,6 +22,7 @@
         "/participants": {
             "is_proband": true,
             "race": "Asian",
+            "species": "Homo Sapiens",
             "ethnicity": "Hispanic or Latino",
             "gender": "Male",
             "visible": true,
@@ -31,6 +32,7 @@
         "/biospecimens": {
             "external_sample_id": "Biospecimen_0",
             "external_aliquot_id": "a0",
+            "duo_ids": ["DUO:0000021", "DUO:0000025"],
             "source_text_tissue_type": "tissue",
             "composition": "comp",
             "source_text_anatomical_site": "site",
@@ -79,6 +81,8 @@
             "experiment_strategy": "WXS",
             "library_name": "Library_1",
             "library_strand": "Unstranded",
+            "library_selection": "PCR",
+            "library_prep": "polyA",
             "is_paired_end": false,
             "platform": "Illumina"
         },
@@ -161,18 +165,21 @@
             "valid": {
                 "is_proband": false,
                 "gender": "Female",
-                "diagnosis_category": "Cancer"
+                "diagnosis_category": "Cancer",
+                "species": "Homo Sapiens",
+                "species": "Canis lupus familiaris"
             },
             "invalid": [
                 {"is_proband": "hello"},
                 {"gender": "test", "race": "test", "ethnicity": "test",
-                "diagnosis_category": "ancer"}
+                "diagnosis_category": "ancer", "species": "kitty"}
             ]
         },
         "/biospecimens": {
             "valid": {
                 "analyte_type": "RNA",
                 "shipment_date": "",
+                "duo_ids": ["DUO:0000021", "DUO:0000025"],
                 "analyte_type": "Virtual",
                 "method_of_sample_procurement": "Autopsy"
             },
@@ -231,7 +238,9 @@
                 {"total_reads": -12},
                 {"experiment_strategy": "test"},
                 {"platform": "test"},
-                {"library_strand": "test"}
+                {"library_strand": "test"},
+                {"library_selection": "selection"},
+                {"library_prep": "prep"}
             ]
         },
         "/genomic-files": {
