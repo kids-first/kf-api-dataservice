@@ -2,7 +2,7 @@ import pytest
 import json
 from dateutil import parser, tz
 from urllib.parse import urlencode
-
+from pprint import pprint
 from tests.conftest import (
     ENTITY_ENDPOINT_MAP,
     ENDPOINTS,
@@ -27,19 +27,35 @@ class TestFilterParams:
         # Setup
         endpoint = ENTITY_ENDPOINT_MAP[model]
         filter_params = ENTITY_PARAMS['filter_params'][endpoint]['valid']
-        expected_total = model.query.filter_by(
-            **filter_params).count()
+        q = model.query
+
+        # List type filter params are handled differently
+        list_params = {}
+        query_params = {}
+        for k, v in filter_params.items():
+            if isinstance(v, list):
+                q = q.filter(getattr(model, k).contains(v))
+                list_params[k] = v
+            else:
+                query_params[k] = v
+
+        # Non-list type filter params
+        expected_total = q.filter_by(**query_params).count()
 
         # Make query string
-        qs = urlencode(filter_params)
+        for k, v in list_params.items():
+            query_params[k] = ','.join(v)
+
+        qs = urlencode(query_params)
         endpoint = '{}?{}'.format(endpoint, qs)
         # Send request
         response = client.get(endpoint)
 
-        # Check status code
-        assert response.status_code == 200
         # Check content
         resp = json.loads(response.data.decode('utf-8'))
+
+        # Check status code
+        assert response.status_code == 200
         assert resp['limit'] == 10
         assert len(resp['results']) == min(expected_total, 10)
         assert resp['total'] == expected_total

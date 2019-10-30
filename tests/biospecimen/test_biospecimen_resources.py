@@ -39,6 +39,7 @@ class BiospecimenTest(IndexdTestCase):
         kwargs = {
             'external_sample_id': 's1',
             'external_aliquot_id': 'a1',
+            'duo_ids': ['DUO:0000021', 'DUO:0000005'],
             'source_text_tissue_type': 'Normal',
             'composition': 'composition1',
             'source_text_anatomical_site': 'Brain',
@@ -164,7 +165,8 @@ class BiospecimenTest(IndexdTestCase):
         # Update existing biospecimen
         body = {
             'source_text_tissue_type': 'saliva',
-            'participant_id': kwargs['participant_id']
+            'participant_id': kwargs['participant_id'],
+            'duo_ids': ['DUO:0000021', 'DUO:0000005'],
         }
         response = self.client.patch(url_for(BIOSPECIMENS_URL,
                                              kf_id=kf_id),
@@ -450,6 +452,7 @@ class BiospecimenTest(IndexdTestCase):
         kwargs = {
             'external_sample_id': 's1',
             'external_aliquot_id': 'a1',
+            'duo_ids': ['DUO:0000021'],
             'source_text_tissue_type': 'Normal',
             'composition': 'composition1',
             'source_text_anatomical_site': 'Brain',

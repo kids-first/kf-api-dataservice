@@ -39,6 +39,8 @@ class SequencingExperimentTest(IndexdTestCase):
             'experiment_strategy': 'WXS',
             'library_name': 'Test_library_name_1',
             'library_strand': 'Unstranded',
+            'library_selection': 'PCR',
+            'library_prep': 'polyA',
             'is_paired_end': False,
             'platform': 'Illumina',
             'instrument_model': '454 GS FLX Titanium',

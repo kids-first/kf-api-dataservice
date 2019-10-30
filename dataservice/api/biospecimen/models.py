@@ -5,6 +5,7 @@ from dataservice.api.biospecimen_genomic_file.models import (
 from dataservice.api.diagnosis.models import Diagnosis
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy import event
+from sqlalchemy.dialects.postgresql import ARRAY
 
 
 class Biospecimen(db.Model, Base):
@@ -41,6 +42,8 @@ class Biospecimen(db.Model, Base):
            concepts from Biological Spatial Ontology
     :param consent_type: Short name of consent
     :param dbgap_consent_code: Consent classification code from dbgap
+    :param duo_ids: List of Data Use Ontology IDs specifying restrictions on
+                    use of any data related to the biospecimen
     """
 
     __tablename__ = 'biospecimen'
@@ -109,6 +112,10 @@ class Biospecimen(db.Model, Base):
     dbgap_consent_code = db.Column(db.Text(),
                                    doc='Consent classification code from dbgap'
                                    )
+    duo_ids = db.Column(ARRAY(db.Text()),
+                        doc='The list of Data Use Ontology IDs specifying '
+                        'restrictions on use of any data related '
+                        'to the biospecimen')
     genomic_files = association_proxy(
         'biospecimen_genomic_files', 'genomic_file',
         creator=lambda genomic_file:
