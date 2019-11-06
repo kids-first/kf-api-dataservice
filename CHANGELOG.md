@@ -1,3 +1,22 @@
+# Kids First Dataservice Release 1.11.0
+
+## Features
+
+Adds new fields to entities.
+
+### Summary
+
+Feature Emojis: ⬆️x2 ✨x1 📝x1
+Feature Labels: [data model](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/data%20model) x1 [feature](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/feature) x1 [documentation](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/documentation) x1 [bug](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/bug) x1 [devops](https://api.github.com/repos/kids-first/kf-api-dataservice/labels/devops) x1
+
+### New features and changes
+
+- (#543) ✨ Add new attributes to participant, biospecimen, seq exp - @znatty22
+- (#545) 📝 Update README w new ERAlchemy install instruction - @znatty22
+- (#544) ⬆️ Bump pytest to 5.2.0 - @znatty22
+- (#534) ⬆️ Bump werkzeug from 0.14.1 to 0.15.3 - @dependabot[bot]
+
+
 # Kids First Dataservice Release 1.10.4
 
 ## Features
