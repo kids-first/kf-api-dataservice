@@ -103,40 +103,10 @@ def test_new_indexd_error(client, entities):
         'file_name': 'hg38.bam',
         'size': 123,
         'acl': ['TEST'],
-        'authz': ['/projects/TEST'],
         'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
         'controlled_access': False
-    }
-    init_count = GenomicFile.query.count()
-    response = client.post(url_for(GENOMICFILE_LIST_URL),
-                           headers={'Content-Type': 'application/json'},
-                           data=json.dumps(body))
-
-    resp = json.loads(response.data.decode("utf-8"))
-
-    assert 400 == response.status_code
-    assert 'could not create' in resp['_status']['message']
-    assert GenomicFile.query.count() == init_count
-
-
-def test_no_acl(client, entities, genomic_files):
-    """
-    Test that acls may no longer be specified during creation
-    """
-
-    body = {
-        'external_id': 'genomic_file_0',
-        'file_name': 'hg38.bam',
-        'size': 123,
-        'acl': ['TEST'],
-        'authz': ['/projects/TEST'],
-        'data_type': 'Aligned Reads',
-        'file_format': 'bam',
-        'urls': ['s3://bucket/key'],
-        'controlled_access': False,
-        'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'}
     }
     init_count = GenomicFile.query.count()
     response = client.post(url_for(GENOMICFILE_LIST_URL),
@@ -213,7 +183,6 @@ def test_get_one(client, entities):
     assert 'rev' not in resp
     assert resp['size'] == gf.size
     assert resp['acl'] == gf.acl
-    assert resp['authz'] == gf.authz
     # check properties from datamodel
     assert resp['file_name'] == gf.file_name
     assert resp['data_type'] == gf.data_type
@@ -231,8 +200,6 @@ def test_update_no_version(client, indexd):
 
     genomic_file = resp['results']
     body = genomic_file
-    body['authz'] = ['/programs/new-auth']
-    del body['acl']
     response = client.patch(url_for(GENOMICFILE_LIST_URL) + '/' + body['kf_id'],
                             headers={'Content-Type': 'application/json'},
                             data=json.dumps(body))
