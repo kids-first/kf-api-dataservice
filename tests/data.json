@@ -22,7 +22,7 @@
         "/participants": {
             "is_proband": true,
             "race": "Asian",
-            "species": "Homo Sapiens",
+            "taxonomy": "Homo Sapiens",
             "ethnicity": "Hispanic or Latino",
             "gender": "Male",
             "visible": true,
@@ -166,13 +166,13 @@
                 "is_proband": false,
                 "gender": "Female",
                 "diagnosis_category": "Cancer",
-                "species": "Homo Sapiens",
-                "species": "Canis lupus familiaris"
+                "taxonomy": "Homo Sapiens",
+                "taxonomy": "Canis lupus familiaris"
             },
             "invalid": [
                 {"is_proband": "hello"},
                 {"gender": "test", "race": "test", "ethnicity": "test",
-                "diagnosis_category": "ancer", "species": "kitty"}
+                "diagnosis_category": "ancer", "taxonomy": "kitty"}
             ]
         },
         "/biospecimens": {

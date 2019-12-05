@@ -63,13 +63,12 @@ class Participant(db.Model, Base):
                           doc='The ethnicity of the participant')
     gender = db.Column(db.Text(),
                        doc='The gender of the participant')
-    affected_status = db.Column(
-        db.Boolean(),
-        doc='Denotes whether participant is affected')
+    affected_status = db.Column(db.Boolean(),
+                                doc='Denotes whether participant is affected')
     diagnosis_category = db.Column(db.Text(),
                                    doc='High level diagnosis categorization')
-    species = db.Column(db.Text(), default='Homo Sapiens',
-                        doc='The species of the research particpant')
+    taxonomy = db.Column(db.Text(), default='Homo Sapiens',
+                         doc='The taxonomy of the research particpant')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
                                 backref=db.backref('participant',

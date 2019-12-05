@@ -55,7 +55,7 @@ class ParticipantTest(FlaskTestCase):
             'kf_id': 'PT_00000000',
             'external_id': 'test',
             'is_proband': True,
-            'species': 'Homo Sapiens',
+            'taxonomy': 'Homo Sapiens',
             'race': 'Asian',
             'ethnicity': 'Hispanic or Latino',
             'gender': 'Female',

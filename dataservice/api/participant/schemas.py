@@ -20,7 +20,7 @@ RACE_ENUM = {
 DIAGNOSIS_CATEGORY_ENUM = {'Structural Birth Defect', 'Cancer',
                            'Structural Birth Defect and Cancer',
                            'Other', 'None'}
-SPECIES_ENUM = {'Homo Sapiens', 'Canis lupus familiaris'}
+TAXONOMY_ENUM = {'Homo Sapiens', 'Canis lupus familiaris'}
 
 
 class ParticipantSchema(BaseSchema):
@@ -41,9 +41,9 @@ class ParticipantSchema(BaseSchema):
     diagnosis_category = field_for(Participant, 'diagnosis_category',
                                    validate=enum_validation_generator(
                                        DIAGNOSIS_CATEGORY_ENUM))
-    species = field_for(Participant, 'species',
-                        validate=enum_validation_generator(
-                            SPECIES_ENUM))
+    taxonomy = field_for(Participant, 'taxonomy',
+                         validate=enum_validation_generator(
+                             TAXONOMY_ENUM))
 
     class Meta(BaseSchema.Meta):
         model = Participant
