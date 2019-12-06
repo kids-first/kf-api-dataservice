@@ -124,9 +124,17 @@
     "filter_params": {
         "/studies": {
             "valid": {
-                "external_id": "Study_1"
+                "external_id": "Study_1",
+                "study_code": "KF-ST0"
             },
-            "invalid": []
+            "invalid": [
+                {
+                    "study_code": "THIS IS TOO LONG"
+                },
+                {
+                    "study_code": "inv@lid"
+                }
+            ]
         },
         "/investigators": {
             "valid": {

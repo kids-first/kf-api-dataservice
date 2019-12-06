@@ -38,7 +38,7 @@ class ModelTest(FlaskTestCase):
         db.session.add(s)
         db.session.commit()
         assert self.bucket_service.post.call_count == 1
-        
+
         headers = {'Authorization': 'Bearer test123'}
         self.bucket_service.post.assert_called_with('/buckets',
                                                     json={'study_id': s.kf_id},
@@ -147,6 +147,7 @@ class ModelTest(FlaskTestCase):
                             'aa/wga.cgi?view_pdf&stacc=phs000178.v9.p8'),
             'external_id': 'phs001',
             'name': 'study1',
+            'study_code': 'KF-ST1',
             'short_name': 'S1',
             'version': 'v1',
             'release_status': 'Pending'
