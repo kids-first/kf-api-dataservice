@@ -39,7 +39,7 @@ class ModelTest(FlaskTestCase):
             is_proband=True,
             biospecimens=[biospecimen_0])
 
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
         study.participants.append(participant_0)
 
         db.session.add(study)
@@ -50,7 +50,7 @@ class ModelTest(FlaskTestCase):
         """
         Test creation of biospecimen
         """
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
         db.session.add(study)
         db.session.commit()
 
@@ -319,7 +319,7 @@ class ModelTest(FlaskTestCase):
         self.assertEqual(BiospecimenDiagnosis.query.count(), 1)
         self.assertEqual(bs_ds.biospecimen_id, biospecimen.kf_id)
         self.assertEqual(bs_ds.diagnosis_id, dg.kf_id)
-        s = Study(external_id="study")
+        s = Study(external_id="study", study_code='KF-ST3')
         sc = SequencingCenter.query.first()
         p1 = Participant(external_id='p1', study=s)
         b1 = Biospecimen(analyte_type='RNA', participant=p1,

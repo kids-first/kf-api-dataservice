@@ -14,7 +14,8 @@ class FamilyModelTest(FlaskTestCase):
         """
         Make a family with two participants and a given external id
         """
-        s = Study(external_id='phs001')
+        i = external_id[-1]
+        s = Study(external_id='phs001', study_code=f'KF-ST{i}')
         p1 = Participant(external_id="CASE01",
                          is_proband=False)
         p2 = Participant(external_id="CASE02",

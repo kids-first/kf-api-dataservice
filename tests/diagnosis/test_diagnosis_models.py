@@ -223,7 +223,7 @@ class ModelTest(FlaskTestCase):
         Create diagnoses and other requred entities
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Create participant
         participant_id = 'Test subject 0'

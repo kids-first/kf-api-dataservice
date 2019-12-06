@@ -23,7 +23,7 @@ class OutcomeTest(FlaskTestCase):
         Test create a new outcome
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Create a participant
         p = Participant(external_id='Test subject 0', is_proband=True,
@@ -168,7 +168,7 @@ class OutcomeTest(FlaskTestCase):
         Save participant
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Create outcome
         kwargs = {

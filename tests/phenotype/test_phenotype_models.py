@@ -21,7 +21,7 @@ class ModelTest(FlaskTestCase):
         """
         dt = datetime.now()
         # Create Study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Create and save participant
         participant_id = 'Test subject 0'
@@ -39,7 +39,7 @@ class ModelTest(FlaskTestCase):
                 'snomed_id_phenotype': '38033009',
                 'age_at_event_days': 120,
                 'participant_id': p.kf_id
-                }
+            }
             ph = Phenotype(**data)
             kwarg_dict[ph.external_id] = data
             db.session.add(ph)
@@ -80,14 +80,14 @@ class ModelTest(FlaskTestCase):
 
         # Update and save
         phe = Phenotype.query.filter_by(source_text_phenotype=pheno[0]).\
-              one_or_none()
+            one_or_none()
         phen = 'test phenotype 3'
         phe.source_text_phenotype = phen
         db.session.commit()
 
         # Check updated values
         phe = Phenotype.query.filter_by(source_text_phenotype=phen).\
-           one_or_none()
+            one_or_none()
         self.assertIsNot(phe, None)
 
     def test_delete_phenotype(self):
@@ -98,12 +98,12 @@ class ModelTest(FlaskTestCase):
 
         # Choose one and delete it
         ph = Phenotype.query.filter_by(source_text_phenotype=pheno[0]).\
-           one_or_none()
+            one_or_none()
         db.session.delete(ph)
         db.session.commit()
 
         ph = Phenotype.query.filter_by(source_text_phenotype=pheno[0]).\
-           one_or_none()
+            one_or_none()
         self.assertIs(ph, None)
         phenotypes = [_ph for _ph in p.phenotypes]
         self.assertNotIn(ph, phenotypes)
@@ -120,9 +120,9 @@ class ModelTest(FlaskTestCase):
 
         # Check that phenotypes have been deleted
         ph1 = Phenotype.query.filter_by(source_text_phenotype=pheno[0]).\
-           one_or_none()
+            one_or_none()
         ph2 = Phenotype.query.filter_by(source_text_phenotype=pheno[1]).\
-           one_or_none()
+            one_or_none()
         self.assertIs(ph1, None)
         self.assertIs(ph2, None)
 
@@ -161,7 +161,7 @@ class ModelTest(FlaskTestCase):
         Create phenotypes and required entities
         """
         # Create Study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Create two phenotypes
         pheno = ['test phenotype 1', 'test phenotype 2']

@@ -20,7 +20,7 @@ class ModelTest(FlaskTestCase):
         Test create outcome
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
         # Create and save participant
         participant_id = 'Test subject 0'
         p = Participant(external_id=participant_id, is_proband=True,
@@ -170,7 +170,7 @@ class ModelTest(FlaskTestCase):
         Create outcome and required entities
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
         # Create two outcomes
         oc = ['Deceased', 'Alive']
         o1 = Outcome(vital_status=oc[0])

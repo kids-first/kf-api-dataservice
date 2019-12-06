@@ -38,14 +38,15 @@ class ModelTest(FlaskTestCase):
         studies, investigator, kwargs = self.create_investigator()
 
         # Add new study to investigator
-        s_new = Study(external_id='phs002', investigator_id=investigator.kf_id)
+        s_new = Study(external_id='phs002', study_code='KF-ST2',
+                      investigator_id=investigator.kf_id)
         db.session.add(s_new)
         db.session.commit()
 
         # Check database
         self.assertEqual(3,
                          len(Investigator.query.get(
-                                                    investigator.kf_id).studies))
+                             investigator.kf_id).studies))
         self.assertIn(s_new, Investigator.query.get(investigator.kf_id).studies)
 
         # Add study to new investigator
@@ -113,10 +114,11 @@ class ModelTest(FlaskTestCase):
         for i in range(2):
             kwargs = {
                 'attribution': ('https://dbgap.ncbi.nlm.nih.gov/'
-                            'aa/wga.cgi?view_pdf&stacc=phs000178.v9.p8'),
+                                'aa/wga.cgi?view_pdf&stacc=phs000178.v9.p8'),
                 'external_id': 'phs00{}'.format(i),
                 'name': 'study_{}'.format(i),
-                'version': 'v1'
+                'version': 'v1',
+                'study_code': f'KF-ST{i}'
             }
             studies.append(Study(**kwargs))
 

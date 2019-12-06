@@ -273,7 +273,7 @@ class DiagnosisTest(FlaskTestCase):
         Save participant
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Create diagnosis
         kwargs = {
@@ -326,7 +326,7 @@ class DiagnosisTest(FlaskTestCase):
 
         # Two studies
         for j in range(2):
-            s = Study(external_id='s{}'.format(j))
+            s = Study(external_id='s{}'.format(j), study_code=f'KF-ST{j}')
             p0 = Participant(external_id='study{}-p0'.format(j))
             p1 = Participant(external_id='study{}-p1'.format(j))
             p2 = Participant(external_id='study{}-p2'.format(j))

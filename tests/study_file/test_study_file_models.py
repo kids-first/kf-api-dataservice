@@ -47,7 +47,7 @@ class ModelTest(IndexdTestCase):
         self.assertIn(sf_new, Study.query.get(study.kf_id).study_files)
 
         # Change study_file's study
-        s = Study(external_id='phs002')
+        s = Study(external_id='phs002', study_code='KF-ST2')
         sf0 = study_files[0]
         sf0.study = s
         db.session.commit()
@@ -109,7 +109,6 @@ class ModelTest(IndexdTestCase):
         assert self.indexd.Session().put.call_count == 0
         # Check that no new version was made
         assert self.indexd.Session().post.call_count == orig_post + 1
-
 
     def test_delete(self):
         """
@@ -180,7 +179,8 @@ class ModelTest(IndexdTestCase):
                             'aa/wga.cgi?view_pdf&stacc=phs000178.v9.p8'),
             'external_id': 'phs001',
             'name': 'study1',
-            'version': 'v1'
+            'version': 'v1',
+            'study_code': 'KF-ST0'
         }
         study = Study(**data)
 

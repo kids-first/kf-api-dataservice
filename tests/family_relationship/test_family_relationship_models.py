@@ -185,7 +185,7 @@ class ModelTest(FlaskTestCase):
         """
         Test that relationships are created w proper label regardless of case
         """
-        study = Study(external_id='study')
+        study = Study(external_id='study', study_code='KF-ST0')
         p1 = Participant(external_id='P0', is_proband=False)
         p2 = Participant(external_id='P1',  is_proband=False)
         study.participants.extend([p1, p2])
@@ -237,7 +237,7 @@ class ModelTest(FlaskTestCase):
         participant1_to_participant2_relation
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Create participants
         p1 = Participant(external_id='BobbyBooBoo', is_proband=False)
@@ -340,7 +340,7 @@ class ModelTest(FlaskTestCase):
         Create family relationships and required entities
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Create participants
         # Father of p3

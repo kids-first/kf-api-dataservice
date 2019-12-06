@@ -166,7 +166,8 @@ class StudyTest(FlaskTestCase):
         body = {
             'external_id': external_id,
             'version': '1.0',
-            'release_status': 'Pending'
+            'release_status': 'Pending',
+            'study_code': 'KF-ST0'
         }
         if include_nullables:
             body.update({'investigator_id': inv.kf_id})

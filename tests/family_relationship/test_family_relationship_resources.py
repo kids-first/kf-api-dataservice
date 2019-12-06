@@ -1,5 +1,6 @@
 import json
 from pprint import pprint
+from random import randint
 from flask import url_for
 from urllib.parse import urlparse
 from sqlalchemy import or_
@@ -205,7 +206,7 @@ class FamilyRelationshipTest(FlaskTestCase):
         self.assertEqual(len(content), 4)
 
         # Add another study with a family and relationships
-        s2 = Study(external_id='phs002')
+        s2 = Study(external_id='phs002', study_code='KF-ST0')
         f2 = Family(external_id='phs002-family')
         p_1 = Participant(external_id='Fred_1', is_proband=False)
         p_2 = Participant(external_id='Wilma_1',  is_proband=False)
@@ -244,7 +245,8 @@ class FamilyRelationshipTest(FlaskTestCase):
         Save participant
         """
         # Create study
-        study = Study(external_id='phs001')
+        sc = f'KF-ST{randint(0,9)}{randint(0,9)}'
+        study = Study(external_id='phs001', study_code=sc)
 
         # Create participants
         p1 = Participant(external_id='Fred', is_proband=False)

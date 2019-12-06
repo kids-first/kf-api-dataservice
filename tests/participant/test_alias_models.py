@@ -17,7 +17,7 @@ class ModelTest(FlaskTestCase):
         """
         Create participants
         """
-        s = Study(external_id='phs001')
+        s = Study(external_id='phs001', study_code='KF-ST0')
 
         particpant_data = {}
         for i in range(n):

@@ -318,7 +318,7 @@ class ModelTest(FlaskTestCase):
         Create participant with required entities
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         names = ['Fred', 'Wilma', 'Pebbles', 'Dino']
         proband = [True, False]

@@ -108,7 +108,7 @@ class ModelTest(FlaskTestCase):
             db.session.commit()
 
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Participants
         p = Participant(external_id='p0',
@@ -157,9 +157,9 @@ class ModelTest(FlaskTestCase):
         gfs = self._create_participants_and_dependents()
 
         ct1 = self._create_task('ct1',
-                                         genomic_files=gfs[0:2])
+                                genomic_files=gfs[0:2])
         ct2 = self._create_task('ct2',
-                                         genomic_files=gfs[2:])
+                                genomic_files=gfs[2:])
         tasks = [ct1, ct2]
 
         data = {

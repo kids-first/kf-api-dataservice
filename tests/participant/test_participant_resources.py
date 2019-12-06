@@ -47,7 +47,7 @@ class ParticipantTest(FlaskTestCase):
         """
         Test creating a new participant with a predetermined kf_id
         """
-        s = Study(external_id='phs001')
+        s = Study(external_id='phs001', study_code='KF-ST0')
         db.session.add(s)
         db.session.commit()
 
@@ -259,7 +259,7 @@ class ParticipantTest(FlaskTestCase):
         Convenience method to create a participant with a given source name
         """
         # Make required entities first
-        s = Study(external_id='phs001')
+        s = Study(external_id='phs001', study_code='KF-ST0')
         fam = Family(external_id='family0')
         db.session.add_all([s, fam])
         db.session.commit()

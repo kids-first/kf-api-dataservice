@@ -171,7 +171,7 @@ class BiospecimenGenomicFileTest(FlaskTestCase):
             db.session.commit()
 
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
 
         # Participants
         p = Participant(external_id='p0',

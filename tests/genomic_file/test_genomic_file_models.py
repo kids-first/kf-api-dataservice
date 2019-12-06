@@ -265,7 +265,7 @@ class ModelTest(IndexdTestCase):
         Dependent entities: participant, biospecimens
         """
         # Create study
-        study = Study(external_id='phs001')
+        study = Study(external_id='phs001', study_code='KF-ST0')
         # Create participant
         p = Participant(external_id='p1',
                         biospecimens=self._create_biospecimens(),

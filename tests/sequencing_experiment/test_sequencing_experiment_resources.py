@@ -215,7 +215,7 @@ class SequencingExperimentTest(IndexdTestCase):
         ses = {}
         gfs = {}
         for j in range(2):
-            s = Study(external_id='s{}'.format(j))
+            s = Study(external_id='s{}'.format(j), study_code=f'KF-ST{j}')
             p = Participant(external_id='p{}'.format(j))
             s.participants.append(p)
             study_gfs = gfs.setdefault('study{}'.format(j), [])

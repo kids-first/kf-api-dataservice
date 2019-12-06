@@ -34,7 +34,7 @@ class ModelTest(FlaskTestCase):
         """
         Test that a request is sent to create a new bucket
         """
-        s = Study(external_id='phs002')
+        s = Study(external_id='phs002', study_code='KF-ST0')
         db.session.add(s)
         db.session.commit()
         assert self.bucket_service.post.call_count == 1
@@ -62,7 +62,7 @@ class ModelTest(FlaskTestCase):
         self.assertIn(p_new, Study.query.get(study.kf_id).participants)
 
         # Change participant's study
-        s = Study(external_id='phs002')
+        s = Study(external_id='phs002', study_code='KF_ST0')
         p0 = participants[0]
         p0.study = s
         db.session.commit()

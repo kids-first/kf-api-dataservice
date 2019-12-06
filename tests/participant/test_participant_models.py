@@ -17,7 +17,7 @@ class ModelTest(FlaskTestCase):
         """
         Create participant with external id
         """
-        s = Study(external_id='phs001')
+        s = Study(external_id='phs001', study_code='KF-ST0')
         data = {
             'external_id': external_id,
             'is_proband': False,
@@ -43,7 +43,7 @@ class ModelTest(FlaskTestCase):
         """
         Test that modified_at is updated when model is updated
         """
-        s = Study(external_id='phs001')
+        s = Study(external_id='phs001', study_code='KF-ST0')
         p = Participant(study=s, external_id='test01', is_proband=True)
         db.session.add(p)
         db.session.commit()
