@@ -97,3 +97,39 @@ def list_validation_generator(valid_items, items_name='items'):
                 f'valid set: {", ".join(valid_items)}'
             )
     return validate_list
+
+
+def alphanumeric_str_validation_generator(field_name, quantifier_regex='+'):
+    """
+    Generate a function to validate alphanumeric strings.
+
+    Length of string is not validated by default, but can be using
+    `quantifier_regex` which must be a valid quantifier regex pattern.
+    For example quantifier_regex={3, 6} will check that string has a min
+    length of 3 and max length of 6.
+
+    :param field_name: Name of the field/attribute that is being validated
+    :type field_name: str
+    :param quantifier_regex: Regex pattern to check for min, max length.
+    :type quantifier_regex: str
+
+    :returns: validation function
+    """
+    assert isinstance(quantifier_regex, str), (
+        '`quantifier_regex` must be a string formatted as a valid quantifier '
+        'regex pattern (e.g. {3,6})!'
+    )
+
+    def validate_alphanumeric_str(value):
+        m = re.search('^[a-zA-Z0-9_-]' + quantifier_regex + '$', value)
+        if not m:
+            msg = (
+                f'Invalid value for `{field_name}`. Must be an alphanumeric '
+                f'string. '
+            )
+            if quantifier_regex != '+':
+                msg += (
+                    f'String must have min, max length of {quantifier_regex}'
+                )
+            raise ValidationError(msg)
+    return validate_alphanumeric_str
