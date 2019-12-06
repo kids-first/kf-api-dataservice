@@ -4,7 +4,10 @@ from dataservice.api.study.models import Study
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
-from dataservice.api.common.validation import enum_validation_generator
+from dataservice.api.common.validation import (
+    enum_validation_generator,
+    alphanumeric_str_validation_generator
+)
 
 RELEASE_STATUS_ENUM = {'Pending', 'Waiting', 'Running', 'Staged',
                        'Publishing', 'Published', 'Failed', 'Canceled'}
@@ -19,6 +22,10 @@ class StudySchema(BaseSchema):
     release_status = field_for(Study, 'release_status',
                                validate=enum_validation_generator(
                                    RELEASE_STATUS_ENUM))
+    study_code = field_for(
+        Study, 'study_code',
+        validate=alphanumeric_str_validation_generator('study_code', '{3,7}')
+    )
 
     class Meta(BaseSchema.Meta):
         model = Study

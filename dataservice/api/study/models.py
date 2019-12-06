@@ -36,6 +36,8 @@ class Study(db.Model, Base):
                         doc='dbGaP version')
     name = db.Column(db.Text(),
                      doc='Name or title of study')
+    study_code = db.Column(db.Text(), unique=True, nullable=False,
+                           doc='Alphanumeric string to identify the study')
     short_name = db.Column(db.Text(),
                            doc='Short name for study')
     attribution = db.Column(db.Text(),
