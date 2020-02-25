@@ -5,6 +5,8 @@ services:
     image: postgres:11.1
     environment:
       POSTGRES_DB: "dataservice"
+    ports:
+        - "5432:5432"
   dataservice:
     build: .
     command: /bin/ash -c "sleep 5; ./bin/run.sh"
