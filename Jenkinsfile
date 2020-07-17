@@ -4,7 +4,7 @@ ecs_service_type_1_standard {
     create_sns_topic = "1"
     environments = "dev,qa,prd"
     docker_image_type = "alpine"
-    entrypoint_command = "yarn start"
+    entrypoint_command = "/app/bin/run.sh"
     deploy_scripts_version = "master"
     quick_deploy = "true"
     external_config_repo = "false"
