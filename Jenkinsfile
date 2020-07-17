@@ -1,6 +1,7 @@
 @Library(value='kids-first/aws-infra-jenkins-shared-libraries', changelog=false) _
 ecs_service_type_1_standard {
     projectName = "kf-api-dataservice"
+    create_sns_topic = "1"
     environments = "dev,qa,prd"
     docker_image_type = "apline"
     entrypoint_command = "yarn start"
