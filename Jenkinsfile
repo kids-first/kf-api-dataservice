@@ -2,6 +2,8 @@
 ecs_service_type_1_standard {
     projectName = "kf-api-dataservice"
     create_sns_topic = "1"
+    additional_internal_alb = "1"
+    internal_app = "false"
     environments = "dev,qa,prd"
     docker_image_type = "alpine"
     entrypoint_command = "/app/bin/run.sh"
