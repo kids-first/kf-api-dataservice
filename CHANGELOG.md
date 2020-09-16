@@ -1,3 +1,19 @@
+# Kids First DataService Change History
+
+## Release 1.11.1
+
+### Summary
+
+- Emojis: 🐳 x1, ⏪ x1, ✨ x1, ? x1
+- Categories: Ops x1, Removals x1, Additions x1, Other Changes x1
+
+### New features and changes
+
+- [#554](https://github.com/kids-first/kf-api-dataservice/pull/554) -  :wrench: Migrated to the standard deploy - [ccb5b36b](https://github.com/kids-first/kf-api-dataservice/commit/ccb5b36b0f031a527dfdd7dd527f2d71eb991d88) by [alubneuski](https://github.com/alubneuski)
+- [#551](https://github.com/kids-first/kf-api-dataservice/pull/551) - 🐳 Publish port for postgres database - [b4d8983f](https://github.com/kids-first/kf-api-dataservice/commit/b4d8983fa3dfbf9097675ffd46c828bfb7163f20) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#548](https://github.com/kids-first/kf-api-dataservice/pull/548) - ⏪ Revert authz changes - [665fb538](https://github.com/kids-first/kf-api-dataservice/commit/665fb538a393f77512a588f53820e6468f8b6503) by [dankolbman](https://github.com/dankolbman)
+- [#539](https://github.com/kids-first/kf-api-dataservice/pull/539) - ✨ Add Indexd authz field - [e76c79c2](https://github.com/kids-first/kf-api-dataservice/commit/e76c79c2bdcd3416263bf5fc0d6f2da1532ed6b2) by [dankolbman](https://github.com/dankolbman)
+
 # Kids First Dataservice Release 1.11.0
 
 ## Features
