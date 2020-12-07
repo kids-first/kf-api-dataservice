@@ -19,7 +19,7 @@ from dataservice.api.common.validation import (
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other", "Virtual"}
 SAMPLE_PROCUREMENT_ENUM = {"Autopsy", "Biopsy", "Subtotal Resections",
                            "Gross Total Resections", "Blood Draw",
-                           "Other"}
+                           "Bone Marrow Aspirate", "Other"}
 # Codes from http://purl.obolibrary.org/obo/duo.owl
 DUO_ID_BIOSPECIMEN_ENUM = {
     "DUO:0000021", "DUO:0000006", "DUO:0000019", "DUO:0000026", "DUO:0000020",
