@@ -11,6 +11,7 @@ ecs_service_type_1_standard {
     quick_deploy = "true"
     external_config_repo = "false"
     container_port = "80"
+    prd_cidr                   = "10.12.0.0/16"
     vcpu_container             = "2048"
     memory_container           = "4096"
     vcpu_task                  = "2048"
