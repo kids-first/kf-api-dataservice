@@ -1,5 +1,19 @@
 # Kids First DataService Change History
 
+## Release 1.12.0
+
+### Summary
+
+- Emojis: 💬 x2, 🐛 x1
+- Categories: Fixes x3
+
+### New features and changes
+
+- [#562](https://github.com/kids-first/kf-api-dataservice/pull/562) - 💬 Add familial collection labels - [b48f88c9](https://github.com/kids-first/kf-api-dataservice/commit/b48f88c954d1b17edd927b0f2cea57198fe69f7b) by [fiendish](https://github.com/fiendish)
+- [#560](https://github.com/kids-first/kf-api-dataservice/pull/560) - 🐛 Added CIDR for prd - [01f5eb2d](https://github.com/kids-first/kf-api-dataservice/commit/01f5eb2d8d9472e7861ebc23269ec8ab49ef958c) by [alubneuski](https://github.com/alubneuski)
+- [#559](https://github.com/kids-first/kf-api-dataservice/pull/559) - 💬 Add procurement string for marrow - [2fa31e22](https://github.com/kids-first/kf-api-dataservice/commit/2fa31e2283dbc8d5b5f835af5daa89ca03cf4c08) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.11.1
 
 ### Summary
