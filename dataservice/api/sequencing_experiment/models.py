@@ -64,7 +64,7 @@ class SequencingExperiment(db.Model, Base):
                            doc='Mean depth or coverage describes the amount of'
                            ' sequence data that is available per position in'
                            ' the sequenced genome territory')
-    total_reads = db.Column(db.Integer(),
+    total_reads = db.Column(db.BigInteger(),
                             doc='Total reads of the sequencing experiment')
     mean_read_length = db.Column(db.Float(),
                                  doc='Mean lenth of the reads')
