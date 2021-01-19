@@ -61,7 +61,7 @@ pip install -e .
 # Configure the flask application
 export FLASK_APP=manage
 # Setup the database (using a dockerized postgres)
-docker run --name dataservice-pg -p 5432:5432 -d postgres:9.5
+docker run -e POSTGRES_HOST_AUTH_METHOD=trust --name dataservice-pg -p 5432:5432 -d postgres:9.5
 docker exec dataservice-pg psql -U postgres -c "CREATE DATABASE dev;"
 flask db migrate
 flask db upgrade
@@ -158,7 +158,7 @@ Unit tests and pep8 linting is run via `flask test`
 # Install test dependencies
 pip install -r dev-requirements.txt
 # Setup test database
-docker run --name dataservice-pg -p 5432:5432 -d postgres
+docker run -e POSTGRES_HOST_AUTH_METHOD=trust --name dataservice-pg -p 5432:5432 -d postgres
 docker exec dataservice-pg psql -U postgres -c "CREATE DATABASE test;"
 # Run tests
 flask test
