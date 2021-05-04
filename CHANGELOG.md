@@ -1,5 +1,19 @@
 # Kids First DataService Change History
 
+## Release 1.13.0
+
+### Summary
+
+- Emojis: ✨ x1, 🐛 x1, 📝 x1
+- Categories: Additions x1, Documentation x1, Fixes x1
+
+### New features and changes
+
+- [#572](https://github.com/kids-first/kf-api-dataservice/pull/572) - ✨ Add Fly and 🐭 - [8980e6b6](https://github.com/kids-first/kf-api-dataservice/commit/8980e6b6270e96e0911a5eb99c3b32f187b700b4) by [liberaliscomputing](https://github.com/liberaliscomputing)
+- [#565](https://github.com/kids-first/kf-api-dataservice/pull/565) - 🐛 Allow larger values for SE total_reads - [98f69e74](https://github.com/kids-first/kf-api-dataservice/commit/98f69e747f72a1b780b748f8d713a57c01c41111) by [fiendish](https://github.com/fiendish)
+- [#566](https://github.com/kids-first/kf-api-dataservice/pull/566) - 📝 Update development init instructions - [99d4dcff](https://github.com/kids-first/kf-api-dataservice/commit/99d4dcffa7a9a6b73cd61b64e8470b87b27a61a9) by [fiendish](https://github.com/fiendish)
+
+
 ## Release 1.12.0
 
 ### Summary
