@@ -23,7 +23,7 @@ DIAGNOSIS_CATEGORY_ENUM = {'Structural Birth Defect', 'Cancer',
 SPECIES_ENUM = {
     'Canis lupus familiaris',
     'Drosophila melanogaster',
-    'Homo Sapiens',
+    'Homo sapiens',
     'Mus musculus',
 }
 

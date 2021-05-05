@@ -22,7 +22,7 @@
         "/participants": {
             "is_proband": true,
             "race": "Asian",
-            "species": "Homo Sapiens",
+            "species": "Homo sapiens",
             "ethnicity": "Hispanic or Latino",
             "gender": "Male",
             "visible": true,
@@ -166,7 +166,7 @@
                 "is_proband": false,
                 "gender": "Female",
                 "diagnosis_category": "Cancer",
-                "species": "Homo Sapiens",
+                "species": "Homo sapiens",
                 "species": "Canis lupus familiaris"
             },
             "invalid": [
