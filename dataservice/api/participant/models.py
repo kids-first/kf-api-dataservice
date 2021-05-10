@@ -13,12 +13,10 @@ from dataservice.api.phenotype.models import Phenotype
 class AliasGroup(db.Model, Base):
     """
     Alias group.
-
     Each record in this table represents a group of particpants who are
     aliased to each other (they are all the same person, but have distinct
     entries in the participant table). Participants with the same
     alias_group_id are all aliases of each other.
-
     :param kf_id: Unique id given by the Kid's First DCC
     :param created_at: Time of object creation
     :param modified_at: Last time of object modification
@@ -33,7 +31,6 @@ class AliasGroup(db.Model, Base):
 class Participant(db.Model, Base):
     """
     Participant entity.
-
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_id: Name given to participant by contributor
     :param family_id: Id for the participants grouped by family
@@ -68,7 +65,7 @@ class Participant(db.Model, Base):
         doc='Denotes whether participant is affected')
     diagnosis_category = db.Column(db.Text(),
                                    doc='High level diagnosis categorization')
-    species = db.Column(db.Text(), default='Homo Sapiens',
+    species = db.Column(db.Text(), default='Homo sapiens',
                         doc='The species of the research particpant')
     diagnoses = db.relationship(Diagnosis,
                                 cascade='all, delete-orphan',
@@ -95,22 +92,16 @@ class Participant(db.Model, Base):
         """
         A convenience method to make participant 'pt'
         an alias of participant 'self'.
-
         There are 4 cases to consider:
-
         1) Participant pt and self have not been assigned an alias
         group. Create a new alias group and add both particpants to it.
-
         2) Participant pt does not have an alias group, but participant self
         does. Add pt to self's alias group.
-
         3) Participant self does not have an alias group but particpant pt
         does. Add self to pt's alias group
-
         4) Both participants already have an alias group. Find which particpant
         has the smaller alias group and merge all particpants in the
         smaller group into the larger group
-
         ** NOTE ** A particpant's aliases can also be created manually by
         direct manipulation of the particpants in an AliasGroup or
         the particpant's alias_group_id. However, then it is completely up to
@@ -159,7 +150,6 @@ class Participant(db.Model, Base):
     def aliases(self):
         """
         Retrieve aliases of participant
-
         Return all participants with same alias group id
         """
         if self.alias_group:
