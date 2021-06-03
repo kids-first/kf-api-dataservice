@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.13.1
+
+### Summary
+
+- Emojis: 🐛 x1
+- Categories: Fixes x1
+
+### New features and changes
+
+- [#575](https://github.com/kids-first/kf-api-dataservice/pull/575) - 🐛 Fix Homo sapiens casing - [97ea96d9](https://github.com/kids-first/kf-api-dataservice/commit/97ea96d9372bba659d17229351e151bde86c6edd) by [liberaliscomputing](https://github.com/liberaliscomputing)
+
+
 ## Release 1.13.0
 
 ### Summary
