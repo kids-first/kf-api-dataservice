@@ -20,7 +20,12 @@ RACE_ENUM = {
 DIAGNOSIS_CATEGORY_ENUM = {'Structural Birth Defect', 'Cancer',
                            'Structural Birth Defect and Cancer',
                            'Other', 'None'}
-SPECIES_ENUM = {'Homo Sapiens', 'Canis lupus familiaris'}
+SPECIES_ENUM = {
+    'Canis lupus familiaris',
+    'Drosophila melanogaster',
+    'Homo sapiens',
+    'Mus musculus',
+}
 
 
 class ParticipantSchema(BaseSchema):
