@@ -34,11 +34,11 @@ class ModelTest(FlaskTestCase):
         """
         Test that a request is sent to create a new bucket
         """
-        s = Study(external_id='phs002')
+        s = Study(external_id='phs002', short_code='KF-ST0')
         db.session.add(s)
         db.session.commit()
         assert self.bucket_service.post.call_count == 1
-        
+
         headers = {'Authorization': 'Bearer test123'}
         self.bucket_service.post.assert_called_with('/buckets',
                                                     json={'study_id': s.kf_id},
@@ -62,7 +62,7 @@ class ModelTest(FlaskTestCase):
         self.assertIn(p_new, Study.query.get(study.kf_id).participants)
 
         # Change participant's study
-        s = Study(external_id='phs002')
+        s = Study(external_id='phs002', short_code='KF_ST0')
         p0 = participants[0]
         p0.study = s
         db.session.commit()
@@ -147,6 +147,7 @@ class ModelTest(FlaskTestCase):
                             'aa/wga.cgi?view_pdf&stacc=phs000178.v9.p8'),
             'external_id': 'phs001',
             'name': 'study1',
+            'short_code': 'KF-ST1',
             'short_name': 'S1',
             'version': 'v1',
             'release_status': 'Pending'

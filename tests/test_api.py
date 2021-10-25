@@ -180,6 +180,8 @@ class TestAPI:
         entity = entities.get(model_cls)[0]
         _add_foreign_keys(inputs, entity)
         [inputs.update({field: 'test'}) for field in fields]
+        if endpoint == '/studies':
+            inputs['short_code'] = 'KF-ST0'
 
         # Setup enpdoint
         url = endpoint

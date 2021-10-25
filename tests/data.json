@@ -1,10 +1,13 @@
 {
     "fields": {
-        "/studies": {"external_id": "Study_0",
-                     "version": "v1",
-                     "release_status": "Pending"},
-        "/investigators": {"name": "Investigator_0",
-                           "external_id": "inv001"},
+        "/studies": {
+            "external_id": "Study_0",
+            "version": "v1",
+            "release_status": "Pending",
+            "program": "Kids First",
+            "domain": "Cancer"
+        },
+        "/investigators": { "name": "Investigator_0", "external_id": "inv001" },
         "/study-files": {
             "external_id": "File_0",
             "file_name": "test_file_name 1",
@@ -13,11 +16,10 @@
             "availability": "Immediate Download",
             "size": 1000,
             "urls": ["s3://bucket/key"],
-            "hashes": {"md5": "1ab12165-7351-4744-921c-a97a19b84773"}
+            "hashes": { "md5": "1ab12165-7351-4744-921c-a97a19b84773" }
         },
-        "/families": {"external_id": "Family_0",
-          "family_type": "Trio"},
-        "/family-relationships": {"source_text_notes": "Notes 1"},
+        "/families": { "external_id": "Family_0", "family_type": "Trio" },
+        "/family-relationships": { "source_text_notes": "Notes 1" },
         "/sequencing-centers": {},
         "/participants": {
             "is_proband": true,
@@ -94,7 +96,7 @@
             "size": 1000,
             "paired_end": 1,
             "urls": ["s3://bucket/key"],
-            "hashes": {"md5": "1ab12165-7351-4744-921c-a97a19b84773"},
+            "hashes": { "md5": "1ab12165-7351-4744-921c-a97a19b84773" },
             "controlled_access": false,
             "availability": "Immediate Download",
             "visible": true
@@ -115,16 +117,19 @@
         },
         "/tasks": {
             "name": "CavaticaTask_0",
-            "external_task_id": "1ab12165-7351-4744-921c-a97a19b84773"},
+            "external_task_id": "1ab12165-7351-4744-921c-a97a19b84773"
+        },
         "/task-genomic-files": {},
         "/read-group-genomic-files": {},
         "/sequencing-experiment-genomic-files": {}
-
     },
     "filter_params": {
         "/studies": {
             "valid": {
-                "external_id": "Study_1"
+                "external_id": "Study_1",
+                "short_code": "KF-ST0",
+                "program": "Kids First",
+                "domain": "Cancer"
             },
             "invalid": []
         },
@@ -151,15 +156,13 @@
                 "external_id": "Family_1",
                 "family_type": "Trio"
             },
-            "invalid": [{"family_type": "Tio"}]
+            "invalid": [{ "family_type": "Tio" }]
         },
         "/family-relationships": {
             "valid": {
                 "participant1_to_participant2_relation": "mother"
             },
-            "invalid": [
-                {"participant_id": "PA: 00001111"}
-            ]
+            "invalid": [{ "participant_id": "PA: 00001111" }]
         },
         "/participants": {
             "valid": {
@@ -170,9 +173,14 @@
                 "species": "Canis lupus familiaris"
             },
             "invalid": [
-                {"is_proband": "hello"},
-                {"gender": "test", "race": "test", "ethnicity": "test",
-                "diagnosis_category": "ancer", "species": "kitty"}
+                { "is_proband": "hello" },
+                {
+                    "gender": "test",
+                    "race": "test",
+                    "ethnicity": "test",
+                    "diagnosis_category": "ancer",
+                    "species": "kitty"
+                }
             ]
         },
         "/biospecimens": {
@@ -184,10 +192,10 @@
                 "method_of_sample_procurement": "Autopsy"
             },
             "invalid": [
-                {"age_at_event_days": -1, "shipment_date": "hai der"},
-                {"age_at_event_days": "hello"},
-                {"analyte_type": "test"},
-                {"method_of_sample_procurement": "foo"}
+                { "age_at_event_days": -1, "shipment_date": "hai der" },
+                { "age_at_event_days": "hello" },
+                { "analyte_type": "test" },
+                { "method_of_sample_procurement": "foo" }
             ]
         },
         "/diagnoses": {
@@ -197,9 +205,9 @@
                 "age_at_event_days": 100
             },
             "invalid": [
-                {"age_at_event_days": -1},
-                {"age_at_event_days": "hello"},
-                {"diagnosis_category": "test"}
+                { "age_at_event_days": -1 },
+                { "age_at_event_days": "hello" },
+                { "diagnosis_category": "test" }
             ]
         },
         "/outcomes": {
@@ -208,10 +216,9 @@
                 "vital_status": "Deceased"
             },
             "invalid": [
-                {"age_at_event_days": -1},
-                {"age_at_event_days": "hello"},
-                {"vital_status": "test"}
-
+                { "age_at_event_days": -1 },
+                { "age_at_event_days": "hello" },
+                { "vital_status": "test" }
             ]
         },
         "/phenotypes": {
@@ -219,8 +226,8 @@
                 "external_id": "Phenotype_1"
             },
             "invalid": [
-                {"age_at_event_days": -1},
-                {"age_at_event_days": "hello"}
+                { "age_at_event_days": -1 },
+                { "age_at_event_days": "hello" }
             ]
         },
         "/sequencing-experiments": {
@@ -230,17 +237,17 @@
                 "experiment_date": ""
             },
             "invalid": [
-                {"experiment_date": "hai der"},
-                {"mean_insert_size": -12},
-                {"max_insert_size": -12},
-                {"mean_depth": -12},
-                {"mean_read_length": -12},
-                {"total_reads": -12},
-                {"experiment_strategy": "test"},
-                {"platform": "test"},
-                {"library_strand": "test"},
-                {"library_selection": "selection"},
-                {"library_prep": "prep"}
+                { "experiment_date": "hai der" },
+                { "mean_insert_size": -12 },
+                { "max_insert_size": -12 },
+                { "mean_depth": -12 },
+                { "mean_read_length": -12 },
+                { "total_reads": -12 },
+                { "experiment_strategy": "test" },
+                { "platform": "test" },
+                { "library_strand": "test" },
+                { "library_selection": "selection" },
+                { "library_prep": "prep" }
             ]
         },
         "/genomic-files": {
@@ -251,21 +258,19 @@
                 "data_type": "Expression"
             },
             "invalid": [
-                {"paired_end": -1},
-                {"paired_end": "one"},
-                {"controlled_access": "hello", "size": "hello"},
-                {"availability": "availble for download"},
-                {"data_type": "read"}
+                { "paired_end": -1 },
+                { "paired_end": "one" },
+                { "controlled_access": "hello", "size": "hello" },
+                { "availability": "availble for download" },
+                { "data_type": "read" }
             ]
         },
         "/biospecimen-genomic-files": {
-            "valid": {
-            },
+            "valid": {},
             "invalid": []
         },
         "/biospecimen-diagnoses": {
-            "valid": {
-            },
+            "valid": {},
             "invalid": []
         },
         "/read-groups": {
@@ -275,9 +280,9 @@
                 "quality_scale": "Illumina15"
             },
             "invalid": [
-                {"lane_number": "two"},
-                {"lane_number": -1},
-                {"quality_scale": "none"}
+                { "lane_number": "two" },
+                { "lane_number": -1 },
+                { "quality_scale": "none" }
             ]
         },
         "/cavatica-apps": {
@@ -285,10 +290,10 @@
                 "name": "App_1"
             },
             "invalid": [
-                {"revision": -5},
-                {"revision": "hey"},
-                {"github_commit_url": "not a url"},
-                {"github_commit_url": "google.com"}
+                { "revision": -5 },
+                { "revision": "hey" },
+                { "github_commit_url": "not a url" },
+                { "github_commit_url": "google.com" }
             ]
         },
         "/tasks": {
@@ -301,18 +306,14 @@
             "valid": {
                 "is_input": true
             },
-            "invalid": [
-                {"is_input": "hello"}
-            ]
+            "invalid": [{ "is_input": "hello" }]
         },
         "/read-group-genomic-files": {
-            "valid": {
-            },
+            "valid": {},
             "invalid": []
         },
         "/sequencing-experiment-genomic-files": {
-            "valid": {
-            },
+            "valid": {},
             "invalid": []
         }
     }
