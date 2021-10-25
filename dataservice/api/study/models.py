@@ -36,6 +36,18 @@ class Study(db.Model, Base):
                         doc='dbGaP version')
     name = db.Column(db.Text(),
                      doc='Name or title of study')
+    program = db.Column(
+        db.Text(),
+        doc='The project/program the study is a part of'
+    )
+    domain = db.Column(
+        db.Text(),
+        doc='The diagnosis domain of the study (e.g. Cancer)'
+    )
+    short_code = db.Column(
+        db.Text(),
+        doc='Alphanumeric string to identify the study'
+    )
     short_name = db.Column(db.Text(),
                            doc='Short name for study')
     attribution = db.Column(db.Text(),
