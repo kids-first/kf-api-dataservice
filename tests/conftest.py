@@ -165,6 +165,8 @@ def make_entities(client):
                             'filter_params')[endpoint]['valid'])
                 if model == Participant:
                     data['external_id'] = 'Participant_{}'.format(i)
+                if model == Study:
+                    data['short_code'] = f'KF_ST{i}'
                 if model == SequencingCenter:
                     _name = 'SequencingCenter_{}'.format(i)
                     data['name'] = _name

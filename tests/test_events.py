@@ -34,7 +34,7 @@ class TestEvents:
         assert mock().publish.call_count == 0
 
     @pytest.mark.parametrize('endpoint,method,data', [
-        ('/studies', 'POST', {'external_id': 'blah'}),
+        ('/studies', 'POST', {'external_id': 'blah', 'short_code': 'KF-ST0'}),
     ])
     def test_message(self, app, client, mocker, endpoint, method,
                      data, sns_topic):

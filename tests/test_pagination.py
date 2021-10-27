@@ -47,7 +47,11 @@ class TestPagination:
 
         # Add a bunch of studies for pagination
         for i in range(101):
-            s = Study(external_id='Study_{}'.format(i))
+            params = {
+                'external_id': f'Study_{i}',
+                'short_code': f'KF_{i}'
+            }
+            s = Study(**params)
             db.session.add(s)
 
         for i in range(101):
@@ -306,7 +310,8 @@ class TestPagination:
         paginated correctly
         """
         created_at = datetime.now()
-        studies = [Study(external_id=f'Study_{i}') for i in range(50)]
+        studies = [Study(external_id=f'Study_{i}', short_code=f'KF-ST{i}')
+                   for i in range(50)]
         db.session.add_all(studies)
         db.session.flush()
         for study in studies:
