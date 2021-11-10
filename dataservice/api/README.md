@@ -1,6 +1,6 @@
-<center>
-![Kids First](/logo)
-</center>
+<p align="center">
+  <img src="../../docs/dataservice.png" alt="Data Service">
+</p>
 
 Welcome to the developer documentation for the Kids First Dataservice API!
 
