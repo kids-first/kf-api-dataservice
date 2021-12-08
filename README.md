@@ -5,7 +5,7 @@
   <a href="https://github.com/kids-first/kf-api-dataservice/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-api-dataservice.svg?style=for-the-badge"></a>
   <a href="http://kf-api-dataservice-qa.kids-first.io/"><img src="https://img.shields.io/readthedocs/pip.svg?style=for-the-badge"></a>
   <a href="https://circleci.com/gh/kids-first/kf-api-dataservice/13?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link"><img src="https://img.shields.io/circleci/project/github/kids-first/kf-api-dataservice/master.svg?style=for-the-badge"></a>
-  <a href="https://app.codacy.com/app/kids-first/kf-api-dataservice/dashboard"><img src="https://img.shields.io/codacy/grade/534528baa6d544ca9c2e2fbaad8d3a29/master.svg?style=for-the-badge"></a>
+  <a href="https://app.codacy.com/app/kids-first/kf-api-dataservice/dashboard"><img src="https://img.shields.io/codacy/grade/fe69188856a848f28d86627e60cc09b7/master?style=for-the-badge"></a>
 </p>
 
 Kids First Data Service
