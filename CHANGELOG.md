@@ -1,5 +1,20 @@
 # Kids First DataService Change History
 
+## Release 1.14.0
+
+### Summary
+
+- Emojis: 📝 x1, ✨ x2, 📌 x1
+- Categories: Additions x2, Documentation x1, Ops x1
+
+### New features and changes
+
+- [#582](https://github.com/kids-first/kf-api-dataservice/pull/582) - 📝 Update project ID in link to codacy badge - [137aff2d](https://github.com/kids-first/kf-api-dataservice/commit/137aff2d5a12bb5a53b4a08b86cb869c63f0696e) by [znatty22](https://github.com/znatty22)
+- [#581](https://github.com/kids-first/kf-api-dataservice/pull/581) - ✨ Add Methylation to EXPERIMENT_STRATEGY_ENUM - [3b484b8c](https://github.com/kids-first/kf-api-dataservice/commit/3b484b8c20078ef6a7de0688eaffbca717f2ae51) by [youngnm](https://github.com/youngnm)
+- [#550](https://github.com/kids-first/kf-api-dataservice/pull/550) - ✨ Add study fields: short_code, program, domain - [d074e9bf](https://github.com/kids-first/kf-api-dataservice/commit/d074e9bf62c8519e76cc3fc6ea4e2a668dafb712) by [znatty22](https://github.com/znatty22)
+- [#577](https://github.com/kids-first/kf-api-dataservice/pull/577) - 📌 Pin PyYAML to avoid apispec breaking - [e34e284f](https://github.com/kids-first/kf-api-dataservice/commit/e34e284fc109733b2b435c3ed92a139b45298578) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.13.1
 
 ### Summary
