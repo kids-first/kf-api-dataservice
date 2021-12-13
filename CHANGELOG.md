@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.14.1
+
+### Summary
+
+- Emojis: 👷‍♀️ x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#583](https://github.com/kids-first/kf-api-dataservice/pull/583) - 👷‍♀️ Automate tagging and release generation - [846cfb92](https://github.com/kids-first/kf-api-dataservice/commit/846cfb9237f116907d1742c5e3618ecd03b1c135) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.14.0
 
 ### Summary
