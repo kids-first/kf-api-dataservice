@@ -1,5 +1,18 @@
 # Kids First DataService Change History
 
+## Release 1.15.0
+
+### Summary
+
+- Emojis: ✨ x1, 👷‍♀️ x1
+- Categories: Additions x1, Other Changes x1
+
+### New features and changes
+
+- [#587](https://github.com/kids-first/kf-api-dataservice/pull/587) - ✨ Add Predisposition to DIAGNOSIS_CATEGORY_ENUM - [20eb95af](https://github.com/kids-first/kf-api-dataservice/commit/20eb95afe2cc4fa594433fd0a8c102c9c3aee6b0) by [youngnm](https://github.com/youngnm)
+- [#583](https://github.com/kids-first/kf-api-dataservice/pull/583) - 👷‍♀️ Automate tagging and release generation - [846cfb92](https://github.com/kids-first/kf-api-dataservice/commit/846cfb9237f116907d1742c5e3618ecd03b1c135) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.14.0
 
 ### Summary
