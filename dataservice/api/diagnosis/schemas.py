@@ -16,6 +16,7 @@ from dataservice.api.common.validation import (
 
 DIAGNOSIS_CATEGORY_ENUM = {'Structural Birth Defect',
                            'Cancer',
+                           'Predisposition',
                            'Other'}
 
 
