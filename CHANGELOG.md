@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.16.0
+
+### Summary
+
+- Emojis: ✨ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#589](https://github.com/kids-first/kf-api-dataservice/pull/589) - ✨ add data_type enums of bix workflows - [ebcc507e](https://github.com/kids-first/kf-api-dataservice/commit/ebcc507ed9e412cd525b3f5d280aa752b9da20bf) by [chris-s-friedman](https://github.com/chris-s-friedman)
+
+
 ## Release 1.15.0
 
 ### Summary
