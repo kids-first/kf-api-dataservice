@@ -17,27 +17,114 @@ from dataservice.api.common.schemas import (
     AVAILABILITY_ENUM
 )
 
-DATA_TYPE_ENUM = {'Aligned Reads',
-                  'Aligned Reads Index',
-                  'Annotated Somatic Mutations',
-                  'Expression',
-                  'Gene Expression',
-                  'Gene Fusions',
-                  'gVCF',
-                  'gVCF Index',
-                  'Histology Images',
-                  'Isoform Expression',
-                  'Operation Reports',
-                  'Other',
-                  'Pathology Reports',
-                  'Radiology Images',
-                  'Radiology Reports',
-                  'Simple Nucleotide Variations',
-                  'Somatic Copy Number Variations',
-                  'Somatic Structural Variations',
-                  'Unaligned Reads',
-                  'Variant Calls',
-                  'Variant Calls Index'}
+DATA_TYPE_ENUM = {
+                 # TODO: Remove the old data types that are plurals
+                 #  Old data types
+                 'Aligned Reads',  # ! deprecated
+                 'Aligned Reads Index',  # ! deprecated
+                 'Annotated Somatic Mutations',  # ! deprecated
+                 'Expression',
+                 'Gene Expression',
+                 'Gene Fusions',  # ! deprecated
+                 'gVCF',
+                 'gVCF Index',
+                 'Histology Images',  # ! deprecated
+                 'Isoform Expression',
+                 'Operation Reports',  # ! deprecated
+                 'Other',
+                 'Pathology Reports',  # ! deprecated
+                 'Radiology Images',  # ! deprecated
+                 'Radiology Reports',  # ! deprecated
+                 'Simple Nucleotide Variations',  # ! deprecated
+                 'Somatic Copy Number Variations',  # ! deprecated
+                 'Somatic Structural Variations',  # ! deprecated
+                 'Unaligned Reads',  # ! deprecated
+                 'Variant Calls',  # ! deprecated
+                 'Variant Calls Index',  # ! deprecated
+                 # Singular data types
+                 'Aligned Read',
+                 'Aligned Read Index',
+                 'Annotated Somatic Mutation',
+                 'Expression',
+                 'Gene Fusion',
+                 'Histology Image',
+                 'Operation Report',
+                 'Pathology Report',
+                 'Radiology Image',
+                 'Radiology Report',
+                 'Simple Nucleotide Variation',
+                 'Somatic Copy Number Variation',
+                 'Somatic Structural Variation',
+                 'Unaligned Read',
+                 'Variant Call',
+                 'Variant Call Index',
+                 # New Data Types
+                 "Adapter Stat",
+                 "Alignment Stat",
+                 "Alignment Summary",
+                 "Annotated Gene Fusion",
+                 "Annotated Somatic Copy Number Segment",
+                 "Annotated Somatic Mutation Index",
+                 "Annotated Variant Call",
+                 "Annotated Variant Call Index",
+                 "Artifact Metric",
+                 "Chimeric Aligned Read",
+                 "Consensus Somatic Mutation",
+                 "Consensus Somatic Mutation Index",
+                 "Contamination Estimation",
+                 "Control Copy Number",
+                 "Control Copy Number Segment",
+                 "Familial Relationship",
+                 "Familial Relationship Report",
+                 "GC Metric",
+                 "Gender Metric",
+                 "Gender QC Metric",
+                 "Gene Expression Count",
+                 "Gene Expression Quantification",
+                 "Gene Level Copy Number",
+                 "Genome Aligned Read",
+                 "Genome Aligned Read Index",
+                 "Genomic Variant",
+                 "Genomic Variant Index",
+                 "Het Call QC Metric",
+                 "Insert Size Metric",
+                 "Isoform Expression Quantification",
+                 "Masked Consensus Somatic Mutation",
+                 "Masked Consensus Somatic Mutation Index",
+                 "Masked Somatic Mutation",
+                 "Masked Somatic Mutation Index",
+                 "Pre-pass Somatic Structural Variation",
+                 "Pre-pass Somatic Structural Variation Index",
+                 "QC Metric",
+                 "Quality Score Distribution",
+                 "Raw Gene Fusion",
+                 "Raw Simple Somatic Mutation",
+                 "Raw Simple Somatic Mutation Index",
+                 "Raw Somatic Copy Number Segment",
+                 "Raw Somatic Structural Variation",
+                 "Raw Somatic Structural Variation Index",
+                 "Recalibration Report",
+                 "Reference Copy Number Profiling",
+                 "Relatedness QC Metrics",
+                 "RNAseq Alignment Metrics",
+                 "Somatic Copy Number BAF",
+                 "Somatic Copy Number Diagram",
+                 "Somatic Copy Number Metrics",
+                 "Somatic Copy Number Ratio",
+                 "Somatic Copy Number Scatter",
+                 "Somatic Copy Number Segment",
+                 "Somatic Copy Number Subclone Segment",
+                 "Splice Junction",
+                 "Tool Log",
+                 "Transcriptome Aligned Read",
+                 "Tumor Copy Number",
+                 "Tumor Copy Number Segment",
+                 "Tumor Ploidy and Purity",
+                 "Tumor Purity",
+                 "Variant Calling Metrics",
+                 "Variant Summary",
+                 "WGS Metric",
+                 "WXS Metric"}
 
 PAIRED_END_ENUM = {1, 2}
 
