@@ -1,4 +1,7 @@
+from sqlalchemy.dialects.postgresql import UUID
+from flask import current_app
 from dataservice.extensions import db
+from dataservice.api.common.id_service import uuid_generator
 from dataservice.api.common.model import Base, IndexdFile, KfId
 from dataservice.api.task.models import (
     TaskGenomicFile
@@ -12,7 +15,7 @@ from dataservice.api.sequencing_experiment.models import (
 )
 
 
-class GenomicFile(db.Model, Base, IndexdFile):
+class GenomicFile(db.Model, Base):
     """
     GenomicFile entity.
 
@@ -50,10 +53,17 @@ class GenomicFile(db.Model, Base, IndexdFile):
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
 
+    latest_did = db.Column(UUID(), default=uuid_generator)
+    file_name = db.Column(db.Text(), doc='Name of the file')
+    size = db.Column(db.BigInteger(), doc='The size of the file in bytes')
+    urls = db.Column(db.ARRAY(db.Text), doc='List of file urls')
+    acl = db.Column(db.ARRAY(db.Text), doc='List of ACLs')
+    hashes = db.Column(db.JSON(), doc='File hashes')
+
     external_id = db.Column(db.Text(),
                             doc='external id used by contributor')
     data_type = db.Column(db.Text(), doc='Type of genomic file')
-    file_format = db.Column(db.Text(), doc='Size of file in bytes')
+    file_format = db.Column(db.Text(), doc='Type of file')
     is_harmonized = db.Column(db.Boolean(), default=False,
                               doc='Whether or not the file is harmonized')
     reference_genome = db.Column(db.Text(), doc='Original reference genome of'
@@ -78,3 +88,22 @@ class GenomicFile(db.Model, Base, IndexdFile):
     biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
                                                 backref='genomic_file',
                                                 cascade='all, delete-orphan')
+
+    @property
+    def access_urls(self):
+        """
+        Access urls should contain only links out to gen3 data endpoints
+        that are used to download the files themselves.
+
+        For urls that are already https:// urls, we will consider them as
+        valid gen3 locations, for urls that are s3:// protocol, we will assume
+        that they are internal files and resolve them to our gen3 service
+        """
+        urls = []
+        for url in self.urls or []:
+            if url.startswith('s3://'):
+                url = (f'{current_app.config["GEN3_URL"]}'
+                       f'/data/{self.latest_did}')
+            urls.append(url)
+
+        return urls
