@@ -63,10 +63,9 @@ export FLASK_APP=manage
 # Setup the database (using a dockerized postgres)
 docker run -e POSTGRES_HOST_AUTH_METHOD=trust --name dataservice-pg -p 5432:5432 -d postgres:9.5
 docker exec dataservice-pg psql -U postgres -c "CREATE DATABASE dev;"
-flask db migrate
 flask db upgrade
 # Run the flask web application
-flask run
+./manage.py
 ```
 
 #### Database
