@@ -18,7 +18,7 @@ EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq',
                             'Targeted Sequencing', 'Methylation', 'Panel', 'Other'}
 PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Complete Genomics', 'PacBio', 'Other'}
-LIBRARY_STRAND_ENUM = {'Unstranded', 'First Stranded',
+LIBRARY_STRAND_ENUM = {'Stranded', 'Unstranded', 'First Stranded',
                        'Second Stranded', 'Other'}
 
 LIBRARY_SELECTION_ENUM = {'Hybrid Selection', 'PCR', 'Affinity Enrichment',
