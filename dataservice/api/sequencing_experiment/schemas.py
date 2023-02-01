@@ -15,17 +15,17 @@ from dataservice.extensions import ma
 
 EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq',
                             'Linked-Read WGS (10x Chromium)',
-                            'Targeted Sequencing', 'Methylation', 'Other'}
+                            'Targeted Sequencing', 'Methylation', 'Panel', 'Other'}
 PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Complete Genomics', 'PacBio', 'Other'}
-LIBRARY_STRAND_ENUM = {'Unstranded', 'First Stranded',
+LIBRARY_STRAND_ENUM = {'Stranded', 'Unstranded', 'First Stranded',
                        'Second Stranded', 'Other'}
 
 LIBRARY_SELECTION_ENUM = {'Hybrid Selection', 'PCR', 'Affinity Enrichment',
                           'Poly-T Enrichment', 'Random', 'rRNA Depletion',
                           'miRNA Size Fractionation', 'Other'}
 
-LIBRARY_PREP_ENUM = {'polyA', 'Other'}
+LIBRARY_PREP_ENUM = {'polyA', 'polyA Stranded', 'totalRNAseq', 'Other'}
 
 
 class SequencingExperimentSchema(BaseSchema):
