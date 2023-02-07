@@ -26,7 +26,7 @@ LIBRARY_SELECTION_ENUM = {'Hybrid Selection', 'PCR', 'Affinity Enrichment',
                           'Poly-T Enrichment', 'Random', 'rRNA Depletion',
                           'miRNA Size Fractionation', 'Other'}
 
-LIBRARY_PREP_ENUM = {'polyA', 'polyA Stranded', 'totalRNAseq', 
+LIBRARY_PREP_ENUM = {'polyA', 'polyA Stranded', 'totalRNAseq',
                      'Exome Capture', 'Other'}
 
 
