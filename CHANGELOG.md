@@ -1,5 +1,21 @@
 # Kids First DataService Change History
 
+## Release 1.17.0
+
+### Summary
+
+- Emojis: ✅ x1, 🔥 x1, ✨ x2, 🔧 x1
+- Categories: Additions x3, Removals x1, Ops x1
+
+### New features and changes
+
+- [#602](https://github.com/kids-first/kf-api-dataservice/pull/602) - ✅ update tests based on new sequencing_exp enums - [245e2829](https://github.com/kids-first/kf-api-dataservice/commit/245e2829fcf6d83507252154f683933b9d94b8d2) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#600](https://github.com/kids-first/kf-api-dataservice/pull/600) - 🔥 remove polya_stranded library_prep - [cc47b9e3](https://github.com/kids-first/kf-api-dataservice/commit/cc47b9e3e5990806e0bf6944d1ec6a3972e84290) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#599](https://github.com/kids-first/kf-api-dataservice/pull/599) - ✨ Add ONT platform - [6c41ed87](https://github.com/kids-first/kf-api-dataservice/commit/6c41ed87b7219fd9607782b7b0072be2b5d8c0a4) by [Christina-J-Diaz](https://github.com/Christina-J-Diaz)
+- [#598](https://github.com/kids-first/kf-api-dataservice/pull/598) - 🔧 add more data types from bix pipeline outputs - [688c1cb4](https://github.com/kids-first/kf-api-dataservice/commit/688c1cb478a364e5e287d5a6bbe6ebb424858947) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#594](https://github.com/kids-first/kf-api-dataservice/pull/594) - ✨ Update enum values for sequencing_experiment - [8b3bf07e](https://github.com/kids-first/kf-api-dataservice/commit/8b3bf07e1c0d58140ef2ca8d10fd7e545453cd6f) by [youngnm](https://github.com/youngnm)
+
+
 ## Release 1.16.0
 
 ### Summary
