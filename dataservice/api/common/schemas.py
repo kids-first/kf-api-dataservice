@@ -15,7 +15,9 @@ from flask import url_for, request
 from flask_marshmallow import Schema
 from dataservice.api.common.pagination import Pagination, After
 from dataservice.api.common.validation import validate_kf_id
+from dataservice.api.common.model import VISIBILITY_REASON_ENUM
 from dataservice.extensions import db
+
 AVAILABILITY_ENUM = {'Immediate Download',
                      'Cold Storage'}
 
@@ -54,6 +56,14 @@ class BaseSchema(ma.ModelSchema):
     @validates('kf_id')
     def valid(self, value):
         validate_kf_id(self.Meta.model.__prefix__, value)
+
+    @validates('visibility_reason')
+    def validate_visibility_reason(self, value):
+        error_message = 'Not a valid choice. Must be one of: {}'.format(
+            ', '.join([str(item) for item in VISIBILITY_REASON_ENUM]))
+
+        if value not in VISIBILITY_REASON_ENUM:
+            raise ValidationError(error_message)
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):

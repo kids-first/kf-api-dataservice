@@ -14,10 +14,9 @@ from dataservice.api.common.id_service import uuid_generator, kf_id_generator
 COMMON_ENUM = {"Not Reported", "Not Applicable", "Not Allowed To Collect",
                "Not Available", "Reported Unknown"}
 
-VISIBILITY_REASON_DEFAULT = "unknown"
 VISIBILITY_REASON_ENUM = {
-    "peddy_issue", "consent_issue", "ready_for_release", 
-    VISIBILITY_REASON_DEFAULT
+    "Ready For Release", "Pre-Release", "Peddy Issue", "Consent Hold",
+    "File Quality Issue", "Other", "Unknown"
 }
 
 
@@ -211,6 +210,5 @@ class Base(IDMixin, TimestampMixin):
                         doc='Flags visibility of data from the dataservice')
     visibility_reason = db.Column(
         db.Text(),
-        server_default=VISIBILITY_REASON_DEFAULT,
         doc='Gives justification for the value in the visible column'
     )
