@@ -9,6 +9,7 @@ from tests.conftest import (
     ENTITY_PARAMS,
     _add_foreign_keys
 )
+from dataservice.api.common.model import VISIBILITY_REASON_ENUM
 
 
 class TestAPI:
@@ -293,6 +294,48 @@ class TestAPI:
         body = json.loads(resp.data.decode('utf-8'))
         assert body['_status']['code'] == 400
         assert 'could not {} '.format(action) in body['_status']['message']
+
+    @pytest.mark.parametrize('reason', VISIBILITY_REASON_ENUM)
+    @pytest.mark.parametrize('endpoint',
+                             [endpoint for endpoint in ENDPOINTS])
+    def test_visibility_reason(self, client, entities, endpoint, reason):
+        """ Tests inputs to visibility_reason field """
+        # Setup inputs
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
+
+        # Send request with bad value
+        kf_id = entity.kf_id
+        url = '{}/{}'.format(endpoint, kf_id)
+
+        inputs = {"visibility_reason": reason}
+        resp = client.patch(url, data=json.dumps(inputs),
+                            headers={'Content-Type': 'application/json'})
+
+        body = json.loads(resp.data.decode('utf-8'))
+        assert body['_status']['code'] == 200
+
+    @pytest.mark.parametrize('endpoint',
+                             [endpoint for endpoint in ENDPOINTS])
+    def test_bad_visibility_reason(self, client, entities, endpoint):
+        """ Tests bad inputs to visibility_reason field """
+        # Setup inputs
+        inputs = ENTITY_PARAMS['fields'][endpoint].copy()
+        model_cls = ENDPOINT_ENTITY_MAP.get(endpoint)
+        entity = entities.get(model_cls)[0]
+        _add_foreign_keys(inputs, entity)
+        url = endpoint
+
+        # Send request with bad value
+        inputs.update({"visibility_reason": "foobar"})
+        resp = client.post(url, data=json.dumps(inputs),
+                           headers={'Content-Type': 'application/json'})
+
+        body = json.loads(resp.data.decode('utf-8'))
+        assert body['_status']['code'] == 400
+        assert 'Must be one of' in body['_status']['message']
 
     @pytest.mark.parametrize('method', ['POST'])
     @pytest.mark.parametrize('endpoint, field',
