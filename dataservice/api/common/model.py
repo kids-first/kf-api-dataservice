@@ -212,3 +212,7 @@ class Base(IDMixin, TimestampMixin):
         db.Text(),
         doc='Gives justification for the value in the visible column'
     )
+    visibility_comment = db.Column(
+        db.Text(),
+        doc='Additional details for the visibility reason'
+    )
