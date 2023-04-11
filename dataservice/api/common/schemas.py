@@ -59,11 +59,11 @@ class BaseSchema(ma.ModelSchema):
 
     @validates('visibility_reason')
     def validate_visibility_reason(self, value):
-        error_message = 'Not a valid choice. Must be one of: {}'.format(
-            ', '.join([str(item) for item in VISIBILITY_REASON_ENUM]))
-
-        if value not in VISIBILITY_REASON_ENUM:
-            raise ValidationError(error_message)
+        if value and (value not in VISIBILITY_REASON_ENUM):
+            raise ValidationError(
+                'Not a valid choice. Must be one of: {}'.format(
+                    ', '.join([str(item) for item in VISIBILITY_REASON_ENUM]))
+            )
 
     @post_dump(pass_many=True)
     def wrap_envelope(self, data, many):
