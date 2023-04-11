@@ -16,7 +16,7 @@ COMMON_ENUM = {"Not Reported", "Not Applicable", "Not Allowed To Collect",
 
 VISIBILITY_REASON_ENUM = {
     "Ready For Release", "Pre-Release", "Peddy Issue", "Consent Hold",
-    "File Quality Issue", "Other", "Unknown"
+    "Sequencing Quality Issue", "Other", "Unknown"
 }
 
 
