@@ -1,4 +1,4 @@
-FROM        python:3-alpine3.7
+FROM        python:3-alpine3.7 as builder
 
 WORKDIR     /app
 
@@ -39,3 +39,7 @@ RUN         python /app/setup.py install
 
 # Start processes
 CMD ["/app/bin/run.sh"]
+
+FROM        builder as test
+COPY        dev-requirements.txt /app/
+RUN         pip install -r /app/dev-requirements.txt
