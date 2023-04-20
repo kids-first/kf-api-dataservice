@@ -1,25 +1,39 @@
 version: '3'
 
 services:
-  pg:
+  dataservice_pg:
+    container_name: dataservice_pg
     image: postgres:11.1
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: "dataservice"
+      POSTGRES_DB: "${DATASERVICE_DB}"
+      POSTGRES_USER: "${DATASERVICE_DB_USER}"
+      POSTGRES_PASSWORD: "${DATASERVICE_DB_PASSWORD}"
     ports:
         - "5432:5432"
   dataservice:
-    build: .
+    container_name: dataservice
+    build: 
+      context: .
+      target: test
     command: /bin/ash -c "sleep 5; ./bin/run.sh"
     volumes:
       - .:/app
     ports:
       - "5000:80"
+    env_file:
+      - .env
     environment:
-      - FLASK_CONFIG=development
-      - PG_NAME=dataservice
-      - PG_HOST=pg
+      FLASK_CONFIG: "${FLASK_CONFIG}"
+      FLASK_APP: "${FLASK_APP}"
+      PG_HOST: "${DATASERVICE_PG_HOST}"
+      PG_PORT: "${DATASERVICE_PG_PORT}"
+      PG_NAME: "${DATASERVICE_DB}"
+      PG_USER: "${DATASERVICE_DB_USER}"
+      PG_PASS: "${DATASERVICE_DB_PASSWORD}"
     depends_on:
-      - pg
+      - dataservice_pg
 networks:
   default:
     external:

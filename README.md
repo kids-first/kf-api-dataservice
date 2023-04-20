@@ -8,75 +8,82 @@
   <a href="https://app.codacy.com/app/kids-first/kf-api-dataservice/dashboard"><img src="https://img.shields.io/codacy/grade/fe69188856a848f28d86627e60cc09b7/master?style=for-the-badge"></a>
 </p>
 
-Kids First Data Service
-=======================
-
 The Kids First Data Service provides a REST API to the Kids First data.
 
-## Development
+# 👩‍💻 Development
 
-### Developing against the dataservice
+## Run API
 
-If you're developing an application against the dataservice api and the data
-it contains, the fastest way to get a development service of your own running
-is with docker compose:
+If you're developing an application that talks to Dataservice API,
+the fastest way to get a development service of your own running
+is with docker compose.
 
-```
+This means you do not need to install anything on your local machine
+(besides Docker).
+
+```shell
 git clone git@github.com:kids-first/kf-api-dataservice.git
 cd kf-api-dataservice
 
-# If you haven't already, create the kf-data-stack network
-docker network create kf-data-stack
+# Create the environment variables used by docker-compose
+cp .env.sample .env
 
-# Bring up the dataservice
-docker-compose up -d
+# Bring up the dataservice and postgres
+docker-compose up --build
 ```
-
 
 This will start the dataservice api on port `5000` with a backing postgres
-database initialized with the current datamodel.
+database initialized with the current data model.
 
-To add mock data to the dataservice:
-```
-docker-compose exec dataservice flask populate_db
-```
+## Develop API
 
+If you're developing features of the API and the data model, you can setup your
+development environment
 
-### Developing the dataservice api and model
+**using 1 of 2 options**:
 
-If you're developing features of the api and the data model behind the
-dataservice, you may want finer control over the environment. The following
-are the basics to get you started with a local development environment of
-your own:
+1. Follow [Run API](#run-api)
+    - Pro: Quick setup, no installation of dependencies
+    - Con: Everything is running in containers. Need to use `docker container exec` to run things in container
+2. Follow the steps below to run Postgres in a docker container and the
+Dataservice on your local machine
+    - Pro: Run everything directly on local machine
+    - Con: Need to install a bunch of stuff on local machine including Python 3.7.11
 
-```
+```shell
 # Get source from github
 git clone git@github.com:kids-first/kf-api-dataservice.git
 cd kf-api-dataservice
+
+# Follow steps to install pyenv and ensure you are using Python v 3.7.11
+https://realpython.com/intro-to-pyenv/
+
 # Setup python environment and install dependencies
 virtualenv venv &&  source venv/bin/activate
 pip install -r dev-requirements.txt
 pip install -r requirements.txt
 pip install -e .
-# Configure the flask application
-export FLASK_APP=manage
-# Setup the database (using a dockerized postgres)
-docker run -e POSTGRES_HOST_AUTH_METHOD=trust --name dataservice-pg -p 5432:5432 -d postgres:9.5
-docker exec dataservice-pg psql -U postgres -c "CREATE DATABASE dev;"
-flask db migrate
+
+# Configure and run postgres 
+cp .env.sample .env
+docker-compose up dataservice_pg
+
+# Configure and run migrations 
+source .env
 flask db upgrade
+
 # Run the flask web application
 flask run
 ```
 
-#### Database
+## Database
 
 Running postgres inside of a container and binding back to the host should
 be sufficent for most development needs. If you want to access psql
 directly, you can always connect using the following
-(assuming the cointainer is named `dataservice-pg` and the database is `dev`):
+
 ```
-docker exec dataservice-pg psql -U postgres dev
+docker exec dataservice_pg psql -U postgres dataservice
 ```
 
 If you'd like to use system install of postgres, or a database running remotely,
@@ -88,7 +95,7 @@ the dataservice can be configured with the following environment variables:
 - `PG_USER` - the postgres user to connect with
 - `PG_PASS` - the password of the user
 
-#### Indexd
+## Indexd
 
 Gen3/Indexd is used for tracking most of the file information in the data
 model. It requires some environment variables to be set for the full
@@ -104,19 +111,36 @@ will not be persisted.
 Alternativly, an `INDEXD_SECRET` may be used in place of the `INDEXD_USER`
 and `INDEXD_PASS` to load the secrets from vault.
 
-## Documentation
+# Testing
+
+Unit tests and pep8 linting is run via `pytest tests`. Depending on your
+development environment setup you can run tests like this:
+
+## When everything is running in Docker
+
+```shell
+docker exec dataservice pytest tests
+```
+
+## When Dataservice is running locally
+
+```shell
+pytest tests
+```
+
+# 📝 Documentation
 
 The swagger docs are located at the root `localhost:5000/`.
 
-### Generate a Data Model Diagram
+## Generate a Data Model Diagram
 
 An ERD (entity relation diagram) may be found in the `docs/` directory, or may
 be produced for changes to the data schema. To do so requires the ERAlchemy
 library.
 
-Unfortunately the [original source code](github.com/Alexis-benoist/eralchemy) 
+Unfortunately the [original source code](github.com/Alexis-benoist/eralchemy)
 currently has a bug in it that causes cardinality labels to be drawn backwards
-(e.g. 1 to N vs N to 1), so you must install the following dev version which 
+(e.g. 1 to N vs N to 1), so you must install the following dev version which
 does not have that bug:
 
 ```
@@ -137,7 +161,7 @@ flask erd
 
 A new diagram will be created at `docs/erd.png`.
 
-### Populating Development Database with mock data
+## Populating Development Database with mock data
 
 to populate database run:
 
@@ -146,25 +170,12 @@ flask populate_db
 ```
 
 to clear the database run:
+
 ```
 flask clear_db
 ```
 
-## Testing
-
-Unit tests and pep8 linting is run via `flask test`
-
-```
-# Install test dependencies
-pip install -r dev-requirements.txt
-# Setup test database
-docker run -e POSTGRES_HOST_AUTH_METHOD=trust --name dataservice-pg -p 5432:5432 -d postgres
-docker exec dataservice-pg psql -U postgres -c "CREATE DATABASE test;"
-# Run tests
-flask test
-```
-
-## Deployment
+# Deployment
 
 Any commit to any non-master branch that passes tests and contains a
 `Jenkinsfile` in the root will be built and deployed to the dev
