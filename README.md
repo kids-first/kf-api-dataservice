@@ -8,14 +8,11 @@
   <a href="https://app.codacy.com/app/kids-first/kf-api-dataservice/dashboard"><img src="https://img.shields.io/codacy/grade/fe69188856a848f28d86627e60cc09b7/master?style=for-the-badge"></a>
 </p>
 
-Kids First Data Service
-=======================
-
 The Kids First Data Service provides a REST API to the Kids First data.
 
-## 👩‍💻 Development
+# 👩‍💻 Development
 
-### Run API
+## Run API
 
 If you're developing an application that talks to Dataservice API,
 the fastest way to get a development service of your own running
@@ -38,7 +35,7 @@ docker-compose up --build
 This will start the dataservice api on port `5000` with a backing postgres
 database initialized with the current data model.
 
-### Develop API
+## Develop API
 
 If you're developing features of the API and the data model, you can setup your
 development environment
@@ -79,7 +76,7 @@ flask db upgrade
 flask run
 ```
 
-### Database
+## Database
 
 Running postgres inside of a container and binding back to the host should
 be sufficent for most development needs. If you want to access psql
@@ -98,7 +95,7 @@ the dataservice can be configured with the following environment variables:
 - `PG_USER` - the postgres user to connect with
 - `PG_PASS` - the password of the user
 
-### Indexd
+## Indexd
 
 Gen3/Indexd is used for tracking most of the file information in the data
 model. It requires some environment variables to be set for the full
@@ -114,28 +111,28 @@ will not be persisted.
 Alternativly, an `INDEXD_SECRET` may be used in place of the `INDEXD_USER`
 and `INDEXD_PASS` to load the secrets from vault.
 
-## Testing
+# Testing
 
 Unit tests and pep8 linting is run via `pytest tests`. Depending on your
 development environment setup you can run tests like this:
 
-### When everything is running in Docker
+## When everything is running in Docker
 
 ```shell
 docker exec dataservice pytest tests
 ```
 
-### When Dataservice is running locally
+## When Dataservice is running locally
 
 ```shell
 pytest tests
 ```
 
-## 📝 Documentation
+# 📝 Documentation
 
 The swagger docs are located at the root `localhost:5000/`.
 
-### Generate a Data Model Diagram
+## Generate a Data Model Diagram
 
 An ERD (entity relation diagram) may be found in the `docs/` directory, or may
 be produced for changes to the data schema. To do so requires the ERAlchemy
@@ -164,7 +161,7 @@ flask erd
 
 A new diagram will be created at `docs/erd.png`.
 
-### Populating Development Database with mock data
+## Populating Development Database with mock data
 
 to populate database run:
 
@@ -178,7 +175,7 @@ to clear the database run:
 flask clear_db
 ```
 
-## Deployment
+# Deployment
 
 Any commit to any non-master branch that passes tests and contains a
 `Jenkinsfile` in the root will be built and deployed to the dev
