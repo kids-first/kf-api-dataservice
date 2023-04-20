@@ -15,11 +15,11 @@ The Kids First Data Service provides a REST API to the Kids First data.
 
 ## 👩‍💻 Development
 
-### Run API 
+### Run API
 
 If you're developing an application that talks to Dataservice API,
 the fastest way to get a development service of your own running
-is with docker compose. 
+is with docker compose.
 
 This means you do not need to install anything on your local machine
 (besides Docker).
@@ -38,8 +38,7 @@ docker-compose up --build
 This will start the dataservice api on port `5000` with a backing postgres
 database initialized with the current data model.
 
-
-### Develop API 
+### Develop API
 
 If you're developing features of the API and the data model, you can setup your
 development environment
@@ -48,10 +47,10 @@ development environment
 
 1. Follow [Run API](#run-api)
     - Pro: Quick setup, no installation of dependencies
-    - Con: Everything is running in containers. Need to use `docker container exec` to run things in container 
-2. Follow the steps below to run Postgres in a docker container and the 
+    - Con: Everything is running in containers. Need to use `docker container exec` to run things in container
+2. Follow the steps below to run Postgres in a docker container and the
 Dataservice on your local machine
-    - Pro: Run everything directly on local machine 
+    - Pro: Run everything directly on local machine
     - Con: Need to install a bunch of stuff on local machine including Python 3.7.11
 
 ```shell
@@ -85,6 +84,7 @@ flask run
 Running postgres inside of a container and binding back to the host should
 be sufficent for most development needs. If you want to access psql
 directly, you can always connect using the following
+
 ```
 docker exec dataservice_pg psql -U postgres dataservice
 ```
@@ -116,15 +116,17 @@ and `INDEXD_PASS` to load the secrets from vault.
 
 ## Testing
 
-Unit tests and pep8 linting is run via `pytest tests`. Depending on your 
+Unit tests and pep8 linting is run via `pytest tests`. Depending on your
 development environment setup you can run tests like this:
 
-### When everything is running in Docker 
+### When everything is running in Docker
+
 ```shell
 docker exec dataservice pytest tests
 ```
 
-### When Dataservice is running locally 
+### When Dataservice is running locally
+
 ```shell
 pytest tests
 ```
@@ -139,9 +141,9 @@ An ERD (entity relation diagram) may be found in the `docs/` directory, or may
 be produced for changes to the data schema. To do so requires the ERAlchemy
 library.
 
-Unfortunately the [original source code](github.com/Alexis-benoist/eralchemy) 
+Unfortunately the [original source code](github.com/Alexis-benoist/eralchemy)
 currently has a bug in it that causes cardinality labels to be drawn backwards
-(e.g. 1 to N vs N to 1), so you must install the following dev version which 
+(e.g. 1 to N vs N to 1), so you must install the following dev version which
 does not have that bug:
 
 ```
@@ -171,6 +173,7 @@ flask populate_db
 ```
 
 to clear the database run:
+
 ```
 flask clear_db
 ```
