@@ -14,6 +14,11 @@ from dataservice.api.common.id_service import uuid_generator, kf_id_generator
 COMMON_ENUM = {"Not Reported", "Not Applicable", "Not Allowed To Collect",
                "Not Available", "Reported Unknown"}
 
+VISIBILITY_REASON_ENUM = {
+    "Ready For Release", "Pre-Release", "Sample Issue",
+    "Consent Hold", "Sequencing Quality Issue", "Other", "Unknown"
+}
+
 
 class KfId(types.TypeDecorator):
     """
@@ -203,3 +208,11 @@ class Base(IDMixin, TimestampMixin):
                         nullable=False,
                         server_default='true',
                         doc='Flags visibility of data from the dataservice')
+    visibility_reason = db.Column(
+        db.Text(),
+        doc='Gives justification for the value in the visible column'
+    )
+    visibility_comment = db.Column(
+        db.Text(),
+        doc='Additional details for the visibility reason'
+    )
