@@ -99,10 +99,12 @@ class ModelTest(FlaskTestCase):
         # Delete study from participant
         p0 = participants[0]
         del p0.study
-        db.session.commit()
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
         # Check database
-        self.assertNotIn(p0, Study.query.get(study.kf_id).participants)
+        db.session.rollback()
+        self.assertIn(p0, Study.query.get(study.kf_id).participants)
 
     def test_foreign_key_constraint(self):
         """

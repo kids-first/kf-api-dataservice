@@ -442,7 +442,7 @@ class BiospecimenTest(IndexdTestCase):
             db.session.commit()
         se = SequencingExperiment(external_id="Test_seq_ex_o",
                                   experiment_strategy="WGS",
-                                  is_paired_end="True",
+                                  is_paired_end=True,
                                   platform="Test_platform",
                                   sequencing_center_id=sc.kf_id)
         db.session.add(se)
