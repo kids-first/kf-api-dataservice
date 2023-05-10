@@ -4,6 +4,7 @@ import json
 import yaml
 from flask import request, current_app
 from flask.views import MethodView
+from apispec.exceptions import DuplicateComponentNameError
 from dataservice.api.common.schemas import (
     response_generator,
     paginated_generator,
@@ -49,23 +50,30 @@ class CRUDView(MethodView):
 
             for name, schema in c.schemas.items():
                 # Entity response schemas
-                spec.definition(name, schema=schema)
-                ResponseSchema = response_generator(schema)
-                spec.definition(name + 'Response', schema=ResponseSchema)
+                # <Entity>ListAPIs have same schema as <Entity>API. Prevent
+                # the duplicate component error
+                try:
+                    spec.components.schema(name, schema=schema)
+                    ResponseSchema = response_generator(schema)
+                    spec.components.schema(
+                        name + 'Response', schema=ResponseSchema)
+                except apispec.exceptions.DuplicateComponentNameError:
+                    pass
 
                 # Pagination schemas
                 if c.__name__.endswith('ListAPI'):
                     url = c.rule
                     PaginatedSchema = paginated_generator(url, schema)
-                    spec.definition(name + 'Paginated', schema=PaginatedSchema)
+                    spec.components.schema(
+                        name + 'Paginated', schema=PaginatedSchema)
 
         # Error response schemas
         not_found_schema_cls = error_response_generator(404)
-        spec.definition('NotFoundErrorResponse',
-                        schema=not_found_schema_cls)
+        spec.components.schema('NotFoundErrorResponse',
+                               schema=not_found_schema_cls)
         client_error_schema_cls = error_response_generator(400)
-        spec.definition('ClientErrorResponse',
-                        schema=client_error_schema_cls)
+        spec.components.schema('ClientErrorResponse',
+                               schema=client_error_schema_cls)
 
     @staticmethod
     def register_views(app):

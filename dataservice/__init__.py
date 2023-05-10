@@ -71,27 +71,30 @@ def register_spec(app):
     Creates an API spec and puts it on the app
     """
     from apispec import APISpec
+    from apispec_webframeworks.flask import FlaskPlugin
+    from apispec.ext.marshmallow import MarshmallowPlugin
 
     spec = APISpec(
         title='Kids First Data Service',
         version=_get_version(),
+        openapi_version="2.0",
         plugins=[
-            'apispec.ext.flask',
-            'apispec.ext.marshmallow',
+            FlaskPlugin(),
+            MarshmallowPlugin()
         ],
     )
 
     from dataservice.api import status_view, views
     from dataservice.api.common.schemas import StatusSchema
 
-    spec.definition('Status', schema=StatusSchema)
+    spec.components.schema('Status', schema=StatusSchema)
 
     from dataservice.api.common.views import CRUDView
     CRUDView.register_spec(spec)
     with app.test_request_context():
-        spec.add_path(view=status_view)
+        spec.path(view=status_view)
         for view in views:
-            spec.add_path(view=view)
+            spec.path(view=view)
 
     app.spec = spec
 
