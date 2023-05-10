@@ -373,7 +373,7 @@ class ModelTest(FlaskTestCase):
             sc = SequencingCenter(name="Baylor")
         se = SequencingExperiment(external_id="Test_seq_ex_o",
                                   experiment_strategy="WGS",
-                                  is_paired_end="True",
+                                  is_paired_end=True,
                                   platform="Test_platform",
                                   sequencing_center_id=sc.kf_id)
         sc.sequencing_experiments.extend([se])

@@ -110,7 +110,6 @@ class ModelTest(IndexdTestCase):
         # Check that no new version was made
         assert self.indexd.Session().post.call_count == orig_post + 1
 
-
     def test_delete(self):
         """
         Test delete study_file
@@ -137,10 +136,12 @@ class ModelTest(IndexdTestCase):
         # Delete study_file from study
         sf0 = study_files[0]
         del sf0.study
-        db.session.commit()
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
 
         # Check database
-        self.assertNotIn(sf0, Study.query.get(study.kf_id).study_files)
+        db.session.rollback()
+        self.assertIn(sf0, Study.query.get(study.kf_id).study_files)
 
     def test_foreign_key_constraint(self):
         """
