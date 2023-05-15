@@ -47,7 +47,7 @@ development environment
     - Con: Everything is running in containers. Need to use `docker container exec` to run things in container
 2. Follow the steps below to run Postgres in a docker container and the
 Dataservice on your local machine
-    - Pro: Run everything directly on local machine
+    - Pro: May be more performant. Don't have to use `docker exec -it <command>` 
     - Con: Need to install a bunch of stuff on local machine including Python 3.7.11
 
 ```shell
@@ -55,11 +55,12 @@ Dataservice on your local machine
 git clone git@github.com:kids-first/kf-api-dataservice.git
 cd kf-api-dataservice
 
-# Follow steps to install pyenv and ensure you are using Python v 3.7.11
+# Follow steps to install pyenv
 https://realpython.com/intro-to-pyenv/
 
 # Setup python environment and install dependencies
-virtualenv venv &&  source venv/bin/activate
+pyenv virtualenv 3.7.11 dataservice_venv
+pyenv local dataservice_venv
 pip install -r dev-requirements.txt
 pip install -r requirements.txt
 pip install -e .
@@ -69,7 +70,7 @@ cp .env.sample .env
 docker-compose up dataservice_pg
 
 # Configure and run migrations 
-source .env
+source env_local.sh 
 flask db upgrade
 
 # Run the flask web application
