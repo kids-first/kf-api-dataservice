@@ -19,12 +19,12 @@ Curl is the quickest way to communicate with the api from a unix shell
 
 Get the system status:
 ```bash
-curl -H "Content-Type: application/json" http://kf-api-dataservice-qa.kids-first.io/status
+curl -H "Content-Type: application/json" https://kf-api-dataservice.kidsfirstdrc.org/status
 ```
 
 Create a new study with the name 'my study':
 ```bash
-curl -XPOST -H "Content-Type: application/json" http://kf-api-dataservice-qa.kids-first.io/studies -d '{ "name": "my study" }'
+curl -XPOST -H "Content-Type: application/json" https://kf-api-dataservice.kidsfirstdrc.org/studies -d '{ "name": "my study" }'
 ```
 
 ## Python
@@ -35,7 +35,7 @@ To get the system status:
 ```python
 import requests
 
-resp = requests.get('http://kf-api-dataservice-qa.kids-first.io/status',
+resp = requests.get('https://kf-api-dataservice.kidsfirstdrc.org/status',
                     headers={'Content-Type': 'application/json'})
 
 print(resp.json())
@@ -49,7 +49,7 @@ body = {
   "name": "my name"
 }
 
-resp = requests.post('http://kf-api-dataservice-qa.kids-first.io/studies',
+resp = requests.post('https://kf-api-dataservice.kidsfirstdrc.org/studies',
                      headers={'Content-Type': 'application/json'},
                      json=body)
 
