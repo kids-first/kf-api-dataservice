@@ -8,6 +8,23 @@ from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import ARRAY
 
 
+class Foo(db.Model, Base):
+    """
+    Temporary
+    """
+
+    __tablename__ = 'foo'
+    __prefix__ = 'FS'
+
+    foo = db.Column(db.Text(), doc='Foo')
+    number = db.Column(db.Integer(), doc='Number')
+    date = db.Column(db.DateTime(), doc='The date the aliquot was shipped')
+    participant_id = db.Column(KfId(),
+                               db.ForeignKey('participant.kf_id'),
+                               nullable=False,
+                               doc='The kf_id of the biospecimen\'s donor')
+
+
 class Biospecimen(db.Model, Base):
     """
     Biospecimen entity.
@@ -49,6 +66,7 @@ class Biospecimen(db.Model, Base):
     __tablename__ = 'biospecimen'
     __prefix__ = 'BS'
 
+    foo = db.Column(db.Text(), doc='Foo')
     external_sample_id = db.Column(db.Text(),
                                    doc='Name given to sample by contributor')
     external_aliquot_id = db.Column(db.Text(),

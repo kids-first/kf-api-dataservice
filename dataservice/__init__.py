@@ -18,7 +18,7 @@ from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
-from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.biospecimen.models import Biospecimen, Foo
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.read_group.models import (
