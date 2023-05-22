@@ -70,7 +70,7 @@ cp .env.sample .env
 docker-compose up dataservice_pg
 
 # Configure and run migrations 
-source env_local.sh 
+source ./env_local.sh 
 flask db upgrade
 
 # Run the flask web application
