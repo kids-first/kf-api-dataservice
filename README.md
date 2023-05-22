@@ -38,17 +38,44 @@ database initialized with the current data model.
 ## Develop API
 
 If you're developing features of the API and the data model, you can setup your
-development environment
+development environment using 1 of 2 options:
 
-**using 1 of 2 options**:
+### Option 1: Develop API in Docker
 
-1. Follow [Run API](#run-api)
-    - Pro: Quick setup, no installation of dependencies
-    - Con: Everything is running in containers. Need to use `docker container exec` to run things in container
-2. Follow the steps below to run Postgres in a docker container and the
-Dataservice on your local machine
-    - Pro: May be more performant. Don't have to use `docker exec -it <command>` 
-    - Con: Need to install a bunch of stuff on local machine including Python 3.7.11
+- Pro: Quick setup, no installation of dependencies
+- Con: Since everything is running in containers, need to use `docker container exec` to run things in container
+- Con: You'll need to make a couple of small changes to run the dockerized service in debug mode (live updates) 
+
+1. In docker-compose.yml change the command for the dataservice container by 
+changing which command is commented out:
+
+```yaml
+    # command: /bin/ash -c "sleep 5; ./bin/run.sh"
+    command: /bin/ash -c "sleep 5; flask db upgrade; ./manage.py"
+```
+
+2. Bind host to all interfaces in manage.py:
+
+```python
+if __name__ == '__main__':
+    app.run(host="0.0.0.0")
+```
+
+3. Follow the instructions in [Run API](#run-api)
+
+Now your service should be running at http://localhost:5000 inside the 
+docker-compose stack. The changes you made above allow the service to run 
+in **debug mode** which means when you make changes to the code, 
+it should reload the service automatically so that you can see your updates in
+realtime instead of having to bring down the stack and bring it up again.
+
+### Option 2: Develop API on Machine 
+
+- Pro: May be more performant. Don't have to use `docker exec -it <command>` 
+- Con: Need to install a bunch of stuff on local machine including Python 3.7.11
+
+In this setup we will run Postgres in a docker container and the
+Dataservice on your local machine:
 
 ```shell
 # Get source from github
@@ -112,7 +139,7 @@ will not be persisted.
 Alternativly, an `INDEXD_SECRET` may be used in place of the `INDEXD_USER`
 and `INDEXD_PASS` to load the secrets from vault.
 
-# Testing
+# ✅ Testing
 
 Unit tests and pep8 linting is run via `pytest tests`. Depending on your
 development environment setup you can run tests like this:
@@ -176,7 +203,7 @@ to clear the database run:
 flask clear_db
 ```
 
-# Deployment
+# 🚀 Deployment
 
 Any commit to any non-master branch that passes tests and contains a
 `Jenkinsfile` in the root will be built and deployed to the dev
