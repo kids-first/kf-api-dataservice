@@ -16,7 +16,7 @@ from dataservice.extensions import ma
 EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq',
                             'Linked-Read WGS (10x Chromium)',
                             'Targeted Sequencing', 'Methylation',
-                            'Panel','Single Cell RNA-Seq', 'Other'}
+                            'Panel', 'Single Cell RNA-Seq', 'Other'}
 PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Complete Genomics', 'PacBio', 'ONT', 'Other'}
 LIBRARY_STRAND_ENUM = {'Stranded', 'Unstranded', 'First Stranded',
