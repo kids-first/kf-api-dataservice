@@ -1,5 +1,20 @@
 # Kids First DataService Change History
 
+## Release 1.19.0
+
+### Summary
+
+- Emojis: ✨ x1, ? x1, 🐛 x2
+- Categories: Additions x1, Fixes x2, Other Changes x1
+
+### New features and changes
+
+- [#618](https://github.com/kids-first/kf-api-dataservice/pull/618) - ✨ add scRNA as enumeration for experiment strategy - [a3c29bc6](https://github.com/kids-first/kf-api-dataservice/commit/a3c29bc67f0e001eeb7dba4246e0f436fbc7461a) by [calkinsh](https://github.com/calkinsh)
+- [#611](https://github.com/kids-first/kf-api-dataservice/pull/611) -  :arrow_up: Upgrade to latest psycopg2 - [0f2f247b](https://github.com/kids-first/kf-api-dataservice/commit/0f2f247b8b0a3f14b7bc38ce6c9869c88ce471bf) by [znatty22](https://github.com/znatty22)
+- [#616](https://github.com/kids-first/kf-api-dataservice/pull/616) - 🐛 Fix dev setup again - [52ab9f11](https://github.com/kids-first/kf-api-dataservice/commit/52ab9f111b01d377cbfc72d2fead749d8630d26f) by [znatty22](https://github.com/znatty22)
+- [#610](https://github.com/kids-first/kf-api-dataservice/pull/610) - 🐛 Fix local dev setup and instructions - [7705f2b7](https://github.com/kids-first/kf-api-dataservice/commit/7705f2b7eff132817abc0c0c8d0402f33c52c01b) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.18.0
 
 ### Summary
