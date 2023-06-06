@@ -93,9 +93,9 @@ def test_new(client, indexd, entities):
     assert indexd.post.call_count == orig_calls + 1
 
 
-def test_new_indexd_error(client, entities):
+def test_new_validation_error(client, entities):
     """
-    Test case when indexd errors
+    Test case when post fails due to validation
     """
 
     body = {
@@ -117,6 +117,34 @@ def test_new_indexd_error(client, entities):
 
     assert 400 == response.status_code
     assert 'could not create' in resp['_status']['message']
+    assert GenomicFile.query.count() == init_count
+
+
+def test_new_indexd_error(client, indexd, entities):
+    """
+    Test case when indexd errors
+    """
+    # Invalid hash algo
+    body = {
+        'external_id': 'genomic_file_0',
+        'file_name': 'hg38.bam',
+        'size': 123,
+        'acl': ['TEST'],
+        'hashes': {"foo": "bar"},
+        'data_type': 'Aligned Reads',
+        'file_format': 'bam',
+        'urls': ['s3://bucket/key'],
+        'controlled_access': False
+    }
+    init_count = GenomicFile.query.count()
+
+    response = client.post(url_for(GENOMICFILE_LIST_URL),
+                           headers={'Content-Type': 'application/json'},
+                           data=json.dumps(body))
+
+    resp = json.loads(response.data.decode("utf-8"))
+    assert 'failed to create new' in resp['_status']['message']
+    assert 'indexd create error message' in resp['_status']['message']
     assert GenomicFile.query.count() == init_count
 
 
