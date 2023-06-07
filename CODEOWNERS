@@ -1,0 +1,6 @@
+*              @kids-first/dataservice-reviewers
+/.github/      @kids-first/dataservice-reviewers @kids-first/devops
+/.circleci/    @kids-first/dataservice-reviewers @kids-first/devops
+/.dockerignore @kids-first/dataservice-reviewers @kids-first/devops
+/Dockerfile    @kids-first/dataservice-reviewers @kids-first/devops
+/Jenkinsfile   @kids-first/dataservice-reviewers @kids-first/devops
