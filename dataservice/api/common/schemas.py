@@ -123,7 +123,12 @@ class BaseSchema(ma.ModelSchema):
 
 def acl_deprecation(val):
     """
-    Ensure that user is not populating the ACL field
+    Ensure that user is not populating the ACL field. ACL field can only be an 
+    empty list
+
+    If ACL field is not a list, this will be caught marshmallow type validation
+    Therefore, only check if ACL field contains a non-empty list and raise 
+    an exception if it is not
     """
     if isinstance(val, list) and len(val) > 0:
         raise ValidationError(
