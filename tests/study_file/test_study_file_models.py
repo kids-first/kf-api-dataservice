@@ -72,7 +72,7 @@ class ModelTest(IndexdTestCase):
         sf.size = 7696048
         sf.hashes = {'md5': 'dcff06ebb19bc9aa8f1aae1288d10dc2'}
         # Update to a new acl
-        sf.acl = ['new_acl']
+        sf.authz = ['new_acl']
         sf.modified_at = datetime.datetime.now()
         did = sf.latest_did
         db.session.add(sf)
@@ -97,7 +97,7 @@ class ModelTest(IndexdTestCase):
 
         sf = StudyFile.query.get(study_files[0].kf_id)
         # Set to value returned in the mock endpoint
-        sf.acl = ['INTERNAL']
+        sf.authz = ['/programs/INTERNAL']
         # New content values
         sf.size = 1234
         sf.hashes = {'md5': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}
@@ -109,7 +109,6 @@ class ModelTest(IndexdTestCase):
         assert self.indexd.Session().put.call_count == 0
         # Check that no new version was made
         assert self.indexd.Session().post.call_count == orig_post + 1
-
 
     def test_delete(self):
         """

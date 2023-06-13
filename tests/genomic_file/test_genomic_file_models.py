@@ -109,7 +109,7 @@ class ModelTest(IndexdTestCase):
         gf = GenomicFile.query.get(kwargs['kf_id'])
         gf.external_id = 'blah'
         gf.size = 1234
-        gf.acl = ['new_acl']
+        gf.authz = ['/programs/new_acl']
         gf._metadata = {'test': 'test'}
         did = gf.latest_did
         db.session.commit()
@@ -123,7 +123,8 @@ class ModelTest(IndexdTestCase):
         expected = MockIndexd.doc_base.copy()
         expected.update({
             'size': 1234,
-            'acl': ["new_acl"],
+            'acl': [],
+            'authz': ["/programs/new_acl"],
             'metadata': {'test': 'test'},
         })
         self.indexd.Session().post.assert_any_call(
@@ -140,7 +141,7 @@ class ModelTest(IndexdTestCase):
 
         # Update fields
         gf = GenomicFile.query.get(kwargs['kf_id'])
-        gf.acl = ['INTERNAL', 'new_acl']
+        gf.authz = ['/programs/INTERNAL', '/programs/new_acl']
         did = gf.latest_did
         # explicitly tell the object to update one of the mapped fields
         gf.modified_at = datetime.datetime.now()
@@ -148,14 +149,15 @@ class ModelTest(IndexdTestCase):
 
         # Check database
         gf = GenomicFile.query.get(kwargs['kf_id'])
-        assert gf.acl == ['INTERNAL', 'new_acl']
+        assert gf.authz == ['/programs/INTERNAL', '/programs/new_acl']
 
         # Update document and all versions
         assert self.indexd.Session().put.call_count == 4
 
         expected = {
             'file_name': 'hg38.bam',
-            'acl': ['INTERNAL', 'new_acl'],
+            'acl': [],
+            'authz': ['/programs/INTERNAL', '/programs/new_acl'],
             'urls': ['s3://bucket/key'],
             'metadata': {}
         }
