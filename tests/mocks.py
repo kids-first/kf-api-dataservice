@@ -6,6 +6,11 @@ from unittest.mock import MagicMock, patch
 from requests.exceptions import HTTPError
 
 
+VALID_HASH_ALGOS = {
+    "md5", "sha1", "sha256", "sha512", "crc", "etag"
+}
+
+
 class MockResp(MagicMock):
     def __init__(self, *args, resp={}, status_code=200, **kwargs):
         super(MockResp, self).__init__(*args, **kwargs)
@@ -14,6 +19,10 @@ class MockResp(MagicMock):
 
     def json(self):
         return self.resp
+
+    @property
+    def text(self):
+        return json.dumps(self.resp)
 
     def data(self):
         return json.dumps(self.resp)
@@ -68,11 +77,22 @@ class MockIndexd(MagicMock):
         """
         Mocks a response from POST /index/
         """
+        valid = True
+        data = kwargs.get("json")
+        if data:
+            for algo in data.get("hashes", {}).keys():
+                if algo not in VALID_HASH_ALGOS:
+                    valid = False
+                    break
+        if not valid:
+            return MockResp(resp={
+                "message": "indexd create error message"
+            }, status_code=400)
 
         resp = {
-          'baseid': str(uuid.uuid4()),
-          'did': str(uuid.uuid4()),
-          'rev': str(uuid.uuid4())[:8]
+            'baseid': str(uuid.uuid4()),
+            'did': str(uuid.uuid4()),
+            'rev': str(uuid.uuid4())[:8]
         }
 
         did = url.split('/')[-1].split('?')[0]
