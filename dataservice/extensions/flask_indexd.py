@@ -124,7 +124,18 @@ class Indexd(object):
         resp = self.session.post(self.url,
                                  json=req_body)
 
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except HTTPError:
+            # Attach indexd error message, if there is one
+            message = 'failed to create new indexd record'
+            if 'error' in resp.json():
+                message = '{}: {}'.format(message, resp.json()['error'])
+            else:
+                message = '{}:\n {}'.format(message, resp.text)
+
+            abort(resp.status_code, message)
+
         resp = resp.json()
 
         # Update the record object with the id fields

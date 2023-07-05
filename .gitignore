@@ -105,3 +105,8 @@ ENV/
 # PyCharm
 .idea/
 dataservice/.DS_Store
+
+# hidden Mac Desktop Services Store files
+.DS_Store
+dataservice/.DS_Store
+
