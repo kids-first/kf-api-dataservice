@@ -46,12 +46,14 @@ development environment using 1 of 2 options:
 - Con: Since everything is running in containers, need to use `docker container exec` to run things in container
 - Con: You'll need to make a couple of small changes to run the dockerized service in debug mode (live updates) 
 
-1. In docker-compose.yml change the command for the dataservice container by 
-changing which command is commented out:
+1. In docker-compose.yml change the following under the `dataservice` block: 
 
 ```yaml
     # command: /bin/ash -c "sleep 5; ./bin/run.sh"
     command: /bin/ash -c "sleep 5; flask db upgrade; ./manage.py"
+
+    port:
+        - "5000:5000"    
 ```
 
 2. Bind host to all interfaces in manage.py:

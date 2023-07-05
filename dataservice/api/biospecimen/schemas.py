@@ -26,6 +26,10 @@ SAMPLE_PROCUREMENT_ENUM = {
     "Saliva Collection - Proband",
     "Blood Collection - Maternal", "Saliva Collection - Maternal",
     "Blood Collection - Paternal", "Saliva Collection - Paternal",
+    # general Saliva Kit (as with Letra's extended multiplex families):
+    "Saliva Kit",
+    # NOTE: SAMPLE_PROCUREMENT.SALIVA_KIT was already added to the ingest lib,
+    # hence "Saliva Kit" as the general variation to "Saliva Collection - *"
 }
 # Codes from http://purl.obolibrary.org/obo/duo.owl
 DUO_ID_BIOSPECIMEN_ENUM = {
