@@ -182,7 +182,7 @@ class Indexd(object):
 
         # If acl changed, update all previous version with new acl
         if record.acl != old['acl']:
-            self._update_all_acls(record)
+            self._update_all_acls(record, key="acl")
 
         # If authz changed, update all previous version with new authz
         if record.authz != old['authz']:
@@ -204,10 +204,18 @@ class Indexd(object):
 
         return record
 
-    def _update_all_acls(self, record, key="acl"):
+    def _update_all_acls(self, record, key="authz"):
         """
-        Update acls for all previous versions of a record and update the
+        Update ACL values for all previous versions of a record and update the
         target record's rev
+
+        Since the GenomicFile.acl field is being deprecated in favor of the
+        new GenomicFile.authz field, the default behavior of this method will
+        be to update the ACL values in the authz field
+
+        Until the GenomicFile.acl field is completely removed from the code
+        base and all GenomicFile.acl values in the DB are migrated into the
+        GenomicFile.authz field, this method will be used to update both fields
         """
         # Only use fields allowed by the indexd PUT schema
         fields = ['urls', 'acl', 'authz', 'file_name', 'version',
