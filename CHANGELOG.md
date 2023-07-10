@@ -1,5 +1,23 @@
 # Kids First DataService Change History
 
+## Release 1.20.0
+
+### Summary
+
+- Emojis: ? x4, 📝 x1, 🐛 x1, 🔥 x1
+- Categories: Documentation x1, Removals x1, Fixes x1, Other Changes x4
+
+### New features and changes
+
+- [#627](https://github.com/kids-first/kf-api-dataservice/pull/627) -  :sparkles: add snRNAseq experiment strategy - [cf23ffe8](https://github.com/kids-first/kf-api-dataservice/commit/cf23ffe818cb8d67c554f4a4e361190b584f72ee) by [calkinsh](https://github.com/calkinsh)
+- [#621](https://github.com/kids-first/kf-api-dataservice/pull/621) -  :sparkles: Add Saliva Kit to SAMPLE_PROCUREMENT_ENUM for Letra - [18ad0315](https://github.com/kids-first/kf-api-dataservice/commit/18ad03154822bae4d97b9ecaee1185073f9ede11) by [r3m0chop](https://github.com/r3m0chop)
+- [#625](https://github.com/kids-first/kf-api-dataservice/pull/625) -  :bug: Fix port mapping in docker-compose - [634ffca7](https://github.com/kids-first/kf-api-dataservice/commit/634ffca7b7295de1e004c7c93d54f5bd8a2d6ccb) by [znatty22](https://github.com/znatty22)
+- [#614](https://github.com/kids-first/kf-api-dataservice/pull/614) - 📝 point documentation at the kidsfirstdrc.org domain, not kids-first.io - [b080a869](https://github.com/kids-first/kf-api-dataservice/commit/b080a869bf1ae3dd8a1b4a347f27fca4143d2b68) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#622](https://github.com/kids-first/kf-api-dataservice/pull/622) - 🐛 Fix indexd POST error handling - [73755b5c](https://github.com/kids-first/kf-api-dataservice/commit/73755b5c30895c270325f9979e0c55ce8b84e0df) by [znatty22](https://github.com/znatty22)
+- [#623](https://github.com/kids-first/kf-api-dataservice/pull/623) -  :busts_in_silhouette: Add codeowners - [232cc46e](https://github.com/kids-first/kf-api-dataservice/commit/232cc46e6dcef2e95f63bdd44a48a18bd5a870be) by [znatty22](https://github.com/znatty22)
+- [#620](https://github.com/kids-first/kf-api-dataservice/pull/620) - 🔥 Remove existing .DS_Store files and update .gitignore - [3903b983](https://github.com/kids-first/kf-api-dataservice/commit/3903b983df6b757a0507c6559952c1bf7c2bdd02) by [r3m0chop](https://github.com/r3m0chop)
+
+
 ## Release 1.19.0
 
 ### Summary
