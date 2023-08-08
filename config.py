@@ -17,9 +17,9 @@ class Config:
         PG_USER, PG_PASS, PG_HOST, PG_PORT, PG_NAME)
 
     # Default number of results per request
-    DEFAULT_PAGE_LIMIT = 10
+    DEFAULT_PAGE_LIMIT = 100
     # Determines the maximum number of results per request
-    MAX_PAGE_LIMIT = 100
+    MAX_PAGE_LIMIT = 1000
 
     INDEXD_URL = os.environ.get('INDEXD_URL', None)
     INDEXD_USER = os.environ.get('INDEXD_USER', 'test')
