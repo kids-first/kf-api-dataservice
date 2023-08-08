@@ -103,7 +103,7 @@ source ./env_local.sh
 flask db upgrade
 
 # Run the flask web application
-flask run
+./manage.py
 ```
 
 ## Database
