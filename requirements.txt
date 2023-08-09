@@ -24,4 +24,3 @@ boto3==1.7.8
 botocore==1.10.8
 Jinja2==2.10
 requests==2.24.0
-PyYAML==5.3.1

@@ -90,6 +90,11 @@ https://realpython.com/intro-to-pyenv/
 # Setup python environment and install dependencies
 pyenv virtualenv 3.7.11 dataservice_venv
 pyenv local dataservice_venv
+
+# Important but *temporary*
+# See https://github.com/yaml/pyyaml/issues/724
+pip install "cython<3.0.0" && pip install --no-build-isolation "pyyaml==5.4.0"
+
 pip install -r dev-requirements.txt
 pip install -r requirements.txt
 pip install -e .
