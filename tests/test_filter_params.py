@@ -6,7 +6,9 @@ from pprint import pprint
 from tests.conftest import (
     ENTITY_ENDPOINT_MAP,
     ENDPOINTS,
-    ENTITY_PARAMS
+    ENTITY_PARAMS,
+    MAX_PAGE_LIMIT,
+    DEFAULT_PAGE_LIMIT
 )
 
 
@@ -56,8 +58,8 @@ class TestFilterParams:
 
         # Check status code
         assert response.status_code == 200
-        assert resp['limit'] == 10
-        assert len(resp['results']) == min(expected_total, 10)
+        assert resp['limit'] == DEFAULT_PAGE_LIMIT
+        assert len(resp['results']) == min(expected_total, DEFAULT_PAGE_LIMIT)
         assert resp['total'] == expected_total
         # All results have correct field values
         for result in resp['results']:
@@ -122,8 +124,8 @@ class TestFilterParams:
         assert response.status_code == 200
         # Check content
         resp = json.loads(response.data.decode('utf-8'))
-        assert resp['limit'] == 10
-        assert len(resp['results']) == min(expected_total, 10)
+        assert resp['limit'] == DEFAULT_PAGE_LIMIT
+        assert len(resp['results']) == min(expected_total, DEFAULT_PAGE_LIMIT)
         assert resp['total'] == expected_total
 
     @pytest.mark.parametrize('field', ['created_at', 'modified_at'])
@@ -154,8 +156,8 @@ class TestFilterParams:
         assert response.status_code == 200
         # Check content
         resp = json.loads(response.data.decode('utf-8'))
-        assert resp['limit'] == 10
-        assert len(resp['results']) == min(expected_total, 10)
+        assert resp['limit'] == DEFAULT_PAGE_LIMIT
+        assert len(resp['results']) == min(expected_total, DEFAULT_PAGE_LIMIT)
         assert resp['total'] == expected_total
         # All results have correct field values
         for result in resp['results']:

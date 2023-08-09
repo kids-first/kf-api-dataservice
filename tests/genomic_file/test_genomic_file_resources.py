@@ -15,7 +15,7 @@ from dataservice.api.read_group.models import ReadGroup
 from dataservice.api.sequencing_experiment.models import SequencingExperiment
 from dataservice.api.genomic_file.models import GenomicFile
 from tests.conftest import make_entities
-from tests.conftest import ENTITY_TOTAL
+from tests.conftest import ENTITY_TOTAL, DEFAULT_PAGE_LIMIT
 from tests.mocks import MockIndexd
 
 
@@ -159,8 +159,8 @@ def test_get_list(client, indexd, genomic_files):
 
     assert resp['_status']['code'] == 200
     assert resp['total'] == GenomicFile.query.count()
-    assert len(resp['results']) == 10
-    assert indexd.get.call_count == 10
+    assert len(resp['results']) == DEFAULT_PAGE_LIMIT
+    assert indexd.get.call_count == DEFAULT_PAGE_LIMIT
 
 
 def test_get_list_with_missing_files(client, indexd, genomic_files):
