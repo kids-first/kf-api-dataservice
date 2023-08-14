@@ -27,6 +27,7 @@ COPY        bin/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Setup dataservice
 COPY        requirements.txt /app/
+RUN         pip install "cython<3.0.0" && pip install --no-build-isolation "pyyaml==5.4.0" 
 RUN         pip install -r /app/requirements.txt
 
 COPY        manage.py setup.py config.py /app/

@@ -10,8 +10,7 @@ from dataservice.extensions import db
 from dataservice.api.study_file.models import StudyFile
 from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
-from tests.conftest import make_entities
-from tests.conftest import ENTITY_TOTAL
+from tests.conftest import ENTITY_TOTAL, DEFAULT_PAGE_LIMIT, make_entities
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
 
@@ -132,8 +131,8 @@ def test_get_list(client, indexd, study_files):
 
     assert resp['_status']['code'] == 200
     assert resp['total'] == StudyFile.query.count()
-    assert len(resp['results']) == 10
-    assert indexd.get.call_count == 10
+    assert len(resp['results']) == DEFAULT_PAGE_LIMIT
+    assert indexd.get.call_count == DEFAULT_PAGE_LIMIT
 
 
 def test_get_list_with_missing_files(client, indexd, study_files):

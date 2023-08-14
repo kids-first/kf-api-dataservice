@@ -32,7 +32,7 @@ from dataservice.api.task.models import (
 
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
-from tests.conftest import ENDPOINTS
+from tests.conftest import ENDPOINTS, MAX_PAGE_LIMIT, DEFAULT_PAGE_LIMIT
 
 pytest_plugins = ['tests.mocks']
 
@@ -46,7 +46,7 @@ class TestPagination:
     def participants(client):
 
         # Add a bunch of studies for pagination
-        for i in range(101):
+        for i in range(MAX_PAGE_LIMIT + 1):
             params = {
                 'external_id': f'Study_{i}',
                 'short_code': f'KF_{i}'
@@ -54,26 +54,26 @@ class TestPagination:
             s = Study(**params)
             db.session.add(s)
 
-        for i in range(101):
+        for i in range(MAX_PAGE_LIMIT + 1):
             ca = CavaticaApp(name='app', revision=0)
             db.session.add(ca)
 
         # Add a bunch of study files
         s0 = Study.query.filter_by(external_id='Study_0').one()
         s1 = Study.query.filter_by(external_id='Study_1').one()
-        for i in range(101):
+        for i in range(MAX_PAGE_LIMIT+1):
             sf = StudyFile(file_name='blah', study_id=s0.kf_id)
             db.session.add(sf)
 
         # Add a bunch of investigators
-        for _ in range(102):
+        for _ in range(MAX_PAGE_LIMIT + 2):
             inv = Investigator(name='test')
             inv.studies.extend([s0, s1])
             db.session.add(inv)
 
         # Add a bunch of families
         families = []
-        for i in range(101):
+        for i in range(MAX_PAGE_LIMIT + 1):
             families.append(Family(external_id='Family_{}'.format(i)))
         db.session.add_all(families)
         db.session.flush()
@@ -82,9 +82,9 @@ class TestPagination:
         f0 = Family.query.filter_by(external_id='Family_0').one()
         f1 = Family.query.filter_by(external_id='Family_1').one()
         seq_cen = None
-        for i in range(102):
-            f = f0 if i < 50 else f1
-            s = s0 if i < 50 else s1
+        for i in range(MAX_PAGE_LIMIT + 2):
+            f = f0 if i < int(MAX_PAGE_LIMIT/2) else f1
+            s = s0 if i < int(MAX_PAGE_LIMIT/2) else s1
             data = {
                 'external_id': "test",
                 'is_proband': True,
@@ -168,26 +168,26 @@ class TestPagination:
         db.session.commit()
 
     @pytest.mark.parametrize('endpoint, expected_total', [
-        ('/participants', 50),
-        ('/study-files', 101),
+        ('/participants', int(MAX_PAGE_LIMIT/2)),
+        ('/study-files', MAX_PAGE_LIMIT+1),
         ('/investigators', 1),
-        ('/biospecimens', 50),
-        ('/sequencing-experiments', 50),
-        ('/diagnoses', 50),
-        ('/outcomes', 50),
-        ('/phenotypes', 50),
+        ('/biospecimens', int(MAX_PAGE_LIMIT/2)),
+        ('/sequencing-experiments', int(MAX_PAGE_LIMIT/2)),
+        ('/diagnoses', int(MAX_PAGE_LIMIT/2)),
+        ('/outcomes', int(MAX_PAGE_LIMIT/2)),
+        ('/phenotypes', int(MAX_PAGE_LIMIT/2)),
         ('/families', 1),
-        ('/family-relationships', 50),
-        ('/genomic-files', 50),
-        ('/read-groups', 50),
+        ('/family-relationships', int(MAX_PAGE_LIMIT/2)),
+        ('/genomic-files', int(MAX_PAGE_LIMIT/2)),
+        ('/read-groups', int(MAX_PAGE_LIMIT/2)),
         ('/sequencing-centers', 1),
         ('/cavatica-apps', 1),
-        ('/tasks', 50),
-        ('/task-genomic-files', 50),
-        ('/read-group-genomic-files', 50),
-        ('/sequencing-experiment-genomic-files', 50),
-        ('/biospecimen-genomic-files', 50),
-        ('/biospecimen-diagnoses', 50)
+        ('/tasks', int(MAX_PAGE_LIMIT/2)),
+        ('/task-genomic-files', int(MAX_PAGE_LIMIT/2)),
+        ('/read-group-genomic-files', int(MAX_PAGE_LIMIT/2)),
+        ('/sequencing-experiment-genomic-files', int(MAX_PAGE_LIMIT/2)),
+        ('/biospecimen-genomic-files', int(MAX_PAGE_LIMIT/2)),
+        ('/biospecimen-diagnoses', int(MAX_PAGE_LIMIT/2))
     ])
     def test_study_filter(self, client, participants,
                           endpoint, expected_total):
@@ -198,8 +198,8 @@ class TestPagination:
         endpoint = '{}?study_id={}'.format(endpoint, s.kf_id)
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
-        assert len(resp['results']) == min(expected_total, 10)
-        assert resp['limit'] == 10
+        assert len(resp['results']) == min(expected_total, DEFAULT_PAGE_LIMIT)
+        assert resp['limit'] == DEFAULT_PAGE_LIMIT
         assert resp['total'] == expected_total
 
         ids_seen = []
@@ -233,7 +233,7 @@ class TestPagination:
         resp = json.loads(resp.data.decode('utf-8'))
 
         assert len(resp['results']) == 0
-        assert resp['limit'] == 10
+        assert resp['limit'] == DEFAULT_PAGE_LIMIT
         assert resp['total'] == 0
 
     @pytest.mark.parametrize('study_id', ['blah', 3489, 'PT_00001111'])
@@ -261,32 +261,32 @@ class TestPagination:
         assert 'study_id' in resp['_status']['message']
 
     @pytest.mark.parametrize('endpoint, expected_total', [
-        ('/studies', 101),
-        ('/investigators', 102),
-        ('/participants', 102),
-        ('/outcomes', 102),
-        ('/phenotypes', 102),
-        ('/diagnoses', 102),
-        ('/family-relationships', 101),
-        ('/study-files', 101),
-        ('/families', 101),
-        ('/read-groups', 102),
+        ('/studies', MAX_PAGE_LIMIT+1),
+        ('/investigators', MAX_PAGE_LIMIT+2),
+        ('/participants', MAX_PAGE_LIMIT+2),
+        ('/outcomes', MAX_PAGE_LIMIT+2),
+        ('/phenotypes', MAX_PAGE_LIMIT+2),
+        ('/diagnoses', MAX_PAGE_LIMIT+2),
+        ('/family-relationships', MAX_PAGE_LIMIT+1),
+        ('/study-files', MAX_PAGE_LIMIT+1),
+        ('/families', MAX_PAGE_LIMIT+1),
+        ('/read-groups', MAX_PAGE_LIMIT+2),
         ('/sequencing-centers', 1),
-        ('/cavatica-apps', 101),
-        ('/tasks', 102),
-        ('/task-genomic-files', 102),
-        ('/read-group-genomic-files', 102),
-        ('/sequencing-experiment-genomic-files', 102),
-        ('/biospecimen-genomic-files', 102),
-        ('/biospecimen-diagnoses', 102)
+        ('/cavatica-apps', MAX_PAGE_LIMIT+1),
+        ('/tasks', MAX_PAGE_LIMIT+2),
+        ('/task-genomic-files', MAX_PAGE_LIMIT+2),
+        ('/read-group-genomic-files', MAX_PAGE_LIMIT+2),
+        ('/sequencing-experiment-genomic-files', MAX_PAGE_LIMIT+2),
+        ('/biospecimen-genomic-files', MAX_PAGE_LIMIT+2),
+        ('/biospecimen-diagnoses', MAX_PAGE_LIMIT+2)
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
 
-        assert len(resp['results']) == min(expected_total, 10)
-        assert resp['limit'] == 10
+        assert len(resp['results']) == min(expected_total, DEFAULT_PAGE_LIMIT)
+        assert resp['limit'] == DEFAULT_PAGE_LIMIT
         assert resp['total'] == expected_total
 
         ids_seen = []
@@ -311,7 +311,7 @@ class TestPagination:
         """
         created_at = datetime.now()
         studies = [Study(external_id=f'Study_{i}', short_code=f'KF-ST{i}')
-                   for i in range(50)]
+                   for i in range(int(MAX_PAGE_LIMIT/2))]
         db.session.add_all(studies)
         db.session.flush()
         for study in studies:
@@ -343,12 +343,12 @@ class TestPagination:
             assert len(response['results']) == 5
         assert response['limit'] == 5
 
-        response = client.get(endpoint + '?limit=200')
+        response = client.get(endpoint + f'?limit={MAX_PAGE_LIMIT * 2}')
         response = json.loads(response.data.decode('utf-8'))
         if '/sequencing-centers' in endpoint:
             assert len(response['results']) == 1
         else:
-            assert len(response['results']) == 100
+            assert len(response['results']) == MAX_PAGE_LIMIT
 
         # Check unexpected limit param uses default
         response = client.get(endpoint + '?limit=dog')
@@ -356,8 +356,8 @@ class TestPagination:
         if '/sequencing-centers' in endpoint:
             assert len(response['results']) == 1
         else:
-            assert len(response['results']) == 10
-        assert response['limit'] == 10
+            assert len(response['results']) == DEFAULT_PAGE_LIMIT
+        assert response['limit'] == DEFAULT_PAGE_LIMIT
 
     @pytest.mark.parametrize('endpoint', [
         (ept) for ept in ENDPOINTS

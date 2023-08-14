@@ -69,6 +69,9 @@ ENTITY_ENDPOINT_MAP = {
 ENDPOINT_ENTITY_MAP = {v: k for k, v in ENTITY_ENDPOINT_MAP.items()}
 ENDPOINTS = list(ENTITY_ENDPOINT_MAP.values())
 
+DEFAULT_PAGE_LIMIT = 100
+MAX_PAGE_LIMIT = 1000
+
 
 def _create_entity_params(filepath):
     # Read data from file
