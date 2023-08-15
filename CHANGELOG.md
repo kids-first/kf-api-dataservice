@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.21.0
+
+### Summary
+
+- Emojis: 🔧 x1
+- Categories: Ops x1
+
+### New features and changes
+
+- [#629](https://github.com/kids-first/kf-api-dataservice/pull/629) - 🔧 Increase max and default page limits - [9d38045a](https://github.com/kids-first/kf-api-dataservice/commit/9d38045a542ae45079bd7ad65be80d11806a6042) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.20.0
 
 ### Summary
