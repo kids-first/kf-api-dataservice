@@ -6,7 +6,6 @@ ecs_service_type_1_standard {
     internal_app = "false"
     environments = "dev,qa,prd"
     docker_image_type = "alpine"
-    branch = "bugfix/cbl/fix-aws-cli"
     entrypoint_command = "/app/bin/run.sh"
     deploy_scripts_version = "master"
     quick_deploy = "true"
