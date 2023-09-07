@@ -78,6 +78,7 @@ class Indexd(object):
           {
             "file_name": "my_file",
             "acl": ["phs000000"],
+            "authz": ["/programs/phs000000"],
             "hashes": {
               "md5": "0b7940593044dff8e74380476b2b27a9"
             },
@@ -116,6 +117,7 @@ class Indexd(object):
             "form": "object",
             "hashes": record.hashes,
             "acl": record.acl,
+            "authz": record.authz,
             "urls": record.urls,
             "metadata": meta
         }
@@ -168,6 +170,7 @@ class Indexd(object):
             "size": record.size,
             "hashes": record.hashes,
             "acl": record.acl,
+            "authz": record.authz,
             "urls": record.urls,
             "metadata": record._metadata
         }
@@ -179,7 +182,11 @@ class Indexd(object):
 
         # If acl changed, update all previous version with new acl
         if record.acl != old['acl']:
-            self._update_all_acls(record)
+            self._update_all_acls(record, key="acl")
+
+        # If authz changed, update all previous version with new authz
+        if record.authz != old['authz']:
+            self._update_all_acls(record, key="authz")
 
         url = '{}{}?rev={}'.format(self.url, record.latest_did, record.rev)
         if 'size' in req_body or 'hashes' in req_body:
@@ -197,22 +204,30 @@ class Indexd(object):
 
         return record
 
-    def _update_all_acls(self, record):
+    def _update_all_acls(self, record, key="authz"):
         """
-        Update acls for all previous versions of a record and update the
+        Update ACL values for all previous versions of a record and update the
         target record's rev
+
+        Since the GenomicFile.acl field is being deprecated in favor of the
+        new GenomicFile.authz field, the default behavior of this method will
+        be to update the ACL values in the authz field
+
+        Until the GenomicFile.acl field is completely removed from the code
+        base and all GenomicFile.acl values in the DB are migrated into the
+        GenomicFile.authz field, this method will be used to update both fields
         """
         # Only use fields allowed by the indexd PUT schema
-        fields = ['urls', 'acl', 'file_name', 'version',
+        fields = ['urls', 'acl', 'authz', 'file_name', 'version',
                   'metadata', 'urls_metadata', 'rev']
 
         url = '{}{}/versions'.format(self.url, record.latest_did)
         versions = self.session.get(url).json()
         for version, doc in versions.items():
-            if doc['acl'] != record.acl:
+            if doc[key] != getattr(record, key):
                 did = doc['did']
                 doc = {k: v for k, v in doc.items() if k in fields}
-                doc['acl'] = record.acl
+                doc[key] = getattr(record, key)
                 if doc['version'] is None:
                     del doc['version']
                 url = '{}{}?rev={}'.format(self.url, did, doc['rev'])

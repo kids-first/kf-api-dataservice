@@ -121,10 +121,27 @@ class BaseSchema(ma.ModelSchema):
             raise ValidationError('Unknown field', unknown)
 
 
+def acl_deprecation(val):
+    """
+    Ensure that user is not populating the ACL field. ACL field can only be an
+    empty list
+
+    If ACL field is not a list, this will be caught marshmallow type validation
+    Therefore, only check if ACL field contains a non-empty list and raise
+    an exception if it is not
+    """
+    if isinstance(val, list) and len(val) > 0:
+        raise ValidationError(
+            "The ACL field has been deprecated. "
+            "Please use the authz field instead"
+        )
+
+
 class IndexdFileSchema(Schema):
     urls = ma.List(ma.Str(), required=True)
     access_urls = ma.List(ma.Str(), dump_only=True)
-    acl = ma.List(ma.Str(), required=False)
+    acl = ma.List(ma.Str(), required=False, validate=acl_deprecation)
+    authz = ma.List(ma.Str(), required=False)
     file_name = ma.Str()
     hashes = ma.Dict(required=True)
     metadata = ma.Dict(attribute='_metadata')

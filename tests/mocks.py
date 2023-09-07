@@ -60,7 +60,8 @@ class MockIndexd(MagicMock):
         "did": "",
         "metadata": {
         },
-        "acl": ["INTERNAL"],
+        "acl": [],
+        "authz": ["/programs/INTERNAL"],
         "rev": "39b19b2d",
         "updated_date": "2018-02-21T00:44:27.414671",
         "version": None
