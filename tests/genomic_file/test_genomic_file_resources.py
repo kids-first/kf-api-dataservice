@@ -150,31 +150,31 @@ def test_new_indexd_error(client, indexd, entities):
     assert GenomicFile.query.count() == init_count
 
 
-def test_acl_deprecation_on_new(client, entities, genomic_files):
-    """
-    Test that genomic file create fails if deprecated acl field is populated
-    """
-    body = {
-        'external_id': 'genomic_file_0',
-        'file_name': 'hg38.bam',
-        'size': 123,
-        'acl': ['TEST'],
-        'data_type': 'Aligned Reads',
-        'file_format': 'bam',
-        'urls': ['s3://bucket/key'],
-        'controlled_access': False,
-        'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'}
-    }
-    init_count = GenomicFile.query.count()
-    response = client.post(url_for(GENOMICFILE_LIST_URL),
-                           headers={'Content-Type': 'application/json'},
-                           data=json.dumps(body))
+# def test_acl_deprecation_on_new(client, entities, genomic_files):
+#     """
+#     Test that genomic file create fails if deprecated acl field is populated
+#     """
+#     body = {
+#         'external_id': 'genomic_file_0',
+#         'file_name': 'hg38.bam',
+#         'size': 123,
+#         'acl': ['TEST'],
+#         'data_type': 'Aligned Reads',
+#         'file_format': 'bam',
+#         'urls': ['s3://bucket/key'],
+#         'controlled_access': False,
+#         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'}
+#     }
+#     init_count = GenomicFile.query.count()
+#     response = client.post(url_for(GENOMICFILE_LIST_URL),
+#                            headers={'Content-Type': 'application/json'},
+#                            data=json.dumps(body))
 
-    resp = json.loads(response.data.decode("utf-8"))
+#     resp = json.loads(response.data.decode("utf-8"))
 
-    assert 400 == response.status_code
-    assert 'ACL field has been deprecated' in resp['_status']['message']
-    assert GenomicFile.query.count() == init_count
+#     assert 400 == response.status_code
+#     assert 'ACL field has been deprecated' in resp['_status']['message']
+#     assert GenomicFile.query.count() == init_count
 
 
 def test_get_list(client, indexd, genomic_files):

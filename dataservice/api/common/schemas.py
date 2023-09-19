@@ -140,7 +140,7 @@ def acl_deprecation(val):
 class IndexdFileSchema(Schema):
     urls = ma.List(ma.Str(), required=True)
     access_urls = ma.List(ma.Str(), dump_only=True)
-    acl = ma.List(ma.Str(), required=False, validate=acl_deprecation)
+    acl = ma.List(ma.Str(), required=False)
     authz = ma.List(ma.Str(), required=False)
     file_name = ma.Str()
     hashes = ma.Dict(required=True)
