@@ -1,5 +1,19 @@
 # Kids First DataService Change History
 
+## Release 1.22.0
+
+### Summary
+
+- Emojis: ⬆️ x1, ? x1, ✨ x1
+- Categories: Additions x1, Ops x1, Other Changes x1
+
+### New features and changes
+
+- [#633](https://github.com/kids-first/kf-api-dataservice/pull/633) - ⬆️ update builder from alpine 3.7 -> 3.18 - [2391bf51](https://github.com/kids-first/kf-api-dataservice/commit/2391bf51c5463d5370632ef92cec1fc37906f8c5) by [devbyaccident](https://github.com/devbyaccident)
+- [#632](https://github.com/kids-first/kf-api-dataservice/pull/632) -  :bug: Loosen ACL restriction - [7cf4f80b](https://github.com/kids-first/kf-api-dataservice/commit/7cf4f80b851bf9699bf52199d654c461ae28d6c4) by [znatty22](https://github.com/znatty22)
+- [#624](https://github.com/kids-first/kf-api-dataservice/pull/624) - ✨ Store ACL in new authz field - [bf13d28c](https://github.com/kids-first/kf-api-dataservice/commit/bf13d28cbc0961094989b49e975fd9529f30e1ae) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.21.0
 
 ### Summary
