@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.23.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#635](https://github.com/kids-first/kf-api-dataservice/pull/635) -  :heavy_plus_sign: adding LR enums - [27f09337](https://github.com/kids-first/kf-api-dataservice/commit/27f093376af1d1db58d63d28f32bfc20dd6701b7) by [aw3334](https://github.com/aw3334)
+
+
 ## Release 1.22.0
 
 ### Summary
