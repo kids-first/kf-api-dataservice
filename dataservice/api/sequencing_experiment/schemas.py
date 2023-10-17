@@ -17,9 +17,9 @@ EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq',
                             'Linked-Read WGS (10x Chromium)',
                             'Targeted Sequencing', 'Methylation',
                             'Panel', 'scRNA-Seq', 'snRNA-Seq', 'Other',
-                            'Circular Consensus Sequencing RNA-Seq', 
-                            'Circular Consensus Sequencing WGS', 
-                            'Continuous Long Reads RNA-Seq', 
+                            'Circular Consensus Sequencing RNA-Seq',
+                            'Circular Consensus Sequencing WGS',
+                            'Continuous Long Reads RNA-Seq',
                             'Continuous Long Reads WGS'}
 PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Complete Genomics', 'PacBio', 'ONT', 'Other'}
