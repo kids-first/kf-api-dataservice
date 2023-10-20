@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.24.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#637](https://github.com/kids-first/kf-api-dataservice/pull/637) -  :heavy_plus_sign: adding ONT WGS strategy enum - [869027bf](https://github.com/kids-first/kf-api-dataservice/commit/869027bfae096b0ec78b9485ce41b381d3a60a97) by [aw3334](https://github.com/aw3334)
+
+
 ## Release 1.23.0
 
 ### Summary
