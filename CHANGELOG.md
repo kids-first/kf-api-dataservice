@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.24.1
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#640](https://github.com/kids-first/kf-api-dataservice/pull/640) -  :100: adding missing comma - [224be770](https://github.com/kids-first/kf-api-dataservice/commit/224be77001a26aac92cc80f98dff5544916cb716) by [aw3334](https://github.com/aw3334)
+
+
 ## Release 1.24.0
 
 ### Summary
