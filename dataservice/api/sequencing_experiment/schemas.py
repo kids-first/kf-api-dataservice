@@ -20,7 +20,7 @@ EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq',
                             'Circular Consensus Sequencing RNA-Seq',
                             'Circular Consensus Sequencing WGS',
                             'Continuous Long Reads RNA-Seq',
-                            'Continuous Long Reads WGS'
+                            'Continuous Long Reads WGS',
                             'ONT WGS'}
 PLATFORM_ENUM = {'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Complete Genomics', 'PacBio', 'ONT', 'Other'}
