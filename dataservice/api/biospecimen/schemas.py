@@ -16,6 +16,15 @@ from dataservice.api.common.validation import (
     list_validation_generator
 )
 
+PRESERVATION_METHOD_ENUM = {
+    'Cryopreserved',
+    'EDTA',
+    'FFPE',
+    'Fresh',
+    'Frozen',
+    'OCT',
+    'Snap Frozen'
+}
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other", "Virtual"}
 SAMPLE_PROCUREMENT_ENUM = {
     "Autopsy", "Biopsy", "Subtotal Resections",
@@ -69,6 +78,10 @@ class BiospecimenSchema(BaseSchema):
         'duo_ids',
         validate=list_validation_generator(DUO_ID_BIOSPECIMEN_ENUM,
                                            items_name='DUO IDs')
+    )
+    preservation_method = field_for(
+        Biospecimen, 'preservation_method',
+        validate=enum_validation_generator(PRESERVATION_METHOD_ENUM)
     )
 
     class Meta(BaseSchema.Meta):
