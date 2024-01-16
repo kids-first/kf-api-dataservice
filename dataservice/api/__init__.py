@@ -22,8 +22,12 @@ from dataservice.api.task_genomic_file import (
 )
 from dataservice.api.family_relationship import FamilyRelationshipAPI
 from dataservice.api.family_relationship import FamilyRelationshipListAPI
+from dataservice.api.sample import SampleAPI
+from dataservice.api.sample import SampleListAPI
 from dataservice.api.biospecimen import BiospecimenAPI
 from dataservice.api.biospecimen import BiospecimenListAPI
+from dataservice.api.container import ContainerAPI
+from dataservice.api.container import ContainerListAPI
 from dataservice.api.diagnosis import DiagnosisAPI
 from dataservice.api.diagnosis import DiagnosisListAPI
 from dataservice.api.outcome import OutcomeAPI
@@ -56,6 +60,7 @@ from dataservice.api.biospecimen_diagnosis import (
     BiospecimenDiagnosisAPI,
     BiospecimenDiagnosisListAPI
 )
+
 from dataservice.api.study.models import Study
 
 
