@@ -86,3 +86,10 @@ class Sample(db.Model, Base):
                                  cascade='all, delete-orphan',
                                  backref=db.backref('sample',
                                                     lazy=True))
+
+
+@event.listens_for(Container, 'after_delete')
+def delete_orphans(mapper, connection, state):
+    q = (db.session.query(Container)
+         .filter(~Sample.containers.any()))
+    q.delete(synchronize_session='fetch')
