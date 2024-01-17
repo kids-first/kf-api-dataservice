@@ -21,7 +21,7 @@ PRESERVATION_METHOD_ENUM = {
     'EDTA',
     'FFPE',
     'Fresh',
-    'Frozen',
+    'Flash Frozen',
     'OCT',
     'Snap Frozen'
 }
@@ -90,7 +90,8 @@ class BiospecimenSchema(BaseSchema):
         collection_url = 'api.biospecimens_list'
         exclude = (BaseSchema.Meta.exclude +
                    ('participant', 'sequencing_center') +
-                   ('biospecimen_genomic_files', 'biospecimen_diagnoses'))
+                   ('biospecimen_genomic_files', 'biospecimen_diagnoses') +
+                   ('containers',))
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
@@ -105,7 +106,9 @@ class BiospecimenSchema(BaseSchema):
         'diagnoses': ma.URLFor('api.diagnoses_list',
                                biospecimen_id='<kf_id>'),
         'genomic_files': ma.URLFor('api.genomic_files_list',
-                                   biospecimen_id='<kf_id>')
+                                   biospecimen_id='<kf_id>'),
+        'containers': ma.URLFor('api.containers_list',
+                                biospecimen_id='<kf_id>'),
     })
 
 

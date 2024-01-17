@@ -2,6 +2,7 @@ from dataservice.extensions import db
 from dataservice.api.common.model import Base, KfId
 from dataservice.api.biospecimen_genomic_file.models import (
     BiospecimenGenomicFile)
+from dataservice.api.container.models import Container
 from dataservice.api.diagnosis.models import Diagnosis
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy import event
@@ -134,6 +135,8 @@ class Biospecimen(db.Model, Base):
     biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
                                                 backref='biospecimen',
                                                 cascade='all, delete-orphan')
+    containers = db.relationship(Container, backref='biospecimen',
+                                 cascade='all, delete-orphan')
 
 
 class BiospecimenDiagnosis(db.Model, Base):
