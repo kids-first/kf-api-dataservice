@@ -1,12 +1,8 @@
 import json
-from datetime import datetime
-from dateutil import parser, tz
 
 from flask import url_for
 
-from dataservice.extensions import db
 from dataservice.api.sample.models import Sample
-from dataservice.api.study.models import Study
 
 from tests.utils import FlaskTestCase
 from tests.create import make_sample, make_participant
@@ -66,7 +62,7 @@ class SampleTest(FlaskTestCase):
         """
         Test retrieving all samples
         """
-        s = make_sample(external_id='TEST')
+        make_sample(external_id='TEST')
 
         response = self.client.get(
             url_for(SAMPLES_LIST_URL),
@@ -118,7 +114,6 @@ class SampleTest(FlaskTestCase):
                                               kf_id=kf_id),
                                       headers=self._api_headers())
 
-        resp = json.loads(response.data.decode('utf-8'))
         assert response.status_code == 200
         assert orig == Sample.query.count()
 
@@ -126,5 +121,4 @@ class SampleTest(FlaskTestCase):
                                            kf_id=kf_id),
                                    headers=self._api_headers())
 
-        resp = json.loads(response.data.decode('utf-8'))
         assert response.status_code == 404

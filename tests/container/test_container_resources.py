@@ -1,13 +1,8 @@
 import json
-from datetime import datetime
-from dateutil import parser, tz
-from pprint import pprint
 
 from flask import url_for
 
-from dataservice.extensions import db
 from dataservice.api.container.models import Container
-from dataservice.api.study.models import Study
 
 from tests.utils import FlaskTestCase
 from tests import create
@@ -72,7 +67,7 @@ class ContainerTest(FlaskTestCase):
         """
         Test retrieving all containers
         """
-        s = create.make_container(external_aliquot_id='TEST')
+        create.make_container(external_aliquot_id='TEST')
 
         response = self.client.get(
             url_for(CONTAINERS_LIST_URL),
@@ -127,7 +122,6 @@ class ContainerTest(FlaskTestCase):
                                               kf_id=kf_id),
                                       headers=self._api_headers())
 
-        resp = json.loads(response.data.decode('utf-8'))
         assert response.status_code == 200
         assert orig == Container.query.count()
 
@@ -135,5 +129,5 @@ class ContainerTest(FlaskTestCase):
                                            kf_id=kf_id),
                                    headers=self._api_headers())
 
-        resp = json.loads(response.data.decode('utf-8'))
+        json.loads(response.data.decode('utf-8'))
         assert response.status_code == 404

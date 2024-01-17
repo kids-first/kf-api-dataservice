@@ -44,7 +44,6 @@ class SampleListAPI(CRUDView):
         q = (Sample.query
              .filter_by(**filter_params))
 
-
         # Apply study_id filter and diagnosis_id filter
         from dataservice.api.participant.models import Participant
 

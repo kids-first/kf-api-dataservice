@@ -8,8 +8,9 @@ from dataservice.api.common.schemas import BaseSchema
 class ContainerSchema(BaseSchema):
     biospecimen_id = field_for(Container, 'biospecimen_id', required=True,
                                load_only=True)
-    sample_id = field_for(Container, 'sample_id', required=True,
-                               load_only=True)
+    sample_id = field_for(
+        Container, 'sample_id', required=True, load_only=True
+    )
 
     class Meta(BaseSchema.Meta):
         model = Container
