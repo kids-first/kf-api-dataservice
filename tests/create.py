@@ -9,11 +9,15 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.study.models import Study
 
 
-def make_study(external_id="phs001", **kwargs):
+def make_study(external_id="phs001", force_create=False, **kwargs):
     """
     Make study
     """
-    s = Study.query.filter_by(external_id=external_id).one_or_none()
+    if force_create:
+        s = None
+    else:
+        s = Study.query.filter_by(external_id=external_id).one_or_none()
+
     if not s:
         kwargs["external_id"] = external_id
         s = Study(**kwargs)
@@ -23,15 +27,20 @@ def make_study(external_id="phs001", **kwargs):
     return s
 
 
-def make_participant(external_id='p1', **kwargs):
+def make_participant(external_id='p1', force_create=False, **kwargs):
     """
     Make a sample
     """
-    s = make_study()
-    p = Participant.query.filter_by(external_id=external_id).one_or_none()
+    if force_create:
+        p = None
+    else:
+        p = Participant.query.filter_by(external_id=external_id).one_or_none()
+
     if not p:
         kwargs["external_id"] = external_id
         p = Participant(**kwargs)
+
+        s = make_study()
         s.participants.extend([p])
         db.session.add(s)
         db.session.commit()
@@ -40,15 +49,19 @@ def make_participant(external_id='p1', **kwargs):
 
 
 def make_biospecimen(
-    external_sample_id='bs1', external_aliquot_id='bs1', **kwargs
+    external_sample_id='bs1', external_aliquot_id='bs1', force_create=False,
+    **kwargs
 ):
     """
     Make a biospecimen
     """
-    bs = Biospecimen.query.filter_by(
-        external_sample_id=external_sample_id,
-        external_aliquot_id=external_aliquot_id,
-    ).one_or_none()
+    if force_create:
+        bs = None
+    else:
+        bs = Biospecimen.query.filter_by(
+            external_sample_id=external_sample_id,
+            external_aliquot_id=external_aliquot_id,
+        ).one_or_none()
     if not bs:
         dt = datetime.now()
         p = make_participant()
@@ -84,15 +97,22 @@ def make_biospecimen(
     return bs
 
 
-def make_container(external_aliquot_id='container-01', sample=None, **kwargs):
+def make_container(
+    external_aliquot_id='container-01', sample=None, force_create=False,
+    **kwargs
+):
     """
     Make a container
     """
-    ct = Container.query.filter_by(
-        external_aliquot_id=external_aliquot_id
-    ).one_or_none()
+    if force_create:
+        ct = None
+    else:
+        ct = Container.query.filter_by(
+            external_aliquot_id=external_aliquot_id
+        ).one_or_none()
+
     if not ct:
-        bs = make_biospecimen()
+        bs = make_biospecimen(force_create=True)
         if not sample:
             sample = make_sample()
         kwargs["external_aliquot_id"] = external_aliquot_id
@@ -103,11 +123,15 @@ def make_container(external_aliquot_id='container-01', sample=None, **kwargs):
     return ct
 
 
-def make_sample(external_id='sample-01', **kwargs):
+def make_sample(external_id='sample-01', force_create=False, **kwargs):
     """
     Make a sample
     """
-    s = Sample.query.filter_by(external_id=external_id).one_or_none()
+    if force_create:
+        s = None
+    else:
+        s = Sample.query.filter_by(external_id=external_id).one_or_none()
+
     if not s:
         p1 = make_participant()
         kwargs["external_id"] = external_id
@@ -119,7 +143,7 @@ def make_sample(external_id='sample-01', **kwargs):
     return s
 
 
-def make_seq_center(name="Baylor", **kwargs):
+def make_seq_center(name="Baylor", force_create=False, **kwargs):
     """
     Make a sequencing_center
     """
