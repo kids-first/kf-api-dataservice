@@ -90,6 +90,6 @@ class Sample(db.Model, Base):
 
 @event.listens_for(Container, 'after_delete')
 def delete_orphans(mapper, connection, state):
-    q = (db.session.query(Container)
+    q = (db.session.query(Sample)
          .filter(~Sample.containers.any()))
     q.delete(synchronize_session='fetch')
