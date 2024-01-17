@@ -1,20 +1,8 @@
 from marshmallow_sqlalchemy import field_for
-from marshmallow import (
-    fields,
-    validates
-)
 
 from dataservice.extensions import ma
 from dataservice.api.sample.models import Sample
 from dataservice.api.common.schemas import BaseSchema
-from dataservice.api.common.validation import validate_age
-from dataservice.api.common.custom_fields import DateOrDatetime
-from dataservice.api.common.validation import (
-    validate_positive_number,
-    enum_validation_generator,
-    validate_kf_id,
-    list_validation_generator
-)
 
 
 class SampleSchema(BaseSchema):

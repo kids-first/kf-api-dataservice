@@ -18,7 +18,7 @@ class Sample(db.Model, Base):
 
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_id: Name given to sample by contributor
-    :param sample_event_key: An identifier that represents when the sample 
+    :param sample_event_key: An identifier that represents when the sample
     was drawn
     :param composition : The cellular composition of the sample.
     :param tissue_type: description of the kind of tissue collected
@@ -35,7 +35,7 @@ class Sample(db.Model, Base):
     :param preservation_method: Text term that represents the method used
            to preserve the sample
     :param method_of_sample_procurement: Text term that represents the method
-           used to extract the analytes from the sample 
+           used to extract the analytes from the sample
     """
 
     __tablename__ = 'sample'
