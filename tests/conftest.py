@@ -14,6 +14,8 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sample.models import Sample
+from dataservice.api.container.models import Container
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
@@ -55,6 +57,8 @@ ENTITY_ENDPOINT_MAP = {
     Phenotype: '/phenotypes',
     Outcome: '/outcomes',
     Biospecimen: '/biospecimens',
+    Sample: '/samples',
+    Container: '/containers',
     GenomicFile: '/genomic-files',
     BiospecimenGenomicFile: '/biospecimen-genomic-files',
     BiospecimenDiagnosis: '/biospecimen-diagnoses',
@@ -158,7 +162,8 @@ def make_entities(client):
                          BiospecimenGenomicFile,
                          BiospecimenDiagnosis,
                          ReadGroupGenomicFile,
-                         SequencingExperimentGenomicFile}:
+                         SequencingExperimentGenomicFile,
+                         Container}:
                 continue
             for i in range(ENTITY_TOTAL):
                 data = ENTITY_PARAMS['fields'][endpoint].copy()
@@ -251,6 +256,18 @@ def make_entities(client):
             _entities[BiospecimenDiagnosis].append(bd)
             db.session.add(bd)
 
+        # Containers
+        samples = _entities[Sample]
+        biospecimens = _entities[Biospecimen]
+        for i, (sample, biospecimen) in enumerate(
+            zip(samples, biospecimens)
+        ):
+            ct = Container(external_aliquot_id=f"container-{i}")
+            ct.sample = sample
+            ct.biospecimen = biospecimen
+            _entities[Container].append(ct)
+            db.session.add(ct)
+
         # Add relations
         s0 = _entities[Study][0]
         f0 = _entities[Family][0]
@@ -270,12 +287,15 @@ def make_entities(client):
             ent.family = f0
 
         # Biospecimen, Diagnosis, Phenotype, Outcome
-        participant_ents = [Biospecimen, Diagnosis, Phenotype, Outcome]
+        participant_ents = [
+            Biospecimen, Diagnosis, Phenotype, Outcome, Sample
+        ]
         for participant_ent in participant_ents:
             for ent in _entities[participant_ent]:
                 ent.participant = p0
                 if Biospecimen == participant_ent:
                     ent.sequencing_center = sc0
+
         # SequencingExperiment
         for ent in _entities[SequencingExperiment]:
             ent.sequencing_center = sc0

@@ -84,6 +84,8 @@ class TestAPI:
         ('/outcomes', ['participant']),
         ('/diagnoses', ['participant', 'biospecimens']),
         ('/biospecimens', ['participant', 'sequencing_center', 'diagnoses']),
+        ('/samples', ['participant']),
+        ('/containers', ['biospecimen', 'sample']),
         ('/sequencing-experiments', ['sequencing_center', 'genomic_files']),
         ('/genomic-files', ['read_groups', 'sequencing_experiments']),
         ('/read-groups', ['genomic_files']),
@@ -349,6 +351,8 @@ class TestAPI:
                                  ('/genomic-files', 'urls'),
                                  ('/genomic-files', 'hashes'),
                                  ('/diagnoses', 'participant_id'),
+                                 ('/containers', 'biospecimen_id'),
+                                 ('/containers', 'sample_id'),
                                  ('/sequencing-centers', 'name')
                              ])
     def test_missing_required_params(self, client, entities, endpoint,
@@ -385,6 +389,8 @@ class TestAPI:
                               ('/study-files', 'study_id'),
                               ('/diagnoses', 'participant_id'),
                               ('/biospecimens', 'participant_id'),
+                              ('/containers', 'biospecimen_id'),
+                              ('/samples', 'participant_id'),
                               ('/tasks', 'cavatica_app_id'),
                               ('/task-genomic-files',
                                'task_id'),

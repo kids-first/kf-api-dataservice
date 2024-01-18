@@ -55,6 +55,23 @@
       "preservation_method": "Fresh",
       "visible": true
     },
+    "/samples": {
+      "external_id": "Biospecimen_0",
+      "tissue_type": "normal",
+      "composition": "Blood",
+      "anatomical_location": "arm",
+      "analyte_type": "DNA",
+      "concentration_mg_per_ml": 200.0,
+      "volume_ul": 13.99,
+      "method_of_sample_procurement": "Biopsy",
+      "preservation_method": "Fresh",
+      "visible": true
+    },
+    "/containers": {
+      "external_aliquot_id": "container-01",
+      "specimen_status": "availble",
+      "visible": true
+    },
     "/diagnoses": {
       "external_id": "d0",
       "diagnosis_category": "Structural Birth Defect",
@@ -199,6 +216,20 @@
         { "analyte_type": "test" },
         { "method_of_sample_procurement": "foo" }
       ]
+    },
+    "/samples": {
+      "valid": {
+        "analyte_type": "RNA",
+        "method_of_sample_procurement": "Autopsy",
+        "preservation_method": "Frozen"
+      },
+      "invalid": []
+    },
+    "/containers": {
+      "valid": {
+        "external_aliquot_id": "foo"
+      },
+      "invalid": []
     },
     "/diagnoses": {
       "valid": {
