@@ -21,7 +21,7 @@ PRESERVATION_METHOD_ENUM = {
     'EDTA',
     'FFPE',
     'Fresh',
-    'Flash Frozen',
+    'Frozen',
     'OCT',
     'Snap Frozen'
 }
