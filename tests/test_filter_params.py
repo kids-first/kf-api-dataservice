@@ -10,7 +10,6 @@ from tests.conftest import (
     MAX_PAGE_LIMIT,
     DEFAULT_PAGE_LIMIT
 )
-from pprint import pprint
 
 
 class TestFilterParams:
