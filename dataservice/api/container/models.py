@@ -29,6 +29,10 @@ class Container(db.Model, Base):
         db.Text(),
         doc='Name given to aliquot by contributor'
     )
+    volume_ul = db.Column(
+        db.Float(),
+        doc='The volume of the aliquot container in microliters'
+    )
     specimen_status = db.Column(
         db.Text(),
         doc='Whether container was shipped, sequenced, etc'
