@@ -98,7 +98,7 @@ def make_biospecimen(
 
 
 def make_container(
-    external_aliquot_id='container-01', sample=None, force_create=False,
+    external_id='container-01', sample=None, force_create=False,
     **kwargs
 ):
     """
@@ -108,14 +108,14 @@ def make_container(
         ct = None
     else:
         ct = Container.query.filter_by(
-            external_aliquot_id=external_aliquot_id
+            external_id=external_id
         ).one_or_none()
 
     if not ct:
         bs = make_biospecimen(force_create=True)
         if not sample:
             sample = make_sample()
-        kwargs["external_aliquot_id"] = external_aliquot_id
+        kwargs["external_id"] = external_id
         ct = Container(**kwargs, biospecimen=bs, sample=sample)
         db.session.add(ct)
         db.session.commit()

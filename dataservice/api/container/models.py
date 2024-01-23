@@ -4,18 +4,25 @@ from dataservice.api.common.model import Base, KfId
 
 class Container(db.Model, Base):
     """
-    Container entity
-
-    This table is being added in order to represent the Sample, Container
-    concepts and their parent child relationship without affecting the
-    current Biospecimen entity
+    Container - a distinct portion of a Sample
 
     The Container can be thought of as synonymous with Biospecimen. There
     should be a 1-to-1 relationship between Container and Biospecimen
 
+    Background:
+
+    The current Biospecimen table does not adequately model the hierarchical
+    relationship between specimen groups and specimens. The Sample and
+    Container tables have been created to fill in this gap.
+
+    A Sample is a biologically equivalent group of specimens. A Container
+    represents one of the specimens in the Sample's group of specimens.
+
+    The Sample and Container tables were created in order to minimize any
+    changes to the existing Biospecimen table.
+
     :param kf_id: Unique id given by the Kid's First DCC
-    :param external_aliquot_id: Name given to aliquot by contributor. Will be
-    populated from the related Biospecimen
+    :param external_id: Name given to aliquot by contributor
     :param specimen_status: Whether the container was shipped, sequenced, etc
     """
 
@@ -25,9 +32,9 @@ class Container(db.Model, Base):
     # Enforce the 1-to-1 relationship between Biospecimen and Container
     __table_args__ = (db.UniqueConstraint('biospecimen_id', ),)
 
-    external_aliquot_id = db.Column(
+    external_id = db.Column(
         db.Text(),
-        doc='Name given to aliquot by contributor'
+        doc='Name or ID given to biospecimen by contributor'
     )
     volume_ul = db.Column(
         db.Float(),

@@ -262,7 +262,7 @@ def make_entities(client):
         for i, (sample, biospecimen) in enumerate(
             zip(samples, biospecimens)
         ):
-            ct = Container(external_aliquot_id=f"container-{i}")
+            ct = Container(external_id=f"container-{i}")
             ct.sample = sample
             ct.biospecimen = biospecimen
             _entities[Container].append(ct)

@@ -23,7 +23,7 @@ class ContainerTest(FlaskTestCase):
         bs = create.make_biospecimen()
         sp = create.make_sample()
         data = {
-            "external_aliquot_id": "container-01",
+            "external_id": "container-01",
             "specimen_status": "available",
             "biospecimen_id": bs.kf_id,
             "sample_id": sp.kf_id,
@@ -43,13 +43,13 @@ class ContainerTest(FlaskTestCase):
 
         resp = resp["results"]
         container = Container.query.get(resp['kf_id'])
-        assert container.external_aliquot_id == resp['external_aliquot_id']
+        assert container.external_id == resp['external_id']
 
     def test_get_container(self):
         """
         Test retrieving a container by id
         """
-        s = create.make_container(external_aliquot_id='foobar')
+        s = create.make_container(external_id='foobar')
 
         response = self.client.get(
             url_for(CONTAINERS_URL, kf_id=s.kf_id),
@@ -61,13 +61,13 @@ class ContainerTest(FlaskTestCase):
         resp = resp['results']
         container = Container.query.get(resp["kf_id"])
         assert container
-        assert container.external_aliquot_id == resp["external_aliquot_id"]
+        assert container.external_id == resp["external_id"]
 
     def test_get_all_containers(self):
         """
         Test retrieving all containers
         """
-        create.make_container(external_aliquot_id='TEST')
+        create.make_container(external_id='TEST')
 
         response = self.client.get(
             url_for(CONTAINERS_LIST_URL),
@@ -85,9 +85,9 @@ class ContainerTest(FlaskTestCase):
         Test updating an existing container
         """
         orig = Container.query.count()
-        s = create.make_container(external_aliquot_id='TEST')
+        s = create.make_container(external_id='TEST')
         body = {
-            'external_aliquot_id': 'NEWID',
+            'external_id': 'NEWID',
         }
         assert (orig + 1) == Container.query.count()
 
@@ -106,8 +106,8 @@ class ContainerTest(FlaskTestCase):
         # Content - check only patched fields are updated
         container = Container.query.get(s.kf_id)
         assert (
-            container.external_aliquot_id ==
-            resp['results']['external_aliquot_id']
+            container.external_id ==
+            resp['results']['external_id']
         )
 
     def test_delete_container(self):
@@ -115,7 +115,7 @@ class ContainerTest(FlaskTestCase):
         Test deleting a container by id
         """
         orig = Container.query.count()
-        s = create.make_container(external_aliquot_id='TEST')
+        s = create.make_container(external_id='TEST')
         kf_id = s.kf_id
 
         response = self.client.delete(url_for(CONTAINERS_URL,
