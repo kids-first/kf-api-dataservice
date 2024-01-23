@@ -144,7 +144,7 @@ class TestPagination:
             db.session.add(sample)
 
             container = Container(
-                external_aliquot_id="container-01"
+                external_id="container-01"
             )
             container.biospecimen = samp
             container.sample = sample

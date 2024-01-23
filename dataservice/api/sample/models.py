@@ -6,15 +6,19 @@ from sqlalchemy import event
 
 class Sample(db.Model, Base):
     """
-    Sample entity
+    Sample - a biologically equivalent group of specimens
 
-    This table is being added in order to represent the Sample, Container
-    concepts and their parent child relationship without affecting the
-    current Biospecimen entity. The Container can be thought of as
-    synonymous with Biospecimen.
+    Background:
 
-    The Sample represents a group of biologically equivalent biospecimens/
-    containers
+    The current Biospecimen table does not adequately model the hierarchical
+    relationship between specimen groups and specimens. The Sample and
+    Container tables have been created to fill in this gap.
+
+    A Sample is a biologically equivalent group of specimens. A Container
+    represents one of the specimens in the Sample's group of specimens.
+
+    The Sample and Container tables were created in order to minimize any
+    changes to the existing Biospecimen table.
 
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_id: Name given to sample by contributor
@@ -43,7 +47,7 @@ class Sample(db.Model, Base):
 
     external_id = db.Column(
         db.Text(),
-        doc='Name given to sample by contributor'
+        doc='Name or ID given to sample by contributor'
     )
     sample_event_key = db.Column(
         db.Text(),

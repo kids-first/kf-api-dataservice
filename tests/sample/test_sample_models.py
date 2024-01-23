@@ -26,7 +26,7 @@ class SampleModelTest(FlaskTestCase):
         """
         s = make_sample()
         make_container(
-            external_aliquot_id="c1", sample=s, force_create=True
+            external_id="c1", sample=s, force_create=True
         )
         sample = Sample.query.filter_by(external_id=s.external_id).one()
         db.session.delete(sample)
@@ -44,10 +44,10 @@ class SampleModelTest(FlaskTestCase):
         s1 = make_sample(external_id="s01", force_create=True)
         s2 = make_sample(external_id="s02", force_create=True)
         make_container(
-            external_aliquot_id="c1", sample=s1, force_create=True
+            external_id="c1", sample=s1, force_create=True
         )
         make_container(
-            external_aliquot_id="c2", sample=s2, force_create=True
+            external_id="c2", sample=s2, force_create=True
         )
         assert len(s1.containers) == 1
 
