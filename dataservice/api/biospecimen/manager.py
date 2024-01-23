@@ -53,6 +53,18 @@ def _create_sample_event_key(biospecimen):
     return "-".join([str(c) if c else "Not Reported" for c in components])
 
 
+def _create_concentration(biospecimen):
+    """
+    Create the sample concentration given the biospecimen concentration
+
+    Only use the concentration value when the analyte_type is DNA or RNA
+    """
+    if biospecimen.analyte_type in ["DNA", "RNA"]:
+        return biospecimen.concentration_mg_per_ml
+    else:
+        return None
+
+
 def _get_sample_identifier(biospecimen):
     """
     Helper to extract specific Biospecimen attributes to uniquely
@@ -67,7 +79,7 @@ def _get_sample_identifier(biospecimen):
         "method_of_sample_procurement":
         biospecimen.method_of_sample_procurement,
         "preservation_method": biospecimen.preservation_method,
-        "concentration_mg_per_ml": biospecimen.concentration_mg_per_ml
+        "concentration_mg_per_ml": _create_concentration(biospecimen)
     }
 
 
@@ -294,7 +306,7 @@ def manage_sample_containers(biospecimen):
     Update the sample's volume with the sum of the container volumes
     """
     sample = _upsert_sample(biospecimen)
-    container = _upsert_container(biospecimen, sample)
+    _upsert_container(biospecimen, sample)
     _update_sample_volume(sample.kf_id)
 
     return sample
