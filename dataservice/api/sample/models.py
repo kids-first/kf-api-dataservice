@@ -45,6 +45,10 @@ class Sample(db.Model, Base):
         db.Text(),
         doc='Name given to sample by contributor'
     )
+    sample_event_key = db.Column(
+        db.Text(),
+        doc='Identifier for event when sample was first drawn'
+    )
     tissue_type = db.Column(
         db.Text(),
         doc='Description of the kind of sample collected'
