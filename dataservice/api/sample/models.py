@@ -97,7 +97,11 @@ class Sample(db.Model, Base):
 
 
 @event.listens_for(Container, 'after_delete')
+@event.listens_for(Container, 'after_update')
 def delete_orphans(mapper, connection, state):
+    """
+    Delete samples with 0 child containers
+    """
     q = (db.session.query(Sample)
          .filter(~Sample.containers.any()))
     q.delete(synchronize_session='fetch')
