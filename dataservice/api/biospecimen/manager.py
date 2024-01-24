@@ -299,6 +299,8 @@ def _update_sample_volume(sample_id):
     db.session.add(sample_with_containers)
     db.session.commit()
 
+    return sample_with_containers
+
 
 def manage_sample_containers(biospecimen):
     """
@@ -307,6 +309,6 @@ def manage_sample_containers(biospecimen):
     """
     sample = _upsert_sample(biospecimen)
     _upsert_container(biospecimen, sample)
-    _update_sample_volume(sample.kf_id)
+    sample = _update_sample_volume(sample.kf_id)
 
     return sample
