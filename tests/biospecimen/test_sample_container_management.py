@@ -11,7 +11,6 @@ import pytest
 from dataservice.api.container.models import Container
 from dataservice.api.sample.models import Sample
 from dataservice.api.biospecimen.models import Biospecimen
-from dataservice.api.biospecimen.manager import manage_sample_containers
 
 from tests.create import make_participant, make_seq_center
 
@@ -207,7 +206,7 @@ def test_create_two_biospecimens_diff_container(client, upsert_biospecimen):
     assert len(s.containers) == 2
 
     # Check container was created properly
-    for i, c in enumerate(s.containers):
+    for i, _ in enumerate(s.containers):
         check_container(specimens[i], s)
 
 
@@ -255,7 +254,7 @@ def test_create_two_biospecimens_diff_sample_and_container(
         samples.append(s)
 
     # Check container was created properly
-    for i, c in enumerate(s.containers):
+    for i, _ in enumerate(s.containers):
         check_container(specimens[i], samples[i])
 
 

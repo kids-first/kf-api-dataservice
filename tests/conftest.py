@@ -39,6 +39,8 @@ from dataservice.api.task.models import (
     Task,
     TaskGenomicFile
 )
+from dataservice.api.biospecimen.manager import manage_sample_containers
+
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
 pytest_plugins = ['tests.mocks']
@@ -163,7 +165,7 @@ def make_entities(client):
                          BiospecimenDiagnosis,
                          ReadGroupGenomicFile,
                          SequencingExperimentGenomicFile,
-                         Container}:
+                         Sample, Container}:
                 continue
             for i in range(ENTITY_TOTAL):
                 data = ENTITY_PARAMS['fields'][endpoint].copy()
@@ -256,18 +258,6 @@ def make_entities(client):
             _entities[BiospecimenDiagnosis].append(bd)
             db.session.add(bd)
 
-        # Containers
-        samples = _entities[Sample]
-        biospecimens = _entities[Biospecimen]
-        for i, (sample, biospecimen) in enumerate(
-            zip(samples, biospecimens)
-        ):
-            ct = Container(external_id=f"container-{i}")
-            ct.sample = sample
-            ct.biospecimen = biospecimen
-            _entities[Container].append(ct)
-            db.session.add(ct)
-
         # Add relations
         s0 = _entities[Study][0]
         f0 = _entities[Family][0]
@@ -288,7 +278,7 @@ def make_entities(client):
 
         # Biospecimen, Diagnosis, Phenotype, Outcome
         participant_ents = [
-            Biospecimen, Diagnosis, Phenotype, Outcome, Sample
+            Biospecimen, Diagnosis, Phenotype, Outcome
         ]
         for participant_ent in participant_ents:
             for ent in _entities[participant_ent]:
@@ -305,6 +295,13 @@ def make_entities(client):
             ent.cavatica_app = ca0
 
         db.session.commit()
+
+    # Create sample and containers from Biospecimens
+    for b in _entities[Biospecimen]:
+        s = manage_sample_containers(b)
+        _entities[Sample].append(s)
+        for c in s.containers:
+            _entities[Container].append(c)
 
     return _entities
 
