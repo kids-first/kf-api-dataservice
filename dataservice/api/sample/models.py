@@ -3,6 +3,34 @@ from dataservice.api.common.model import Base, KfId
 from dataservice.api.container.models import Container
 from sqlalchemy import event
 
+# Columns for Sample unique constraint
+unique_cols = (
+    "external_id",
+    "participant_id",
+    "age_at_event_days",
+    "composition",
+    "tissue_type",
+    "analyte_type",
+    "anatomical_location",
+    "method_of_sample_procurement",
+    "preservation_method",
+    "concentration_mg_per_ml",
+)
+# Mapping to Biospecimen columns
+col_mapping = {
+    "external_id": "external_sample_id",
+    "participant_id": "participant_id",
+    "age_at_event_days": "age_at_event_days",
+    "composition": "composition",
+    "tissue_type": "source_text_tissue_type",
+    "analyte_type": "analyte_type",
+    "anatomical_location": "source_text_anatomical_site",
+    "method_of_sample_procurement": "method_of_sample_procurement",
+    "preservation_method": "preservation_method",
+    "concentration_mg_per_ml": "concentration_mg_per_ml",
+    "volume_ul": "volume_ul",
+}
+
 
 class Sample(db.Model, Base):
     """
@@ -22,6 +50,8 @@ class Sample(db.Model, Base):
 
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_id: Name given to sample by contributor
+    :param age_at_event_days: Age at the time of event occurred in number of
+    days since birth
     :param sample_event_key: An identifier that represents when the sample
     was drawn
     :param composition : The cellular composition of the sample.
@@ -44,11 +74,19 @@ class Sample(db.Model, Base):
 
     __tablename__ = 'sample'
     __prefix__ = 'SA'
+    __unique_constraint__ = db.UniqueConstraint(
+        *unique_cols,
+        name="sample_unique_constraint"
+    )
+    __table_args__ = (__unique_constraint__,)
 
     external_id = db.Column(
         db.Text(),
         doc='Name or ID given to sample by contributor'
     )
+    age_at_event_days = db.Column(db.Integer(),
+                                  doc='Age at the time of event occurred in '
+                                      'number of days since birth.')
     sample_event_key = db.Column(
         db.Text(),
         doc='Identifier for event when sample was first drawn'
