@@ -8,6 +8,7 @@ from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
+from dataservice.api.sample.models import Sample
 
 
 class AliasGroup(db.Model, Base):
@@ -81,6 +82,10 @@ class Participant(db.Model, Base):
                                  cascade='all, delete-orphan',
                                  backref=db.backref('participant',
                                                     lazy=True))
+    samples = db.relationship(Sample,
+                              cascade='all, delete-orphan',
+                              backref=db.backref('participant',
+                                                 lazy=True))
 
     study_id = db.Column(KfId(),
                          db.ForeignKey('study.kf_id'),
