@@ -101,6 +101,8 @@ class TestPagination:
             p.outcomes = [outcome]
             phen = Phenotype()
             p.phenotypes = [phen]
+            sample = Sample(external_id="sample-{i}")
+            p.samples = [sample]
             participants.append(p)
             db.session.add(p)
             db.session.flush()
@@ -132,16 +134,14 @@ class TestPagination:
             seq_exp = SequencingExperiment(**seq_data,
                                            sequencing_center_id=seq_cen.kf_id)
             db.session.add(seq_exp)
+
+            sample = p.samples[0]
             samp = Biospecimen(analyte_type='an analyte',
                                sequencing_center_id=seq_cen.kf_id,
-                               participant=p)
+                               participant=p, sample=sample
+                               )
             p.biospecimens = [samp]
             db.session.add(samp)
-
-            sample = Sample(external_id="sample-01")
-            p.samples = [sample]
-            db.session.add(sample)
-            db.session.flush()
 
             gf = GenomicFile(**gf_kwargs)
             db.session.add(gf)
@@ -272,6 +272,8 @@ class TestPagination:
         ('/investigators', MAX_PAGE_LIMIT+2),
         ('/participants', MAX_PAGE_LIMIT+2),
         ('/outcomes', MAX_PAGE_LIMIT+2),
+        ('/biospecimens', MAX_PAGE_LIMIT+2),
+        ('/samples', MAX_PAGE_LIMIT+2),
         ('/phenotypes', MAX_PAGE_LIMIT+2),
         ('/diagnoses', MAX_PAGE_LIMIT+2),
         ('/family-relationships', MAX_PAGE_LIMIT+1),
@@ -289,6 +291,8 @@ class TestPagination:
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
+        print("********************")
+        print(Sample.query.count())
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
 
