@@ -14,6 +14,7 @@ from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sample.models import Sample
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.read_group.models import (
     ReadGroup,
@@ -134,8 +135,13 @@ class TestPagination:
             samp = Biospecimen(analyte_type='an analyte',
                                sequencing_center_id=seq_cen.kf_id,
                                participant=p)
-            db.session.add(samp)
             p.biospecimens = [samp]
+            db.session.add(samp)
+
+            sample = Sample(external_id="sample-01")
+            p.samples = [sample]
+            db.session.add(sample)
+            db.session.flush()
 
             gf = GenomicFile(**gf_kwargs)
             db.session.add(gf)
@@ -171,6 +177,7 @@ class TestPagination:
         ('/participants', int(MAX_PAGE_LIMIT/2)),
         ('/study-files', MAX_PAGE_LIMIT+1),
         ('/investigators', 1),
+        ('/samples', int(MAX_PAGE_LIMIT/2)),
         ('/biospecimens', int(MAX_PAGE_LIMIT/2)),
         ('/sequencing-experiments', int(MAX_PAGE_LIMIT/2)),
         ('/diagnoses', int(MAX_PAGE_LIMIT/2)),
