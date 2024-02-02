@@ -159,7 +159,6 @@ class BiospecimenAPI(CRUDView):
         db.session.add(biospecimen)
         db.session.commit()
 
-
         return BiospecimenSchema(
             200, 'biospecimen {} updated'.format(biospecimen.kf_id)
         ).jsonify(biospecimen), 200

@@ -35,7 +35,7 @@ class Sample(db.Model, Base):
     Background:
 
     The current Biospecimen table does not adequately model the hierarchical
-    relationship between specimen groups and specimens. The Sample table has 
+    relationship between specimen groups and specimens. The Sample table has
     been created to fill in this gap.
 
     :param kf_id: Unique id given by the Kid's First DCC
