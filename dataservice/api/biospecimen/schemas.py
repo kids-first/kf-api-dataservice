@@ -4,6 +4,7 @@ from marshmallow import (
     validates
 )
 
+from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.common.schemas import BaseSchema
@@ -52,6 +53,8 @@ DUO_ID_BIOSPECIMEN_ENUM = {
 class BiospecimenSchema(BaseSchema):
     participant_id = field_for(Biospecimen, 'participant_id', required=True,
                                load_only=True)
+    sample_id = field_for(Biospecimen, 'sample_id', required=False,
+                          load_only=True)
 
     sequencing_center_id = field_for(Biospecimen, 'sequencing_center_id',
                                      required=True, load_only=True)
@@ -85,13 +88,14 @@ class BiospecimenSchema(BaseSchema):
         resource_url = 'api.biospecimens'
         collection_url = 'api.biospecimens_list'
         exclude = (BaseSchema.Meta.exclude +
-                   ('participant', 'sequencing_center') +
+                   ('participant', 'sample', 'sequencing_center') +
                    ('biospecimen_genomic_files', 'biospecimen_diagnoses'))
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
         'participant': ma.URLFor('api.participants', kf_id='<participant_id>'),
+        'sample': PatchedURLFor('api.samples', kf_id='<sample_id>'),
         'sequencing_center': ma.URLFor('api.sequencing_centers',
                                        kf_id='<sequencing_center_id>'),
         'biospecimen_genomic_files': ma.URLFor(
@@ -101,7 +105,7 @@ class BiospecimenSchema(BaseSchema):
         'diagnoses': ma.URLFor('api.diagnoses_list',
                                biospecimen_id='<kf_id>'),
         'genomic_files': ma.URLFor('api.genomic_files_list',
-                                   biospecimen_id='<kf_id>')
+                                   biospecimen_id='<kf_id>'),
     })
 
 

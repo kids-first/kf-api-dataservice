@@ -134,6 +134,12 @@ class Biospecimen(db.Model, Base):
     biospecimen_genomic_files = db.relationship(BiospecimenGenomicFile,
                                                 backref='biospecimen',
                                                 cascade='all, delete-orphan')
+    sample_id = db.Column(
+        KfId(),
+        db.ForeignKey('sample.kf_id'),
+        nullable=True,
+        doc='The kf_id of the sample this specimen comes from'
+    )
 
 
 class BiospecimenDiagnosis(db.Model, Base):
