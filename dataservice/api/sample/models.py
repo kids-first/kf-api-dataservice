@@ -118,7 +118,6 @@ class Sample(db.Model, Base):
 
 
 @event.listens_for(Biospecimen, 'after_delete')
-@event.listens_for(Biospecimen, 'after_update')
 def delete_orphans(mapper, connection, state):
     """
     Delete samples with 0 child biospecimens
