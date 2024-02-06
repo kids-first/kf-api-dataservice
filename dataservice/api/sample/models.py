@@ -42,18 +42,12 @@ class Sample(db.Model, Base):
     :param external_id: Name given to sample by contributor
     :param age_at_event_days: Age at the time of event occurred in number of
     days since birth
-    :param sample_event_key: An identifier that represents when the sample
-    was drawn
+    :param sample_event_key: An identifier for the sample collection event
     :param sample_type : The cellular sample_type of the sample.
     :param tissue_type: description of the kind of tissue collected
            with respect to disease status or proximity to tumor tissue
     :param anatomical_location : The name of the primary disease site
            of the submitted tumor sample
-    :param analyte_type: Text term that represents the kind of molecular
-           specimen analyte
-    :param concentration_mg_per_ml: The concentration of an analyte or aliquot
-           extracted from the sample or sample portion, measured in
-           milligrams per milliliter
     :param volume_ul: The volume in microliters (ul) of the aliquots derived
            from the analyte(s) shipped for sequencing and characterization
     :param preservation_method: Text term that represents the method used
