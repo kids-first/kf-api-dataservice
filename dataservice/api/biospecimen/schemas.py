@@ -79,10 +79,6 @@ class BiospecimenSchema(BaseSchema):
         validate=list_validation_generator(DUO_ID_BIOSPECIMEN_ENUM,
                                            items_name='DUO IDs')
     )
-    preservation_method = field_for(
-        Biospecimen, 'preservation_method',
-        validate=enum_validation_generator(PRESERVATION_METHOD_ENUM)
-    )
 
     class Meta(BaseSchema.Meta):
         model = Biospecimen
