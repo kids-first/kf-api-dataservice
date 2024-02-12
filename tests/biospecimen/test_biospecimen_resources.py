@@ -56,7 +56,8 @@ class BiospecimenTest(IndexdTestCase):
             'participant_id': kwargs.get('participant_id'),
             'consent_type': 'GRU-IRB',
             'dbgap_consent_code': 'phs00000.c1',
-            'sequencing_center_id': kwargs.get('sequencing_center_id')
+            'sequencing_center_id': kwargs.get('sequencing_center_id'),
+            'preservation_method': 'Fresh',
         }
         # Send post request
         response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),

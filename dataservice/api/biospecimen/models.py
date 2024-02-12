@@ -44,6 +44,8 @@ class Biospecimen(db.Model, Base):
     :param dbgap_consent_code: Consent classification code from dbgap
     :param duo_ids: List of Data Use Ontology IDs specifying restrictions on
                     use of any data related to the biospecimen
+    :param preservation_method: Text term that represents the method used
+           to preserve the sample
     """
 
     __tablename__ = 'biospecimen'
@@ -116,6 +118,10 @@ class Biospecimen(db.Model, Base):
                         doc='The list of Data Use Ontology IDs specifying '
                         'restrictions on use of any data related '
                         'to the biospecimen')
+    preservation_method = db.Column(
+        db.Text(),
+        doc='Text term that represents the method used to preserve the sample'
+    )
     genomic_files = association_proxy(
         'biospecimen_genomic_files', 'genomic_file',
         creator=lambda genomic_file:

@@ -16,6 +16,15 @@ from dataservice.api.common.validation import (
     list_validation_generator
 )
 
+PRESERVATION_METHOD_ENUM = {
+    'Cryopreserved',
+    'EDTA',
+    'FFPE',
+    'Fresh',
+    'Frozen',
+    'OCT',
+    'Snap Frozen'
+}
 ANALYTE_TYPE_ENUM = {"DNA", "RNA", "Other", "Virtual"}
 SAMPLE_PROCUREMENT_ENUM = {
     "Autopsy", "Biopsy", "Subtotal Resections",
