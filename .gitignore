@@ -107,3 +107,7 @@ ENV/
 
 # hidden Mac Desktop Services Store files
 .DS_Store
+
+# vim
+*.swo 
+*.swp

@@ -57,6 +57,9 @@ class TestFilterParams:
         resp = json.loads(response.data.decode('utf-8'))
 
         # Check status code
+        print(endpoint)
+        pprint(filter_params)
+        pprint(resp)
         assert response.status_code == 200
         assert resp['limit'] == DEFAULT_PAGE_LIMIT
         assert len(resp['results']) == min(expected_total, DEFAULT_PAGE_LIMIT)

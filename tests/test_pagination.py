@@ -14,6 +14,7 @@ from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sample.models import Sample
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.read_group.models import (
     ReadGroup,
@@ -100,6 +101,8 @@ class TestPagination:
             p.outcomes = [outcome]
             phen = Phenotype()
             p.phenotypes = [phen]
+            sample = Sample(external_id="sample-{i}")
+            p.samples = [sample]
             participants.append(p)
             db.session.add(p)
             db.session.flush()
@@ -131,11 +134,14 @@ class TestPagination:
             seq_exp = SequencingExperiment(**seq_data,
                                            sequencing_center_id=seq_cen.kf_id)
             db.session.add(seq_exp)
+
+            sample = p.samples[0]
             samp = Biospecimen(analyte_type='an analyte',
                                sequencing_center_id=seq_cen.kf_id,
-                               participant=p)
-            db.session.add(samp)
+                               participant=p, sample=sample
+                               )
             p.biospecimens = [samp]
+            db.session.add(samp)
 
             gf = GenomicFile(**gf_kwargs)
             db.session.add(gf)
@@ -171,6 +177,7 @@ class TestPagination:
         ('/participants', int(MAX_PAGE_LIMIT/2)),
         ('/study-files', MAX_PAGE_LIMIT+1),
         ('/investigators', 1),
+        ('/samples', int(MAX_PAGE_LIMIT/2)),
         ('/biospecimens', int(MAX_PAGE_LIMIT/2)),
         ('/sequencing-experiments', int(MAX_PAGE_LIMIT/2)),
         ('/diagnoses', int(MAX_PAGE_LIMIT/2)),
@@ -265,6 +272,8 @@ class TestPagination:
         ('/investigators', MAX_PAGE_LIMIT+2),
         ('/participants', MAX_PAGE_LIMIT+2),
         ('/outcomes', MAX_PAGE_LIMIT+2),
+        ('/biospecimens', MAX_PAGE_LIMIT+2),
+        ('/samples', MAX_PAGE_LIMIT+2),
         ('/phenotypes', MAX_PAGE_LIMIT+2),
         ('/diagnoses', MAX_PAGE_LIMIT+2),
         ('/family-relationships', MAX_PAGE_LIMIT+1),
@@ -282,6 +291,8 @@ class TestPagination:
     ])
     def test_pagination(self, client, participants, endpoint, expected_total):
         """ Test pagination of resource """
+        print("********************")
+        print(Sample.query.count())
         resp = client.get(endpoint)
         resp = json.loads(resp.data.decode('utf-8'))
 

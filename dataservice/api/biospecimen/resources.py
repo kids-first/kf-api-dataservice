@@ -92,17 +92,18 @@ class BiospecimenListAPI(CRUDView):
 
         # Deserialize
         try:
-            s = BiospecimenSchema(strict=True).load(body).data
+            biospecimen = BiospecimenSchema(strict=True).load(body).data
         # Request body not valid
         except ValidationError as e:
             abort(400, 'could not create biospecimen: {}'.format(e.messages))
 
         # Add to and save in database
-        db.session.add(s)
+        db.session.add(biospecimen)
         db.session.commit()
 
-        return BiospecimenSchema(201, 'biospecimen {} created'
-                                 .format(s.kf_id)).jsonify(s), 201
+        return BiospecimenSchema(
+            201, 'biospecimen {} created'.format(biospecimen.kf_id)
+        ).jsonify(biospecimen), 201
 
 
 class BiospecimenAPI(CRUDView):
@@ -141,25 +142,26 @@ class BiospecimenAPI(CRUDView):
             resource:
               Biospecimen
         """
-        sa = Biospecimen.query.get(kf_id)
-        if sa is None:
+        biospecimen = Biospecimen.query.get(kf_id)
+        if biospecimen is None:
             abort(404, 'could not find {} `{}`'
                   .format('biospecimen', kf_id))
 
         # Partial update - validate but allow missing required fields
         body = request.get_json(force=True) or {}
         try:
-            sa = BiospecimenSchema(strict=True).load(body, instance=sa,
-                                                     partial=True).data
+            biospecimen = BiospecimenSchema(strict=True).load(
+                body, instance=biospecimen, partial=True
+            ).data
         except ValidationError as err:
             abort(400, 'could not update biospecimen: {}'.format(err.messages))
 
-        db.session.add(sa)
+        db.session.add(biospecimen)
         db.session.commit()
 
         return BiospecimenSchema(
-            200, 'biospecimen {} updated'.format(sa.kf_id)
-        ).jsonify(sa), 200
+            200, 'biospecimen {} updated'.format(biospecimen.kf_id)
+        ).jsonify(biospecimen), 200
 
     def delete(self, kf_id):
         """

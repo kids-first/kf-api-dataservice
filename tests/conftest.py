@@ -14,6 +14,7 @@ from dataservice.api.participant.models import Participant
 from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.biospecimen.models import Biospecimen
+from dataservice.api.sample.models import Sample
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
@@ -37,6 +38,7 @@ from dataservice.api.task.models import (
     Task,
     TaskGenomicFile
 )
+
 from unittest.mock import MagicMock, patch
 from tests.mocks import MockIndexd
 pytest_plugins = ['tests.mocks']
@@ -54,6 +56,7 @@ ENTITY_ENDPOINT_MAP = {
     Diagnosis: '/diagnoses',
     Phenotype: '/phenotypes',
     Outcome: '/outcomes',
+    Sample: '/samples',
     Biospecimen: '/biospecimens',
     GenomicFile: '/genomic-files',
     BiospecimenGenomicFile: '/biospecimen-genomic-files',
@@ -158,7 +161,8 @@ def make_entities(client):
                          BiospecimenGenomicFile,
                          BiospecimenDiagnosis,
                          ReadGroupGenomicFile,
-                         SequencingExperimentGenomicFile}:
+                         SequencingExperimentGenomicFile,
+                         Sample}:
                 continue
             for i in range(ENTITY_TOTAL):
                 data = ENTITY_PARAMS['fields'][endpoint].copy()
@@ -270,12 +274,15 @@ def make_entities(client):
             ent.family = f0
 
         # Biospecimen, Diagnosis, Phenotype, Outcome
-        participant_ents = [Biospecimen, Diagnosis, Phenotype, Outcome]
+        participant_ents = [
+            Biospecimen, Diagnosis, Phenotype, Outcome
+        ]
         for participant_ent in participant_ents:
             for ent in _entities[participant_ent]:
                 ent.participant = p0
                 if Biospecimen == participant_ent:
                     ent.sequencing_center = sc0
+
         # SequencingExperiment
         for ent in _entities[SequencingExperiment]:
             ent.sequencing_center = sc0
@@ -285,6 +292,17 @@ def make_entities(client):
             ent.cavatica_app = ca0
 
         db.session.commit()
+
+    # Create samples from Biospecimens
+    for p in _entities[Participant]:
+        s = Sample(
+            external_id="sa-011",
+            participant_id=p.kf_id,
+            biospecimens=[b for b in p.biospecimens]
+        )
+        db.session.add(s)
+        _entities[Sample].append(s)
+    db.session.commit()
 
     return _entities
 
