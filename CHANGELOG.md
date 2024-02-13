@@ -1,5 +1,18 @@
 # Kids First DataService Change History
 
+## Release 1.25.0
+
+### Summary
+
+- Emojis: ✨ x2
+- Categories: Additions x2
+
+### New features and changes
+
+- [#646](https://github.com/kids-first/kf-api-dataservice/pull/646) - ✨ Add new Sample table and API - [76cbf79f](https://github.com/kids-first/kf-api-dataservice/commit/76cbf79f5ffae6c497780cc31bf3d875d2540757) by [znatty22](https://github.com/znatty22)
+- [#642](https://github.com/kids-first/kf-api-dataservice/pull/642) - ✨ Add preservation method to biospecimen - [f68ba490](https://github.com/kids-first/kf-api-dataservice/commit/f68ba490ea063038341ad15da61e8a576987528b) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.24.1
 
 ### Summary
