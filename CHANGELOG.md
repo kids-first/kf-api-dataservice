@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.26.0
+
+### Summary
+
+- Emojis: 🔥 x1
+- Categories: Removals x1
+
+### New features and changes
+
+- [#648](https://github.com/kids-first/kf-api-dataservice/pull/648) - 🔥 Don't delete biospecimen on sample delete - [d1b2bede](https://github.com/kids-first/kf-api-dataservice/commit/d1b2bede4004cc36c636c71e6e24657b7df6f108) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.25.0
 
 ### Summary
