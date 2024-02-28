@@ -105,10 +105,9 @@ class Sample(db.Model, Base):
                                db.ForeignKey('participant.kf_id'),
                                nullable=False,
                                doc='The kf_id of the sample\'s donor')
-    biospecimens = db.relationship(Biospecimen,
-                                   cascade='all, delete-orphan',
-                                   backref=db.backref('sample',
-                                                      lazy=True))
+    biospecimens = db.relationship(
+        Biospecimen, backref=db.backref('sample', lazy=True)
+    )
 
 
 @event.listens_for(Biospecimen, 'after_delete')

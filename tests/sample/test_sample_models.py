@@ -22,18 +22,21 @@ class SampleModelTest(FlaskTestCase):
 
     def test_delete_sample(self):
         """
-        Test that a sample and its biospecimens are removed
+        Test that a sample and its biospecimen's sample_id is set to null 
         """
         s = make_sample()
-        make_biospecimen(
+        b = make_biospecimen(
             external_sample_id="c1", sample=s, force_create=True
         )
+        bs_kf_id = b.kf_id
         sample = Sample.query.filter_by(external_id=s.external_id).one()
         db.session.delete(sample)
         db.session.commit()
 
         assert Sample.query.count() == 0
-        assert Biospecimen.query.count() == 0
+        assert Biospecimen.query.count() == 1
+
+        assert Biospecimen.query.get(bs_kf_id).sample_id is None
 
     def test_delete_sample_orphan(self):
         """
