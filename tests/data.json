@@ -97,7 +97,8 @@
       "library_selection": "PCR",
       "library_prep": "polyA",
       "is_paired_end": false,
-      "platform": "Illumina"
+      "platform": "Illumina",
+      "read_pair_number": "R1"
     },
     "/genomic-files": {
       "external_id": "GenomicFile_0",
@@ -251,7 +252,8 @@
       "valid": {
         "external_id": "SeqExp_1",
         "is_paired_end": true,
-        "experiment_date": ""
+        "experiment_date": "",
+        "read_pair_number": "R1"
       },
       "invalid": [
         { "experiment_date": "hai der" },
@@ -264,7 +266,8 @@
         { "platform": "test" },
         { "library_strand": "test" },
         { "library_selection": "selection" },
-        { "library_prep": "prep" }
+        { "library_prep": "prep" },
+        { "read_pair_number": "foo" }
       ]
     },
     "/genomic-files": {
