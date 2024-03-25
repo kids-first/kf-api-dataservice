@@ -33,6 +33,8 @@ LIBRARY_SELECTION_ENUM = {'Hybrid Selection', 'PCR', 'Affinity Enrichment',
 
 LIBRARY_PREP_ENUM = {'polyA', 'totalRNAseq', 'Other'}
 
+READ_PAIR_NUMBER = {'R1', 'R2', 'Not Applicable'}
+
 
 class SequencingExperimentSchema(BaseSchema):
     sequencing_center_id = field_for(SequencingExperiment,
@@ -56,6 +58,9 @@ class SequencingExperimentSchema(BaseSchema):
     library_prep = field_for(SequencingExperiment, 'library_prep',
                              validate=enum_validation_generator(
                                  LIBRARY_PREP_ENUM))
+    read_pair_number = field_for(SequencingExperiment, 'read_pair_number',
+                                 validate=enum_validation_generator(
+                                     READ_PAIR_NUMBER))
 
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_experiments'
