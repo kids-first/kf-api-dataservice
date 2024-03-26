@@ -107,7 +107,12 @@ def test_new_validation_error(client, entities):
         'data_type': 'Aligned Reads',
         'file_format': 'bam',
         'urls': ['s3://bucket/key'],
-        'controlled_access': False
+        'controlled_access': False,
+        'workflow_type': "Alignment",
+        'workflow_tool': "tool",
+        'workflow_version': "v1",
+        'release_status': "released",
+        'data_category': "foo",
     }
     init_count = GenomicFile.query.count()
     response = client.post(url_for(GENOMICFILE_LIST_URL),

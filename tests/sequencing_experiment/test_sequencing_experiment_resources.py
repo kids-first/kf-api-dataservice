@@ -49,6 +49,10 @@ class SequencingExperimentTest(IndexdTestCase):
             'mean_depth': 40,
             'total_reads': 800,
             'mean_read_length': 200,
+            'read_pair_number': "R1",
+            'is_adapter_trimmed': True,
+            'adapter_sequencing': "foo",
+            'target_capture_kit': "bar",
             'sequencing_center_id': sc.kf_id
         }
 

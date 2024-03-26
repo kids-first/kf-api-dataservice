@@ -97,7 +97,8 @@
       "library_selection": "PCR",
       "library_prep": "polyA",
       "is_paired_end": false,
-      "platform": "Illumina"
+      "platform": "Illumina",
+      "read_pair_number": "R1"
     },
     "/genomic-files": {
       "external_id": "GenomicFile_0",
@@ -110,6 +111,11 @@
       "hashes": { "md5": "1ab12165-7351-4744-921c-a97a19b84773" },
       "controlled_access": false,
       "availability": "Immediate Download",
+      "workflow_type": "Alignment",
+      "workflow_tool": "tool",
+      "workflow_version": "v1",
+      "release_status": "released",
+      "data_category": "foo",
       "visible": true
     },
     "/biospecimen-genomic-files": {},
@@ -251,7 +257,8 @@
       "valid": {
         "external_id": "SeqExp_1",
         "is_paired_end": true,
-        "experiment_date": ""
+        "experiment_date": "",
+        "read_pair_number": "R1"
       },
       "invalid": [
         { "experiment_date": "hai der" },
@@ -264,7 +271,8 @@
         { "platform": "test" },
         { "library_strand": "test" },
         { "library_selection": "selection" },
-        { "library_prep": "prep" }
+        { "library_prep": "prep" },
+        { "read_pair_number": "foo" }
       ]
     },
     "/genomic-files": {
@@ -272,14 +280,16 @@
         "external_id": "GenomicFile_1",
         "controlled_access": true,
         "paired_end": 1,
-        "data_type": "Expression"
+        "data_type": "Expression",
+        "workflow_type": "Alignment"
       },
       "invalid": [
         { "paired_end": -1 },
         { "paired_end": "one" },
         { "controlled_access": "hello", "size": "hello" },
         { "availability": "availble for download" },
-        { "data_type": "read" }
+        { "data_type": "read" },
+        { "workflow_type": "foo" }
       ]
     },
     "/biospecimen-genomic-files": {

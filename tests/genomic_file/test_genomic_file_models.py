@@ -48,7 +48,12 @@ class ModelTest(IndexdTestCase):
                 'is_harmonized': True,
                 'reference_genome': 'Test01',
                 'paired_end': 1,
-                'availability': 'Immediate Download'
+                'availability': 'Immediate Download',
+                'workflow_type': 'Alignment',
+                'workflow_tool': 'tool',
+                'workflow_version': 'v1',
+                'release_status': 'released',
+                'data_category': 'foo',
             }
             # Add genomic file to db session
             gf = GenomicFile(**kwargs)
