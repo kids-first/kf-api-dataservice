@@ -46,6 +46,14 @@ class GenomicFile(db.Model, Base, IndexdFile):
         sequencing experiments
     :param is_paired_end: Whether this file was generated from a paired end
         sequencing_experiment
+    :param workflow_type: Specifies the specific tool within the workflow used
+    to generate the file. For source files, this field should be NULL
+    :param workflow_tool: Specifies the specific tool within the workflow used
+    to generate the file. For source files, this field should be NULL
+    :param workflow_version:  Indicates the major version of the workflow. For
+    source files, this field should be NULL
+    :param release_status: Indicates the release status
+    :param data_category: 
     """
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
@@ -64,6 +72,29 @@ class GenomicFile(db.Model, Base, IndexdFile):
                              'available for immediate download, or is in '
                              'cold storage')
     paired_end = db.Column(db.Integer(), doc='The direction of the read')
+    workflow_type = db.Column(
+        db.Text(),
+        doc='Denotes the generic name for the workflow utilized in analysis.'
+        ' For source files, this field should be NULL'
+    )
+    workflow_tool = db.Column(
+        db.Text(),
+        doc='Specifies the specific tool within the workflow used to generate'
+        ' the file. For source files, this field should be NULL'
+    )
+    workflow_version = db.Column(
+        db.Text(),
+        doc='Indicates the major version of the workflow. For source files, '
+        ' this field should be NULL'
+    )
+    release_status = db.Column(
+        db.Text(),
+        doc='Inidicates release status'
+    )
+    data_category = db.Column(
+        db.Text(),
+        doc='Inidicates type of data file'
+    )
 
     task_genomic_files = db.relationship(TaskGenomicFile,
                                          backref='genomic_file',
