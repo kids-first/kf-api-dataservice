@@ -136,13 +136,13 @@ PAIRED_END_ENUM = {1, 2}
 
 WORKFLOW_TYPE_ENUM = {
     "Alignment",
-    "Family-joint-genotyping",
-    "Gatk-hc-gvcf",
-    "Germline-mutations",
-    "Long-Reads-Mutations",
-    "RNAseq-analysis",
-    "Single-vcf-genotyping",
-    "Somatic-mutations"
+    "Family-Joint-Genotyping",
+    "GATK-HaplotypeCaller-gVCF",
+    "Germline-Mutation",
+    "Long-Reads-Mutation",
+    "RNAseq-Analysis",
+    "Single-VCF-Genotyping",
+    "Somatic-Mutation",
 }
 
 
