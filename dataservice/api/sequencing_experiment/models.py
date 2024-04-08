@@ -23,6 +23,13 @@ class SequencingExperiment(db.Model, Base):
            is available per position in the sequenced genome territory
     :param total_reads: Total reads of the sequencing experiment
     :param mean_read_length: Mean lenth of the reads
+    :param target_capture_kit: Identifies the specific target capture kit
+    utilized. Can be either the production-level kit name or a file path
+    :param read_pair_number: Indicates whether a FASTQ file contains forward
+    (R1) or reverse (R2) reads for paired-end sequencing
+    :param is_adapter_trimmed: Indicates whether the FASTQ file has undergone
+    adapter trimming
+    :adapter_sequencing: Specifies the base sequence of the sequencing adapter
     """
     __tablename__ = 'sequencing_experiment'
     __prefix__ = 'SE'
@@ -68,6 +75,24 @@ class SequencingExperiment(db.Model, Base):
                             doc='Total reads of the sequencing experiment')
     mean_read_length = db.Column(db.Float(),
                                  doc='Mean lenth of the reads')
+    target_capture_kit = db.Column(
+        db.Text(),
+        doc='Identifies the specific target capture kit utilized. Can be'
+        ' either the production-level kit name or a file path'
+    )
+    read_pair_number = db.Column(
+        db.Text(),
+        doc='Identifies the specific target capture kit utilized. Can be'
+        ' either the production-level kit name or a file path'
+    )
+    is_adapter_trimmed = db.Column(
+        db.Boolean(),
+        doc='Indicates whether the FASTQ file has undergone adapter trimming'
+    )
+    adapter_sequencing = db.Column(
+        db.Text(),
+        doc='Specifies the base sequence of the sequencing adapter'
+    )
 
     genomic_files = association_proxy(
         'sequencing_experiment_genomic_files',
