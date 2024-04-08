@@ -53,7 +53,7 @@ class GenomicFile(db.Model, Base, IndexdFile):
     :param workflow_version:  Indicates the major version of the workflow. For
     source files, this field should be NULL
     :param release_status: Indicates the release status
-    :param data_category: 
+    :param data_category: Type of data
     """
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
