@@ -18,11 +18,13 @@ def validate_parent_study_id(value):
             f"Parent study {value} does not exist"
         )
 
+
 class StudySchema(BaseSchema):
 
     investigator_id = field_for(Study, 'investigator_id',
                                 required=False, load_only=True,
                                 example='IG_ABB2C104')
+
     parent_study_id = field_for(
         Study, 'parent_study_id', example='SD_ABB2C104',
         validate=validate_parent_study_id
