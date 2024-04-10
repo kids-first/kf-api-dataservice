@@ -155,7 +155,53 @@ class StudyTest(FlaskTestCase):
         resp = json.loads(response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 404)
 
-    def _make_study(self, external_id='TEST-0001', include_nullables=True):
+    def test_parent_study_id(self):
+        """
+        Test creating / updating a study with a parent study ID
+        """
+        # Parent study
+        response = self._make_study(
+            external_id='parent'
+        )
+        resp = json.loads(response.data.decode('utf-8'))
+        kf_id = resp["results"]["kf_id"]
+
+        # Create study with parent study ID
+        response = self._make_study(
+            external_id='child', parent_study_id=kf_id
+        )
+        resp = json.loads(response.data.decode('utf-8'))
+        self.assertEqual(response.status_code, 201)
+
+        # Check results
+        study = resp['results']
+        self.assertEqual(study['parent_study_id'], kf_id)
+
+        # Update parent study ID to study ID that does not exist
+        body = {
+            "parent_study_id": "SD_11111111"
+        }
+        child_study_id = study["kf_id"]
+        response = self.client.patch(url_for(STUDY_URL,
+                                             kf_id=child_study_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        self.assertEqual(response.status_code, 400)
+        resp = json.loads(response.data.decode('utf-8'))
+        assert "does not exist" in resp["_status"]["message"]
+
+        # Update parent study ID to invalid format
+        body = {
+            "parent_study_id": "foo"
+        }
+        child_study_id = study["kf_id"]
+        response = self.client.patch(url_for(STUDY_URL,
+                                             kf_id=child_study_id),
+                                     headers=self._api_headers(),
+                                     data=json.dumps(body))
+        self.assertEqual(response.status_code, 400)
+
+    def _make_study(self, include_nullables=True, **kwargs):
         """
         Convenience method to create a study with a given source name
         """
@@ -164,13 +210,14 @@ class StudyTest(FlaskTestCase):
         db.session.flush()
 
         body = {
-            'external_id': external_id,
+            'external_id': "TEST",
             'version': '1.0',
             'release_status': 'Pending',
             'short_code': 'KF-ST0',
             'program': 'Kids First',
             'domain': 'Cancer',
         }
+        body.update(kwargs)
         if include_nullables:
             body.update({'investigator_id': inv.kf_id})
 
