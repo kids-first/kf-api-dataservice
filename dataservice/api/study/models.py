@@ -54,6 +54,10 @@ class Study(db.Model, Base):
                             doc='Link to attribution prose provided by dbGaP')
     release_status = db.Column(db.Text(),
                                doc='Release status of the study')
+    parent_study_id = db.Column(
+        KfId(),
+        doc="KF ID of the parent study",
+    )
 
     participants = db.relationship(Participant,
                                    cascade="all, delete-orphan",
