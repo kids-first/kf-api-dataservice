@@ -30,6 +30,20 @@ class ModelTest(FlaskTestCase):
         for p in participants:
             self.assertEqual(study.kf_id, p.study.kf_id)
 
+    def test_parent_study_id(self):
+        # Create participants and study
+        participants, study, kwargs = self.create_study()
+
+        # Test parent study ID
+        kwargs = {
+            'external_id': 'foo',
+            'parent_study_id': study.kf_id,
+            'name': 'study1',
+        }
+        study1 = Study(**kwargs)
+        db.session.add(study1)
+        db.session.commit()
+
     def test_bucket_service(self):
         """
         Test that a request is sent to create a new bucket

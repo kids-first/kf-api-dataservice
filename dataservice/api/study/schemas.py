@@ -5,9 +5,18 @@ from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.extensions import ma
 from dataservice.api.common.validation import enum_validation_generator
+from marshmallow import ValidationError
 
 RELEASE_STATUS_ENUM = {'Pending', 'Waiting', 'Running', 'Staged',
                        'Publishing', 'Published', 'Failed', 'Canceled'}
+
+
+def validate_parent_study_id(value):
+    study = Study.query.get(value)
+    if not study:
+        raise ValidationError(
+            f"Parent study {value} does not exist"
+        )
 
 
 class StudySchema(BaseSchema):
@@ -15,6 +24,11 @@ class StudySchema(BaseSchema):
     investigator_id = field_for(Study, 'investigator_id',
                                 required=False, load_only=True,
                                 example='IG_ABB2C104')
+
+    parent_study_id = field_for(
+        Study, 'parent_study_id', example='SD_ABB2C104',
+        validate=validate_parent_study_id
+    )
 
     release_status = field_for(Study, 'release_status',
                                validate=enum_validation_generator(
