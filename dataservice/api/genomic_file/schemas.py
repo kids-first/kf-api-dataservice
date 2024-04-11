@@ -145,6 +145,12 @@ WORKFLOW_TYPE_ENUM = {
     "Somatic-Mutation",
 }
 
+RELEASE_STATUS_ENUM = {
+    "latest",
+    "previous",
+    "unharmonized",
+}
+
 
 class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     class Meta(BaseSchema.Meta, IndexdFileSchema.Meta):
@@ -177,6 +183,10 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     workflow_type = field_for(
         GenomicFile, 'workflow_type',
         validate=enum_validation_generator(WORKFLOW_TYPE_ENUM)
+    )
+    release_status = field_for(
+        GenomicFile, 'release_status',
+        validate=enum_validation_generator(RELEASE_STATUS_ENUM)
     )
 
     _links = ma.Hyperlinks({
