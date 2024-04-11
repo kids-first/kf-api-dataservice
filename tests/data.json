@@ -114,7 +114,7 @@
       "workflow_type": "Alignment",
       "workflow_tool": "tool",
       "workflow_version": "v1",
-      "release_status": "released",
+      "release_status": "latest",
       "data_category": "foo",
       "visible": true
     },
@@ -281,7 +281,8 @@
         "controlled_access": true,
         "paired_end": 1,
         "data_type": "Expression",
-        "workflow_type": "Alignment"
+        "workflow_type": "Alignment",
+        "release_status": "latest"
       },
       "invalid": [
         { "paired_end": -1 },
@@ -289,7 +290,8 @@
         { "controlled_access": "hello", "size": "hello" },
         { "availability": "availble for download" },
         { "data_type": "read" },
-        { "workflow_type": "foo" }
+        { "workflow_type": "foo" },
+        { "release_status": "foo" }
       ]
     },
     "/biospecimen-genomic-files": {
