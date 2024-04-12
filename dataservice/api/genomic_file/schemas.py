@@ -130,7 +130,24 @@ DATA_TYPE_ENUM = {
     "Variant Calling Metrics",
     "Variant Summary",
     "WGS Metric",
-    "WXS Metric"}
+    "WXS Metric",
+    "Adapter Stats",
+    "Alignment Metrics",
+    "Alignment Stats",
+    "Artifact Metrics",
+    "Chimeric Aligned Reads",
+    "Cutadapter Metrics",
+    "GC Metrics",
+    "Gender Metrics",
+    "Gender QC Metrics",
+    "Genome Aligned Reads",
+    "Genome Aligned Reads Index",
+    "Het Call QC Metrics",
+    "Insert Size Metrics",
+    "QC Metrics",
+    "WGS Metrics",
+    "WXS Metrics",
+}
 
 PAIRED_END_ENUM = {1, 2}
 
@@ -143,6 +160,12 @@ WORKFLOW_TYPE_ENUM = {
     "RNAseq-Analysis",
     "Single-VCF-Genotyping",
     "Somatic-Mutation",
+}
+
+RELEASE_STATUS_ENUM = {
+    "latest",
+    "previous",
+    "unharmonized",
 }
 
 
@@ -177,6 +200,10 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
     workflow_type = field_for(
         GenomicFile, 'workflow_type',
         validate=enum_validation_generator(WORKFLOW_TYPE_ENUM)
+    )
+    release_status = field_for(
+        GenomicFile, 'release_status',
+        validate=enum_validation_generator(RELEASE_STATUS_ENUM)
     )
 
     _links = ma.Hyperlinks({
