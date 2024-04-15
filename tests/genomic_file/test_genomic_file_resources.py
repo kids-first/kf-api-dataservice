@@ -111,7 +111,7 @@ def test_new_validation_error(client, entities):
         'workflow_type': "Alignment",
         'workflow_tool': "tool",
         'workflow_version': "v1",
-        'release_status': "released",
+        'file_version_descriptor': "released",
         'data_category': "foo",
     }
     init_count = GenomicFile.query.count()

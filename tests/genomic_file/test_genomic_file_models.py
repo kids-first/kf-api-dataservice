@@ -52,7 +52,7 @@ class ModelTest(IndexdTestCase):
                 'workflow_type': 'Alignment',
                 'workflow_tool': 'tool',
                 'workflow_version': 'v1',
-                'release_status': 'released',
+                'file_version_descriptor': 'released',
                 'data_category': 'foo',
             }
             # Add genomic file to db session
