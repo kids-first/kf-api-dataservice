@@ -52,7 +52,7 @@ class GenomicFile(db.Model, Base, IndexdFile):
     to generate the file. For source files, this field should be NULL
     :param workflow_version:  Indicates the major version of the workflow. For
     source files, this field should be NULL
-    :param release_status: Indicates the release status
+    :param file_version_descriptor: Indicates the release status
     :param data_category: Type of data
     """
     __tablename__ = 'genomic_file'
@@ -87,7 +87,7 @@ class GenomicFile(db.Model, Base, IndexdFile):
         doc='Indicates the major version of the workflow. For source files, '
         ' this field should be NULL'
     )
-    release_status = db.Column(
+    file_version_descriptor = db.Column(
         db.Text(),
         doc='Inidicates release status'
     )

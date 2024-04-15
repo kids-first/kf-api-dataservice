@@ -162,7 +162,7 @@ WORKFLOW_TYPE_ENUM = {
     "Somatic-Mutation",
 }
 
-RELEASE_STATUS_ENUM = {
+FILE_VERSION_DESCRIPTOR_ENUM = {
     "latest",
     "previous",
     "unharmonized",
@@ -201,9 +201,9 @@ class GenomicFileSchema(BaseSchema, IndexdFileSchema):
         GenomicFile, 'workflow_type',
         validate=enum_validation_generator(WORKFLOW_TYPE_ENUM)
     )
-    release_status = field_for(
-        GenomicFile, 'release_status',
-        validate=enum_validation_generator(RELEASE_STATUS_ENUM)
+    file_version_descriptor = field_for(
+        GenomicFile, 'file_version_descriptor',
+        validate=enum_validation_generator(FILE_VERSION_DESCRIPTOR_ENUM)
     )
 
     _links = ma.Hyperlinks({
