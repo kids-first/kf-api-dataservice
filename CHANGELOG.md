@@ -1,5 +1,20 @@
 # Kids First DataService Change History
 
+## Release 1.27.0
+
+### Summary
+
+- Emojis: ♻️ x1, ✨ x3
+- Categories: Additions x4
+
+### New features and changes
+
+- [#656](https://github.com/kids-first/kf-api-dataservice/pull/656) - ♻️ Rename GenomicFile.release_status - [6352c4d1](https://github.com/kids-first/kf-api-dataservice/commit/6352c4d1fb9c48bc641b981bc41bb946a3200e0b) by [znatty22](https://github.com/znatty22)
+- [#655](https://github.com/kids-first/kf-api-dataservice/pull/655) - ✨ Modify GenomicFile release_status, data_type enums - [8462709f](https://github.com/kids-first/kf-api-dataservice/commit/8462709f47e3add986e0723b21d9e78c3859325f) by [znatty22](https://github.com/znatty22)
+- [#653](https://github.com/kids-first/kf-api-dataservice/pull/653) - ✨ Track parent studies - [40a4a7a9](https://github.com/kids-first/kf-api-dataservice/commit/40a4a7a93973492924c5de20569fda88ff040a84) by [znatty22](https://github.com/znatty22)
+- [#650](https://github.com/kids-first/kf-api-dataservice/pull/650) - ✨ Add new SE, GF columns for Bix - [4ae8899b](https://github.com/kids-first/kf-api-dataservice/commit/4ae8899b0c69fb3ffd8cffcfdcc4aaa1d95a4a05) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.26.0
 
 ### Summary
