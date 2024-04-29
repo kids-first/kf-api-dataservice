@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.27.1
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#658](https://github.com/kids-first/kf-api-dataservice/pull/658) -  :sparkles: Add DNBSEQ to seq exp platform enum - [84957c14](https://github.com/kids-first/kf-api-dataservice/commit/84957c14ff28730c7bf1bc1d227fa79a70efb661) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.27.0
 
 ### Summary
