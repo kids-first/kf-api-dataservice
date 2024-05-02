@@ -46,6 +46,8 @@ class Biospecimen(db.Model, Base):
                     use of any data related to the biospecimen
     :param preservation_method: Text term that represents the method used
            to preserve the sample
+    :param specimen_status: Whether the specimen is available for further
+    processing in the biorepository
     """
 
     __tablename__ = 'biospecimen'
@@ -121,6 +123,11 @@ class Biospecimen(db.Model, Base):
     preservation_method = db.Column(
         db.Text(),
         doc='Text term that represents the method used to preserve the sample'
+    )
+    specimen_status = db.Column(
+        db.Text(),
+        doc='Whether the specimen is available for further processing in the'
+        ' biorepository'
     )
     genomic_files = association_proxy(
         'biospecimen_genomic_files', 'genomic_file',

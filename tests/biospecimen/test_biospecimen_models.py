@@ -359,7 +359,8 @@ class ModelTest(FlaskTestCase):
             'ncit_id_anatomical_site': 'C12439',
             'consent_type': 'GRU-IRB',
             'dbgap_consent_code': 'phs00000.c1',
-            'preservation_method': 'Frozen'
+            'preservation_method': 'Frozen',
+            'specimen_status': 'Not Available'
         }
         return body
 

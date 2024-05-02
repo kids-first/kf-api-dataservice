@@ -48,6 +48,17 @@ DUO_ID_BIOSPECIMEN_ENUM = {
     "DUO:0000011", "DUO:0000024", "DUO:0000016", "DUO:0000029", "DUO:0000028",
     "DUO:0000022", "DUO:0000007", "DUO:0000042", "DUO:0000014", "DUO:0000027"
 }
+SPECIMEN_STATUS_ENUM = {
+    "Disposed",
+    "Not Available",
+    "OnSite",
+    "Other",
+    "Pathology governed",
+    "Shipped",
+    "Shipped - Genomic Data Available",
+    "Unknown",
+    "Virtual",
+}
 
 
 class BiospecimenSchema(BaseSchema):
@@ -81,6 +92,11 @@ class BiospecimenSchema(BaseSchema):
         'duo_ids',
         validate=list_validation_generator(DUO_ID_BIOSPECIMEN_ENUM,
                                            items_name='DUO IDs')
+    )
+    specimen_status = field_for(
+        Biospecimen,
+        'specimen_status',
+        validate=enum_validation_generator(SPECIMEN_STATUS_ENUM)
     )
 
     class Meta(BaseSchema.Meta):
