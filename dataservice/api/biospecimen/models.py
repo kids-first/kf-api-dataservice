@@ -46,7 +46,7 @@ class Biospecimen(db.Model, Base):
                     use of any data related to the biospecimen
     :param preservation_method: Text term that represents the method used
            to preserve the sample
-    :param specimen_status: Whether the specimen is available for further 
+    :param specimen_status: Whether the specimen is available for further
     processing in the biorepository
     """
 
