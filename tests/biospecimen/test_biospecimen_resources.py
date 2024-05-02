@@ -58,6 +58,7 @@ class BiospecimenTest(IndexdTestCase):
             'dbgap_consent_code': 'phs00000.c1',
             'sequencing_center_id': kwargs.get('sequencing_center_id'),
             'preservation_method': 'Fresh',
+            'specimen_status': 'Not Available'
         }
         # Send post request
         response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),

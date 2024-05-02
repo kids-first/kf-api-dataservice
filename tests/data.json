@@ -52,6 +52,7 @@
       "dbgap_consent_code": "phs00000.c1",
       "consent_type": "GRU-IRB",
       "method_of_sample_procurement": "Biopsy",
+      "specimen_status": "Not Available",
       "preservation_method": "Fresh",
       "visible": true
     },
@@ -207,13 +208,15 @@
         "duo_ids": ["DUO:0000021", "DUO:0000025"],
         "analyte_type": "Virtual",
         "method_of_sample_procurement": "Autopsy",
-        "preservation_method": "Frozen"
+        "preservation_method": "Frozen",
+        "specimen_status": "Not Available"
       },
       "invalid": [
         { "age_at_event_days": -1, "shipment_date": "hai der" },
         { "age_at_event_days": "hello" },
         { "analyte_type": "test" },
-        { "method_of_sample_procurement": "foo" }
+        { "method_of_sample_procurement": "foo" },
+        { "specimen_status": "foo" }
       ]
     },
     "/samples": {
