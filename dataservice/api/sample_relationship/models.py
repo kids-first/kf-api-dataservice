@@ -79,9 +79,9 @@ class SampleRelationship(db.Model, Base):
             model_filter_params = {}
         q = SampleRelationship.query.filter_by(**model_filter_params)
 
-        # # Get sample relationships and join with sample
-        # q = q.join(Sample, or_(SampleRelationship.parent,
-        #                        SampleRelationship.child))
+        # Get sample relationships and join with sample
+        q = q.join(Sample, or_(SampleRelationship.parent,
+                               SampleRelationship.child))
 
         # Do this bc query.get() errors out if passed None
         if sample_kf_id:
@@ -90,7 +90,7 @@ class SampleRelationship(db.Model, Base):
                 SampleRelationship.parent_id == sample_kf_id,
                 SampleRelationship.child_id == sample_kf_id))
 
-        # Don't want duplicates - return unique family relationships
+        # Don't want duplicates - return unique sample relationships
         q = q.group_by(SampleRelationship.kf_id)
 
         return q

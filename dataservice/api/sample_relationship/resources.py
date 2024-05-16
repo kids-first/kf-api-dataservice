@@ -51,7 +51,8 @@ class SampleRelationshipListAPI(CRUDView):
         # Filter by study
         if study_id:
             from dataservice.api.participant.models import Participant
-            q = (q.join(Participant.samples)
+            from dataservice.api.sample.models import Sample
+            q = (q.join(Sample.participant)
                  .filter(Participant.study_id == study_id))
 
         return (SampleRelationshipSchema(many=True)
