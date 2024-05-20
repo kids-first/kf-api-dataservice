@@ -73,6 +73,10 @@ class SampleRelationship(db.Model, Base):
 
         Given a sample's kf_id, return all of the immediate/direct sample
         relationships of the sample.
+
+        We cannot return a all samples in the tree bc this would require
+        a recursive query which Dataservice would likely need to do in a
+        longer-running task. The service is not setup for this
         """
         # Apply model property filter params
         if model_filter_params is None:
@@ -97,3 +101,65 @@ class SampleRelationship(db.Model, Base):
 
     def __repr__(self):
         return f"{self.parent.kf_id} parent of {self.child.kf_id}"
+
+
+def validate_sample_relationship(target):
+    """
+    Ensure that the reverse relationship does not already exist
+    Ensure that the parent != child
+
+    If these are not the case then raise DatabaseValidationError
+
+    :param target: the sample_relationship being validated
+    :type target: SampleRelationship
+    """
+    from dataservice.api.errors import DatabaseValidationError
+
+    # Return if sample_relationship is None
+    if not target:
+        return
+
+    # Ensure relationship includes existing Samples
+    try:
+        parent_id = target.child.kf_id
+        child_id = target.parent.kf_id
+    except AttributeError:
+        raise DatabaseValidationError(
+            SampleRelationship.__tablename__,
+            "modify",
+            "Both parent sample and child sample must point to existing"
+            f" samples"
+        )
+
+    # Check for reverse relation
+    sr = SampleRelationship.query.filter_by(
+        parent_id=parent_id,
+        child_id=child_id,
+    ).first()
+
+    if sr:
+        raise DatabaseValidationError(
+            SampleRelationship.__tablename__,
+            "modify",
+            f"Reverse relationship, Parent: {target.parent.kf_id} -> Child: "
+            f"{target.child.kf_id}, not allowed since the SampleRelationship, "
+            f"Parent: {sr.parent_id} -> Child: {sr.child_id}, already exists"
+        )
+
+    # Check for parent = child
+    if target.parent.kf_id == target.child.kf_id:
+        raise DatabaseValidationError(
+            SampleRelationship.__tablename__,
+            "modify",
+            f"Cannot create Sample relationship where parent sample is the"
+            " same as the child sample"
+        )
+
+
+@event.listens_for(SampleRelationship, 'before_insert')
+@event.listens_for(SampleRelationship, 'before_update')
+def relationship_on_insert_or_update(mapper, connection, target):
+    """
+    Run preprocessing/validation of relationship before insert or update
+    """
+    validate_sample_relationship(target)
