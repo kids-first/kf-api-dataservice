@@ -10,6 +10,7 @@ from dataservice.api.sample_relationship.models import (
 )
 from dataservice.api.errors import DatabaseValidationError
 from tests.utils import FlaskTestCase
+from tests.sample_relationship.common import create_relationships
 
 
 class ModelTest(FlaskTestCase):
@@ -21,7 +22,7 @@ class ModelTest(FlaskTestCase):
         """
         Test create sample relationships
         """
-        self._create_relationships()
+        create_relationships()
         assert 4 == SampleRelationship.query.count()
 
     def test_parent_child_cannot_be_equal(self):
@@ -29,7 +30,7 @@ class ModelTest(FlaskTestCase):
         Test that if S1 is the parent and S2 is the child then S2 cannot be the
         parent of S1
         """
-        self._create_relationships()
+        create_relationships()
 
         # Case: create
         sr = SampleRelationship.query.first()
@@ -57,7 +58,7 @@ class ModelTest(FlaskTestCase):
         Test that if sample S1 is a parent of child S2, then S2 can never be
         the parent of S1
         """
-        self._create_relationships()
+        create_relationships()
 
         # Case: create
         sr = SampleRelationship.query.first()
@@ -87,14 +88,14 @@ class ModelTest(FlaskTestCase):
         """
         Test find relationship
         """
-        rels = self._create_relationships()
+        _, rels = create_relationships()
         SampleRelationship.query.get(rels[0].kf_id)
 
     def test_update(self):
         """
         Test update relationship
         """
-        rels = self._create_relationships()
+        _, rels = create_relationships()
         sr = rels[0]
         sr.external_parent_id = "foo"
         sr.external_child_id = "bar"
@@ -109,7 +110,7 @@ class ModelTest(FlaskTestCase):
         """
         Test deleting a sample relationship
         """
-        rels = self._create_relationships()
+        _, rels = create_relationships()
         sr = rels[0]
         db.session.delete(sr)
         db.session.commit()
@@ -119,7 +120,7 @@ class ModelTest(FlaskTestCase):
         """
         Test delete sample relationships via deletion of sample
         """
-        rels = self._create_relationships()
+        _, rels = create_relationships()
         sr = rels[0]
         sa = sr.parent
         db.session.delete(sa)
@@ -153,7 +154,7 @@ class ModelTest(FlaskTestCase):
         Given a sample"s kf_id, this method should return all of the
         immediate/direct sample relationships of the sample.
         """
-        studies, rels = self._create_relationships()
+        studies, rels = create_relationships()
         study_id = studies[0]
 
         # Query all samples
@@ -181,34 +182,3 @@ class ModelTest(FlaskTestCase):
             sr.parent.kf_id
         ).count()
 
-    def _create_relationships(self):
-        """
-        Create sample relationships and required entities
-        """
-        # 2 studies, 2 participants per study, 2 samples per participant,
-        # 1 sample relationship per participant/study
-        studies = []
-        sample_relationships = []
-        for i in range(2):
-            studies.append(Study(external_id=f"study_{i}"))
-
-        for i in range(4):
-            p = Participant(external_id=f"P{i}", is_proband=False)
-            samples = [Sample(external_id=f"SA{i}-{j}") for j in range(2)]
-            sr = SampleRelationship(
-                parent=samples[0],
-                external_parent_id=samples[0].external_id,
-                child=samples[1],
-                external_child_id=samples[1].external_id,
-            )
-            sample_relationships.append(sr)
-            p.samples.extend(samples)
-            if i % 2 == 0:
-                studies[0].participants.append(p)
-            else:
-                studies[1].participants.append(p)
-
-        db.session.add_all(studies)
-        db.session.commit()
-
-        return studies, sample_relationships
