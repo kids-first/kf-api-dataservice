@@ -10,7 +10,7 @@ class SampleRelationship(db.Model, Base):
     """
     Represents a relationship between two samples.
 
-    The relationship table represents a tree. 
+    The relationship table represents a tree.
 
     :param kf_id: Primary key given by the Kid's First DCC
     :param created_at: Time of object creation
@@ -119,11 +119,12 @@ def validate_sample_relationship(target):
     if not target:
         return
 
-    # Ensure relationship includes existing Samples
-    try:
-        parent_id = target.child.kf_id
-        child_id = target.parent.kf_id
-    except AttributeError:
+    # Get samples in relationship by id
+    parent = Sample.query.get(target.parent_id)
+    child = Sample.query.get(target.child_id)
+
+    # Check that both are existing samples
+    if not (parent and child):
         raise DatabaseValidationError(
             SampleRelationship.__tablename__,
             "modify",
@@ -133,8 +134,8 @@ def validate_sample_relationship(target):
 
     # Check for reverse relation
     sr = SampleRelationship.query.filter_by(
-        parent_id=parent_id,
-        child_id=child_id,
+        parent_id=child.kf_id,
+        child_id=parent.kf_id,
     ).first()
 
     if sr:
@@ -147,7 +148,7 @@ def validate_sample_relationship(target):
         )
 
     # Check for parent = child
-    if target.parent.kf_id == target.child.kf_id:
+    if target.parent_id == target.child_id:
         raise DatabaseValidationError(
             SampleRelationship.__tablename__,
             "modify",
