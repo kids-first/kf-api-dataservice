@@ -15,6 +15,7 @@ from dataservice.api.phenotype.models import Phenotype
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sample.models import Sample
+from dataservice.api.sample_relationship.models import SampleRelationship
 from dataservice.api.genomic_file.models import GenomicFile
 from dataservice.api.read_group.models import (
     ReadGroup,
@@ -160,6 +161,8 @@ class TestPagination:
             ct.genomic_files.append(gf)
             ca.tasks.append(ct)
 
+            db.session.flush()
+
         # Family relationships
         for participant1, participant2 in iterate_pairwise(participants):
             gender = participant1.gender
@@ -169,6 +172,19 @@ class TestPagination:
             r = FamilyRelationship(participant1=participant1,
                                    participant2=participant2,
                                    participant1_to_participant2_relation=rel)
+            db.session.add(r)
+
+        # Sample relationships
+        for p1, p2 in iterate_pairwise(participants):
+            # Biologically incorrect, but done for testing only
+            parent = p1.samples[0]
+            child = p2.samples[0]
+            r = SampleRelationship(
+                parent=parent,
+                child=child,
+                external_parent_id=parent.external_id,
+                external_child_id=child.external_id,
+            )
             db.session.add(r)
 
         db.session.commit()
