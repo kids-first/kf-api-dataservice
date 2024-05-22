@@ -128,8 +128,7 @@ def validate_sample_relationship(target):
         raise DatabaseValidationError(
             SampleRelationship.__tablename__,
             "modify",
-            "Both parent sample and child sample must point to existing"
-            f" samples"
+            "Either parent sample or child sample or both does not exist"
         )
 
     # Check for reverse relation

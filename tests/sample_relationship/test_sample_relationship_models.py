@@ -145,7 +145,7 @@ class ModelTest(FlaskTestCase):
         db.session.add(r)
         with pytest.raises(DatabaseValidationError) as e:
             db.session.commit()
-        assert "existing" in str(e.value)
+        assert "does not exist" in str(e.value)
 
     def test_query_all_relationships(self):
         """
