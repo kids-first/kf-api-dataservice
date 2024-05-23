@@ -25,7 +25,7 @@ class SampleRelationship(db.Model, Base):
     """
     __tablename__ = 'sample_relationship'
     __prefix__ = 'SR'
-    __table_args__ = (db.UniqueConstraint('parent_id', 'child_id',),)
+    __table_args__ = (db.UniqueConstraint('child_id',),)
 
     external_id = db.Column(db.Text(),
                             doc='external id used by contributor')
