@@ -65,6 +65,65 @@ class SampleRelationshipTest(FlaskTestCase):
         assert sr.child.kf_id == child_id
         assert SampleRelationship.query.count() == 5
 
+    def test_no_duplicate_relationships(self):
+        """
+        Test that a child sample cannot have more than one parent sample
+        """
+        _, rels = create_relationships()
+
+        child = rels[0].child
+        pid = child.participant_id
+        parent = Sample(
+            external_id="SA-003",
+            sample_type="Saliva",
+            participant_id=pid
+        )
+        db.session.add(parent)
+        db.session.commit()
+
+        # Create new sample relationship
+        kwargs = {
+            "parent_id": parent.kf_id,
+            "child_id": child.kf_id,
+        }
+        # Send get request
+        response = self.client.post(url_for(SAMPLE_RELATIONSHIPS_LIST_URL),
+                                    data=json.dumps(kwargs),
+                                    headers=self._api_headers())
+
+        # Check response status status_code
+        assert response.status_code == 400
+
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert "already exist" in response["_status"]["message"]
+
+    def test_no_duplicate_relationships(self):
+        """
+        Test that if s1 -> s2 exists than it cannot be created again
+        """
+        _, rels = create_relationships()
+
+        parent = rels[0].parent
+        child = rels[0].child
+
+        # Create new sample relationship
+        kwargs = {
+            "parent_id": parent.kf_id,
+            "child_id": child.kf_id,
+        }
+        # Send get request
+        response = self.client.post(url_for(SAMPLE_RELATIONSHIPS_LIST_URL),
+                                    data=json.dumps(kwargs),
+                                    headers=self._api_headers())
+
+        # Check response status status_code
+        assert response.status_code == 400
+
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        assert "already exist" in response["_status"]["message"]
+
     def test_get(self):
         """
         Test retrieving a single sample_relationship
