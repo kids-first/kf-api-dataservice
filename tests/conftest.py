@@ -15,6 +15,7 @@ from dataservice.api.family.models import Family
 from dataservice.api.family_relationship.models import FamilyRelationship
 from dataservice.api.biospecimen.models import Biospecimen
 from dataservice.api.sample.models import Sample
+from dataservice.api.sample_relationship.models import SampleRelationship
 from dataservice.api.diagnosis.models import Diagnosis
 from dataservice.api.outcome.models import Outcome
 from dataservice.api.phenotype.models import Phenotype
@@ -57,6 +58,7 @@ ENTITY_ENDPOINT_MAP = {
     Phenotype: '/phenotypes',
     Outcome: '/outcomes',
     Sample: '/samples',
+    SampleRelationship: '/sample-relationships',
     Biospecimen: '/biospecimens',
     GenomicFile: '/genomic-files',
     BiospecimenGenomicFile: '/biospecimen-genomic-files',
@@ -162,6 +164,7 @@ def make_entities(client):
                          BiospecimenDiagnosis,
                          ReadGroupGenomicFile,
                          SequencingExperimentGenomicFile,
+                         SampleRelationship,
                          Sample}:
                 continue
             for i in range(ENTITY_TOTAL):
@@ -302,6 +305,20 @@ def make_entities(client):
         )
         db.session.add(s)
         _entities[Sample].append(s)
+
+    # Sample relationships
+    for parent, child in iterate_pairwise(_entities[Sample]):
+        r = SampleRelationship(
+            parent=parent,
+            child=child,
+            external_parent_id=parent.external_id,
+            external_child_id=child.external_id,
+        )
+        if model not in _entities:
+            _entities[SampleRelationship] = []
+        _entities[SampleRelationship].append(r)
+        db.session.add(r)
+
     db.session.commit()
 
     return _entities

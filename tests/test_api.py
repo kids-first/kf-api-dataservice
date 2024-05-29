@@ -80,6 +80,7 @@ class TestAPI:
         ('/investigators', []),
         ('/participants', ['study', 'family']),
         ('/family-relationships', ['participant1', 'participant2']),
+        ('/sample-relationships', ['parent', 'child']),
         ('/phenotypes', ['participant']),
         ('/outcomes', ['participant']),
         ('/diagnoses', ['participant', 'biospecimens']),
@@ -353,6 +354,8 @@ class TestAPI:
                                  ('/genomic-files', 'hashes'),
                                  ('/diagnoses', 'participant_id'),
                                  ('/samples', 'participant_id'),
+                                 ('/sample-relationships', 'parent_id'),
+                                 ('/sample-relationships', 'child_id'),
                                  ('/biospecimens', 'analyte_type'),
                                  ('/sequencing-centers', 'name')
                              ])
@@ -392,6 +395,8 @@ class TestAPI:
                               ('/biospecimens', 'participant_id'),
                               ('/biospecimens', 'sample_id'),
                               ('/samples', 'participant_id'),
+                              ('/sample-relationships', 'parent_id'),
+                              ('/sample-relationships', 'child_id'),
                               ('/tasks', 'cavatica_app_id'),
                               ('/task-genomic-files',
                                'task_id'),

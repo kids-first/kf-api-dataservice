@@ -66,6 +66,10 @@
       "preservation_method": "Fresh",
       "visible": true
     },
+    "/sample-relationships": {
+      "external_parent_id": "SA-parent",
+      "external_child_id": "SA-child"
+    },
     "/diagnoses": {
       "external_id": "d0",
       "diagnosis_category": "Structural Birth Defect",
@@ -224,6 +228,13 @@
         "sample_type": "Blood",
         "method_of_sample_procurement": "Autopsy",
         "preservation_method": "Frozen"
+      },
+      "invalid": []
+    },
+    "/sample-relationships": {
+      "valid": {
+        "external_parent_id": "sa-001",
+        "external_child_id": "sa-002"
       },
       "invalid": []
     },

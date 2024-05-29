@@ -24,6 +24,8 @@ from dataservice.api.family_relationship import FamilyRelationshipAPI
 from dataservice.api.family_relationship import FamilyRelationshipListAPI
 from dataservice.api.sample import SampleAPI
 from dataservice.api.sample import SampleListAPI
+from dataservice.api.sample_relationship import SampleRelationshipAPI
+from dataservice.api.sample_relationship import SampleRelationshipListAPI
 from dataservice.api.biospecimen import BiospecimenAPI
 from dataservice.api.biospecimen import BiospecimenListAPI
 from dataservice.api.diagnosis import DiagnosisAPI
