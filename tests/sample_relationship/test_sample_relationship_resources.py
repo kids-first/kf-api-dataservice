@@ -1,18 +1,12 @@
 import json
-from pprint import pprint
 from flask import url_for
-from urllib.parse import urlparse
-from sqlalchemy import or_
 
 from dataservice.extensions import db
 from dataservice.api.sample_relationship.models import SampleRelationship
 from dataservice.api.sample.models import Sample
-from dataservice.api.participant.models import Participant
-from dataservice.api.study.models import Study
 from tests.utils import FlaskTestCase
 from tests.sample_relationship.common import create_relationships
 
-from pprint import pprint
 
 SAMPLE_RELATIONSHIPS_URL = 'api.sample_relationships'
 SAMPLE_RELATIONSHIPS_LIST_URL = 'api.sample_relationships_list'
@@ -65,7 +59,7 @@ class SampleRelationshipTest(FlaskTestCase):
         assert sr.child.kf_id == child_id
         assert SampleRelationship.query.count() == 5
 
-    def test_no_duplicate_relationships(self):
+    def test_no_multi_parent_samples(self):
         """
         Test that a child sample cannot have more than one parent sample
         """

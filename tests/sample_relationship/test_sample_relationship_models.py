@@ -1,9 +1,6 @@
 import pytest
-from sqlalchemy.exc import IntegrityError
 
 from dataservice.extensions import db
-from dataservice.api.study.models import Study
-from dataservice.api.participant.models import Participant
 from dataservice.api.sample.models import Sample
 from dataservice.api.sample_relationship.models import (
     SampleRelationship,
@@ -181,4 +178,3 @@ class ModelTest(FlaskTestCase):
         assert 3 == SampleRelationship.query_all_relationships(
             sr.parent.kf_id
         ).count()
-
