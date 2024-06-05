@@ -110,11 +110,3 @@ class Sample(db.Model, Base):
     )
 
 
-@event.listens_for(Biospecimen, 'after_delete')
-def delete_orphans(mapper, connection, state):
-    """
-    Delete samples with 0 child biospecimens
-    """
-    q = (db.session.query(Sample)
-         .filter(~Sample.biospecimens.any()))
-    q.delete(synchronize_session='fetch')
