@@ -38,9 +38,9 @@ class SampleModelTest(FlaskTestCase):
 
         assert Biospecimen.query.get(bs_kf_id).sample_id is None
 
-    def test_delete_sample_orphan(self):
+    def test_no_delete_sample_orphan(self):
         """
-        Test that a sample is deleted when all related biospecimens
+        Test that a sample is NOT deleted when all related biospecimens
         are deleted
         """
         # Make two samples with biospecimens
@@ -60,13 +60,13 @@ class SampleModelTest(FlaskTestCase):
             db.session.delete(ct)
         db.session.commit()
 
-        # Check that orphan sample is deleted
+        # Check that orphan sample is not deleted
         result = Sample.query.filter_by(external_id="s01").one_or_none()
-        assert result is None
+        assert result.kf_id
 
         # Check that other sample still exists
         result = Sample.query.filter_by(external_id="s02").one_or_none()
-        assert result
+        assert result.kf_id
         assert len(result.biospecimens) == 1
 
     def test_update_sample(self):

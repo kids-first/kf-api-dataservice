@@ -30,13 +30,9 @@ col_mapping = {
 
 class Sample(db.Model, Base):
     """
-    Sample - a biologically equivalent group of specimens
+    Sample - a biologically distinct unit
 
-    Background:
-
-    The current Biospecimen table does not adequately model the hierarchical
-    relationship between specimen groups and specimens. The Sample table has
-    been created to fill in this gap.
+    The Biospecimen represents an aliquot or portion of a Sample
 
     :param kf_id: Unique id given by the Kid's First DCC
     :param external_id: Name given to sample by contributor
@@ -108,13 +104,3 @@ class Sample(db.Model, Base):
     biospecimens = db.relationship(
         Biospecimen, backref=db.backref('sample', lazy=True)
     )
-
-
-@event.listens_for(Biospecimen, 'after_delete')
-def delete_orphans(mapper, connection, state):
-    """
-    Delete samples with 0 child biospecimens
-    """
-    q = (db.session.query(Sample)
-         .filter(~Sample.biospecimens.any()))
-    q.delete(synchronize_session='fetch')
