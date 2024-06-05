@@ -1,5 +1,20 @@
 # Kids First DataService Change History
 
+## Release 1.28.0
+
+### Summary
+
+- Emojis: ♻️ x1, ✨ x2, ? x1
+- Categories: Additions x3, Other Changes x1
+
+### New features and changes
+
+- [#667](https://github.com/kids-first/kf-api-dataservice/pull/667) - ♻️ Don't delete samples with 0 biospecimens - [6eddc7c7](https://github.com/kids-first/kf-api-dataservice/commit/6eddc7c70abba628383805ec2be5c2571da35f89) by [znatty22](https://github.com/znatty22)
+- [#665](https://github.com/kids-first/kf-api-dataservice/pull/665) - ✨ New sample-relationships API - [51995c37](https://github.com/kids-first/kf-api-dataservice/commit/51995c37a83eb8cba07f6241cdb5b762218b11bd) by [znatty22](https://github.com/znatty22)
+- [#661](https://github.com/kids-first/kf-api-dataservice/pull/661) -  :card_file_box: Migration for Biospecimen.specimen_status - [83e2ed49](https://github.com/kids-first/kf-api-dataservice/commit/83e2ed499a75de8348f72d4614b4ab446198a89d) by [znatty22](https://github.com/znatty22)
+- [#660](https://github.com/kids-first/kf-api-dataservice/pull/660) - ✨ Add Biospecimen.specimen_status - [0d3f1aab](https://github.com/kids-first/kf-api-dataservice/commit/0d3f1aab4445a23c54fb4b2b5f0da2e57418fe7b) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.27.1
 
 ### Summary
