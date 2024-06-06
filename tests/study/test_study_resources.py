@@ -216,6 +216,7 @@ class StudyTest(FlaskTestCase):
             'short_code': 'KF-ST0',
             'program': 'Kids First',
             'domain': 'Cancer',
+            'biobank_contact': 'research@cbtn.org',
         }
         body.update(kwargs)
         if include_nullables:

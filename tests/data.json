@@ -5,7 +5,8 @@
       "version": "v1",
       "release_status": "Pending",
       "program": "Kids First",
-      "domain": "Cancer"
+      "domain": "Cancer",
+      "biobank_contact": "research@cbtn.org"
     },
     "/investigators": { "name": "Investigator_0", "external_id": "inv001" },
     "/study-files": {
@@ -151,7 +152,8 @@
         "external_id": "Study_1",
         "short_code": "KF-ST0",
         "program": "Kids First",
-        "domain": "Cancer"
+        "domain": "Cancer",
+        "biobank_contact": "research@cbtn.org"
       },
       "invalid": []
     },
