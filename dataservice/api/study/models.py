@@ -56,7 +56,11 @@ class Study(db.Model, Base):
                             doc='Link to attribution prose provided by dbGaP')
     release_status = db.Column(db.Text(),
                                doc='Release status of the study')
-    biobank_contact = db.Column(
+    biobank_name = db.Column(
+        db.Text(),
+        doc='Name of study biobank or source of specimens'
+    )
+    biobank_email = db.Column(
         db.Text(),
         doc='Email for study biobank or source of specimens'
     )
