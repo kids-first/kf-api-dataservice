@@ -164,7 +164,8 @@ class ModelTest(FlaskTestCase):
             'short_code': 'KF-ST1',
             'short_name': 'S1',
             'version': 'v1',
-            'release_status': 'Pending'
+            'release_status': 'Pending',
+            'biobank_contact': 'research@cbtn.org',
         }
         study = Study(**kwargs)
 
