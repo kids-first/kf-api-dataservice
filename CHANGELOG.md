@@ -1,5 +1,18 @@
 # Kids First DataService Change History
 
+## Release 1.29.0
+
+### Summary
+
+- Emojis: ♻️ x1, ✨ x1
+- Categories: Additions x2
+
+### New features and changes
+
+- [#670](https://github.com/kids-first/kf-api-dataservice/pull/670) - ♻️ Refactor biobank_contact to be two columns - [ef9eb9e5](https://github.com/kids-first/kf-api-dataservice/commit/ef9eb9e50058dbb2942df859876309f0acb03e28) by [znatty22](https://github.com/znatty22)
+- [#668](https://github.com/kids-first/kf-api-dataservice/pull/668) - ✨ Add biobank_contact to Study table - [a470710f](https://github.com/kids-first/kf-api-dataservice/commit/a470710f3a913ffc45bbeab70797d1ce64cc06e5) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.28.0
 
 ### Summary
