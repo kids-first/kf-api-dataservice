@@ -32,18 +32,23 @@ class SampleRelationship(db.Model, Base):
     parent_id = db.Column(
         KfId(),
         db.ForeignKey('sample.kf_id'),
-        nullable=False,
+        nullable=True,
         doc='kf_id of one sample in the relationship')
 
     child_id = db.Column(
         KfId(),
         db.ForeignKey('sample.kf_id'),
-        nullable=False,
+        nullable=True,
         doc='kf_id of the other sample in the relationship')
 
-    external_parent_id = db.Column(db.Text())
-
-    external_child_id = db.Column(db.Text())
+    external_parent_id = db.Column(
+        db.Text(),
+        doc='Name given to parent sample by contributor'
+    )
+    external_child_id = db.Column(
+        db.Text(),
+        doc='Name given to child sample by contributor'
+    )
 
     notes = db.Column(
         db.Text(),
@@ -119,35 +124,50 @@ def validate_sample_relationship(target):
     if not target:
         return
 
-    # Get samples in relationship by id
-    parent = Sample.query.get(target.parent_id)
-    child = Sample.query.get(target.child_id)
+    parent_id = target.parent_id
+    child_id = target.child_id
+    print(
+        f"********* parent and child ids ********** {parent_id} {child_id}"
+    )
 
-    # Check that both are existing samples
-    if not (parent and child):
+    # Check that at least 1 sample ID is non-null
+    if not (parent_id or child_id):
         raise DatabaseValidationError(
             SampleRelationship.__tablename__,
             "modify",
-            "Either parent sample or child sample or both does not exist"
+            "Both parent_id and child_id cannot be null"
         )
+
+    # If a parent_id or child_id is not-null then check that the ID
+    # refers to an existing sample
+    for sample_id in [parent_id, child_id]:
+        if sample_id:
+            sample = Sample.query.get(sample_id)
+            if not sample:
+                raise DatabaseValidationError(
+                    SampleRelationship.__tablename__,
+                    "modify",
+                    f"Either parent sample {target.parent_id} or "
+                    f"child sample {target.child_id} or both does not exist"
+                )
 
     # Check for reverse relation
     sr = SampleRelationship.query.filter_by(
-        parent_id=child.kf_id,
-        child_id=parent.kf_id,
+        parent_id=child_id,
+        child_id=parent_id,
     ).first()
 
     if sr:
         raise DatabaseValidationError(
             SampleRelationship.__tablename__,
             "modify",
-            f"Reverse relationship, Parent: {target.parent.kf_id} -> Child: "
-            f"{target.child.kf_id}, not allowed since the SampleRelationship, "
+            f"Reverse relationship, Parent: {parent_id} -> Child: "
+            f"{child_id}, not allowed since the SampleRelationship, "
             f"Parent: {sr.parent_id} -> Child: {sr.child_id}, already exists"
         )
 
     # Check for parent = child
-    if target.parent_id == target.child_id:
+    if parent_id == child_id:
         raise DatabaseValidationError(
             SampleRelationship.__tablename__,
             "modify",
