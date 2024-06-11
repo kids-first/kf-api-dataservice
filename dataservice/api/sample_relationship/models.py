@@ -126,9 +126,6 @@ def validate_sample_relationship(target):
 
     parent_id = target.parent_id
     child_id = target.child_id
-    print(
-        f"********* parent and child ids ********** {parent_id} {child_id}"
-    )
 
     # Check that at least 1 sample ID is non-null
     if not (parent_id or child_id):
