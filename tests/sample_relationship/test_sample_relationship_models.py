@@ -144,6 +144,55 @@ class ModelTest(FlaskTestCase):
             db.session.commit()
         assert "does not exist" in str(e.value)
 
+    def test_null_parent_allowed(self):
+        """
+        Test that we can represent a root of a sample tree: a null parent
+        with a non-null child
+        """
+        _, rels = create_relationships()
+
+        pid = rels[0].parent.participant_id
+        sample = Sample(
+            participant_id=pid, external_id="foo"
+        )
+        db.session.add(sample)
+        db.session.commit()
+
+        # Create sample relationship
+        data = {
+            "parent_id": None,
+            "child_id": sample.kf_id,
+            "external_parent_id": None,
+            "external_child_id": "foo",
+        }
+        r = SampleRelationship(**data)
+
+        # Add to db
+        db.session.add(r)
+        db.session.commit()
+
+        assert len(rels) + 1 == SampleRelationship.query.count()
+
+    def test_null_parent_and_child_not_allowed(self):
+        """
+        Test that we cannot create a relationship with a null parent and
+        child id
+        """
+        # Create sample relationship
+        data = {
+            "parent_id": None,
+            "child_id": None,
+            "external_parent_id": None,
+            "external_child_id": None,
+        }
+        r = SampleRelationship(**data)
+
+        # Add to db
+        db.session.add(r)
+        with pytest.raises(DatabaseValidationError) as e:
+            db.session.commit()
+        assert "cannot be null" in str(e.value)
+
     def test_query_all_relationships(self):
         """
         Test the class method query_all_relationships on SampleRelationship
