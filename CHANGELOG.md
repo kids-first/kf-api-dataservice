@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.30.0
+
+### Summary
+
+- Emojis: ♻️ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#672](https://github.com/kids-first/kf-api-dataservice/pull/672) - ♻️ Allow parent or child sample to be null - [21a64676](https://github.com/kids-first/kf-api-dataservice/commit/21a646763ce2511539d46f009b9648929f3a3393) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.29.0
 
 ### Summary
