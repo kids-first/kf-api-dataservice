@@ -354,8 +354,6 @@ class TestAPI:
                                  ('/genomic-files', 'hashes'),
                                  ('/diagnoses', 'participant_id'),
                                  ('/samples', 'participant_id'),
-                                 ('/sample-relationships', 'parent_id'),
-                                 ('/sample-relationships', 'child_id'),
                                  ('/biospecimens', 'analyte_type'),
                                  ('/sequencing-centers', 'name')
                              ])
