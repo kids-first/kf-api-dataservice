@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.31.0
+
+### Summary
+
+- Emojis: 🐛 x1
+- Categories: Fixes x1
+
+### New features and changes
+
+- [#674](https://github.com/kids-first/kf-api-dataservice/pull/674) - 🐛 Fix query sample relationships - [8d261b67](https://github.com/kids-first/kf-api-dataservice/commit/8d261b6763d51360254405a87d78c3ad30d1d5c0) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.30.0
 
 ### Summary
