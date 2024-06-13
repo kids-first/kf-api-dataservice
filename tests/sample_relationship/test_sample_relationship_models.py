@@ -20,7 +20,7 @@ class ModelTest(FlaskTestCase):
         Test create sample relationships
         """
         create_relationships()
-        assert 4 == SampleRelationship.query.count()
+        assert 8 == SampleRelationship.query.count()
 
     def test_parent_child_cannot_be_equal(self):
         """
@@ -40,7 +40,7 @@ class ModelTest(FlaskTestCase):
             db.session.commit()
         assert "same as" in str(e.value)
         db.session.rollback()
-        assert 4 == SampleRelationship.query.count()
+        assert 8 == SampleRelationship.query.count()
 
         # Case: update
         sr = SampleRelationship.query.first()
@@ -68,7 +68,7 @@ class ModelTest(FlaskTestCase):
             db.session.commit()
         assert "Reverse relationship" in str(e.value)
         db.session.rollback()
-        assert 4 == SampleRelationship.query.count()
+        assert 8 == SampleRelationship.query.count()
 
         # Case: update
         rels = SampleRelationship.query.all()
@@ -111,7 +111,7 @@ class ModelTest(FlaskTestCase):
         sr = rels[0]
         db.session.delete(sr)
         db.session.commit()
-        assert 3 == SampleRelationship.query.count()
+        assert 7 == SampleRelationship.query.count()
 
     def test_delete_via_sample(self):
         """
@@ -122,7 +122,7 @@ class ModelTest(FlaskTestCase):
         sa = sr.parent
         db.session.delete(sa)
         db.session.commit()
-        assert 3 == SampleRelationship.query.count()
+        assert 6 == SampleRelationship.query.count()
 
     def test_foreign_key_constraint(self):
         """
@@ -204,7 +204,7 @@ class ModelTest(FlaskTestCase):
         study_id = studies[0]
 
         # Query all samples
-        assert 4 == SampleRelationship.query_all_relationships().count()
+        assert 8 == SampleRelationship.query_all_relationships().count()
 
         # Query by sample
 
@@ -224,6 +224,6 @@ class ModelTest(FlaskTestCase):
         db.session.add_all([sr1, sr2])
         db.session.commit()
 
-        assert 3 == SampleRelationship.query_all_relationships(
+        assert 4 == SampleRelationship.query_all_relationships(
             sr.parent.kf_id
         ).count()

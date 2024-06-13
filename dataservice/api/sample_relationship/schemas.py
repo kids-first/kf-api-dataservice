@@ -4,6 +4,7 @@ from marshmallow import (
     validates
 )
 
+from dataservice.api.common.custom_fields import PatchedURLFor
 from dataservice.api.sample_relationship.models import SampleRelationship
 from dataservice.api.common.schemas import BaseSchema
 from dataservice.api.common.validation import validate_kf_id
@@ -12,10 +13,10 @@ from dataservice.extensions import ma
 
 class SampleRelationshipSchema(BaseSchema):
     parent_id = field_for(SampleRelationship, 'parent_id',
-                          required=True,
+                          required=False,
                           load_only=True, example='SA_B048J5')
     child_id = field_for(SampleRelationship, 'child_id',
-                         required=True,
+                         required=False,
                          load_only=True, example='SA_B048J6')
 
     class Meta(BaseSchema.Meta):
@@ -27,10 +28,8 @@ class SampleRelationshipSchema(BaseSchema):
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
-        'parent': ma.URLFor('api.samples',
-                            kf_id='<parent_id>'),
-        'child': ma.URLFor('api.samples',
-                           kf_id='<child_id>')
+        'parent': PatchedURLFor('api.samples', kf_id='<parent_id>'),
+        'child': PatchedURLFor('api.samples', kf_id='<child_id>')
     })
 
 
