@@ -57,7 +57,7 @@ class SampleRelationshipTest(FlaskTestCase):
 
         assert sr.parent.kf_id == parent_id
         assert sr.child.kf_id == child_id
-        assert SampleRelationship.query.count() == 5
+        assert SampleRelationship.query.count() == 9
 
     def test_no_multi_parent_samples(self):
         """
@@ -153,7 +153,25 @@ class SampleRelationshipTest(FlaskTestCase):
         # Check response content
         response = json.loads(response.data.decode('utf-8'))
         content = response.get('results')
-        assert len(content) == 4
+        assert len(content) == 8
+
+    def test_get_with_null_parents(self):
+        """
+        Test retrieving all sample_relationships when some have null parents or
+        null children
+        """
+        # Create and save sample_relationship to db
+        _, rels = create_relationships()
+
+        response = self.client.get(url_for(SAMPLE_RELATIONSHIPS_LIST_URL),
+                                   headers=self._api_headers())
+        # Check response status code
+        assert response.status_code == 200
+
+        # Check response content
+        response = json.loads(response.data.decode('utf-8'))
+        content = response.get('results')
+        assert len(content) == 8
 
     def test_patch(self):
         """
@@ -206,7 +224,7 @@ class SampleRelationshipTest(FlaskTestCase):
         response = json.loads(response.data.decode("utf-8"))
 
         # Check database
-        assert SampleRelationship.query.count() == 3
+        assert SampleRelationship.query.count() == 7
 
     def test_special_filter_param(self):
         """
@@ -231,7 +249,7 @@ class SampleRelationshipTest(FlaskTestCase):
         # Check response content
         response = json.loads(response.data.decode('utf-8'))
         content = response.get('results')
-        assert len(content) == 2
+        assert len(content) == 4
 
         # Case 2 - Query by sample_id
         sample_id = rels[0].parent_id
@@ -247,7 +265,7 @@ class SampleRelationshipTest(FlaskTestCase):
         # Check response content
         response = json.loads(response.data.decode('utf-8'))
         content = response.get('results')
-        assert len(content) == 1
+        assert len(content) == 2
 
         # Case 3 - Query by sample_id and other params
         sample_id = rels[0].parent_id

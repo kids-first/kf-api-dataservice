@@ -28,7 +28,12 @@ def create_relationships():
             child=samples[1],
             external_child_id=samples[1].external_id,
         )
-        sample_relationships.append(sr)
+        root = samples[0] 
+        root_relationship = SampleRelationship(
+            parent=None,
+            child=root
+        )
+        sample_relationships.extend([sr, root_relationship])
         p.samples.extend(samples)
         if i % 2 == 0:
             studies[0].participants.append(p)
