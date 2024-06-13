@@ -28,10 +28,8 @@ class SampleRelationshipSchema(BaseSchema):
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
         'collection': ma.URLFor(Meta.collection_url),
-        'parent': PatchedURLFor('api.samples',
-                            kf_id='<parent_id>'),
-        'child': PatchedURLFor('api.samples',
-                           kf_id='<child_id>')
+        'parent': PatchedURLFor('api.samples', kf_id='<parent_id>'),
+        'child': PatchedURLFor('api.samples', kf_id='<child_id>')
     })
 
 
