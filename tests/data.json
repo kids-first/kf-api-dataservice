@@ -7,7 +7,9 @@
       "program": "Kids First",
       "domain": "Cancer",
       "biobank_name": "CBTN Biobank",
-      "biobank_email": "research@cbtn.org"
+      "biobank_email": "research@cbtn.org",
+      "biobank_request_link": "https://request-specimens.cbtn.org",
+      "biobank_request_instructions": "Fill out form"
     },
     "/investigators": { "name": "Investigator_0", "external_id": "inv001" },
     "/study-files": {
@@ -155,7 +157,9 @@
         "program": "Kids First",
         "domain": "Cancer",
         "biobank_name": "CBTN Biobank",
-        "biobank_email": "research@cbtn.org"
+        "biobank_email": "research@cbtn.org",
+        "biobank_request_link": "https://request-specimens.cbtn.org",
+        "biobank_request_instructions": "Fill out form"
       },
       "invalid": []
     },
