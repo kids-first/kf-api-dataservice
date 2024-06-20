@@ -218,6 +218,8 @@ class StudyTest(FlaskTestCase):
             'domain': 'Cancer',
             'biobank_name': 'CBTN Biobank',
             'biobank_email': 'research@cbtn.org',
+            'biobank_request_link': 'https://request-specimens.cbtn.org',
+            'biobank_request_instructions': 'Fill out form',
         }
         body.update(kwargs)
         if include_nullables:

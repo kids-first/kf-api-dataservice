@@ -167,6 +167,8 @@ class ModelTest(FlaskTestCase):
             'release_status': 'Pending',
             'biobank_name': 'CBTN Biobank',
             'biobank_email': 'research@cbtn.org',
+            'biobank_request_link': 'https://request-specimens.cbtn.org',
+            'biobank_request_instructions': 'Fill out form',
         }
         study = Study(**kwargs)
 

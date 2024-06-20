@@ -22,8 +22,13 @@ class Study(db.Model, Base):
     :short_name: Short name for study
     :param attribution: Link to attribution prose provided by dbGaP
     :param release_status: Release status of the study
-    :param biobank_contact: Contact email for study's biobank or source of
+    :param biobank_name: Name of study's biobank or source of
     specimens
+    :param biobank_email: Contact email for study's biobank or source of
+    specimens
+    :param biobank_request_link: Link to request specimens from biobank
+    :param biobank_request_instructions: Instructions for requesting specimens
+    from biobank
     """
     __tablename__ = 'study'
     __prefix__ = 'SD'
@@ -63,6 +68,14 @@ class Study(db.Model, Base):
     biobank_email = db.Column(
         db.Text(),
         doc='Email for study biobank or source of specimens'
+    )
+    biobank_request_link = db.Column(
+        db.Text(),
+        doc='Link to request specimens from study biobank'
+    )
+    biobank_request_instructions = db.Column(
+        db.Text(),
+        doc='Instructions for requesting specimens from study biobank'
     )
     parent_study_id = db.Column(
         KfId(),
