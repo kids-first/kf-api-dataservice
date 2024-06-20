@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.32.0
+
+### Summary
+
+- Emojis: ✨ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#676](https://github.com/kids-first/kf-api-dataservice/pull/676) - ✨ Biobank request link and instructions - [3be0b061](https://github.com/kids-first/kf-api-dataservice/commit/3be0b06140d10f6bc2a459e4baa35bf02e3af5c7) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.31.0
 
 ### Summary
