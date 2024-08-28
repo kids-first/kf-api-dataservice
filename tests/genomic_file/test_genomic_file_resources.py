@@ -520,7 +520,10 @@ def _new_genomic_file(client):
         'urls': ['s3://bucket/key'],
         'hashes': {'md5': 'd418219b883fce3a085b1b7f38b01e37'},
         'availability': 'Immediate Download',
-        'controlled_access': False
+        'controlled_access': False,
+        'cavatica_file_id': '668e2b079b1e4f4bec36a685',
+        'cavatica_volume': 'd3b-bixu/sd_p6a1apwc',
+        'workflow_endpoint': 'ctrlfreec_pngs'
     }
 
     response = client.post(url_for(GENOMICFILE_LIST_URL),

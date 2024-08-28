@@ -54,6 +54,9 @@ class ModelTest(IndexdTestCase):
                 'workflow_version': 'v1',
                 'file_version_descriptor': 'released',
                 'data_category': 'foo',
+                'cavatica_file_id': '668e2b079b1e4f4bec36a685',
+                'cavatica_volume': 'd3b-bixu/sd_p6a1apwc',
+                'workflow_endpoint': 'ctrlfreec_pngs'
             }
             # Add genomic file to db session
             gf = GenomicFile(**kwargs)
