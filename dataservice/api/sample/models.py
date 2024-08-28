@@ -25,6 +25,8 @@ col_mapping = {
     "tissue_type": "source_text_tissue_type",
     "preservation_method": "preservation_method",
     "volume_ul": "volume_ul",
+    "amount": "amount",
+    "amount_unit": "amount_unit"
 }
 
 
@@ -46,6 +48,10 @@ class Sample(db.Model, Base):
            of the submitted tumor sample
     :param volume_ul: The volume in microliters (ul) of the aliquots derived
            from the analyte(s) shipped for sequencing and characterization
+    :param amount: the amount ( in amount_units) of the aliquots derived from
+           the analyte(s) shipped for sequencing and characterization
+    :param amount_units: the units of the amount of the aliquots derived from
+           the analyte(s) shipped for sequencing and characterization
     :param preservation_method: Text term that represents the method used
            to preserve the sample
     :param method_of_sample_procurement: Text term that represents the method
@@ -91,6 +97,10 @@ class Sample(db.Model, Base):
         db.Float(),
         doc='The volume of the sample'
     )
+    amount = db.Column(db.Float(),
+                       doc='The amount of the sample')
+    amount_units = db.Column(db.Text(),
+                             doc='The units of the amount of the sample')
     method_of_sample_procurement = db.Column(
         db.Text(),
         doc='The method used to procure the sample used to extract '

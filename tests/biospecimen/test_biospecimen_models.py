@@ -352,6 +352,8 @@ class ModelTest(FlaskTestCase):
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100.0,
             'volume_ul': 12.67,
+            'amount': 12.67,
+            'amount_units': 'ul',
             'shipment_date': dt,
             'uberon_id_anatomical_site': 'UBERON:0000955',
             'spatial_descriptor': 'left side',

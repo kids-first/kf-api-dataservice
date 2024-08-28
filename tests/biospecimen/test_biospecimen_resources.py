@@ -49,6 +49,8 @@ class BiospecimenTest(IndexdTestCase):
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
             'volume_ul': 12.67,
+            "amount": 112.67,
+            "amount_units": "ul",
             'shipment_date': str(dt.replace(tzinfo=tz.tzutc())),
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',
@@ -105,6 +107,8 @@ class BiospecimenTest(IndexdTestCase):
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 200,
             'volume_ul': 13.99,
+            "amount": 13.99,
+            "amount_units": "ul",
             'participant_id': s1['participant_id'],
             'sequencing_center_id': s1['sequencing_center_id']
         }
@@ -465,6 +469,8 @@ class BiospecimenTest(IndexdTestCase):
             'analyte_type': 'DNA',
             'concentration_mg_per_ml': 100,
             'volume_ul': 12.67,
+            "amount": 12.67,
+            "amount_units": "ul",
             'shipment_date': dt,
             'spatial_descriptor': 'left side',
             'ncit_id_tissue_type': 'Test',

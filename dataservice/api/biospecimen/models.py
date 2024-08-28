@@ -31,6 +31,10 @@ class Biospecimen(db.Model, Base):
            milligrams per milliliter
     :param volume_ul: The volume in microliters (ul) of the aliquots derived
            from the analyte(s) shipped for sequencing and characterization
+    :param amount: the amount ( in amount_units) of the aliquots derived from
+           the analyte(s) shipped for sequencing and characterization
+    :param amount_units: the units of the amount of the aliquots derived from
+           the analyte(s) shipped for sequencing and characterization
     :param shipment_date: The date item was shipped in YYYY-MM-DD format
     :param uberon_id_anatomical_site: The ID of the term from Uber-anatomy
            ontology which represents harmonized anatomical ontologies
@@ -81,6 +85,10 @@ class Biospecimen(db.Model, Base):
                                         doc='The concentration of the aliquot')
     volume_ul = db.Column(db.Float(),
                           doc='The volume of the aliquot')
+    amount = db.Column(db.Float(),
+                       doc='The amount of the aliquot')
+    amount_units = db.Column(db.Text(),
+                             doc='The units of the amount of the aliquot')
     shipment_date = db.Column(db.DateTime(),
                               doc='The date the aliquot was shipped')
     uberon_id_anatomical_site = db.Column(db.Text(),
