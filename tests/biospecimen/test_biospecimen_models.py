@@ -360,7 +360,8 @@ class ModelTest(FlaskTestCase):
             'consent_type': 'GRU-IRB',
             'dbgap_consent_code': 'phs00000.c1',
             'preservation_method': 'Frozen',
-            'specimen_status': 'Not Available'
+            'specimen_status': 'Not Available',
+            'has_matched_normal_sample': True
         }
         return body
 

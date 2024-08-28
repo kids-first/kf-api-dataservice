@@ -48,6 +48,8 @@ class Biospecimen(db.Model, Base):
            to preserve the sample
     :param specimen_status: Whether the specimen is available for further
     processing in the biorepository
+    :param has_matched_normal_sample: Denotes if the biospecimen has a matched
+           normal sample
     """
 
     __tablename__ = 'biospecimen'
@@ -128,6 +130,10 @@ class Biospecimen(db.Model, Base):
         db.Text(),
         doc='Whether the specimen is available for further processing in the'
         ' biorepository'
+    )
+    has_matched_normal_sample = db.Column(
+        db.Boolean(),
+        doc='Indicates if the biospecimen has a matched normal sample'
     )
     genomic_files = association_proxy(
         'biospecimen_genomic_files', 'genomic_file',

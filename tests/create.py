@@ -86,7 +86,8 @@ def make_biospecimen(
             'dbgap_consent_code': 'phs00000.c1',
             'preservation_method': 'Frozen',
             "participant_id": p.kf_id,
-            "sequencing_center_id": sc.kf_id
+            "sequencing_center_id": sc.kf_id,
+            'has_matched_normal_sample': True
         }
         body.update(kwargs)
         bs = Biospecimen(**body)

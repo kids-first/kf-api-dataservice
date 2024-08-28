@@ -58,6 +58,7 @@
       "method_of_sample_procurement": "Biopsy",
       "specimen_status": "Not Available",
       "preservation_method": "Fresh",
+      "has_matched_normal_sample": true,
       "visible": true
     },
     "/samples": {
@@ -68,6 +69,8 @@
       "volume_ul": 13.99,
       "method_of_sample_procurement": "Biopsy",
       "preservation_method": "Fresh",
+      "has_matched_normal_sample": true,
+      "external_collection_id": "ET-12345678",
       "visible": true
     },
     "/sample-relationships": {
