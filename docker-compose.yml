@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: "${DATASERVICE_DB_USER}"
       POSTGRES_PASSWORD: "${DATASERVICE_DB_PASSWORD}"
     ports:
-        - "5433:5432"
+        - "5432:5432"
   dataservice:
     container_name: dataservice
     build: 
