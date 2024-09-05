@@ -11,24 +11,28 @@ services:
       POSTGRES_USER: "${DATASERVICE_DB_USER}"
       POSTGRES_PASSWORD: "${DATASERVICE_DB_PASSWORD}"
     ports:
-        - "5432:5432"
+        - "5433:5432"
   dataservice:
     container_name: dataservice
     build: 
       context: .
       target: test
-    command: /bin/ash -c "sleep 5; ./bin/run.sh"
-    # command: /bin/ash -c "sleep 5; flask db upgrade; ./manage.py"
+    # command: /bin/ash -c "sleep 5; ./bin/run.sh"
+    command: /bin/ash -c "sleep 5; flask db upgrade; ./manage.py"
     volumes:
       - .:/app
     ports:
-      - "5000:80"
+      - "5000:5000"
     env_file:
       - .env
     environment:
       FLASK_CONFIG: "${FLASK_CONFIG}"
       FLASK_APP: "${FLASK_APP}"
-      PG_HOST: "${DATASERVICE_PG_HOST}"
+      # NOTE: Only set BIND_ALL_INTERFACES to enabled if running app within
+      # a docker container. Otherwise, you  will make your app accessible to
+      # any IP that can reach machine via its public IP 
+      BIND_ALL_INTERFACES: "enabled"
+      PG_HOST: dataservice_pg
       PG_PORT: "${DATASERVICE_PG_PORT}"
       PG_NAME: "${DATASERVICE_DB}"
       PG_USER: "${DATASERVICE_DB_USER}"
