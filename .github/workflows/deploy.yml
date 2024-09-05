@@ -1,0 +1,25 @@
+name: Build and Publish Image
+
+on:
+  push:
+    branches:
+      - "main"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-publish-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Build and Publish Image"
+        run: |
+          docker build . --tag ghcr.io/kids-first/kf-api-dataservice/kf-api-dataservice:post-release-${ git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 1-7 }-${GITHUB_SHA:0:7}
+          docker push ghcr.io/kids-first/kf-api-dataservice/kf-api-dataservice:post-release-${ git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 1-7 }-${GITHUB_SHA:0:7}
