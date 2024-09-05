@@ -54,6 +54,11 @@ class GenomicFile(db.Model, Base, IndexdFile):
     source files, this field should be NULL
     :param file_version_descriptor: Indicates the release status
     :param data_category: Type of data
+    :param cavatica_file_id: Indicates the file ID in CAVATICA
+    :param cavatica_volume: Indicates the CAVATICA volume ID, mediating cloud
+    storage access
+    :param workflow_endpoint: The endpoint name of the task outputs from
+    CAVATICA task or the CAVATICA app output name
     """
     __tablename__ = 'genomic_file'
     __prefix__ = 'GF'
@@ -94,6 +99,19 @@ class GenomicFile(db.Model, Base, IndexdFile):
     data_category = db.Column(
         db.Text(),
         doc='Inidicates type of data file'
+    )
+    cavatica_file_id = db.Column(
+        db.Text(),
+        doc='Indicates the file ID in CAVATICA'
+    )
+    cavatica_volume = db.Column(
+        db.Text(),
+        doc='Indicates the CAVATICA volume ID, mediating cloud storage access'
+    )
+    workflow_endpoint = db.Column(
+        db.Text(),
+        doc='The endpoint name of the task outputs from CAVATICA task or the'
+        ' CAVATICA app output name'
     )
 
     task_genomic_files = db.relationship(TaskGenomicFile,
