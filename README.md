@@ -44,32 +44,11 @@ development environment using 1 of 2 options:
 
 - Pro: Quick setup, no installation of dependencies
 - Con: Since everything is running in containers, need to use `docker container exec` to run things in container
-- Con: You'll need to make a couple of small changes to run the dockerized service in debug mode (live updates) 
 
-1. In docker-compose.yml change the following under the `dataservice` block: 
+Follow the instructions in [Run API](#run-api)
 
-```yaml
-    # command: /bin/ash -c "sleep 5; ./bin/run.sh"
-    command: /bin/ash -c "sleep 5; flask db upgrade; ./manage.py"
-
-    port:
-        - "5000:5000"    
-```
-
-2. Bind host to all interfaces in manage.py:
-
-```python
-if __name__ == '__main__':
-    app.run(host="0.0.0.0")
-```
-
-3. Follow the instructions in [Run API](#run-api)
-
-Now your service should be running at http://localhost:5000 inside the 
-docker-compose stack. The changes you made above allow the service to run 
-in **debug mode** which means when you make changes to the code, 
-it should reload the service automatically so that you can see your updates in
-realtime instead of having to bring down the stack and bring it up again.
+Once again your service should be running at http://localhost:5000 inside the 
+docker-compose stack. 
 
 ### Option 2: Develop API on Machine 
 
