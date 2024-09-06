@@ -58,7 +58,8 @@ class BiospecimenTest(IndexdTestCase):
             'dbgap_consent_code': 'phs00000.c1',
             'sequencing_center_id': kwargs.get('sequencing_center_id'),
             'preservation_method': 'Fresh',
-            'specimen_status': 'Not Available'
+            'specimen_status': 'Not Available',
+            'has_matched_normal_sample': True
         }
         # Send post request
         response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
@@ -471,7 +472,8 @@ class BiospecimenTest(IndexdTestCase):
             'uberon_id_anatomical_site': 'UBERON:0000955',
             'consent_type': 'GRU-IRB',
             'dbgap_consent_code': 'phs00000.c1',
-            'sequencing_center_id': sc.kf_id
+            'sequencing_center_id': sc.kf_id,
+            'has_matched_normal_sample': True
         }
         d = Biospecimen(**kwargs)
 

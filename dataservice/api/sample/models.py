@@ -50,6 +50,9 @@ class Sample(db.Model, Base):
            to preserve the sample
     :param method_of_sample_procurement: Text term that represents the method
            used to extract the analytes from the sample
+    :param has_matched_normal_sample: Indicates if a sample has a matched
+           normal sample.
+    :param external_collection_id: Identifier for the collection event
     """
 
     __tablename__ = 'sample'
@@ -96,6 +99,14 @@ class Sample(db.Model, Base):
     preservation_method = db.Column(
         db.Text(),
         doc='Text term that represents the method used to preserve the sample'
+    )
+    has_matched_normal_sample = db.Column(
+        db.Boolean(),
+        doc='Indicates if the sample has a matched normal sample'
+    )
+    external_collection_id = db.Column(
+        db.Text(),
+        doc='Identifier for the collection event'
     )
     participant_id = db.Column(KfId(),
                                db.ForeignKey('participant.kf_id'),
