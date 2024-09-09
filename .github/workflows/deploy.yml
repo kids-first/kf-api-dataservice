@@ -38,9 +38,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set git tag and SHA
+        run: |
+          VERSION=$(git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 1-7)
+          SHORT_SHA=${GITHUB_SHA:0:7}
+          TAG="${VERSION}-${SHORT_SHA}"
+          echo "TAG=${TAG}" >> $GITHUB_ENV
       - name: "Build and Publish"
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/kids-first/kf-api-dataservice/kf-api-dataservice:dev-release-${ git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 1-7 }-${GITHUB_SHA:0:7}
+          tags: ghcr.io/kids-first/kf-api-dataservice/kf-api-dataservice:dev-release-${{ env.TAG }}
