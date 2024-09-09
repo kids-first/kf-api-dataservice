@@ -1,5 +1,23 @@
 # Kids First DataService Change History
 
+## Release 1.33.0
+
+### Summary
+
+- Emojis: ? x2, ✨ x3, 👨🏻‍💻 x1, ⬆️ x1
+- Categories: Additions x3, Ops x1, Other Changes x3
+
+### New features and changes
+
+- [#686](https://github.com/kids-first/kf-api-dataservice/pull/686) -  :bug: Update GH Action to use correct branch - [4646d950](https://github.com/kids-first/kf-api-dataservice/commit/4646d95083e91356914507a23be4dc49940d1f1f) by [haynescd](https://github.com/haynescd)
+- [#679](https://github.com/kids-first/kf-api-dataservice/pull/679) - ✨ AD-2303 add amount and amount_units - [1ac116a9](https://github.com/kids-first/kf-api-dataservice/commit/1ac116a9c6b4818b3e8c5e3d0489a4caebe0b713) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#680](https://github.com/kids-first/kf-api-dataservice/pull/680) - ✨ Add has_matched_normal and collection_id - [f3da17b1](https://github.com/kids-first/kf-api-dataservice/commit/f3da17b198c6c4d588fef1a57d5ce04116b9e192) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#685](https://github.com/kids-first/kf-api-dataservice/pull/685) -  :construction_worker: Add Github Action to build and deploy dev image when merged to master - [56cd60cc](https://github.com/kids-first/kf-api-dataservice/commit/56cd60cc695eed3a73890e2f4adb938711763b9a) by [haynescd](https://github.com/haynescd)
+- [#684](https://github.com/kids-first/kf-api-dataservice/pull/684) - 👨🏻‍💻 Always bind all interfaces when app runs in docker-compose - [7370bbd6](https://github.com/kids-first/kf-api-dataservice/commit/7370bbd60cc55054db804e767f7f68223bdeddd8) by [znatty22](https://github.com/znatty22)
+- [#681](https://github.com/kids-first/kf-api-dataservice/pull/681) - ✨ D3B-674 Add cavatica related gf fields - [182f4b2b](https://github.com/kids-first/kf-api-dataservice/commit/182f4b2b839247cf037f3022cbb49730f0aff4e9) by [chris-s-friedman](https://github.com/chris-s-friedman)
+- [#682](https://github.com/kids-first/kf-api-dataservice/pull/682) - ⬆️ Bump Werkzeug from 0.15.3 to 0.15.5 - [645d888b](https://github.com/kids-first/kf-api-dataservice/commit/645d888bd0a6c8e9f05610de329a877b83fba59d) by [chris-s-friedman](https://github.com/chris-s-friedman)
+
+
 ## Release 1.32.0
 
 ### Summary
