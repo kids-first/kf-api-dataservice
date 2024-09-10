@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.33.1
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#690](https://github.com/kids-first/kf-api-dataservice/pull/690) -  :wrench: Update GH Action Permissions to be able to write to packages - [39548dea](https://github.com/kids-first/kf-api-dataservice/commit/39548deaebec2d928d657684280be7ab4508cfbb) by [haynescd](https://github.com/haynescd)
+
+
 ## Release 1.33.0
 
 ### Summary
