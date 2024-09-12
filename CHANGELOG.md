@@ -1,5 +1,18 @@
 # Kids First DataService Change History
 
+## Release 1.34.0
+
+### Summary
+
+- Emojis: ? x2
+- Categories: Other Changes x2
+
+### New features and changes
+
+- [#693](https://github.com/kids-first/kf-api-dataservice/pull/693) -  :white_check_mark: update workflow_type and data_tyep enum - [b0efce4e](https://github.com/kids-first/kf-api-dataservice/commit/b0efce4eb1603757c57957183cb85ef4835c3769) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+- [#691](https://github.com/kids-first/kf-api-dataservice/pull/691) -  :arrow_up: Upgrade actions/checkout to v4 - [20b64b4c](https://github.com/kids-first/kf-api-dataservice/commit/20b64b4c9dabc5bec5a4256a8f197476685ffe7b) by [haynescd](https://github.com/haynescd)
+
+
 ## Release 1.33.1
 
 ### Summary
