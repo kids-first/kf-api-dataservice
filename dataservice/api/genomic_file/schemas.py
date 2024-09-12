@@ -147,6 +147,34 @@ DATA_TYPE_ENUM = {
     "QC Metrics",
     "WGS Metrics",
     "WXS Metrics",
+    "Annotated Germline Copy Number Segments",
+    "Annotated Tumor Only Mutation",
+    "Annotated Tumor Only Mutation Index",
+    "Denoised Germline Copy Ratios",
+    "Familial Relationships",
+    "Familial Relationships Report",
+    "Genotyped Germline Copy Number Intervals",
+    "Genotyped Germline Copy Number Intervals Index",
+    "Genotyped Germline Copy Number Segments",
+    "Genotyped Germline Copy Number Segments Index",
+    "Germline Copy Number Read Depth Stats",
+    "HLA Genotyping",
+    "Masked Tumor Only Mutation",
+    "Masked Tumor Only Mutation Index",
+    "Pre-pass Tumor Only Structural Variation",
+    "Pre-pass Tumor Only Structural Variation Index",
+    "Raw Germline Copy Number Segments",
+    "Raw Tumor Only Copy Number Segment",
+    "Raw Tumor Only Structural Variation",
+    "Raw Tumor Only Structural Variation Index",
+    "Raw Variant Call",
+    "Raw Variant Call Index",
+    "Tumor Only Assembled Haplotypes",
+    "Tumor Only Assembled Haplotypes Index",
+    "Tumor Only Copy Number BAF",
+    "Tumor Only Copy Number Ratio",
+    "Tumor Only Copy Number Variation",
+    "Tumor Only Structural Variation"
 }
 
 PAIRED_END_ENUM = {1, 2}
@@ -160,6 +188,7 @@ WORKFLOW_TYPE_ENUM = {
     "RNAseq-Analysis",
     "Single-VCF-Genotyping",
     "Somatic-Mutation",
+    "Tumor-Only-Mutation"
 }
 
 FILE_VERSION_DESCRIPTOR_ENUM = {
