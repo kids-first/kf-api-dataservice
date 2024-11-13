@@ -24,7 +24,14 @@ EXPERIMENT_STRATEGY_ENUM = {'WGS', 'WXS', 'RNA-Seq', 'miRNA-Seq',
                             'Continuous Long Reads WGS',
                             'ONT WGS'}
 PLATFORM_ENUM = {'DNBSEQ', 'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
-                 'Complete Genomics', 'PacBio', 'ONT', 'Other'}
+                 'Complete Genomics', 'PacBio', 'ONT', 'Other',
+                 'Illumina Infinium HumanMethylation450',
+                 'Illumina Infinium HumanMethylationEPIC',
+                 'Illumina Infinium HumanMethylationEPICv2',
+                 'Illumina Infinium HumanMethylation27k',
+                 'Roche NimbleGen MethylationSeq',
+                 'Agilent SurePrint Methyl-Seq'
+                }
 LIBRARY_STRAND_ENUM = {'Stranded', 'Unstranded', 'First Stranded',
                        'Second Stranded', 'Other'}
 
