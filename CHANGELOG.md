@@ -1,5 +1,18 @@
 # Kids First DataService Change History
 
+## Release 1.35.0
+
+### Summary
+
+- Emojis: ? x2
+- Categories: Other Changes x2
+
+### New features and changes
+
+- [#696](https://github.com/kids-first/kf-api-dataservice/pull/696) -  :memo: add new experiment strategy - [a05c799c](https://github.com/kids-first/kf-api-dataservice/commit/a05c799c8c3d593d198619b9608ef3b99989abc8) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+- [#695](https://github.com/kids-first/kf-api-dataservice/pull/695) -  :bug: Force Tag info in GH action - [479c409f](https://github.com/kids-first/kf-api-dataservice/commit/479c409fa130f1a08cdf0fd5ce6d7c2bd686621f) by [haynescd](https://github.com/haynescd)
+
+
 ## Release 1.34.0
 
 ### Summary
