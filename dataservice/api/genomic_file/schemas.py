@@ -189,6 +189,7 @@ WORKFLOW_TYPE_ENUM = {
     "Single-VCF-Genotyping",
     "Somatic-Mutation",
     "Tumor-Only-Mutation"
+    "10x-Single-Cell-Alignment"
 }
 
 FILE_VERSION_DESCRIPTOR_ENUM = {
