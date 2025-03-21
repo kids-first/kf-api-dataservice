@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.35.1
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#698](https://github.com/kids-first/kf-api-dataservice/pull/698) -  Add new workflow type - [43643faa](https://github.com/kids-first/kf-api-dataservice/commit/43643faa58cfd4445b459cdaa1567be933bda846) by [awarkow](https://github.com/awarkow)
+
+
 ## Release 1.35.0
 
 ### Summary
