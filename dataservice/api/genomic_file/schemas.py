@@ -188,7 +188,8 @@ WORKFLOW_TYPE_ENUM = {
     "RNAseq-Analysis",
     "Single-VCF-Genotyping",
     "Somatic-Mutation",
-    "Tumor-Only-Mutation"
+    "Tumor-Only-Mutation",
+    "10x-Single-Cell-Alignment"
 }
 
 FILE_VERSION_DESCRIPTOR_ENUM = {
