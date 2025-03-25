@@ -174,7 +174,14 @@ DATA_TYPE_ENUM = {
     "Tumor Only Copy Number BAF",
     "Tumor Only Copy Number Ratio",
     "Tumor Only Copy Number Variation",
-    "Tumor Only Structural Variation"
+    "Tumor Only Structural Variation",
+    # new single cell data types
+    "Splice Junction",
+    "Expression Counts",
+    "STAR Single Cell Counts",
+    "Expression Counts",
+    "STAR Cell Ranger Counts",
+    "Single Cell QC Metrics",
 }
 
 PAIRED_END_ENUM = {1, 2}
