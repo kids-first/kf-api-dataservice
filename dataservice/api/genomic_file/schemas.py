@@ -177,7 +177,7 @@ DATA_TYPE_ENUM = {
     "Tumor Only Structural Variation",
     # new single cell data types
     "Splice Junction",
-    "Expression Counts",
+    "Expression Counts Counts",
     "STAR Single Cell Counts",
     "Expression Counts",
     "STAR Cell Ranger Counts",
