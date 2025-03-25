@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.35.2
+
+### Summary
+
+- Emojis: ➕ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#700](https://github.com/kids-first/kf-api-dataservice/pull/700) - ➕ add new datatype enums - [53fe63cd](https://github.com/kids-first/kf-api-dataservice/commit/53fe63cd424888b006a8b1b61bfb6ac08df230a4) by [awarkow](https://github.com/awarkow)
+
+
 ## Release 1.35.1
 
 ### Summary
