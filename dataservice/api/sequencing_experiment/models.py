@@ -29,26 +29,35 @@ class SequencingExperiment(db.Model, Base):
     (R1) or reverse (R2) reads for paired-end sequencing
     :param is_adapter_trimmed: Indicates whether the FASTQ file has undergone
     adapter trimming
-    :param adapter_sequencing: Specifies the base sequence of the sequencing adapter
+    :param adapter_sequencing: Specifies the base sequence of the
+            sequencing adapter
     :param sequencing_mode: Specifies the modes of sequencing technology
-    :param end_bias: The end of the cDNA molecule that is preferentially sequenced
+    :param end_bias: The end of the cDNA molecule that is
+            preferentially sequenced
     :param library_construction: The library construction method that was used
     :param umi_barcode_read: The type of read that contains the UMI barcode
-    :param umi_barcode_offset: The offset in sequence of the UMI identifying barcode
+    :param umi_barcode_offset: The offset in sequence of the
+            UMI identifying barcode
     :param umi_barcode_size: The size of the UMI identifying barcode
     :param cell_barcode_read: The type of read that contains the cell barcode
-    :param cell_barcode_offset: The offset in sequence of the cell identifying barcode
+    :param cell_barcode_offset: The offset in sequence of
+            the cell identifying barcode
     :param cell_barcode_size: The size of the cell identifying barcode
     :param cdna_read: The type of read that contains the cDNA read
     :param cdna_read_offset: The offset in sequence for the cDNA read
-    :param target_cell_number: The target number of cells per experiment or library
-    :param proteomics_experiment: The type of omics experiment that the sample was subject to
-    :param mass_spec_rawfile_conversion: Method of converting raw spectra files to XML-based format if applicable
+    :param target_cell_number: The target number of cells
+            per experiment or library
+    :param proteomics_experiment: The type of omics experiment that
+            the sample was subject to
+    :param mass_spec_rawfile_conversion: Method of converting raw spectra files
+            to XML-based format if applicable
     :param acquisition_type: Data acquisition type
     :param ion_fragmentation: Reporter ion MS level
-    :param enrichment_approach: Enrichment method used for phospho, ubiquitin, acetyl, or other enrichment
+    :param enrichment_approach: Enrichment method used for phospho, ubiquitin,
+            acetyl, or other enrichment
     :param quantification_technique: Approach used for peptide quantification
-    :param quantification_labeling_method: Method used for labeling or NA if label-free
+    :param quantification_labeling_method: Method used for labeling or
+            NA if label-free
     :param quantification_label_id: Specific label used or NA if label-free
     :param chromatography_approach: Column type used for liquid chromatography
     :param fractionation_approach: Method used to fractionate sample
@@ -116,8 +125,6 @@ class SequencingExperiment(db.Model, Base):
         db.Text(),
         doc='Specifies the base sequence of the sequencing adapter'
     )
-
-
     sequencing_mode = db.Column(
         db.Text(),
         doc='The modes of sequencing technolog'
@@ -172,7 +179,7 @@ class SequencingExperiment(db.Model, Base):
     )
     mass_spec_rawfile_conversion = db.Column(
         db.Text(),
-        doc='Method of converting raw spectra files to XML-based format if applicable'
+        doc='Method of converting raw spectra files to XML-based format'
     )
     acquisition_type = db.Column(
         db.Text(),
@@ -184,7 +191,8 @@ class SequencingExperiment(db.Model, Base):
     )
     enrichment_approach = db.Column(
         db.Text(),
-        doc='Enrichment method used for phospho, ubiquitin, acetyl, or other enrichment'
+        doc='Enrichment method used for phospho, ubiquitin,'
+        'acetyl, or other enrichment'
     )
     quantification_technique = db.Column(
         db.Text(),

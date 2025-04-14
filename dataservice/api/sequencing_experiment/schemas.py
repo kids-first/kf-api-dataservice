@@ -47,6 +47,7 @@ SEQUENCING_MODE = {'CLR', 'CCS', 'Not Applicable'}
 END_BIAS = {'3-end', '5-end', 'full-length', 'Not Applicable'}
 ACQUISITION_TYPE = {'DDA', 'DIA'}
 
+
 class SequencingExperimentSchema(BaseSchema):
     sequencing_center_id = field_for(SequencingExperiment,
                                      'sequencing_center_id',
@@ -74,19 +75,19 @@ class SequencingExperimentSchema(BaseSchema):
                                      READ_PAIR_NUMBER))
 
     sequencing_mode = field_for(SequencingExperiment, 'sequencing_mode',
-                                 validate=enum_validation_generator(
+                                validate=enum_validation_generator(
                                      SEQUENCING_MODE))
     end_bias = field_for(SequencingExperiment, 'end_bias',
-                                 validate=enum_validation_generator(
-                                     END_BIAS))
+                         validate=enum_validation_generator(
+                             END_BIAS))
     umi_barcode_read = field_for(SequencingExperiment, 'umi_barcode_read',
                                  validate=enum_validation_generator(
                                      READ_ENUM))
     cell_barcode_read = field_for(SequencingExperiment, 'cell_barcode_read',
-                                 validate=enum_validation_generator(
+                                  validate=enum_validation_generator(
                                      READ_ENUM))
     cdna_read = field_for(SequencingExperiment, 'cdna_read',
-                                 validate=enum_validation_generator(
+                          validate=enum_validation_generator(
                                      READ_ENUM))
     acquisition_type = field_for(SequencingExperiment, 'acquisition_type',
                                  validate=enum_validation_generator(
@@ -113,19 +114,20 @@ class SequencingExperimentSchema(BaseSchema):
     experiment_date = field_for(SequencingExperiment, 'experiment_date',
                                 field_class=DateOrDatetime)
     umi_barcode_offset = field_for(SequencingExperiment, 'umi_barcode_offset',
-                                fvalidate=validate_positive_number)
+                                   fvalidate=validate_positive_number)
     umi_barcode_size = field_for(SequencingExperiment, 'umi_barcode_size',
-                                fvalidate=validate_positive_number)
-    cell_barcode_offset = field_for(SequencingExperiment, 'cell_barcode_offset',
-                                fvalidate=validate_positive_number)
+                                 fvalidate=validate_positive_number)
+    cell_barcode_offset = field_for(SequencingExperiment,
+                                    'cell_barcode_offset',
+                                    fvalidate=validate_positive_number)
     cell_barcode_size = field_for(SequencingExperiment, 'cell_barcode_size',
-                                fvalidate=validate_positive_number)
+                                  fvalidate=validate_positive_number)
     cdna_read_offset = field_for(SequencingExperiment, 'cdna_read_offset',
-                                fvalidate=validate_positive_number)
+                                 fvalidate=validate_positive_number)
     target_cell_number = field_for(SequencingExperiment, 'target_cell_number',
-                                fvalidate=validate_positive_number)    
+                                   fvalidate=validate_positive_number)
     fraction_number = field_for(SequencingExperiment, 'fraction_number',
-                                fvalidate=validate_positive_number)    
+                                fvalidate=validate_positive_number)
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
