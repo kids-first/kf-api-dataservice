@@ -54,6 +54,7 @@ class Biospecimen(db.Model, Base):
     processing in the biorepository
     :param has_matched_normal_sample: Denotes if the biospecimen has a matched
            normal sample
+    :param cell_entity: The type of single cell entity
     """
 
     __tablename__ = 'biospecimen'
@@ -142,6 +143,10 @@ class Biospecimen(db.Model, Base):
     has_matched_normal_sample = db.Column(
         db.Boolean(),
         doc='Indicates if the biospecimen has a matched normal sample'
+    )
+    cell_entity = db.Column(
+        db.Text(),
+        doc='The type of single cell entity'
     )
     genomic_files = association_proxy(
         'biospecimen_genomic_files', 'genomic_file',

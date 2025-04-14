@@ -363,7 +363,8 @@ class ModelTest(FlaskTestCase):
             'dbgap_consent_code': 'phs00000.c1',
             'preservation_method': 'Frozen',
             'specimen_status': 'Not Available',
-            'has_matched_normal_sample': True
+            'has_matched_normal_sample': True,
+            'cell_entity': 'whole cell'
         }
         return body
 
