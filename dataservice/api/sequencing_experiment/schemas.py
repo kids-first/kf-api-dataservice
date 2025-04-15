@@ -117,20 +117,20 @@ class SequencingExperimentSchema(BaseSchema):
     experiment_date = field_for(SequencingExperiment, 'experiment_date',
                                 field_class=DateOrDatetime)
     umi_barcode_offset = field_for(SequencingExperiment, 'umi_barcode_offset',
-                                   fvalidate=validate_positive_number)
+                                   validate=validate_positive_number)
     umi_barcode_size = field_for(SequencingExperiment, 'umi_barcode_size',
-                                 fvalidate=validate_positive_number)
+                                 validate=validate_positive_number)
     cell_barcode_offset = field_for(SequencingExperiment,
                                     'cell_barcode_offset',
-                                    fvalidate=validate_positive_number)
+                                    validate=validate_positive_number)
     cell_barcode_size = field_for(SequencingExperiment, 'cell_barcode_size',
-                                  fvalidate=validate_positive_number)
+                                  validate=validate_positive_number)
     cdna_read_offset = field_for(SequencingExperiment, 'cdna_read_offset',
-                                 fvalidate=validate_positive_number)
+                                 validate=validate_positive_number)
     target_cell_number = field_for(SequencingExperiment, 'target_cell_number',
-                                   fvalidate=validate_positive_number)
+                                   validate=validate_positive_number)
     fraction_number = field_for(SequencingExperiment, 'fraction_number',
-                                fvalidate=validate_positive_number)
+                                validate=validate_positive_number)
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),
