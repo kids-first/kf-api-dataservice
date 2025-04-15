@@ -30,7 +30,9 @@ PLATFORM_ENUM = {'DNBSEQ', 'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Illumina Infinium HumanMethylationEPICv2',
                  'Illumina Infinium HumanMethylation27k',
                  'Roche NimbleGen MethylationSeq',
-                 'Agilent SurePrint Methyl-Seq'}
+                 'Agilent SurePrint Methyl-Seq',
+                 'Orbitrap Fusion Lumos',
+                 'Q Exactive HF','Triple TOF 6600'}
 
 LIBRARY_STRAND_ENUM = {'Stranded', 'Unstranded', 'First Stranded',
                        'Second Stranded', 'Other'}
