@@ -329,7 +329,20 @@
         { "library_strand": "test" },
         { "library_selection": "selection" },
         { "library_prep": "prep" },
-        { "read_pair_number": "foo" }
+        { "read_pair_number": "foo" },
+        { "sequencing_mode": "test"},
+        { "end_bias": "test"},
+        { "umi_barcode_read": "test"},
+        { "cell_barcode_read": "test"},
+        { "cdna_read": "test"},
+        { "acquisition_type": "test"},
+        { "umi_barcode_offset": -12 },
+        { "umi_barcode_size": -12 },
+        { "cell_barcode_offset": -12 },
+        { "cell_barcode_size": -12 },
+        { "cdna_read_offset": -12 },
+        { "target_cell_number": -12 },
+        { "fraction_number": -12 }
       ]
     },
     "/genomic-files": {
