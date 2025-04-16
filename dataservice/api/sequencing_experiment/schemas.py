@@ -30,7 +30,10 @@ PLATFORM_ENUM = {'DNBSEQ', 'Illumina', 'SOLiD', 'LS454', 'Ion Torrent',
                  'Illumina Infinium HumanMethylationEPICv2',
                  'Illumina Infinium HumanMethylation27k',
                  'Roche NimbleGen MethylationSeq',
-                 'Agilent SurePrint Methyl-Seq'}
+                 'Agilent SurePrint Methyl-Seq',
+                 'Orbitrap Fusion Lumos',
+                 'Q Exactive HF',
+                 'Triple TOF 6600'}
 
 LIBRARY_STRAND_ENUM = {'Stranded', 'Unstranded', 'First Stranded',
                        'Second Stranded', 'Other'}
@@ -42,6 +45,10 @@ LIBRARY_SELECTION_ENUM = {'Hybrid Selection', 'PCR', 'Affinity Enrichment',
 LIBRARY_PREP_ENUM = {'polyA', 'totalRNAseq', 'Other'}
 
 READ_PAIR_NUMBER = {'R1', 'R2', 'Not Applicable'}
+READ_ENUM = {'index1', 'index2', 'read1', 'read2', 'Not Applicable'}
+SEQUENCING_MODE = {'CLR', 'CCS', 'Not Applicable'}
+END_BIAS = {'3-end', '5-end', 'full-length', 'Not Applicable'}
+ACQUISITION_TYPE = {'DDA', 'DIA'}
 
 
 class SequencingExperimentSchema(BaseSchema):
@@ -70,6 +77,25 @@ class SequencingExperimentSchema(BaseSchema):
                                  validate=enum_validation_generator(
                                      READ_PAIR_NUMBER))
 
+    sequencing_mode = field_for(SequencingExperiment, 'sequencing_mode',
+                                validate=enum_validation_generator(
+                                     SEQUENCING_MODE))
+    end_bias = field_for(SequencingExperiment, 'end_bias',
+                         validate=enum_validation_generator(
+                             END_BIAS))
+    umi_barcode_read = field_for(SequencingExperiment, 'umi_barcode_read',
+                                 validate=enum_validation_generator(
+                                     READ_ENUM))
+    cell_barcode_read = field_for(SequencingExperiment, 'cell_barcode_read',
+                                  validate=enum_validation_generator(
+                                     READ_ENUM))
+    cdna_read = field_for(SequencingExperiment, 'cdna_read',
+                          validate=enum_validation_generator(
+                                     READ_ENUM))
+    acquisition_type = field_for(SequencingExperiment, 'acquisition_type',
+                                 validate=enum_validation_generator(
+                                     ACQUISITION_TYPE))
+
     class Meta(BaseSchema.Meta):
         resource_url = 'api.sequencing_experiments'
         collection_url = 'api.sequencing_experiments_list'
@@ -90,6 +116,21 @@ class SequencingExperimentSchema(BaseSchema):
                                  validate=validate_positive_number)
     experiment_date = field_for(SequencingExperiment, 'experiment_date',
                                 field_class=DateOrDatetime)
+    umi_barcode_offset = field_for(SequencingExperiment, 'umi_barcode_offset',
+                                   validate=validate_positive_number)
+    umi_barcode_size = field_for(SequencingExperiment, 'umi_barcode_size',
+                                 validate=validate_positive_number)
+    cell_barcode_offset = field_for(SequencingExperiment,
+                                    'cell_barcode_offset',
+                                    validate=validate_positive_number)
+    cell_barcode_size = field_for(SequencingExperiment, 'cell_barcode_size',
+                                  validate=validate_positive_number)
+    cdna_read_offset = field_for(SequencingExperiment, 'cdna_read_offset',
+                                 validate=validate_positive_number)
+    target_cell_number = field_for(SequencingExperiment, 'target_cell_number',
+                                   validate=validate_positive_number)
+    fraction_number = field_for(SequencingExperiment, 'fraction_number',
+                                validate=validate_positive_number)
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor(Meta.resource_url, kf_id='<kf_id>'),

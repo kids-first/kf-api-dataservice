@@ -61,6 +61,7 @@
       "specimen_status": "Not Available",
       "preservation_method": "Fresh",
       "has_matched_normal_sample": true,
+      "cell_entity": "whole cell",
       "visible": true
     },
     "/samples": {
@@ -114,8 +115,31 @@
       "library_prep": "polyA",
       "is_paired_end": false,
       "platform": "Illumina",
-      "read_pair_number": "R1"
-    },
+      "read_pair_number": "R1",
+      "sequencing_mode": "CLR",
+      "end_bias": "3-end",
+      "library_construction": "10X V3",
+      "umi_barcode_read": "index1",
+      "umi_barcode_offset": 16,
+      "umi_barcode_size": 10,
+      "cell_barcode_read": "index2",
+      "cell_barcode_offset": 0,
+      "cell_barcode_size": 16,
+      "cdna_read": "read1",
+      "cdna_read_offset": 1,
+      "target_cell_number": 100,
+      "proteomics_experiment": "Ubiquitylome",
+      "mass_spec_rawfile_conversion": "msconvert 3.0.9490",
+      "acquisition_type": "DDA",
+      "ion_fragmentation": "MS2",
+      "enrichment_approach": "Fe3+ NTA agarose",
+      "quantification_technique": "Isobaric labeling",
+      "quantification_labeling_method": "11-plex TMT",
+      "quantification_label_id": "127N",
+      "chromatography_approach": "C18",
+      "fractionation_approach": "reverse-phase HPLC",
+      "fraction_number": 24
+},
     "/genomic-files": {
       "external_id": "GenomicFile_0",
       "file_name": "hg38.fq",
@@ -231,7 +255,8 @@
         "analyte_type": "Virtual",
         "method_of_sample_procurement": "Autopsy",
         "preservation_method": "Frozen",
-        "specimen_status": "Not Available"
+        "specimen_status": "Not Available",
+        "cell_entity": "whole cell"
       },
       "invalid": [
         { "age_at_event_days": -1, "shipment_date": "hai der" },
@@ -304,7 +329,20 @@
         { "library_strand": "test" },
         { "library_selection": "selection" },
         { "library_prep": "prep" },
-        { "read_pair_number": "foo" }
+        { "read_pair_number": "foo" },
+        { "sequencing_mode": "test"},
+        { "end_bias": "test"},
+        { "umi_barcode_read": "test"},
+        { "cell_barcode_read": "test"},
+        { "cdna_read": "test"},
+        { "acquisition_type": "test"},
+        { "umi_barcode_offset": -12 },
+        { "umi_barcode_size": -12 },
+        { "cell_barcode_offset": -12 },
+        { "cell_barcode_size": -12 },
+        { "cdna_read_offset": -12 },
+        { "target_cell_number": -12 },
+        { "fraction_number": -12 }
       ]
     },
     "/genomic-files": {

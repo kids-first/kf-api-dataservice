@@ -61,7 +61,8 @@ class BiospecimenTest(IndexdTestCase):
             'sequencing_center_id': kwargs.get('sequencing_center_id'),
             'preservation_method': 'Fresh',
             'specimen_status': 'Not Available',
-            'has_matched_normal_sample': True
+            'has_matched_normal_sample': True,
+            'cell_entity': 'whole cell'
         }
         # Send post request
         response = self.client.post(url_for(BIOSPECIMENS_LIST_URL),
