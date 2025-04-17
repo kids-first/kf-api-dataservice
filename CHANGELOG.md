@@ -21,7 +21,8 @@
 
 ### New features and changes
 
-- [#700](https://github.com/kids-first/kf-api-dataservice/pull/700) - ➕ add new datatype enums - [53fe63cd](https://github.com/kids-first/kf-api-dataservice/commit/53fe63cd424888b006a8b1b61bfb6ac08df230a4) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+- [#700](https://github.com/kids-first/kf-api-dataservice/pull/700) - ➕ add new datatype enums - [53fe63cd](https://github.com/kids-first/kf-api-dataservice/commit/53fe63cd424888b006a8b1b61bfb6ac08df230a4) by [awarkow](https://github.com/awarkow)
+
 
 ## Release 1.35.1
 
