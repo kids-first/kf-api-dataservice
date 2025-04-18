@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.35.3
+
+### Summary
+
+- Emojis: ✨ x1
+- Categories: Additions x1
+
+### New features and changes
+
+- [#703](https://github.com/kids-first/kf-api-dataservice/pull/703) - ✨ Add new fields - [1b90367](https://github.com/kids-first/kf-api-dataservice/commit/1b903674301cb611393169f60cdb2387629b6c35) by [HuangXiaoyan0106](https://github.com/HuangXiaoyan0106)
+
+
 ## Release 1.35.2
 
 ### Summary
