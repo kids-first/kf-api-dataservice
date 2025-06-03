@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.36.0
+
+### Summary
+
+- Emojis: 🐛 x1
+- Categories: Fixes x1
+
+### New features and changes
+
+- [#705](https://github.com/kids-first/kf-api-dataservice/pull/705) - 🐛 Add missing migration for new seq exp and biospec fields - [d458d7ec](https://github.com/kids-first/kf-api-dataservice/commit/d458d7ec5200fb64f931197cab52b8f2cfeab672) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.35.3
 
 ### Summary
