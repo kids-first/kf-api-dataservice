@@ -1,3 +1,4 @@
+from ast import Index
 from marshmallow_sqlalchemy import field_for
 from marshmallow import (
     fields,
@@ -182,6 +183,18 @@ DATA_TYPE_ENUM = {
     "Expression Counts",
     "STAR Cell Ranger Counts",
     "Single Cell QC Metrics",
+
+    # ICA Processing Data Types
+    "Raw Family Copy Number Variants",
+    "Raw Family Copy Number Variants Index",
+    "Raw Family Structural Variants",
+    "Raw Family Structural Variants Index",
+    "Raw Germline Copy Number Structural Variants",
+    "Raw Germline Copy Number Structural Variants Index",
+    "Raw Germline Copy Number Variants",
+    "Raw Germline Copy Number Variants Index",
+    "Raw Germline Structural Variants",
+    "Raw Germline Structural Variants Index",
 }
 
 PAIRED_END_ENUM = {1, 2}
