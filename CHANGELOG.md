@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.36.1
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#708](https://github.com/kids-first/kf-api-dataservice/pull/708) -  Add new data types for ICA processing - [f63adfef](https://github.com/kids-first/kf-api-dataservice/commit/f63adfefc3c16409e7cad35ae27b35cae0a4db70) by [awarkow](https://github.com/awarkow)
+
+
 ## Release 1.36.0
 
 ### Summary
