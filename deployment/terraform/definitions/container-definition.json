@@ -1,0 +1,37 @@
+[
+  {
+    "name": "${application}-${environment}-container",
+    "image": "${image}",
+    "cpu": ${vcpu_container},
+    "memory": ${memory_container},
+    "essential": true,
+    "environment" : [
+      { "name" : "ENTRYPOINT_COMMAND", "value" : "${entrypoint_command}" },
+      { "name" : "S3_SECRETS_BUCKET_PREFIX", "value" : "${s3_secrets_bucket_prefix}" }
+
+    ],
+    "portMappings": [
+      {
+        "containerPort": ${container_port},
+        "hostPort": ${container_port},
+        "protocol": "tcp"
+      }
+
+    ]
+    ,"logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+            "awslogs-group": "${log_group_name}",
+            "awslogs-region": "${region}",
+            "awslogs-stream-prefix": "${log_group_name}"
+        }
+    },
+    "ulimits": [
+      {
+        "softLimit": 1024000,
+        "hardLimit": 1024000,
+        "name": "nofile"
+      }
+    ]
+  }
+]

@@ -1,59 +1,73 @@
-name: Build and Publish Image
+name: Deployment 
 
 on:
   push:
     branches:
-      - "master"
-  release:
-    types: [published]
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'main'
+  workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
-  attestations: write
   id-token: write
+  issues: write
 
 jobs:
-  build-publish-prd-image:
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'release' }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: "Build and Publish"
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/kids-first/kf-api-dataservice/kf-api-dataservice:${{ github.ref_name }}
-  build-publish-dev-image:
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-      - name: Force fetch tag info
-        run: |
-          git fetch --prune --unshallow --tags
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set git tag and SHA
-        run: |
-          VERSION=$(git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 1-7)
-          SHORT_SHA=${GITHUB_SHA:0:7}
-          TAG="${VERSION}-${SHORT_SHA}"
-          echo "TAG=${TAG}" >> $GITHUB_ENV
-      - name: "Build and Publish"
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/kids-first/kf-api-dataservice/kf-api-dataservice:dev-release-${{ env.TAG }}
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        account: [kf-strides]
+        region: [us-east-1]
+    uses: ./.github/workflows/build.yml
+    with:
+      REGION: ${{ matrix.region }}
+      ACCOUNT: ${{ matrix.account }}
+      RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
+    secrets: inherit
+  deploy-dev:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev]
+        account: [kf-strides]
+        region: [us-east-1]
+    uses: ./.github/workflows/cicd_base.yml
+    with:
+      ENVIRONMENT: ${{ matrix.environment }}
+      REGION: ${{ matrix.region }}
+      ACCOUNT: ${{ matrix.account }}
+      RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
+    secrets: inherit
+  deploy-qa:
+    needs: [build,deploy-dev]
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [qa]
+        account: [kf-strides]
+        region: [us-east-1]
+    uses: ./.github/workflows/cicd_base.yml
+    with:
+      ENVIRONMENT: ${{ matrix.environment }}
+      REGION: ${{ matrix.region }}
+      ACCOUNT: ${{ matrix.account }}
+      RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
+    secrets: inherit
+  deploy-prd:
+    needs: [build,deploy-qa]
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [prd]
+        account: [kf-strides]
+        region: [us-east-1]
+    uses: ./.github/workflows/cicd_base.yml
+    with:
+      ENVIRONMENT: ${{ matrix.environment }}
+      REGION: ${{ matrix.region }}
+      ACCOUNT: ${{ matrix.account }}
+      RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
+    secrets: inherit

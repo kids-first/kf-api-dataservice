@@ -1,0 +1,14 @@
+organization="kf-strides"
+application="kf-api-dataservice"
+internal_alb=false
+azs=["a","b"]
+domain_external="kf-strides.org"
+domain_internal="kf-strides.org"
+chop_cidr=["10.10.0.0/16"]
+vpc_prefix="apps"
+subnet_prefix="apps"
+environment="dev" 
+vcpu_container="2048"
+memory_container="4096"
+memory_task="4096"
+vcpu_task="2048"

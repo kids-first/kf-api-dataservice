@@ -1,0 +1,51 @@
+name: CI/CD Base Deployment
+
+on:
+  workflow_call:
+    inputs:
+      REGION:
+        required: true
+        type: string
+      ACCOUNT:
+        required: true
+        type: string
+      RUNNER:
+        required: true
+        type: string
+      plan_dir:
+        required: false
+        default: ''
+        type: string
+        description: Directory of Terraform plans if directory structure is unique
+      approvers:
+        required: false
+        type: string
+        default: ${{ github.actor }}
+
+
+jobs:
+  build:
+    name: Build a container
+    runs-on: ${{ inputs.RUNNER }}-linux-large
+    env:
+        REGION: "${{ inputs.REGION }}"
+        ACCOUNT: "${{ inputs.ACCOUNT }}"
+    steps:
+        - name: GitHub Auth 
+          uses: mobiledevops/secret-to-file-action@v1
+          with:
+              base64-encoded-secret: "${{ secrets.D3B_ID_RSA }}"
+              filename: "id_rsa"
+              is-executable: false 
+              working-directory: "/home/ec2-user/.ssh"
+        - name: Github Auth 
+          run: |
+            chmod 400 /home/ec2-user/.ssh/id_rsa
+            ssh-keyscan -t rsa github.com > ~/.ssh/known_hosts
+            ls -altr /home/ec2-user/.ssh/id_rsa
+            openssl pkey -in /home/ec2-user/.ssh/id_rsa -noout
+        - name: Checkout code
+          uses: actions/checkout@v3
+        - name: Build Container 
+          run: |
+            ./deployment/scripts/build
