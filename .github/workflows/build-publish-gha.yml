@@ -16,7 +16,7 @@ permissions:
 jobs:
   build-publish-prd-image:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'release' }}
+    if: github.base_ref == 'main' && github.event.pull_request.merged && contains( github.event.pull_request.labels.*.name, 'release')
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v3
