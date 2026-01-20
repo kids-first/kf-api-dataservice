@@ -429,3 +429,11 @@ variable "cache_policy" {
   default     = "CachingOptimized"
   description = "Name of the Amazon managed caching policy"
 }
+
+variable "indexd_url" {
+  description = "URL for INDEXD"
+}
+
+variable "gen3_url" {
+  description = "GEN3 URL"
+}

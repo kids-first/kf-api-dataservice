@@ -17,6 +17,8 @@ data "template_file" "task_definition" {
     vcpu_container           = var.vcpu_container
     efs_container_path       = var.efs_container_path
     create_efs               = var.create_efs
+    indexd_url               = var.indexd_url
+    gen3_url                 = var.gen3_url
   }
 }
 
