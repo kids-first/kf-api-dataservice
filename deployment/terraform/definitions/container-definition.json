@@ -6,15 +6,15 @@
     "memory": ${memory_container},
     "essential": true,
     "environment" : [
-        "INDEXD_URL": "${indexd_url}",
-        "GEN3_URL": "${gen3_url}"
+      { "INDEXD_URL": "${indexd_url}" },
+      { "GEN3_URL": "${gen3_url}" }
     ],
     "secrets" : [
       { "name" : "PG_HOST", "valueFrom" : "${secret_name}:PG_HOST::" },
-      { "name" : "PG_PORT", "valueFrom" : "${secret_name}:PG_PORT::" }, 
-      { "name" : "PG_NAME", "valueFrom" : "${secret_name}:PG_NAME::" }, 
-      { "name" : "PG_USER", "valueFrom" : "${secret_name}:PG_USER::" }, 
-      { "name" : "PG_PASS", "valueFrom" : "${secret_name}:PG_PASS::" }, 
+      { "name" : "PG_PORT", "valueFrom" : "${secret_name}:PG_PORT::" },
+      { "name" : "PG_NAME", "valueFrom" : "${secret_name}:PG_NAME::" },
+      { "name" : "PG_USER", "valueFrom" : "${secret_name}:PG_USER::" },
+      { "name" : "PG_PASS", "valueFrom" : "${secret_name}:PG_PASS::" },
       { "name" : "INDEXD_USER", "valueFrom" : "${secret_name}:INDEXD_USER::" },
       { "name" : "INDEXD_PASS", "valueFrom" : "${secret_name}:INDEXD_PASS::" }
     ],
@@ -24,9 +24,8 @@
         "hostPort": ${container_port},
         "protocol": "tcp"
       }
-
-    ]
-    ,"logConfiguration": {
+    ],
+    "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
             "awslogs-group": "${log_group_name}",

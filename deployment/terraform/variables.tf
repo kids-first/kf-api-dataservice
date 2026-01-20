@@ -51,7 +51,7 @@ variable "secrets_location" {
 
 variable "friendly_dns_name" {
   description = "Friendly-looking DNS name"
-  default     = "dataservice"
+  default     = ""
 }
 
 variable "additional_ssl_cert_domain_name" {

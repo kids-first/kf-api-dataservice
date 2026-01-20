@@ -2,15 +2,11 @@
 set -e
 
 function push_container() {
+  echo "Push Container"
   set +e
-  stderr=$(docker push "${ACCOUNT_ID}".dkr.ecr."${REGION}".amazonaws.com/${PROJECT_NAME}:"${GIT_COMMIT}")
+  #stderr=$(docker push "${ACCOUNT_ID}".dkr.ecr."${REGION}".amazonaws.com/${PROJECT_NAME}:"${GIT_COMMIT}")
+  docker push "${ACCOUNT_ID}".dkr.ecr."${REGION}".amazonaws.com/${PROJECT_NAME}:"${GIT_COMMIT}"
   set -e
-  #Check if tag already exists, skipping to push. Otherwise, SHA will change and it will cause issues in ECS.
-  if [[ $stderr == *"immutable"* ]]; then
-    echo "Tag already exists, ecr is immutable ... $stderr"
-    echo "Error encounter exiting... $stderr"
-    exit 1
-  fi
 }
 
 #Attempt to set project name based on the git repo name

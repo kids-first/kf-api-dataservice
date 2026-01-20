@@ -19,6 +19,7 @@ data "template_file" "task_definition" {
     create_efs               = var.create_efs
     indexd_url               = var.indexd_url
     gen3_url                 = var.gen3_url
+    secret_name              = aws_secretsmanager_secret.secrets.id
   }
 }
 
