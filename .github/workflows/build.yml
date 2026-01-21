@@ -1,4 +1,4 @@
-name: CI/CD Base Deployment
+name: Build Job 
 
 on:
   workflow_call:
