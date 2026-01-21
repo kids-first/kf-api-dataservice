@@ -112,7 +112,7 @@ jobs:
             done < .github/release_assets.txt
           fi
   deploy-prd:
-    needs: [build,deploy-qa]
+    needs: [build,deploy-qa,create-release]
     strategy:
       fail-fast: false
       matrix:
