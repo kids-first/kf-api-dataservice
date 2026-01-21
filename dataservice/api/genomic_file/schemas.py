@@ -209,7 +209,11 @@ WORKFLOW_TYPE_ENUM = {
     "Single-VCF-Genotyping",
     "Somatic-Mutation",
     "Tumor-Only-Mutation",
-    "10x-Single-Cell-Alignment"
+    "10x-Single-Cell-Alignment",
+
+    # DRAGEN workflow types
+    "DRAGEN_Joint_Pedigree_Calling",
+    "DRAGEN_Germline_Whole_Genome",
 }
 
 FILE_VERSION_DESCRIPTOR_ENUM = {
