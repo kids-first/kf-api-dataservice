@@ -5,7 +5,7 @@ on:
     branches:
       - 'feature/**'
       - 'bugfix/**'
-      - 'main'
+      - 'master'
   workflow_dispatch:
 
 permissions:
@@ -57,7 +57,7 @@ jobs:
       RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
     secrets: inherit
   create_release:
-    if: github.base_ref == 'main' && github.event.pull_request.merged && contains( github.event.pull_request.labels.*.name, 'release')
+    if: github.base_ref == 'master' && github.event.pull_request.merged && contains( github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
     outputs:
       tag_name: ${{ steps.find_tag_and_prepare_assets.outputs.tag }}
