@@ -111,3 +111,5 @@ ENV/
 # vim
 *.swo 
 *.swp
+.terraform*
+plan.tfplan

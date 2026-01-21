@@ -1,0 +1,101 @@
+#!/bin/bash
+set -e
+#Check for required variables
+if [[ -z "${ENVIRONMENT}" ]]; then
+  echo "Please set ENVIRONMENT variable (e.g. ENVIRONMENT=dev)"
+  exit 1
+fi
+
+if [[ -z "${REGION}" ]]; then
+  echo "Please set REGION variable (e.g. REGION='us-east-1')"
+  exit 1
+fi
+
+if [[ -z "${ACCOUNT}" ]]; then
+  echo "Please set ACCOUNT variable (e.g. ACCOUNT='kf-strides')"
+  exit 1
+fi
+
+if [[ -n "${DEBUG}" ]]; then
+  set -x
+fi
+
+function usage() {
+  echo -n \
+    "Usage: $(basename "$0") COMMAND OPTION[S]
+Execute Terraform subcommands with remote state management.
+"
+}
+
+if [[ -n "${GIT_COMMIT}" ]]; then
+  GIT_COMMIT="${GIT_COMMIT:0:7}"
+else
+  GIT_COMMIT="$(git rev-parse --short HEAD)"
+fi
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  if [[ "${1:-}" == "--help" ]]; then
+    usage
+  else
+    TERRAFORM_DIR="./deployment/terraform/"
+    echo
+    echo "Attempting to deploy application version [${GIT_COMMIT}]..."
+    echo "-----------------------------------------------------"
+    echo
+  fi
+  echo "DEPLOYING TO $ENVIRONMENT"
+  if [[ -z "${ENVIRONMENT}" ]]; then
+    echo "Please set ENVIRONMENT environmental variable(e.g dev,qa,prd)"
+    exit 1
+  fi
+
+  pushd "${TERRAFORM_DIR}"
+
+  if [[ -f "./assume_role.txt" ]] && [[ -z RUN_LOCALLY ]]; then
+    aws_credentials=$(aws sts assume-role --role-arn $(cat "./assume_role.txt") --role-session-name AWSCLI-Session --output json)
+
+    export AWS_ACCESS_KEY_ID=$(echo $aws_credentials | jq '.Credentials.AccessKeyId' | tr -d '"')
+    export AWS_SECRET_ACCESS_KEY=$(echo $aws_credentials | jq '.Credentials.SecretAccessKey' | tr -d '"')
+    export AWS_SESSION_TOKEN=$(echo $aws_credentials | jq '.Credentials.SessionToken' | tr -d '"')
+  fi
+
+  case "$1" in
+  plan)
+    # Clear stale modules & remote state, then re-initialize
+    rm -rf .terraform terraform.tfstate*
+
+    terraform init \
+      -backend-config="${ACCOUNT}/${REGION}/${ENVIRONMENT}/backend.conf"
+
+    terraform plan \
+      -compact-warnings \
+      -var-file="${ACCOUNT}/${REGION}/${ENVIRONMENT}/variables.tfvars" \
+      -var="image_tag=${GIT_COMMIT}" \
+      -out="plan.tfplan"
+    ;;
+  plan-destroy)
+    # Clear stale modules & remote state, then re-initialize
+    rm -rf .terraform terraform.tfstate*
+
+    terraform init \
+      -backend-config="${ACCOUNT}/${REGION}/${ENVIRONMENT}/backend.conf"
+
+    terraform plan \
+      -destroy \
+      -compact-warnings \
+      -var="image_tag=${GIT_COMMIT}" \
+      -var-file="${ACCOUNT}/${REGION}/${ENVIRONMENT}/variables.tfvars" \
+      -out="plan.tfplan"
+    ;;
+  apply)
+    terraform apply "plan.tfplan"
+    echo "Apply terraform"
+    ;;
+  *)
+    echo "ERROR: I don't have support for that Terraform subcommand!"
+    exit 1
+    ;;
+  esac
+
+  popd
+fi

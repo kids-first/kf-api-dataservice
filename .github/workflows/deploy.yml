@@ -1,59 +1,124 @@
-name: Build and Publish Image
+name: Deployment 
 
 on:
   push:
-    branches:
-      - "master"
-  release:
-    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
-  attestations: write
   id-token: write
+  issues: write
 
 jobs:
-  build-publish-prd-image:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        account: [kf-strides]
+        region: [us-east-1]
+    uses: ./.github/workflows/build.yml
+    with:
+      REGION: ${{ matrix.region }}
+      ACCOUNT: ${{ matrix.account }}
+      RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
+    secrets: inherit
+  deploy-dev:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev]
+        account: [kf-strides]
+        region: [us-east-1]
+    uses: ./.github/workflows/cicd_base.yml
+    with:
+      ENVIRONMENT: ${{ matrix.environment }}
+      REGION: ${{ matrix.region }}
+      ACCOUNT: ${{ matrix.account }}
+      RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
+    secrets: inherit
+  deploy-qa:
+    needs: [build,deploy-dev]
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [qa]
+        account: [kf-strides]
+        region: [us-east-1]
+    uses: ./.github/workflows/cicd_base.yml
+    with:
+      ENVIRONMENT: ${{ matrix.environment }}
+      REGION: ${{ matrix.region }}
+      ACCOUNT: ${{ matrix.account }}
+      RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
+    secrets: inherit
+  create_release:
+    if: github.base_ref == 'master' && github.event.pull_request.merged && contains( github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'release' }}
+    outputs:
+      tag_name: ${{ steps.find_tag_and_prepare_assets.outputs.tag }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: docker/login-action@v3
+
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: "Build and Publish"
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/kids-first/kf-api-dataservice/kf-api-dataservice:${{ github.ref_name }}
-  build-publish-dev-image:
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-      - name: Force fetch tag info
+          python-version: 3.12
+
+      - name: Create tag from title and run asset script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: find_tag_and_prepare_assets
         run: |
-          git fetch --prune --unshallow --tags
-      - uses: docker/login-action@v3
+          TAG=$(echo ${{ github.event.pull_request.title }} | sed -E "s/^.*Release (.+\..+\..+)$/\1/g")
+          echo "::set-output name=tag::$TAG"
+          
+          SCRIPT=.github/prepare_assets.sh
+          if [ -f $SCRIPT ]; then 
+            chmod u+x $SCRIPT
+            $SCRIPT $TAG
+          fi
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set git tag and SHA
+          tag_name: ${{ steps.find_tag_and_prepare_assets.outputs.tag }}
+          release_name: ${{ github.event.pull_request.title }}
+          body: ${{ github.event.pull_request.body }}
+          draft: false
+          prerelease: false
+
+      - name: Add latest-release tag
         run: |
-          VERSION=$(git tag --sort=committerdate | grep -E '[0-9]' | tail -1 | cut -b 1-7)
-          SHORT_SHA=${GITHUB_SHA:0:7}
-          TAG="${VERSION}-${SHORT_SHA}"
-          echo "TAG=${TAG}" >> $GITHUB_ENV
-      - name: "Build and Publish"
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/kids-first/kf-api-dataservice/kf-api-dataservice:dev-release-${{ env.TAG }}
+          git tag -f latest-release
+          git push -f --tags
+
+      - name: Upload Assets
+        run: |
+          upload_url=${{ steps.create_release.outputs.upload_url }}
+          if [ -f .github/release_assets.txt ]; then
+            while IFS="" read -r FILE || [ -n "$FILE" ]
+            do
+              curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Content-Type: $(file -b --mime-type $FILE)" \
+                --data-binary "@$FILE" \
+                "${upload_url%\{*}?name=$(basename $FILE)"
+            done < .github/release_assets.txt
+          fi
+  deploy-prd:
+    needs: [build,deploy-qa,create_release]
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [prd]
+        account: [kf-strides]
+        region: [us-east-1]
+    uses: ./.github/workflows/cicd_base.yml
+    with:
+      ENVIRONMENT: ${{ matrix.environment }}
+      REGION: ${{ matrix.region }}
+      ACCOUNT: ${{ matrix.account }}
+      RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
+    secrets: inherit
