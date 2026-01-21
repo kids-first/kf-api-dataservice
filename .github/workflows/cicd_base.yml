@@ -105,7 +105,7 @@ jobs:
           id: manual-approval 
           uses: trstringer/manual-approval@v1
           timeout-minutes: 30
-          if: ${{ ( github.ref == 'refs/heads/main' ) && steps.any-changes.outputs.status == 'continue' }}
+          if: ${{ ( github.ref == 'refs/heads/master' ) && steps.any-changes.outputs.status == 'continue' }}
           with:
             secret: ${{ github.TOKEN }}
             approvers: ${{ inputs.approvers }}
@@ -113,7 +113,7 @@ jobs:
             issue-title: "Deploying Terraform to ${{ inputs.ENVIRONMENT }} ${{ inputs.ACCOUNT }}"
             issue-body: "Please approve or deny the deployment.\n Plan:\n Please see logs"
         - name: Execute Apply
-          if: ${{ ( github.ref == 'refs/heads/main' ) && steps.any-changes.outputs.status == 'continue' }}
+          if: ${{ ( github.ref == 'refs/heads/master' ) && steps.any-changes.outputs.status == 'continue' }}
           env:
             ACCOUNT: ${{ env.account }}
             ENVIRONMENT: ${{ env.environment }} 
