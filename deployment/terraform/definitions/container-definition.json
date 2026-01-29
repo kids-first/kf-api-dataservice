@@ -6,8 +6,8 @@
     "memory": ${memory_container},
     "essential": true,
     "environment" : [
-      { "INDEXD_URL": "${indexd_url}" },
-      { "GEN3_URL": "${gen3_url}" }
+      { "name" : "INDEXD_URL", "valueFrom" : "${indexd_url}" },
+      { "name" : "GEN3_URL", "valueFrom" : "${gen3_url}" }
     ],
     "secrets" : [
       { "name" : "PG_HOST", "valueFrom" : "${secret_name}:PG_HOST::" },
