@@ -105,7 +105,7 @@ jobs:
           id: manual-approval 
           uses: trstringer/manual-approval@v1
           timeout-minutes: 30
-          if: ${{ ( github.ref == 'refs/heads/master' ) && steps.any-changes.outputs.status == 'continue' }}
+          if: ${{ ( github.ref == 'refs/heads/master' ) && ( env.environment == 'prd' ) && steps.any-changes.outputs.status == 'continue' }}
           with:
             secret: ${{ github.TOKEN }}
             approvers: ${{ inputs.approvers }}

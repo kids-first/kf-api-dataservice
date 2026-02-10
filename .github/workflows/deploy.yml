@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
   issues: write
 
@@ -56,6 +56,7 @@ jobs:
       ACCOUNT: ${{ matrix.account }}
       RUNNER: ${{ matrix.runner == '' && matrix.account || matrix.runner }}
     secrets: inherit
+    
   create_release:
     if: github.base_ref == 'master' && github.event.pull_request.merged && contains( github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
