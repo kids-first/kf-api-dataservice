@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.39.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#733](https://github.com/kids-first/kf-api-dataservice/pull/733) -  :bug: Fix condition for create-release job to run - [15e0deab](https://github.com/kids-first/kf-api-dataservice/commit/15e0deab1e1f6d477118bd05780374a7cf1de6f6) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.38.0
 
 ### Summary
