@@ -1,5 +1,18 @@
 # Kids First DataService Change History
 
+## Release 1.38.0
+
+### Summary
+
+- Emojis: ✨ x1, ? x1
+- Categories: Additions x1, Other Changes x1
+
+### New features and changes
+
+- [#726](https://github.com/kids-first/kf-api-dataservice/pull/726) - ✨ add new workflow type - [b35d9e54](https://github.com/kids-first/kf-api-dataservice/commit/b35d9e54c71bad9fb3ad0e88aba418e16b261330) by [awarkow](https://github.com/awarkow)
+- [#723](https://github.com/kids-first/kf-api-dataservice/pull/723) -  :bug: Fix container definition - [9656f141](https://github.com/kids-first/kf-api-dataservice/commit/9656f141f6643137e541b8dd3b740f3b9a180a95) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.37.0
 
 ### Summary
