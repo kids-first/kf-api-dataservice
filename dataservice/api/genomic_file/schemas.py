@@ -214,6 +214,7 @@ WORKFLOW_TYPE_ENUM = {
     # DRAGEN workflow types
     "DRAGEN_Joint_Pedigree_Calling",
     "DRAGEN_Germline_Whole_Genome",
+    "Radiant-Annotation",
 }
 
 FILE_VERSION_DESCRIPTOR_ENUM = {
