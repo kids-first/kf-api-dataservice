@@ -1,5 +1,18 @@
 # Kids First DataService Change History
 
+## Release 1.37.0
+
+### Summary
+
+- Emojis: ✨ x1, ? x1
+- Categories: Additions x1, Other Changes x1
+
+### New features and changes
+
+- [#715](https://github.com/kids-first/kf-api-dataservice/pull/715) - ✨ Adds new DRAGEN workflow types - [62d9b97c](https://github.com/kids-first/kf-api-dataservice/commit/62d9b97c2e66c908bc961e3c207c2c365f7dcfd3) by [awarkow](https://github.com/awarkow)
+- [#714](https://github.com/kids-first/kf-api-dataservice/pull/714) -  :wrench: Added deployment scripts - [a7c6a14b](https://github.com/kids-first/kf-api-dataservice/commit/a7c6a14b475a33c9727b12a096201d04fa5e37a9) by [alubneuski](https://github.com/alubneuski)
+
+
 ## Release 1.36.1
 
 ### Summary
