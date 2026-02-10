@@ -1,4 +1,4 @@
-name: CI/CD Base Deployment
+name: 🧱 CI/CD Base Deployment
 
 on:
   workflow_call:
