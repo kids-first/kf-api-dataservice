@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.40.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#744](https://github.com/kids-first/kf-api-dataservice/pull/744) -  :bug: Allow create a gh release - [e810c27b](https://github.com/kids-first/kf-api-dataservice/commit/e810c27b10b6e5f8f22cefcee6ea53cae1c3f421) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.39.0
 
 ### Summary
