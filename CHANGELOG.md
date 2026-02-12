@@ -1,5 +1,17 @@
 # Kids First DataService Change History
 
+## Release 1.41.0
+
+### Summary
+
+- Emojis: ? x1
+- Categories: Other Changes x1
+
+### New features and changes
+
+- [#747](https://github.com/kids-first/kf-api-dataservice/pull/747) -  :bug: Fix environment variables in container - [91200aa2](https://github.com/kids-first/kf-api-dataservice/commit/91200aa2bc1eef201c1bdecf9ac62fa97fb73c94) by [znatty22](https://github.com/znatty22)
+
+
 ## Release 1.40.0
 
 ### Summary
